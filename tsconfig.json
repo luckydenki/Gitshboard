@@ -20,6 +20,7 @@
     "verbatimModuleSyntax": true,
     "noEmit": true,
     "resolveJsonModule": true,
+    "isolatedModules": true, // Vite 호환 설정 
     "skipLibCheck": true,
     "strict": true
   }
