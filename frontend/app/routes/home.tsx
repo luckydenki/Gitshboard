@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+import { redirect, useNavigate } from "react-router";
 import type { Route } from "./+types/home";
 import { Github } from "~/icons/Github";
 import type { StrictGithubOAuthParams } from "~/type/GithubOAuth";
@@ -41,10 +41,10 @@ export default function Home() {
   const [loginCheckState, setLoginCheckState] = useState(false);
   const ID =  import.meta.env.VITE_GITHUB_CLIENT_ID;
   const URL = import.meta.env.VITE_GITHUB_CALLBACK_URL;
+  const navigate = useNavigate();
   console.log("ID, URL " ,ID, URL);
 
-
-
+  
   useEffect(()=>{
     const checkRoute = async()=>{
       try{
@@ -54,7 +54,6 @@ export default function Home() {
         
          if(res.ok){
             const data = await res.json();
-            setLoginCheckState(true);
             console.log("Auth route response:", data);
          }
         
@@ -74,16 +73,19 @@ export default function Home() {
 
          if(res.ok){
             const data : CommonResponse = await res.json();
-            setLoginCheckState(true);
             console.log("Login check response:", data);
+            if('success' in data && data.success){
+              navigate('/dashboard');
+            }
          }
       }
       catch(error : unknown){
         console.error("Error : Token verification error", error);
+        setLoginCheckState(true);
       }
     } 
 
-    //checkLogin();
+    checkLogin();
 
   }, [])
  
