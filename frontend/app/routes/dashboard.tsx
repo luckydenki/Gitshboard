@@ -1,7 +1,38 @@
+import { useEffect } from "react"
 
 
 
 export default function Dashboard(){
+
+    useEffect(()=>{
+
+        const fetchUserData = async()=>{
+
+            try{
+                const res = await fetch("http://localhost:3000/api/users",
+                    {
+                        method : 'GET',
+                        credentials : 'include'
+                    }
+                )
+
+                if(res.ok){
+                    const data = await res.json();
+                    console.log("User data response:", data);
+                }
+                else{
+                    throw new Error("Failed to fetch user data");
+                }
+            }catch(error){
+                console.error("Error : Fetch user data error", error);
+            }
+        }
+
+        fetchUserData();
+
+    }, []);
+
+
 
     return (
         <div>
