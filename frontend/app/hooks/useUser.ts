@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 
 
-export default function useGithubUser() : { userDataState: GithubUser | null; isLoading: boolean }{
+export default function useGithubUser() : { userDataState: GithubUser | null; isLoading: boolean, isError : boolean }{
     const [userDataState, setUserDataState] = useState<GithubUser | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isError, setIsError] = useState<boolean>(false);
 
     useEffect(()=>{
             const fetchUserData = async()=>{
@@ -25,11 +26,11 @@ export default function useGithubUser() : { userDataState: GithubUser | null; is
                     }
                 }catch(error){
                     console.error("Error : Fetch user data error", error);
-                    setIsLoading(false);
+                    setIsError(true);
                 }
             }
             fetchUserData();
         }, []);
 
-    return { userDataState, isLoading };
+    return { userDataState, isLoading, isError };
 }
