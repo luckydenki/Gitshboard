@@ -20,7 +20,7 @@ export default function useGithub<T>(api_url: string) : { githubDataState: T | n
     useEffect(()=>{
             const fetchUserData = async()=>{
                 try{
-                    const res = await fetch(api_url,
+                    const res = await fetch(`http://localhost:3000${api_url}`,
                         {
                             method : 'GET',
                             credentials : 'include'
