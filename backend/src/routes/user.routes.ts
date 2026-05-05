@@ -13,7 +13,7 @@ user_router.get('/health', (req, res)=>{
 })
 
 
-// api/user
+// api/users
 user_router.get('/', authToken, authUser, async (req: AuthRequest, res) => {
 
   const user = req.user!; //authUser 미들웨어에서 인증된 사용자 정보를 요청 객체에 추가했으므로 req.user는 항상 존재한다고 가정할 수 있음
@@ -54,11 +54,9 @@ user_router.get('/', authToken, authUser, async (req: AuthRequest, res) => {
 });
 
 
-// api/user/repos
+// api/users/repos
 user_router.get('/repos', authToken, authUser, async(req : AuthRequest, res)=>{
     const user = req.user!;
-    res.json({ user });
-
     const username = user.githubUsername;
     const accessToken  = user.githubAccessToken;
 
@@ -68,6 +66,9 @@ user_router.get('/repos', authToken, authUser, async(req : AuthRequest, res)=>{
                 'Authorization' : `token ${accessToken}`
             }
         });
+
+        console.log("GitHub API response status:", github_response.status);
+
         if(github_response.ok){
             const github_repos = await github_response.json();
             res.status(200).json({ repos : github_repos });
