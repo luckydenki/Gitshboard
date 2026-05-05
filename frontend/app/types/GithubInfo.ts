@@ -46,6 +46,8 @@ export interface GithubUser{
  * - description : 저장소 설명 (null 가능)
  * - fork : 저장소가 포크인지 여부 (true: 포크, false: 원본)
  * - url : 저장소 API URL
+ * - language : 저장소 주요 프로그래밍 언어 (null 가능)
+ * - watchers : 저장소 감시자 수
  * 
  * 이 인터페이스는 GitHub API에서 반환되는 저장소 정보를 기반으로 정의되었습니다.
  * 
@@ -61,4 +63,7 @@ export interface GithubRepo{
     description : string | null;
     fork : boolean;
     url : string;
+    language : string | null;
+    watchers : number;
+
 }
