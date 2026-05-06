@@ -39,7 +39,7 @@ export default function RepositoryList(){
             <h2 className="text-xl font-semibold mb-4">Your Repositories</h2>
             {githubDataState?.repos.map(repo => {
                 return(
-                    <a key={repo.id} href={repo.html_url}  target="_blank" rel="noopener noreferrer" className="flex flex-col bg-gray-700 border border-gray-800 rounded-lg p-4 mb-3 text-gray-50 hover:scale-105 transition-transform">
+                    <a key={repo.id} href={repo.html_url}  target="_blank" rel="noopener noreferrer" className="flex flex-col bg-gray-800 border border-gray-800 rounded-lg p-4 mb-3 text-gray-50 hover:scale-105 transition-transform">
                         <div className="text-lg font-bold hover:underline">
                             {repo.name}
                         </div>
