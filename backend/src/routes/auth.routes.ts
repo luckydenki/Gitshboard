@@ -1,56 +1,27 @@
-import Routes, { CookieOptions, Router } from 'express';
+import { CookieOptions, Router } from 'express';
 import jwt from 'jsonwebtoken';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { AuthRequest} from '../types/middlewares/auth';
+import {authToken, authUser} from '../middlewares/auth.middleware';
 
 const prisma = new PrismaClient();
 
 const auth_router = Router();
 
 // api/auth
-auth_router.get('/', (req, res)=>{
+auth_router.get('/health', (req, res)=>{
     res.json({ message: 'Auth route is working!' });
 })
 
 
-
 //  api/auth/check
-auth_router.get('/check', async(req, res)=>{
-    
-    console.log("Received request to check authentication status");
-
-    const token = req.cookies.app_token;
-    console.log("Received token from cookies:", req.cookies);
-
-    if(!token){
-        return res.status(401).json({ error : '인증 토큰이 없습니다.' });
-    }
-
-    try{
-        //토큰 디코딩
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-
-        //디코딩된 토큰에서 사용자 정보 추출
-        const { userId, githubId } = decoded as { userId : number, githubId : number };
-        //DB에서 사용자 정보 조회
-        const user = await prisma.user.findUnique({
-            where : {
-                id : userId,
-                githubId : githubId,
-            }
-        });
-
-        if(!user){
-            return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
-        }
-       
-        res.status(200).json({
-            success : true
-        })
-
-    }catch(error){
-        console.error("Error : Token verification error", error);
-        return res.status(401).json({ error : '유효하지 않은 토큰입니다.' });
-    }
+auth_router.get('/check', authToken, authUser, async(req: AuthRequest, res)=>{
+   const user = req.user!;
+   
+   res.json({ 
+    success : true,
+    message : '인증된 사용자입니다.',
+   });
 })
 
 // api/auth/github
@@ -150,7 +121,7 @@ auth_router.post('/github', async (req, res)=>{
                 httpOnly : true,        //http only 활성화
                 secure : false,         //https에서만 쿠키 전송, 다만 개발환경에서는 false로 설정
                 sameSite : 'strict',    //CSRF 공격 방지
-                maxAge : 3600000, //1시간
+                maxAge : 7200000,       //2시간
             }
             res.cookie('app_token', appToken, cookieOptions);
     
@@ -171,7 +142,7 @@ auth_router.post('/github', async (req, res)=>{
 
 
 auth_router.use((req, res) =>{
-    res.status(404).json({ error: 'Not Found zzz' });
+    res.status(404).json({ error: 'Not Found' });
 })
 
 export default auth_router;
