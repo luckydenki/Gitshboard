@@ -1,10 +1,9 @@
 import useGithub from "~/hooks/useGithub";
 import type { GithubRepositoryResponse } from "~/types/GithubInfo";
-import type { useGithubResult } from "~/types/hooks/useGithub";
 
 
-export default function RepositoryList(){
-    const { githubDataState, isLoading, isError } = useGithub<GithubRepositoryResponse>("/api/users/repos") as useGithubResult<GithubRepositoryResponse>;
+export default function RepositoryList({githubDataState, isLoading, isError} : {githubDataState : GithubRepositoryResponse, isLoading : boolean, isError : boolean}){
+    // const { githubDataState, isLoading, isError } = useGithub<GithubRepositoryResponse>("/api/users/repos") as useGithubResult<GithubRepositoryResponse>;
 
     if(isLoading){
         return <section>

@@ -68,6 +68,11 @@ export interface GithubRepo{
 
 }
 
+
+export interface GithubUserResponse{
+    user : GithubUser;
+}
+
 export interface GithubRepositoryResponse{
     repos : GithubRepo[];
 }

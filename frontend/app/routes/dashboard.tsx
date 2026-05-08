@@ -2,13 +2,20 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router";
 import { Loading } from "~/components/common/Loading";
 import RepositoryList from "~/components/RepositoryList";
+import useFetchAll from "~/hooks/useFetchAll";
 import useGithubUser from "~/hooks/useUser";
 import { Github } from "~/icons/Github";
-import type { GithubUser } from "~/types/GithubInfo";
+import type { GithubRepositoryResponse, GithubUserResponse } from "~/types/GithubInfo";
 
 
 export default function Dashboard(){
-    const { userDataState, isLoading, isError } = useGithubUser() as { userDataState: GithubUser; isLoading: boolean, isError: boolean };//userDataState는 null이 될 수 없도록 단언합니다. isLoading이 true인 동안은 이 컴포넌트가 렌더링되지 않기 때문에 안전합니다.
+    //const { userDataState, isLoading, isError } = useGithubUser() as { userDataState: GithubUser; isLoading: boolean, isError: boolean };//userDataState는 null이 될 수 없도록 단언합니다. isLoading이 true인 동안은 이 컴포넌트가 렌더링되지 않기 때문에 안전합니다.
+
+    const {dataState, isLoading, isError} = useFetchAll<[GithubUserResponse, GithubRepositoryResponse]>({
+        method : 'GET',
+        credentials : 'include'
+    }, "api/users", "api/users/repos") 
+
 
     const navigate = useNavigate();
     
@@ -18,12 +25,17 @@ export default function Dashboard(){
         }
     }, [isError, navigate]);
 
-
+    console.log("Dashboard loading state:", isLoading, isError);
     if (isLoading) {
         return (
             <Loading/>
         );
     }
+
+    console.log("Dashboard dataState:", dataState);
+    const userDataState = dataState![0].user;
+    const reposDataState = dataState![1];
+
 
     return (
         <div className="min-h-screen">
@@ -152,7 +164,7 @@ export default function Dashboard(){
                         </div>
                     </div>
                     {/* Repository List */}
-                    <RepositoryList/>
+                    <RepositoryList githubDataState={reposDataState} isLoading={isLoading} isError={isError} />
                 </main>
             </div>
         </div>
