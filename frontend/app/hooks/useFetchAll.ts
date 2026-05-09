@@ -3,7 +3,7 @@ import useFetchStore from "~/stores/fetchStore";
 
 
 
-export default function useFetchAll<T extends any[]>( config? : RequestInit, ...api_url : string[]) : 
+export default function useFetchAll<T extends any[]>( config? : RequestInit, staleTime? : number, ...api_url : string[]) : 
 { dataState : T | null, isLoading : boolean, isError : boolean}{
 
     const [dataState, setDataState] = useState<T | null>(null);
@@ -41,7 +41,9 @@ export default function useFetchAll<T extends any[]>( config? : RequestInit, ...
 
                 const data = await Promise.all(req);
                  data.forEach((item, index)=>{
-                     setFetchMap(api_url[index], item, 1 * 10 * 1000);
+                     setFetchMap(api_url[index], item, staleTime ?? 0); 
+                     //staleTime이 undefined인 경우, 즉 캐싱을 원하지 않는 경우에는 0으로 설정하여 
+                     //항상 새로 데이터를 가져오도록 함.
                  })
  
                 console.log("Fetched data:", data);

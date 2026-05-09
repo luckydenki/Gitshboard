@@ -12,7 +12,7 @@ export default function Dashboard(){
     const {dataState, isLoading, isError} = useFetchAll<[GithubUserResponse, GithubRepositoryResponse]>({
         method : 'GET',
         credentials : 'include'
-    }, "api/users", "api/users/repos") 
+    }, 5 * 60 * 1000, "api/users", "api/users/repos") 
     const navigate = useNavigate();
 
     const render_time = useRenderingTimer("Dashboard", isLoading);
@@ -25,7 +25,6 @@ export default function Dashboard(){
     }, [isError, navigate]);
 
 
-    //console.log("Dashboard loading state:", isLoading, isError);
     if (isLoading) {
         return (
             <Loading/>
