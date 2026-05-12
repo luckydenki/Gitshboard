@@ -6,6 +6,9 @@ import useFetchAll from "~/hooks/useFetchAll";
 import { Github } from "~/icons/Github";
 import type { GithubRepositoryResponse, GithubUserResponse } from "~/types/GithubInfo";
 import useRenderingTimer from "~/hooks/dev/useRenderingTimer";
+import simpleFetcher from "~/utils/simpleFetcher";
+import { fetchFactory } from "~/utils/simpleFetcherFactory";
+import { HTTPCredentials } from "~/types/utils/simpleFetcher/simpleFetcher";
 
 
 export default function Dashboard(){
@@ -16,8 +19,44 @@ export default function Dashboard(){
     const navigate = useNavigate();
 
     const render_time = useRenderingTimer("Dashboard", isLoading);
-    
-    
+    const [testState, setTestState] = useState<GithubUserResponse>({} as GithubUserResponse); 
+    const fetcherRef = useRef(fetchFactory("http://localhost:3000/", undefined, HTTPCredentials.INCLUDE));
+
+
+    useEffect(()=>{
+        
+        const testFetch = async()=>{
+            
+            try{
+                const fetcher = fetcherRef.current;
+                const data2 = fetcher.get<GithubUserResponse>("api/users").then((data)=>{
+                    console.log("Data from fetch factory:", data);
+                }).catch((error)=>{
+                    console.error("Error in fetch factory:", error);
+                });
+
+                console.log("Data from fetch factory (before await):", data2);               
+
+                const data =  await simpleFetcher<GithubUserResponse>(
+                    "http://localhost:3000/api/users", 
+                    {
+                        method : 'GET',
+                        credentials : 'include'
+                    }
+                )
+                setTestState(data!);
+                console.log("Test fetch data:", data);
+            }catch(error){
+                console.error("Error in test fetch:", error);
+            }
+        }
+        
+        testFetch();
+        
+    },[])
+
+
+
     useEffect(()=>{
         if(isError){
             navigate("/");
