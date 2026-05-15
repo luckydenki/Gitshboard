@@ -1,0 +1,202 @@
+import { HTTPCredentials } from "~/types/utils/simpleFetcher/simpleFetcher"
+import type { DenchConfig, DenchGetBuilder, DenchInterface } from "~/types/utils/simpleFetcher/dench";
+import denchfetcher from "./denchfetcher";
+
+
+
+function runfetch<T>(config : DenchConfig) : Promise<Response>{
+    return denchfetcher<T>(`${config.baseURL}${config.api}`, config);
+}
+
+
+/**
+ * timeout 설정 
+ * 
+ * @param config 
+ * @param ms 
+ * @returns 
+ */
+function timeoutConfig(config : DenchConfig, ms : number) : DenchConfig {
+    return {
+        ...config,
+        timeout : ms
+    }
+}
+
+/**
+ * AbortController를 통한 abort signal 설정
+ * 
+ * 만약 해당 DechConfig 객체를 풀에 넣어 재 사용할 계획이라면 
+ * 해당 함수를 통해 다시 abort controller를 설정할 것을 권장합니다.
+ * 
+ * @param config 
+ * @param controller 
+ * @returns 
+ */
+function abortConfig(config : DenchConfig, controller : AbortController) : DenchConfig {
+    return {
+        ...config,
+        abortController: controller,
+        options : {
+            ...config.options,
+            signal : controller.signal
+        }
+    }
+}
+
+function authConfig(config: DenchConfig, token: string): DenchConfig {
+    const header = {
+        ...config.options.headers,
+        'Authorization': `Bearer ${token}`
+    }
+
+    return {
+        ...config,
+        options: {
+            ...config.options,
+            headers: header
+        }
+    }
+}
+
+function credientialsConfig(config: DenchConfig): DenchConfig {
+    return {
+        ...config,
+        options : {
+            ...config.options,
+            credentials : HTTPCredentials.INCLUDE
+        }
+    }
+}
+
+const toJson = async <T>(builder: DenchGetBuilder<T>) => {
+    return runfetch<T>(builder.config).then((res) => {
+        return res.json() as T;
+    })
+}
+
+
+const error = (params : any[])=>{
+
+}
+
+
+
+export function dench(baseURL:string) : DenchInterface{
+
+
+
+    const get = <T>(api :string) : DenchGetBuilder<T> => {
+        
+        const baseConfig : DenchConfig = {
+            baseURL,
+            api,
+            options : {
+                method : 'GET',
+            }
+        }
+
+  
+
+        const toObject = ()=>{
+            return runfetch<T>(builder.config).then((res)=>{
+                return res as unknown as T;
+            })
+        }
+
+        const toFormData = ()=>{
+            return runfetch<T>(builder.config).then((res)=>{
+                return res.formData();
+            })
+        }
+
+
+        const builder : DenchGetBuilder<T> = {
+            config : baseConfig,
+            toResponse : () => runfetch<T>(builder.config),
+            toJson :  () => toJson(builder),
+            toObject : toObject,
+            toFormData : toFormData,
+            errorCacllback : error,
+            credientials : ()=>{
+                builder.config = credientialsConfig(builder.config);
+                return { ...builder };
+            },
+            abort : (controller : AbortController) =>{
+                builder.config = abortConfig(builder.config, controller);
+                return { ...builder };
+            },
+            auth : (token:string)=>{
+                builder.config = authConfig(builder.config, token);
+                return { ...builder };
+            },
+            timeout : (ms : number) => {
+                builder.config = timeoutConfig(builder.config, ms);
+                return { ...builder };
+            }
+        }
+
+        return builder;
+    }
+
+
+
+
+    const del = <T>(api:string) : DenchGetBuilder<T> => {
+        const baseConfig : DenchConfig = {
+            baseURL,
+            api,
+            options :{
+                method : 'DELETE',
+            }       
+        }
+
+        const builder: DenchGetBuilder<T> = {
+            config: baseConfig,
+            toResponse: () => runfetch<T>(builder.config),
+            errorCacllback: error,
+            abort: (controller: AbortController) => {
+                builder.config = abortConfig(builder.config, controller);
+                return { ...builder };
+            },
+            auth: (token: string) => {
+                builder.config = authConfig(builder.config, token);
+                return { ...builder };
+            },
+             timeout: (ms: number) => {
+                builder.config = timeoutConfig(builder.config, ms);
+                return { ...builder };
+            },
+            toJson: ()=>{
+                return runfetch<T>(builder.config).then((res)=>{
+                    return res.json() as T;
+                })
+            },
+            toObject: ()=>{
+                return runfetch<T>(builder.config).then((res)=>{
+                    return res.json() as T;
+                })
+            },
+            toFormData: ()=>{
+                return runfetch<T>(builder.config).then((res)=>{
+                    return res.formData();
+                })
+            },
+            credientials: () => {
+                builder.config = credientialsConfig(builder.config);
+                return { ...builder };
+            }
+        }
+
+        return builder;
+    }
+
+
+    return {
+        baseURL,
+        get : get,
+        delete: del,
+    }
+}
+
+
