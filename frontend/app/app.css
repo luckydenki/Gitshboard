@@ -4,7 +4,7 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   
-  --color-github-light : #4183c4
+  --color-github-light : #4183c4;
 }
 
 html,
@@ -17,3 +17,92 @@ body {
   margin: 0;
   min-height: 100%;
 }
+
+/*
+  +는 x축을 기준으로 오른쪽 이동, y축을 기준으로는 아래 이동임
+  %이동은 요소의 너비를 기준으로 이동함
+  0%는 애니메이션의 초기 위치로, 강제성이 강해서 기존의 설정을 덮어씀
+  가령 요소에 translateX(100px)가 적용되었다 쳐도, keyframe은 translateX(0)으로 설정했다면
+  애니메이션이 시작될 때 translateX(0)으로 강제적으로 이동함
+*/
+@keyframes infinit-move{
+  0% { 
+    transform: translateX(0) 
+  }
+  50%{ 
+    transform: translateX(calc(-100% - 16rem))
+  }
+  50.001% { 
+    transform : translateX(calc(100% + 16rem))
+  }
+  100% { 
+    transform : translateX(0) 
+  }
+}
+
+/*
+  그런 이유로 copy 요소 또한 태그 자체에 translate를 쓰지말고 keyframe에서 초기 위치를 설정해두는 게
+  일관성 있고 예측하기 좋다.
+  
+*/
+@keyframes infinit-copy-move {
+  0% {
+    transform: translateX(calc(100% + 16rem));
+  }
+  100% {
+    transform: translateX(calc(-100% - 16rem));
+  }
+}
+
+@keyframes fall {
+  0% {
+    transform:translateX(0);
+  }
+
+  100% {
+    transform: translateX(100vw);
+
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loop-anim{
+  animation : infinit-move;
+  animation-duration : 32s;
+  animation-timing-function : linear;
+  animation-iteration-count : infinite;
+}
+
+.loop-copy-anim{
+  animation : infinit-copy-move 32s linear infinite;
+}
+
+.fall-anim{
+  animation : fall;
+  animation-duration : 2s;
+  animation-timing-function : ease-in-out;
+  animation-iteration-count : infinite;
+}
+
+.spin-anim{
+  animation : spin 24s linear infinite;
+}
+
+.star{
+  width : 5px;
+  height : 5px;
+  border-radius : 50%;
+  background : var(--color-github-light);
+  box-shadow : 0px 0px 10px purple;
+}
+
+
