@@ -11,11 +11,9 @@ export interface HeaderComponentProps{
 
 export default function Header({ userDataState }: HeaderComponentProps){
 
-
     return(
-
         <header className="sticky top-0 z-10 bg-white/80 px-6 py-4 shadow-[0_12px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:bg-gray-950/70">
-            <div className="mx-auto flex max-w-[1440px] items-center justify-between">
+            <div className="mx-auto flex max-w-360 items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="rounded-2xl bg-gray-950 p-2 shadow-lg shadow-gray-950/15 dark:bg-white">
                         <div className="invert dark:invert-0">
