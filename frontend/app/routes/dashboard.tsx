@@ -6,6 +6,8 @@ import useRenderingTimer from "~/hooks/dev/useRenderingTimer";
 import Header from "~/components/common/Header";
 import DashboardSection from "~/components/dashboard/DashboardSection";
 import useGithubUser from "~/hooks/useUser";
+import useErrorCallback from "~/hooks/useErrorCallback";
+import useFetchErrorCallback from "~/hooks/useFetchErrorCallback";
 
 
 export default function Dashboard(){
@@ -14,11 +16,9 @@ export default function Dashboard(){
     const render_time = useRenderingTimer("Dashboard", isLoading);
 
 
-    useEffect(()=>{
-        if(isError){
-            navigate("/");
-        }
-    }, [isError, navigate]);
+    useErrorCallback(isError, ()=>{
+        navigate("/");
+    })
 
 
 
