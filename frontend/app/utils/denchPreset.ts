@@ -1,6 +1,6 @@
-import type { DenchConfig, DenchInterface } from "~/types/utils/simpleFetcher/dench";
-import { HTTPCredentials } from "~/types/utils/simpleFetcher/simpleFetcher";
-
+import type { DenchConfig } from "~/types/utils/simpleFetcher/dench";
+import { HTTPCredentials } from "~/types/utils/simpleFetcher/denchEnum";
+import type { DenchPresetsOptionalParams } from "~/types/utils/simpleFetcher/denchPreset";
 
 function deepFreezeConfig(config : DenchConfig) : DenchConfig{
 
@@ -16,17 +16,9 @@ function deepFreezeConfig(config : DenchConfig) : DenchConfig{
 }
 
 
-export enum DenchDefaultPresets{
-    GET_JSON = "getJson",
-    GET_AUTH_JSON = "getAuthJson",
-    GET_COOKIES_JSON = "getCookiesJson",
-    GET_FORMDATA = "getFormData",
-    GET_AUTH_FORMDATA = "getAuthFormData"
-}
+export const createDenchPresets = (type : string, baseURL : string, optionParmas?: DenchPresetsOptionalParams) : Readonly<DenchConfig> => {
 
-
-
-export const createDenchPresets = (type : string, baseURL : string, api? : string, token? : string) : Readonly<DenchConfig> => {
+    const { api, token, data } = optionParmas || {};
 
     const commonConfig : Omit<DenchConfig, "options">={
         baseURL,
@@ -34,47 +26,99 @@ export const createDenchPresets = (type : string, baseURL : string, api? : strin
     }
 
     interface createConfigParams{
+        method : string,
         auth? : string,
         acceptType? : string,
-        credientials? : HTTPCredentials
+        contentType ? :string,
+        credentials? : HTTPCredentials
+        data? : BodyInit
     }
 
 
     const createConfig = (params : createConfigParams) :DenchConfig => {
-        const { auth, acceptType, credientials } = params;
+        const { method, auth, acceptType, contentType, credentials, data } = params;
         return {
             ...commonConfig,
             options : {
-                method : "GET",
+                method,
                 headers : {
                     //스프레드 조건문 구문을 사용하면 조건적 레코드 설정이 가능합니다.
                     ...(acceptType ? { Accept: acceptType } : {}),
+                    ...(contentType ? { "Content-Type": contentType } : {}),
                     ...(auth ? { Authorization: `Bearer ${auth}` } : {})
                 },
-                ...(credientials ? { credentials : credientials } : {})
+                ...(credentials ? { credentials : credentials } : {}),
+                ...(data ? { body : data } : {})
             }
         }
     }
 
 
+
     const presets : Record<string, DenchConfig> ={
         getJson : {
-            ...createConfig({ acceptType: "application/json" })
+            ...createConfig({ method: "GET", acceptType: "application/json" })
         },
         getAuthJson:{
-            ...createConfig({ auth: token, acceptType: "application/json" })
+            ...createConfig({ method: "GET", auth: token, acceptType: "application/json" })
         },
         getCookiesJson:{
-            ...createConfig({ credientials: HTTPCredentials.INCLUDE, acceptType: "application/json" })
+            ...createConfig({ method: "GET", credentials: HTTPCredentials.INCLUDE, acceptType: "application/json" })
         },
         getFormData : {
-            ...createConfig({ acceptType: "multipart/form-data" })
+            ...createConfig({ method: "GET", acceptType: "multipart/form-data" })
         },
         getAuthFormData : {
-            ...createConfig({ auth: token, acceptType: "multipart/form-data" })
+            ...createConfig({ method: "GET", auth: token, acceptType: "multipart/form-data" })
+        },
+        getCookiesFormData : {
+            ...createConfig({ method: "GET", credentials: HTTPCredentials.INCLUDE, acceptType: "multipart/form-data" })
+        },
+        getBlob : {
+            ...createConfig({ method: "GET", acceptType: "application/octet-stream" })
+         },
+        getAuthBlob : {
+            ...createConfig({ method: "GET", auth: token, acceptType: "application/octet-stream" })
+        },
+        getCookiesBlob : {
+            ...createConfig({ method: "GET", credentials: HTTPCredentials.INCLUDE, acceptType: "application/octet-stream" })
+        },
+        postData : {
+            ...createConfig({ method: "POST", data })
+        },
+        postAuthData : {
+            ...createConfig({ method: "POST", auth: token, data })
+        },
+        postCookiesData : {
+            ...createConfig({ method: "POST", credentials: HTTPCredentials.INCLUDE, data })
+        },
+        postJson : {
+            ...createConfig({ method: "POST", acceptType: "application/json", data })
+        },
+        postAuthJson : {
+            ...createConfig({ method: "POST", auth: token, acceptType: "application/json", data })
+        },
+        postCookiesJson : {
+            ...createConfig({ method: "POST", credentials: HTTPCredentials.INCLUDE, acceptType: "application/json", data })
+        },
+        postFormData : {
+            ...createConfig({ method: "POST", acceptType: "multipart/form-data", data })
+        },
+        postAuthFormData : {
+            ...createConfig({ method: "POST", auth: token, acceptType: "multipart/form-data", data })
+        },
+        postCookiesFormData : {
+            ...createConfig({ method: "POST", credentials: HTTPCredentials.INCLUDE, acceptType: "multipart/form-data", data })
+        },
+        postBlob : {
+            ...createConfig({ method: "POST", acceptType: "application/octet-stream", data })
+        },
+        postAuthBlob : {
+            ...createConfig({ method: "POST", auth: token, acceptType: "application/octet-stream", data })
+        },
+        postCookiesBlob : {
+            ...createConfig({ method: "POST", credentials: HTTPCredentials.INCLUDE, acceptType: "application/octet-stream", data })
         }
-        
-
     }
 
     const preset = presets[type];
