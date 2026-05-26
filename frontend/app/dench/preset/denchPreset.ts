@@ -3,6 +3,7 @@ import { HTTPCredentials } from "~/dench/types/denchEnum";
 import type { DenchPresetsOptionalParams } from "~/dench/types/denchPreset";
 import { runfetch, toFormData, toJson, toObject } from "../main/denchRunner";
 
+
 function deepFreezeConfig(config : DenchConfig) : DenchConfig{
 
     const frozenOptions = Object.freeze({
