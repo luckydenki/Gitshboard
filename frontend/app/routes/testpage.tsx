@@ -1,7 +1,7 @@
 
 import { useEffect, useRef } from "react"
 import { HTTPCredentials } from "~/dench/types/denchEnum";
-import { dench } from "~/dench/main/dench";
+import { dench } from "~/dench/denchfetch/dench";
 import { createDenchPresets, denchPresetRunner } from "~/dench/preset/denchPreset";
 import { DenchDefaultPresets } from "~/dench/types/denchPresetEnum";
 
