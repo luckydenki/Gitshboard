@@ -1,6 +1,7 @@
-import type { DenchConfig } from "~/types/utils/simpleFetcher/dench";
+import type { DenchConfig, DenchRunner } from "~/types/utils/simpleFetcher/dench";
 import { HTTPCredentials } from "~/types/utils/simpleFetcher/denchEnum";
 import type { DenchPresetsOptionalParams } from "~/types/utils/simpleFetcher/denchPreset";
+import { toFormData, toJson, toObject } from "./denchRunnter";
 
 function deepFreezeConfig(config : DenchConfig) : DenchConfig{
 
@@ -125,4 +126,14 @@ export const createDenchPresets = (type : string, baseURL : string, optionParmas
 
 
     return deepFreezeConfig(preset);
+}
+
+
+export function denchPresetRunner<T>(config : DenchConfig) : DenchRunner<T>{
+    return {
+        toResponse : () => runfetch<T>(config),
+        toJson : () => toJson<T>(config),
+        toObject : () => toObject<T>(config),
+        toFormData : () => toFormData<T>(config)
+     }
 }
