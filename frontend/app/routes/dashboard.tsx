@@ -10,6 +10,7 @@ import useErrorCallback from "~/hooks/useErrorCallback";
 import useFetchErrorCallback from "~/hooks/useFetchErrorCallback";
 import SpinFloatEffect from "~/components/common/SpinFloatEffect";
 import { NavFloatButton } from "~/components/common/NavFloatButton";
+import useRegistLoading from "~/hooks/dev/useRegistLoading";
 
 
 
@@ -23,35 +24,23 @@ function OnSetFetchMode(e : React.MouseEvent<HTMLButtonElement>, setFetchMode : 
 export default function Dashboard(){
     const navigate = useNavigate();
     const { userDataState, isLoading, isError} = useGithubUser();
-    const [ fetchMode, setFetchMode] = useState<1|2|3>(1);
-    const render_time = useRenderingTimer("Dashboard", isLoading);
 
 
     useErrorCallback(isError, ()=>{
         navigate("/");
     })
     
-    useEffect(()=>{
-        console.log("Current Fetch Mode:", fetchMode);
-
-    }, [fetchMode])
-
-    
     if(isLoading){
         return(
             <Loading/>
         )
     }
-
     return (
         <div className="min-h-screen bg-[#f4f6f1] text-gray-950 dark:bg-gray-950">
 
             <Header userDataState={userDataState!} />
-            <DashboardSection userDataState={userDataState!} mode={fetchMode} />
-            <NavFloatButton 
-                onFetchClick={(e)=>{OnSetFetchMode(e, setFetchMode)}} 
-                render_time={render_time}
-            />
+            <DashboardSection userDataState={userDataState!} loading={isLoading} />
+
 
         </div>
     );
