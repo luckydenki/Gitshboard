@@ -30,7 +30,6 @@ const handleOAuthLogin = (ID: string, URL: string) => {
 
 };
 
-type CommonResponse = { success : boolean;} | { error : string; }
 
 export default function Home() {
   const ID =  import.meta.env.VITE_GITHUB_CLIENT_ID;
