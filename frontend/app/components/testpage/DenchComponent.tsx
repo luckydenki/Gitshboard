@@ -24,7 +24,7 @@ export default function DenchComponent(){
                 .toJson()
 
                 if(response){
-                    console.log("Response from /api/testing/authjson:", response.message);
+                    //console.log("Response from /api/testing/authjson:", response.message);
                     setData(response);
                     setLoading(false);
                 }
@@ -44,7 +44,7 @@ export default function DenchComponent(){
 
 
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <>
             {loading && <div>Loading...</div>}
             {error && <div>Error: {error}</div>}
             {data && (
@@ -55,6 +55,6 @@ export default function DenchComponent(){
                     <div> description : {data.description}</div>
                 </div>
             )}
-        </Suspense>
+        </>
     )
 }
