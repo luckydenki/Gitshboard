@@ -6,10 +6,46 @@ import useRegistLoading from "~/hooks/dev/useRegistLoading";
 import type { TestResponse } from "~/routes/testpage";
 
 
+interface UseTanstackDenchOptions {
+    url : string;
+    api : string;
+    queryKey : string;
+    label : string;
+}
+
+interface UseTanstackDenchResult<T>{
+    data : T | undefined;
+    error : Error | null;
+    isLoading : boolean;
+}
+
+
+function useTanstackDench<T>(options : UseTanstackDenchOptions) : UseTanstackDenchResult<T> {
+    
+    const denchInstance = useRef(dench(options.url, options.label));
+
+    const { data, error, isLoading } = useQuery<T>({
+        queryKey: [options.queryKey],
+        queryFn: async () => {
+            const dench = denchInstance.current;
+            const response = await dench.get<T>(options.api)
+                .credentials(HTTPCredentials.INCLUDE)
+                .toJson();
+            return response;
+        },
+        staleTime: 1000 * 60, // 1 minute
+    });        
+
+    return { data, error, isLoading };
+
+}
+
+
+
 
 export default function TanstackComponent(){
     
-    const denchInstance = useRef(dench("http://localhost:3000/api/", "3000 test"));
+    const denchInstance = useRef(dench("http://localhost:3000/api/", "3000test"));
 
     const { data, error, isLoading } = useQuery<TestResponse>({
         queryKey: ["tanstackTest"],
@@ -20,6 +56,7 @@ export default function TanstackComponent(){
                 .toJson();
             return response;
         },
+        
         staleTime: 1000 * 60, // 1 minute
     });        
 

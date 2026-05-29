@@ -29,9 +29,9 @@ export function NavFloatButton({ onFetchClick, render_time } : NavFloatButtonPro
                             {/* 소수점 아래 3자리까지 표시 */}
                         </header>
                         <section className = "flex flex-col gap-4 h-fit">
-                            <button className = {"w-full h-24 bg-white shadow-md rounded-2xl hover:bg-gray-100 "} value = "1" onClick={onFetchClick}> useGithub </button>
-                            <button className = "w-full h-24 bg-white shadow-md rounded-2xl hover:bg-gray-100" value = "2" onClick={onFetchClick}> useFetchAllHook </button>
-                            <button className = "w-full h-24 bg-white shadow-md rounded-2xl hover:bg-gray-100" value = "3" onClick={onFetchClick}> Dench </button>
+                            <button className = {"w-full h-24 bg-white shadow-md rounded-2xl hover:bg-gray-100 "} value = "1" onClick={onFetchClick}> Dench Component </button>
+                            <button className = "w-full h-24 bg-white shadow-md rounded-2xl hover:bg-gray-100" value = "2" onClick={onFetchClick}> Tanstack Component </button>
+                            <button className = "w-full h-24 bg-white shadow-md rounded-2xl hover:bg-gray-100" value = "3" onClick={onFetchClick}> GraphQL Component </button>
                         </section>
                     </div>
                 )}
