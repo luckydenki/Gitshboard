@@ -1,5 +1,4 @@
 import Router from 'express';
-import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../types/middlewares/auth';
 import { authToken, authUser } from '../middlewares/auth.middleware';
@@ -7,10 +6,42 @@ import { authToken, authUser } from '../middlewares/auth.middleware';
 const prisma = new PrismaClient();
 const user_router = Router();
 
-// api/user/health
+
+/**
+ * GitHub API에서 받아오는 사용자 정보의 타입을 정의하는 인터페이스입니다.
+ * Github API상 모든 응답은 공통적으로 data 필드 안에 담깁니다
+ * 
+ */
+interface GithubCommonResponse<T>{
+    data : T
+}
+
+/**
+ * 
+ * GitHub API에서 사용자 정보를 받아올 때 발생할 수 있는 에러의 타입을 정의하는 인터페이스입니다.
+ * 
+ */
+interface GithubErrorResponse{
+    message : string,
+    documentation_url : string
+}
+
+
+
+interface GithubUserResponse{
+    user : {
+        login : string,
+        avatarUrl : string,
+    }
+}
+
+
+
+// api/users/health
 user_router.get('/health', (req, res)=>{
     res.json({ message: 'User route is working!' });
 })
+
 
 
 // api/users
@@ -29,9 +60,9 @@ user_router.get('/', authToken, authUser, async (req: AuthRequest, res) => {
         
         if(github_response.ok){
             const github_user = await github_response.json();
-
+            
             res.status(200).json({
-                user : github_user
+                data : github_user
             })
         }
         else{
@@ -52,6 +83,63 @@ user_router.get('/', authToken, authUser, async (req: AuthRequest, res) => {
     }
 
 });
+
+
+/**
+ *     userDataState : {
+        avatar_url : string,
+        login : string
+    }
+    오직 헤더 컴포넌트만을 위해 가져오는 간단한 정보
+ **/
+// api/users/userheader
+user_router.get('/userheader', authToken, authUser, async(req : AuthRequest, res)=>{
+    const user = req.user!;
+
+    const query = `
+        query GetUser($login : String!){
+            user(login : $login){
+                login
+                avatarUrl
+            }
+        }
+    `
+
+    const github_response = await fetch('https://api.github.com/graphql',{
+        method : 'POST',
+        headers :{
+            'Authorization' : `Bearer ${user.githubAccessToken}`,
+            'Content-Type' : 'application/json'
+        },
+        body : JSON.stringify({
+            query,
+            variables : {
+                login : user.githubUsername
+            }
+        })
+    })
+
+    const data  = await github_response.json();
+
+
+    const userData = ChangeResponseType<GithubCommonResponse<GithubUserResponse>>(data).data.user;
+    console.log("GitHub GraphQL API response:", data);
+
+    if(github_response.ok){
+        res.status(200).json({
+            data : userData
+        });
+    }
+    else{
+        res.status(500).json({ error : 'GitHub API 요청 실패' });
+    }
+
+})
+
+
+function ChangeResponseType <T>(data : unknown) : T{
+    return data as T;
+}
 
 
 // api/users/repos

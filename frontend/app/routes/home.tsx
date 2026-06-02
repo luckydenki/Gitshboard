@@ -1,25 +1,20 @@
-import { redirect, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import type { Route } from "./+types/home";
 import { Github } from "~/icons/Github";
 import type { StrictGithubOAuthParams } from "~/types/GithubOAuth";
-import { useEffect, useState } from "react";
+import MovingStrip from "~/components/home/MovingStrip";
+import useAuthCheck from "~/hooks/useAuthCheck";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "GitHub Dashboard" },
+    { name: "description", content: "GitHub Dashboard login" },
   ];
 }
 
 
 const handleOAuthLogin = (ID: string, URL: string) => {
-  // 비 권장
-  // window.location.href =`https://github.com/login/oauth/authorize
-  // ?client_id=${ID}
-  // &redirect_uri=${URL}&scope=user`;
-  // console.log("Redirecting to GitHub for authentication...");
-
-  // base url과 query parameter를 명확하게 분리하여 URL을 구성하는 걸 권장
   const baseURL = "https://github.com/login/oauth/authorize";
   const githubOAuthParams : StrictGithubOAuthParams = {
     client_id : ID,
@@ -35,70 +30,56 @@ const handleOAuthLogin = (ID: string, URL: string) => {
 
 };
 
-type CommonResponse = { success : boolean;} | { error : string; }
 
 export default function Home() {
-  const [loginCheckState, setLoginCheckState] = useState(false);
   const ID =  import.meta.env.VITE_GITHUB_CLIENT_ID;
   const URL = import.meta.env.VITE_GITHUB_CALLBACK_URL;
   const navigate = useNavigate();
-  console.log("ID, URL " ,ID, URL);
-
+  
+  const { loginCheckState } = useAuthCheck();
 
   useEffect(()=>{
-    const checkLogin = async ()=>{
-      try{
-         const res = await fetch('http://localhost:3000/api/auth/check',{
-            method : 'GET',
-            credentials : 'include' // 쿠키를 포함하여 요청을 보냄
-         })
-
-         if(res.ok){
-            const data : CommonResponse = await res.json();
-            console.log("Login check response:", data);
-            if('success' in data && data.success){
-              navigate('/dashboard');
-            }
-         }
-         else{
-              throw new Error("Unauthorized");
-         }
-      }
-      catch(error : unknown){
-        console.error("Error : Token verification error", error);
-        setLoginCheckState(true);
-      }
-    } 
-
-    checkLogin();
-
-  }, [])
+    if(loginCheckState){
+      navigate("/dashboard");
+    }
+  },[loginCheckState, navigate])
  
 
 
-  return <>
-    {loginCheckState ? (
-      <div className = "flex flex-col items-center justify-center h-screen gap-4">
-        <span className = "text-4xl font-semibold">GitHub dashBoard</span>
-        <button 
-          className = {`border p-1 rounded-full 
-            hover:cursor-pointer hover:bg-gray-300 
-            transition-colors duration-150`}
-          onClick={()=>{
-            handleOAuthLogin(ID, URL);
-        }}>
-          <Github 
-            width={50}
-            height={50}
-          />
-        </button>
-      </div>
-    ): 
-      <div className = "flex justify-center items-center h-screen">
-        <h1>로딩 중...</h1>
-      </div>
-    }
+  return (
+
+      <main className="home-ambient relative flex min-h-screen items-center justify-center overflow-hidden px-6 text-gray-950 dark:text-white">
+        
+        <section className="relative flex w-full max-w-sm flex-col items-center gap-7 text-center">
+          <h1 className="text-4xl font-semibold tracking-tight text-gray-950 dark:text-white sm:text-5xl">
+            GitHub Dashboard
+          </h1>
+
+          {loginCheckState === false || loginCheckState === null ? (
+            <button
+              type="button"
+              aria-label="Login with GitHub"
+              className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-[0_22px_60px_rgba(15,23,42,0.14)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_26px_72px_rgba(15,23,42,0.2)] dark:bg-white"
+              onClick={()=>{
+                handleOAuthLogin(ID, URL);
+              }}
+            >
+              <Github width={64} height={64} />
+            </button>
+          ): 
+            <div className="h-16 w-16 rounded-full bg-white/80 p-6 shadow-[0_22px_60px_rgba(15,23,42,0.10)] dark:bg-white/10">
+              <span className="block h-full w-full animate-pulse rounded-full bg-github-light" />
+            </div>
+          }
+        </section>
 
 
-    </>;
+
+
+
+        <MovingStrip/>
+
+      </main>
+
+  );
 }
