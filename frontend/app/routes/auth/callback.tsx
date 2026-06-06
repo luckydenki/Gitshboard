@@ -40,9 +40,7 @@ export default function Callback() {
                     navigate('/dashboard');
                 }
                 else{
-                    console.error("인증 실패", response.statusText);
-                    alert("로그인에 실패했습니다.");
-                    navigate('/');
+                    throw new Error(`인증 실패: ${response.statusText}`);
                 }
             }
             catch(error){
