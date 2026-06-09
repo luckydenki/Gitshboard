@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import { Loading } from "~/components/common/Loading";
-import DashboardSection from "~/components/dashboard/DashboardSection";
+import DashboardSection from "~/components/page/dashboard/DashboardSection";
 import useErrorCallback from "~/hooks/useErrorCallback";
 import { useQuery } from "@tanstack/react-query";
 import { dench } from "dench-fetch";
@@ -37,6 +37,13 @@ export default function Dashboard(){
         },
         staleTime : 1 * 60 * 1000, //1분
         gcTime : 5 * 60 * 1000, //5분
+        retry : (failureCount, error)=>{
+            if(error.message.includes("401")){
+                // Handle unauthorized error
+                return false;
+            }
+            return failureCount < 3;
+        }
     })
 
 

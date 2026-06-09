@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import type { Route } from "./+types/home";
 import { Github } from "~/icons/Github";
 import type { StrictGithubOAuthParams } from "~/types/GithubOAuth";
-import MovingStrip from "~/components/home/MovingStrip";
+import MovingStrip from "~/components/page/home/MovingStrip";
 import useAuthCheck from "~/hooks/useAuthCheck";
 
 export function meta({}: Route.MetaArgs) {

@@ -28,8 +28,15 @@ export default function Header(){
                 .toJson()
                 return res.data;
             },
-            staleTime : 5 * 60 * 1000, //5분
-            
+            staleTime : 5 * 60 * 1000, //5분,
+            retry : (failureCount, error)=>{
+                if(error.message.includes("401")){
+                    // Handle unauthorized error
+                    return false;
+                }
+
+                return failureCount < 3;
+            }
         }
     );
 

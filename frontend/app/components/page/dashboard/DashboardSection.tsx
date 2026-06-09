@@ -1,9 +1,9 @@
 import type { GithubRepositoryResponse, GithubUser } from "~/types/GithubInfo"
-import RepositoryList from "../RepositoryList"
+import RepositoryList from "./RepositoryList"
 import SideProfile from "./SideProfile"
 import StatCard from "./StatCard"
 import useFetchAll from "~/hooks/useFetchAll"
-import { Loading } from "../common/Loading"
+import { Loading } from "../../common/Loading"
 import { useNavigate } from "react-router"
 
 export interface DashboardSectionProps { 
