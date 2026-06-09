@@ -24,7 +24,7 @@ export interface GithubCommitTimeRepositoryNode {
                 nodes: Array<GihhubCommitTimeHistoryNode>
             }
         }
-    }
+    } | null
 }
 
 export interface GithubProjectTopicsNode {
@@ -45,7 +45,7 @@ export interface DevelopStatsNode {
                 nodes: Array<{ committedDate: string }>
             }
         }
-    },
+    } | null,
     languages: {
         edges: Array<{
             node: { name: string }
@@ -61,7 +61,7 @@ export interface DevelopStatsNode {
 export interface ProjectLiveRateNode {
     name: string,
     createdAt: string,
-    pushedAt: string,
+    pushedAt: string | null,
     updatedAt: string,
     isArchived: boolean,
     isFork: boolean
