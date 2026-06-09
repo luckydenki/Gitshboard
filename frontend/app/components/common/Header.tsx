@@ -4,6 +4,7 @@ import { useNavigate } from "react-router"
 import { dench, HTTPCredentials } from "dench-fetch"
 import { Github } from "~/icons/Github"
 import type { CommonResponse } from "~/types/common/common"
+import useErrorCallback from "~/hooks/useErrorCallback"
 
 interface UserDataState{
     login : string,
@@ -24,7 +25,6 @@ export default function Header(){
                 .error((err)=>{
                     console.error("Failed to fetch user header data:", err);
                 })
-                .boundaryNormalize()
                 .toJson()
                 return res.data;
             },
@@ -35,10 +35,9 @@ export default function Header(){
 
     const navigate = useNavigate();
 
-    if(isError){
-        console.error("Error fetching user header data:", error);
-        return null; // 또는 에러 메시지를 표시하는 컴포넌트 반환
-    }
+    useErrorCallback(isError, ()=>{
+        navigate("/");
+    })
 
 
     return(
@@ -60,7 +59,7 @@ export default function Header(){
                         onClick={()=>{
                             navigate("/statpage");
                         }}
-                    >Stastics</button>
+                    >Statistics</button>
                     <button className="hover:text-gray-400 hover:cursor-pointer dark:hover:text-gray-300" 
                     onClick={()=>{
                         navigate("/testpage");
