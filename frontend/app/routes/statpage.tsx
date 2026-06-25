@@ -80,7 +80,7 @@ export default function StatPage(){
                 </section>
 
                 <section className="grid gap-8 lg:grid-cols-2 xl:grid-cols-3">
-                    <PreferredCommitTimeArticle commits={analytics.commits} />
+                    <PreferredCommitTimeArticle />
                     <WorkingStyleArticle />
                     <RepositoryCategoriesArticle />     
                 </section>
