@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 
 // CORS 설정, localhost:5173에서 오는 요청을 허용하고, 쿠키를 포함하여 요청을 보낼 수 있도록 설정
 app.use(cors({
-  origin : 'http://localhost:5173', //프론트엔드 주소
+  origin: ['http://localhost:5173', 'https://gitshboard.vercel.app'], //프론트엔드 주소
   credentials : true, //쿠키를 포함하여 요청을 보냄
 }));
 
