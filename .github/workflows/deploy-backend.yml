@@ -1,0 +1,51 @@
+name: Deploy to cloudtype
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Connect deploy key
+        uses: cloudtype-github-actions/connect@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+          ghtoken: ${{ secrets.GHP_TOKEN }}
+      - name: Deploy
+        uses: cloudtype-github-actions/deploy@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+          project: etanolfly98/gitshboard
+          stage: main
+          yaml: >
+            name: gitshboard
+
+            app: dockerfile
+
+            options:
+              ports: "3000"
+              dockerfile: Dockerfile
+              env:
+                - name: GITHUB_CLIENT_ID
+                  value: Ov23li2P0q03yPDXWrNE
+                - name: GITHUB_CLIENT_SECRET
+                  value: a2969cc855cc503eea2a21756777cb734df3d150
+                - name: GITHUB_CALLBACK_URL
+                  value: http://localhost:5173/auth/github/callback
+                - name: DATABASE_URL
+                  value: postgresql://postgres.hzivgipftbsvvppkxqxi:0901zxcasd.!@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true
+                - name: DIRECT_URL
+                  value: postgresql://postgres.hzivgipftbsvvppkxqxi:0901zxcasd.!@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres
+                - name: TEST_CHECK
+                  value: SERVER_CHECKED
+                - name: JWT_SECRET
+                  value: 0901zxcasd.
+              args: []
+            context:
+              git:
+                url: git@github.com:${{ github.repository }}.git
+                ref: ${{ github.ref }}
+                path : /backend
