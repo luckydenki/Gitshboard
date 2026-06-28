@@ -121,7 +121,7 @@ auth_router.post('/github', async (req, res)=>{
                 httpOnly : true,        //http only 활성화
                 secure : false,         //https에서만 쿠키 전송, 다만 개발환경에서는 false로 설정
                 sameSite : 'none',      //CSRF 공격 방지는 어쩔수가 없이 false로 해야할 듯
-                maxAge : 7200000,       //2시간
+                maxAge : 240 * 60 * 1000, //쿠키 만료 시간 설정, ms 단위, 4시간
             }
             res.cookie('app_token', appToken, cookieOptions);
     
