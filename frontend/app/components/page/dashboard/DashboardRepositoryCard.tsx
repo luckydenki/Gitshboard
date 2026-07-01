@@ -33,9 +33,6 @@ export default function DashboardRepositoryCard({ repo } : RepositoryCardCompone
                         {repo.name}
                     </h3>
                 </div>
-                <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                    {repo.watchers} watchers
-                </span>
             </div>
             <p className="mt-5 line-clamp-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
                 {repo.description ? repo.description : "No description provided."}
@@ -43,8 +40,10 @@ export default function DashboardRepositoryCard({ repo } : RepositoryCardCompone
         </div>
         <div className="mt-8 flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{language}</span>
-            <span className="text-sm font-semibold text-gray-400 transition-colors group-hover:text-gray-700 dark:group-hover:text-gray-200">
-                Open
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                    {
+                        repo.watchers > 999 ? `${(repo.watchers / 1000).toFixed(1)}k` : repo.watchers
+                    } watchers
             </span>
         </div>
     </a>

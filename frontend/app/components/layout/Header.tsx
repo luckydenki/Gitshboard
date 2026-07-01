@@ -89,19 +89,15 @@ export default function Header(){
                 <div className="flex items-center gap-3 hover:cursor-pointer" onClick={()=>{
                     navigate("/dashboard")
                 }}>
-                    <div className="rounded-xl bg-gray-950 p-1 shadow-lg shadow-gray-950/15 dark:bg-white">
-                        <div className="invert dark:invert-0">
-                            <Github width={32} height={32} />
-                        </div>
-                    </div>
-                    <span className="text-2xl font-bold  text-gray-500 dark:text-gray-400">
+                    <img src="/Gitshboard_alpha.png" alt="Gitshboard Logo" className="w-10 sm:hidden" />
+                    <span className="text-2xl font-bold  text-gray-500 dark:text-gray-400 not-sm:hidden">
                         <span>Git</span>
                         <span className="text-github-light">sh</span>
                         <span>board</span>
                     </span>
                 </div>
 
-                <div className="flex flex-row gap-6 text-xl font-medium tracking-[0.12em] text-gray-800 dark:text-gray-200">
+                <div className="flex flex-row gap-6 text-xl font-medium not-sm:text-sm not-sm:font-light tracking-[0.12em] text-gray-800 dark:text-gray-200">
                     {menus}
                 </div>
 
@@ -112,7 +108,7 @@ export default function Header(){
                         fetchPriority="high"
                         className="h-8 w-8 rounded-full"
                     />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{data?.login}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200 not-sm:hidden">{data?.login}</span>
                 </div>
             </div>
         </header>

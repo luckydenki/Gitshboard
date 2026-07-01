@@ -25,7 +25,7 @@ export default function SideProfile({ userDataState }: SideProfileComponentProps
     ].filter((item) => item.value);
 
     return(
-        <aside className="flex min-h-135 flex-col rounded-4xl bg-gray-950 p-7 text-white shadow-[0_30px_80px_rgba(15,23,42,0.22)] lg:sticky lg:top-28">
+        <aside className="flex  min-h-135 flex-col rounded-4xl bg-gray-950 p-7 text-white shadow-[0_30px_80px_rgba(15,23,42,0.22)] lg:sticky lg:top-28">
             <div className="flex flex-col gap-7">
                 <div className="flex items-center gap-5 lg:flex-col lg:items-start">
                     <img
@@ -49,7 +49,7 @@ export default function SideProfile({ userDataState }: SideProfileComponentProps
                     <p className="max-w-sm text-sm leading-7 text-gray-300">{userDataState.bio}</p>
                 )}
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3 not-sm:grid-cols-1">
                     <div className="rounded-3xl bg-white/8 p-4">
                         <p className="text-2xl font-semibold">{userDataState.followers}</p>
                         <p className="mt-1 text-xs uppercase tracking-[0.18em] text-gray-400">Followers</p>

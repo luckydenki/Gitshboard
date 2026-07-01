@@ -44,7 +44,7 @@ export default function RepositoryList({githubDataState, isLoading, isError: _is
                     {githubDataState?.repos.length ?? 0} projects synced from GitHub
                 </p>
             </div>
-            <div className="grid gap-5 xl:grid-cols-2">
+            <div className="grid gap-5 not-sm:grid-cols-1 xl:grid-cols-2">
             {githubDataState?.repos.map(repo => {
                 return(
                     <RepositoryDashboardCard key={repo.id} repo={repo} />

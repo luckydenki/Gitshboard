@@ -38,7 +38,7 @@ export default function DashboardSection({ userDataState, loading }: DashboardSe
 
     
     return(
-            <section className="mx-auto grid max-w-380 gap-8 px-6 py-10 lg:grid-cols-[360px_minmax(0,1fr)] lg:px-8">
+            <section className="mx-auto grid max-w-380 gap-8 px-6 py-10 not-sm:grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] lg:px-8">
                      <SideProfile userDataState={userDataState} />
      
                      <main className="flex min-w-0 flex-col gap-8">
