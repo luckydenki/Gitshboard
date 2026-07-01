@@ -23,4 +23,4 @@ export interface StrictGithubOAuthParams  extends Omit<GithubOAuthParams, 'state
 /** 
  * github oauth scope 타입
  */
-export type GitHubScope = 'user' | 'repo' | 'gist' | 'read:org';
+export type GitHubScope = 'user' | 'repo' | 'gist' | 'read:org' | 'read:user' | 'public_repo'

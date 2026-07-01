@@ -19,7 +19,7 @@ const handleOAuthLogin = (ID: string, URL: string) => {
   const githubOAuthParams : StrictGithubOAuthParams = {
     client_id : ID,
     redirect_uri : URL,
-    scope : ["user", "repo"]
+    scope : ["read:user"]
   };
 
   const params = new URLSearchParams( {
