@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { useRef } from "react"
+import { useMemo, useRef } from "react"
 import { useNavigate } from "react-router"
 import { dench, HTTPCredentials } from "dench-fetch"
 import { Github } from "~/icons/Github"
@@ -11,6 +11,22 @@ interface UserDataState{
     avatarUrl : string
 }
 
+
+function HeaderMenu({name, onClick} : {name: string, onClick : ()=>void}){
+
+    return(
+        <>
+          <button className="hover:text-gray-400 hover:cursor-pointer dark:hover:text-gray-300"
+            onClick={onClick}>{name}</button>
+        </>
+    )
+
+}
+/*
+onClick={()=>{
+                navigate("/statpage");
+            }}
+*/
 
 export default function Header(){
 
@@ -51,6 +67,22 @@ export default function Header(){
     })
 
 
+    const menus = useMemo(()=> {
+        const menuList = [
+            {name : "Profile", link : "/dashboard"},
+            {name : "Statistics", link : "/statpage"},
+        ]
+
+        return menuList.map((menu, index)=>{
+            return (<HeaderMenu key={index} 
+                name={menu.name} 
+                onClick={()=>{
+                navigate(menu.link); }} />  )
+        })
+    }, []);
+
+
+
     return(
         <header className="sticky top-0 z-10 bg-white/80 px-6 py-4 shadow-[0_12px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:bg-gray-950/70">
             <div className="mx-auto flex max-w-360 items-center justify-between">
@@ -62,19 +94,11 @@ export default function Header(){
                             <Github width={28} height={28} />
                         </div>
                     </div>
-                    <span className="text-sm font-semibold uppercase tracking-[0.24em] text-gray-500 dark:text-gray-400">Dashboard</span>
+                    <span className="text-sm font-semibold uppercase tracking-[0.24em] text-gray-500 dark:text-gray-400">Gitshboard</span>
                 </div>
 
-                <div className="flex flex-row gap-3 text- font-medium tracking-[0.12em] text-gray-800 dark:text-gray-200">
-                    <button className="hover:text-gray-400 hover:cursor-pointer dark:hover:text-gray-300"
-                        onClick={()=>{
-                            navigate("/statpage");
-                        }}
-                    >Statistics</button>
-                    <button className="hover:text-gray-400 hover:cursor-pointer dark:hover:text-gray-300" 
-                    onClick={()=>{
-                        navigate("/testpage");
-                    }}>Test</button>
+                <div className="flex flex-row gap-6 text- font-medium tracking-[0.12em] text-gray-800 dark:text-gray-200">
+                    {menus}
                 </div>
 
                 <div className="flex items-center gap-3 rounded-full bg-white px-3 py-2 shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:bg-gray-900">
