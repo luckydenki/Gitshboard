@@ -7,6 +7,10 @@ import { dench, HTTPCredentials } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";
 import type { GithubCommitTimeRepositoryNode, GithubRepoCommonResponse } from "~/types/page/statpage";
 import type { CommonResponse } from "~/types/common/common";
+import React from "react";
+
+
+export default React.memo(WeekActivityArticle);
 
 
 function Skeleton(){
@@ -22,7 +26,7 @@ function Skeleton(){
 
 
 
-export default function WeekActivityArticle(){
+function WeekActivityArticle(){
     
     const backendurl = "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app"; // 배포 환경에서는 produrl 사용
     const [denchInstance] = useState(()=>dench(`${backendurl}/api`, "weekActivityArticleDench"));

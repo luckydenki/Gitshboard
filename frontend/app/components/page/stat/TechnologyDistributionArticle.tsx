@@ -10,6 +10,8 @@ import type { CommonResponse } from "~/types/common/common";
 import type { GithubLanguageRepositoryNode, GithubRepoCommonResponse } from "~/types/page/statpage";
 
 
+export default React.memo(TechnologyDistributionArticle);
+
 function LoadingSkelton(){
     return(
         <div>
@@ -25,7 +27,7 @@ function LoadingSkelton(){
 }
 
 
-export default function TechnologyDistributionArticle(){
+function TechnologyDistributionArticle(){
 
     const backendurl = "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app"; // 배포 환경에서는 produrl 사용
 

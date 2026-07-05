@@ -4,7 +4,6 @@
 
 export default function SectionHeading({ eyebrow, title, detail }: { eyebrow: string, title: string, detail: string }){
 
-            
         return(
             <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gray-400">{eyebrow}</p>
