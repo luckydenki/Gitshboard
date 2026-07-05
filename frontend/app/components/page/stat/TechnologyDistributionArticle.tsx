@@ -4,7 +4,7 @@ import { calculateLanguageStats } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
 import { useEffect, useMemo, useRef, useState } from "react";
 import React from "react";
-import { dench, HTTPCredentials } from "dench-fetch";
+import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";
 import type { CommonResponse } from "~/types/common/common";
 import type { GithubLanguageRepositoryNode, GithubRepoCommonResponse } from "~/types/page/statpage";
@@ -27,12 +27,10 @@ function LoadingSkelton(){
 }
 
 
-function TechnologyDistributionArticle(){
-
-    const backendurl = "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app"; // 배포 환경에서는 produrl 사용
+function TechnologyDistributionArticle({backendURL} : {backendURL : DenchHTTPURL}){
 
     const [percents, setPercents] = useState<number[]>([]);
-    const[denchInstance] = useState(()=>dench(`${backendurl}/api`, "technologyDistributionArticleDench"));
+    const[denchInstance] = useState(()=>dench(`${backendURL}/api`, "technologyDistributionArticleDench"));
     
     const { data, isLoading, isError} = useQuery({
         queryKey : ["technologyDistributionArticleData"],

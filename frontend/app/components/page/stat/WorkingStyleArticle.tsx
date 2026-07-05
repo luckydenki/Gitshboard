@@ -3,7 +3,7 @@ import SectionHeading from "./SectionHeading";
 import { calculateDeveloperProfile } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { dench, HTTPCredentials } from "dench-fetch";
+import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import type { CommonResponse } from "~/types/common/common";
 import { useQuery } from "@tanstack/react-query";
 import type { DevelopStatsNode, GithubRepoCommonResponse } from "~/types/page/statpage";
@@ -34,11 +34,9 @@ function BottomSkeleton(){
 }
 
 
-function WorkingStyleArticle(){
+function WorkingStyleArticle({backendURL} : {backendURL : DenchHTTPURL}){
     
-    const backendurl = "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app"; // 배포 환경에서는 produrl 사용
-
-    const denchInstance = useState(() => dench(`${backendurl}/api`, "workingStyleArticleDench"))[0];
+    const denchInstance = useState(() => dench(`${backendURL}/api`, "workingStyleArticleDench"))[0];
     const count = useRef(0);
 
     const [percents, setPercents] = useState<number[]>([]);

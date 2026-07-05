@@ -55,8 +55,6 @@ export default function StatPage(){
                 projectLiveRateAPI,
             ])
             
-    
-            
             return [ res[0].data, res[1].data, res[2].data, res[3].data, res[4].data ] as const;
         },
         staleTime : 5 * 60 * 1000,
@@ -79,17 +77,17 @@ export default function StatPage(){
                 <OverviewSection analytics={analytics} isLoading={isLoading} />
 
                 <section className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
-                    <TechnologyDistributionArticle />
-                    <WeekActivityArticle />
+                    <TechnologyDistributionArticle backendURL={backendurl} />
+                    <WeekActivityArticle backendURL={backendurl} />
                 </section>
 
                 <section className="grid gap-8 lg:grid-cols-2 xl:grid-cols-3">
-                    <PreferredCommitTimeArticle />
-                    <WorkingStyleArticle />
-                    <RepositoryCategoriesArticle />     
+                    <PreferredCommitTimeArticle backendURL={backendurl} />
+                    <WorkingStyleArticle backendURL={backendurl} />
+                    <RepositoryCategoriesArticle backendURL={backendurl} />     
                 </section>
 
-                <RepositoryActivitySection />
+                <RepositoryActivitySection backendURL={backendurl} />
             </main>
         </div>
     )

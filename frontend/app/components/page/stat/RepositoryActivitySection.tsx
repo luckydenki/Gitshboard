@@ -4,7 +4,7 @@ import SectionHeading from "./SectionHeading";
 import { calculateProjectHealth, type ProjectStatus } from "~/utils/statpage";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { dench, HTTPCredentials } from "dench-fetch";
+import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import type { GithubRepoCommonResponse, ProjectLiveRateNode } from "~/types/page/statpage";
 import type { CommonResponse } from "~/types/common/common";
 import React from "react";
@@ -35,10 +35,9 @@ function Skeleton(){
 }
 
 
-function RepositoryActivitySection(){
+function RepositoryActivitySection({backendURL} : {backendURL : DenchHTTPURL}){
 
-        const backendurl = "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app"; // 배포 환경에서는 produrl 사용
-        const [denchInstance] = useState(()=>dench(`${backendurl}/api`, "repositoryActivitySectionDench"));
+        const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "repositoryActivitySectionDench"));
         
         const {data, isLoading, isError} = useQuery({
             queryKey : ["repositoryActivitySection"],

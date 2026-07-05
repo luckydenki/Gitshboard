@@ -2,7 +2,7 @@ import { surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import { calculateCommitStats, formatHour } from "~/utils/statpage";
 import { useEffect, useMemo, useState } from "react";
-import { dench, HTTPCredentials } from "dench-fetch";
+import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";
 import type { CommonResponse } from "~/types/common/common";
 import type { GithubCommitTimeRepositoryNode, GithubRepoCommonResponse } from "~/types/page/statpage";
@@ -19,10 +19,9 @@ function Skeleton(){
 
 
 
-function PreferredCommitTimeArticle(){
+function PreferredCommitTimeArticle({backendURL} : {backendURL : DenchHTTPURL}){
 
-    const backendurl = "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app"; // 배포 환경에서는 produrl 사용
-    const [denchInstance] = useState(()=>dench(`${backendurl}/api`, "preferredCommitTimeArticleDench"));
+    const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "preferredCommitTimeArticleDench"));
     const [percents, setPercents] = useState<number[]>([]);
 
     const { data, isLoading, isError } = useQuery({

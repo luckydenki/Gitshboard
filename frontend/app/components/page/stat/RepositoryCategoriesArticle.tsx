@@ -3,7 +3,7 @@ import SectionHeading from "./SectionHeading";
 import EmptyState from "./EmptyState";
 import { calculateProjectCategories } from "~/utils/statpage";
 import { useMemo, useState } from "react";
-import { dench, HTTPCredentials } from "dench-fetch";
+import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import type { GithubProjectTopicsNode, GithubRepoCommonResponse } from "~/types/page/statpage";
 import type { CommonResponse } from "~/types/common/common";
 import { useQuery } from "@tanstack/react-query";
@@ -24,10 +24,9 @@ function Skeleton(){
     )
 }
 
-function RepositoryCategoriesArticle(){
+function RepositoryCategoriesArticle({backendURL} : {backendURL : DenchHTTPURL}){
 
-    const backendurl = "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app"; // 배포 환경에서는 produrl 사용
-    const [denchInstance] = useState(()=>dench(`${backendurl}/api`, "repositoryCategoriesArticleDench"));
+    const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "repositoryCategoriesArticleDench"));
 
     const { data, isLoading, isError } = useQuery({
         queryKey : ["repositoryCategoriesArticleData"],
