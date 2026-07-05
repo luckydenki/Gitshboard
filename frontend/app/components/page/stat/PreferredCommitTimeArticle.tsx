@@ -1,4 +1,4 @@
-import { surfaceClass } from "~/routes/statpage";
+import { commitTimeQueryFn, surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import { calculateCommitStats, formatHour } from "~/utils/statpage";
 import { useEffect, useMemo, useState } from "react";
@@ -22,19 +22,13 @@ function Skeleton(){
 function PreferredCommitTimeArticle({backendURL} : {backendURL : DenchHTTPURL}){
 
     const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "preferredCommitTimeArticleDench"));
+    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
+    
     const [percents, setPercents] = useState<number[]>([]);
 
     const { data, isLoading, isError } = useQuery({
         queryKey : ["preferredCommitTimeArticleData"],
-        queryFn : async()=>{
-            type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>
-
-            const res = await denchInstance.get<CommonResponseType<GithubCommitTimeRepositoryNode>>("repos/commitTime")
-                            .credentials(HTTPCredentials.INCLUDE)
-                            .toJson();  
-
-            return res.data;    
-        },
+        queryFn : async()=> { return await commitTimeQueryFn(commonAPI)},
         staleTime : 5 * 60 * 1000,
         gcTime : 10 * 60 * 1000,
     })

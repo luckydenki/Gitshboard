@@ -1,4 +1,4 @@
-import { surfaceClass } from "~/routes/statpage";
+import { developStatsQueryFn, surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import { calculateDeveloperProfile } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
@@ -37,17 +37,15 @@ function BottomSkeleton(){
 function WorkingStyleArticle({backendURL} : {backendURL : DenchHTTPURL}){
     
     const denchInstance = useState(() => dench(`${backendURL}/api`, "workingStyleArticleDench"))[0];
+    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
+        
     const count = useRef(0);
 
     const [percents, setPercents] = useState<number[]>([]);
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["workingStyleArticleData"],
-        queryFn: async () => {
-            type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>;
-            const res = await denchInstance.get<CommonResponseType<DevelopStatsNode>>("repos/developStats").credentials(HTTPCredentials.INCLUDE).toJson();
-            return res.data;
-        },
+        queryFn: async () => { return await developStatsQueryFn(commonAPI) },
         staleTime : 5 * 60 * 1000,
         gcTime : 10 * 60 * 1000,
     });

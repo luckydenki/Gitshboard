@@ -1,4 +1,4 @@
-import { surfaceClass } from "~/routes/statpage";
+import { projectTopicsQueryFn, surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import EmptyState from "./EmptyState";
 import { calculateProjectCategories } from "~/utils/statpage";
@@ -28,17 +28,11 @@ function RepositoryCategoriesArticle({backendURL} : {backendURL : DenchHTTPURL})
 
     const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "repositoryCategoriesArticleDench"));
 
+    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
+
     const { data, isLoading, isError } = useQuery({
         queryKey : ["repositoryCategoriesArticleData"],
-        queryFn : async()=>{
-            type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>
-
-            const res = await denchInstance.get<CommonResponseType<GithubProjectTopicsNode>>("repos/projectTopics")
-                            .credentials(HTTPCredentials.INCLUDE)
-                            .toJson();
-
-            return res.data;
-        },
+        queryFn : async()=>{ return await projectTopicsQueryFn(commonAPI)},
         staleTime : 5 * 60 * 1000,
         gcTime : 10 * 60 * 1000,
     })

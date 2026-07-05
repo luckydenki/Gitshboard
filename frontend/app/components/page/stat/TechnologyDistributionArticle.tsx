@@ -1,4 +1,4 @@
-import { surfaceClass } from "~/routes/statpage";
+import { languagesQueryFn, surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import { calculateLanguageStats } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
@@ -31,16 +31,12 @@ function TechnologyDistributionArticle({backendURL} : {backendURL : DenchHTTPURL
 
     const [percents, setPercents] = useState<number[]>([]);
     const[denchInstance] = useState(()=>dench(`${backendURL}/api`, "technologyDistributionArticleDench"));
-    
+    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
+
+
     const { data, isLoading, isError} = useQuery({
-        queryKey : ["technologyDistributionArticleData"],
-        queryFn : async()=>{
-            type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>
-            const res = await denchInstance.get<CommonResponseType<GithubLanguageRepositoryNode>>("repos/languages")
-                            .credentials(HTTPCredentials.INCLUDE)
-                            .toJson();
-            return res.data;
-        },
+        queryKey : ["languagesData"],
+        queryFn : async()=>{ return await languagesQueryFn(commonAPI)},
         staleTime : 5 * 60 * 1000,
         gcTime : 10 * 60 * 1000,
     })

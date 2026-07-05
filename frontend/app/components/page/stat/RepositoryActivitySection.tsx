@@ -1,4 +1,4 @@
-import { surfaceClass } from "~/routes/statpage";
+import { projectLiveRateQueryFn, surfaceClass } from "~/routes/statpage";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
 import { calculateProjectHealth, type ProjectStatus } from "~/utils/statpage";
@@ -38,14 +38,12 @@ function Skeleton(){
 function RepositoryActivitySection({backendURL} : {backendURL : DenchHTTPURL}){
 
         const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "repositoryActivitySectionDench"));
-        
+        const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
+                
+
         const {data, isLoading, isError} = useQuery({
             queryKey : ["repositoryActivitySection"],
-            queryFn : async()=>{
-                type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>
-                const res = await denchInstance.get<CommonResponseType<ProjectLiveRateNode>>("repos/projectLiveRate").credentials(HTTPCredentials.INCLUDE).toJson();
-                return res.data;
-            },
+            queryFn : async()=>{ return await projectLiveRateQueryFn(commonAPI) },
             staleTime : 5 * 60 * 1000,
             gcTime : 10 * 60 * 1000,
         })

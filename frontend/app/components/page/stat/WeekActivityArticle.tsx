@@ -1,4 +1,4 @@
-import { surfaceClass } from "~/routes/statpage";
+import { commitTimeQueryFn, surfaceClass } from "~/routes/statpage";
 import { calculateCommitStats } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
@@ -31,17 +31,13 @@ function WeekActivityArticle({backendURL} : {backendURL : DenchHTTPURL}){
     
     const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "weekActivityArticleDench"));
 
+    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
+
     const [percents, setPercents] = useState<number[]>([]);
 
     const  { data, isLoading, isError}  = useQuery({
         queryKey : ["weekActivityArticleData"],
-        queryFn : async()=>{
-            type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>
-            const res = await denchInstance.get<CommonResponseType<GithubCommitTimeRepositoryNode>>("repos/commitTime")
-                            .credentials(HTTPCredentials.INCLUDE)
-                            .toJson();
-            return res.data;
-        },
+        queryFn : async()=>{ return await commitTimeQueryFn(commonAPI)},
         staleTime : 5 * 60 * 1000,
         gcTime : 10 * 60 * 1000,
     })
