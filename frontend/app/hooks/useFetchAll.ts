@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import useFetchStore from "~/stores/fetchStore";
+import getBackendURL from "~/utils/getBackendURL";
 
 
 
@@ -35,8 +36,9 @@ export default function useFetchAll<T extends any[]>( config? : RequestInit, sta
 
         const fetchData = async()=>{
             try{
+                const backendURL = getBackendURL();
                 const req = api_url.map(async(url)=>{
-                    const res = await fetch(`https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app/${url}`,
+                    const res = await fetch(`${backendURL}/${url}`,
                         config ? config : {}
                     )   
                     

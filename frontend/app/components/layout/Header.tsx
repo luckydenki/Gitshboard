@@ -5,6 +5,7 @@ import { dench, HTTPCredentials } from "dench-fetch"
 import { Github } from "~/icons/Github"
 import type { CommonResponse } from "~/types/common/common"
 import useErrorCallback from "~/hooks/useErrorCallback"
+import getBackendURL from "~/utils/getBackendURL"
 
 interface UserDataState{
     login : string,
@@ -30,9 +31,7 @@ onClick={()=>{
 
 export default function Header(){
 
-    const localurl = "http://localhost:3000";
-    const produrl  = "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app";
-    const backendurl = produrl; // 배포 환경에서는 produrl 사용
+    const backendurl = getBackendURL();
 
     const denchInstance = useRef(dench(`${backendurl}/api/`, "headerDench"));
 

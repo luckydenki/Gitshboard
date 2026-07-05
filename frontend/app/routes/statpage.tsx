@@ -11,6 +11,7 @@ import WeekActivityArticle from "~/components/page/stat/WeekActivityArticle";
 import WorkingStyleArticle from "~/components/page/stat/WorkingStyleArticle";
 import type { CommonResponse } from "~/types/common/common";
 import type { DevelopStatsNode, GithubCommitTimeRepositoryNode, GithubLanguageRepositoryNode, GithubProjectTopicsNode, GithubRepoCommonResponse, ProjectLiveRateNode } from "~/types/page/statpage";
+import getBackendURL from "~/utils/getBackendURL";
 import {
     calculateCommitStats,
     calculateDeveloperProfile,
@@ -20,11 +21,13 @@ import {
 } from "~/utils/statpage";
 
 
+
 export const surfaceClass = "rounded-[1.75rem] bg-white shadow-[0_22px_65px_rgba(15,23,42,0.08)] dark:bg-gray-900";
 
 export default function StatPage(){
 
-    const backendurl = "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app"; // 배포 환경에서는 produrl 사용
+    const backendurl = getBackendURL();
+
     const denchInstance = useState(()=>dench(`${backendurl}/api`, "statPageDench"))[0];
 
     const { data, isLoading, isError } = useQuery({

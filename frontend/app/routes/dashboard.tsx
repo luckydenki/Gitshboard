@@ -8,6 +8,7 @@ import { useRef } from "react";
 import { HTTPCredentials } from "dench-fetch";
 import type { GithubUser } from "~/types/GithubInfo";
 import type { CommonResponse } from "~/types/common/common";
+import getBackendURL from "~/utils/getBackendURL";
 
 function OnSetFetchMode(e : React.MouseEvent<HTMLButtonElement>, setFetchMode : React.Dispatch<React.SetStateAction<1|2|3>>){
     const val = e.currentTarget.value
@@ -18,10 +19,8 @@ function OnSetFetchMode(e : React.MouseEvent<HTMLButtonElement>, setFetchMode : 
 export default function Dashboard(){
     const navigate = useNavigate();
 
-    const localurl = "http://localhost:3000";
-    const produrl  = "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app";
-    const backendurl = produrl; // 배포 환경에서는 produrl 사용
-
+    const backendurl = getBackendURL();
+    
     const denchInstance = useRef(dench(`${backendurl}/api`, "dashboardDench"));
     
     const { data, error, isLoading, isError} = useQuery<GithubUser>({
