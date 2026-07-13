@@ -31,6 +31,8 @@ auth_router.post('/github', async (req, res)=>{
      
     const { code }  = req.body;
 
+    console.log("code : ", code, " | client_id : ", process.env.GITHUB_CLIENT_ID, " | client_secret : ", process.env.GITHUB_CLIENT_SECRET);
+
     try{
         // Github에 엑세스 토큰 요청
         const response = await fetch('https://github.com/login/oauth/access_token',
