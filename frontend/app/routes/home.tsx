@@ -3,8 +3,40 @@ import { useNavigate } from "react-router";
 import type { Route } from "./+types/home";
 import { Github } from "~/icons/Github";
 import type { StrictGithubOAuthParams } from "~/types/GithubOAuth";
-import MovingStrip from "~/components/page/home/MovingStrip";
 import useAuthCheck from "~/hooks/useAuthCheck";
+import TitleLogo from "~/components/design/TitleLogo";
+import SearchForm from "~/components/page/home/SearchForm";
+import LoginButton from "~/components/page/home/LoginButton";
+
+/** 임시 tailwind css 작성 규칙
+ * 
+ * 1. 요소가 놓일 포지션 위치와 관련된 클래스
+ * ex) flex, grid, absolute, top-0, left-0, items-center, gap
+ * 
+ * 2. 요소의 크기와 관련된 클래스
+ * ex) w-1/2, h-12, min-w-md, max-w-4xl, p-6, m-4
+ * 
+ * 3. 배경, 테두리, 그림자 관련 클래스
+ * ex) bg-gray-300, bg-white, border, border-gray-300, shadow-md
+ * 
+ * 4. 글자, 폰트 관련 클래스
+ * ex) text-sm, text-lg, font-bold, font-medium, font-light...
+ * 
+ * 5. 상태 관련 클래스
+ * ex) hover:bg-gray-200, focus:outline-none, active:ring-2....
+ * 
+ * 6. 반응형 관련 클래스
+ * ex) sm:text-sm, md:text-lg, lg:text-xl, not-sm:text-sm, not-md:text-lg...
+ * 
+ * 7. animation, transition 관련 클래스, 만약 css로 직접 만든 애니메이션이 있다면 여기에 작성.
+ * ex) animate-pulse, transition-all, duration-200, ease-in-out...
+ * 
+ * 8. 그외 기타 커스텀 css, 또는 위에 해당하지 않는 모든 클래스
+ * 
+ * 
+ */
+
+
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -13,22 +45,6 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-
-const handleOAuthLogin = (ID: string, URL: string) => {
-  const baseURL = "https://github.com/login/oauth/authorize";
-  const githubOAuthParams : StrictGithubOAuthParams = {
-    client_id : ID,
-    redirect_uri : URL,
-    scope : ["read:user"]
-  };
-
-  const params = new URLSearchParams( {
-    ...githubOAuthParams,
-    scope : githubOAuthParams.scope.join(' '), 
-  } );
-  window.location.href = `${baseURL}?${params.toString()}`;
-
-};
 
 
 export default function Home() {
@@ -47,7 +63,6 @@ export default function Home() {
   console.log("Login Check State:", loginCheckState);
 
   if(loginCheckState === null){
-    // login 체크를 일단 수행한 뒤, 안된다면 메인을 띄우고 되었다면 대시보드로 리다이렉션 시킨다
     return null;
   }
 
@@ -59,43 +74,22 @@ export default function Home() {
 
   return (
 
-      <main className="home-ambient relative flex min-h-screen items-center justify-center overflow-hidden px-6 text-gray-950 dark:text-white">
+      <main className="home-ambient  flex flex-col gap-8 min-h-screen items-center justify-center overflow-hidden px-6 text-gray-950 dark:text-white">
         
-        <section className="relative flex w-full flex-col items-center gap-7 text-center">
+        <header>
+            <TitleLogo/>
+        </header>
+
+        <section className="flex w-full flex-col items-center gap-4 text-center">
           
-
-          <div className="flex flex-row items-center gap-4 not-sm:gap-0">
-            <img src="/Gitshboard_alpha.png" alt="Gitshboard Logo" className="animate-bounce-slow w-32 not-sm:hidden" />
-            <h1 className="text-7xl not-sm:text-5xl font-semibold tracking-wide text-gray-950 dark:text-white ">
-              <span>Git</span>
-              <span className="text-github-light">sh</span>
-              <span>board</span>
-            </h1>
-          </div>
-  
-          <input type="text"
-            className="w-full h-16 max-w-4xl pl-8 text-xl not-sm:text-sm not-sm:h-12 rounded-full border border-gray-300 bg-white px-4 py-2 focus:outline-none focus:ring-github-light focus:ring-2 text-gray-950 shadow-md dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-github-light dark:focus:ring-github-light/50 transition-all duration-200"
-            placeholder="Search for users"
-          />
-
+          <SearchForm/>
           {loginCheckState === false || loginCheckState === null ? (
-            <button
-              type="button"
-              aria-label="Login with GitHub"
-              className="flex gap-3 h-16 p-6 items-center justify-center rounded-full bg-white not-sm:bg-none  transition-all duration-200 hover:-translate-y-0.5 hover:ring-2 active:ring-github-light dark:bg-white"
-              onClick={()=>{
-                handleOAuthLogin(ID, URL);
-              }}
-            > 
-              <span className="not-sm:hidden text-xl font-semibold">Login with Github </span>
-                <Github width={56} height={56} />
-            </button>
+            <LoginButton ID={ID} URL={URL} />
           ): 
             <div className="h-32 w-32 rounded-full bg-white/80 p-6 shadow-[0_22px_60px_rgba(15,23,42,0.10)] dark:bg-white/10">
               <span className="block h-full w-full animate-pulse rounded-full bg-github-light" />
             </div>
           }
-
         </section>
 
       </main>
