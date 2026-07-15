@@ -12,6 +12,9 @@
     "vitest": "^4.1.10"
   },
   "scripts": {
+    "test": "npm run test --workspaces",
+    "test:frontend": "npm run test --workspace frontend",
+    "test:backend": "npm run test --workspace backend",
     "prepare": "husky"
   }
 }
