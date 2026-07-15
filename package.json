@@ -1,6 +1,10 @@
 {
+  "name" : "React-Github",
+  "private" : true,
+  "workspaces":["frontend", "backend"],
   "devDependencies": {
-    "husky": "^9.1.7"
+    "husky": "^9.1.7",
+    "vitest": "^4.1.10"
   },
   "scripts": {
     "prepare": "husky"
