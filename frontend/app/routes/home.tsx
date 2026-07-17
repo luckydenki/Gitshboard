@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Route } from "./+types/home";
-import { Github } from "~/icons/Github";
-import type { StrictGithubOAuthParams } from "~/types/GithubOAuth";
 import useAuthCheck from "~/hooks/useAuthCheck";
 import TitleLogo from "~/components/design/TitleLogo";
 import SearchForm from "~/components/page/home/SearchForm";
 import LoginButton from "~/components/page/home/LoginButton";
+import { isLocal} from '~/utils/log_system/log';
 
 /** 임시 tailwind css 작성 규칙
  * 
@@ -54,13 +53,15 @@ export default function Home() {
   
   const { loginCheckState } = useAuthCheck();
 
+  console.log("isLocal:", isLocal());
+
   useEffect(()=>{
     if(loginCheckState){
       navigate("/dashboard");
     }
   },[loginCheckState, navigate])
  
-  console.log("Login Check State:", loginCheckState);
+  // console.log("Login Check State:", loginCheckState);
 
   if(loginCheckState === null){
     return null;
@@ -81,7 +82,6 @@ export default function Home() {
         </header>
 
         <section className="flex w-full flex-col items-center gap-4 text-center">
-          
           <SearchForm/>
           {loginCheckState === false || loginCheckState === null ? (
             <LoginButton ID={ID} URL={URL} />
