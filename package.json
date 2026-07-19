@@ -1,9 +1,5 @@
 {
   "name": "React-Github",
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "husky": "^9.1.7"
