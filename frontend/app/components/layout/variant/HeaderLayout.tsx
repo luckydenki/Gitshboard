@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import SideTitleLogo from "../design/SideTitleLogo";
+import SideTitleLogo from "../../design/SideTitleLogo";
 
 
 

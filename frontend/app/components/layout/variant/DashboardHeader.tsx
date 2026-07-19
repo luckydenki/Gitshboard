@@ -2,9 +2,15 @@ import { dench, HTTPCredentials } from "dench-fetch";
 import { useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import HeaderLayout from "~/components/layout/HeaderLayout";
+import HeaderLayout from "~/components/layout/variant/HeaderLayout";
 import getBackendURL from "~/utils/getBackendURL";
 import type { CommonResponse } from "~/types/common/common";
+
+/*
+    사용 페이지
+    dashboard.tsx
+    statpage.tsx
+*/
 
 
 

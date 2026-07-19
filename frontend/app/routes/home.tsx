@@ -6,8 +6,7 @@ import useAuthCheck from "~/hooks/useAuthCheck";
 import SearchForm from "~/components/page/home/SearchForm";
 import LoginButton from "~/components/page/home/LoginButton";
 import { isLocal} from '~/utils/log_system/log';
-import TitleLogo from "~/components/design/Titlelogo";
-
+import TitleLogo from "~/components/design/TitleLogo";
 
 
 export function meta({}: Route.MetaArgs) {
