@@ -1,23 +1,28 @@
 import { dench, DenchURLNormalizeMode } from "dench-fetch";
 import getBackendURL from "~/utils/getBackendURL";
 import { Log } from "~/utils/log_system/log";
+import { useNavigate } from "react-router";
 
-const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>)=>{
+
+const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: ReturnType<typeof useNavigate>)=>{
     e.preventDefault();
+
     console.log("Search button clicked ", e.currentTarget);
     const formData = new FormData(e.currentTarget);
     const searchName = formData.get("search_name")??"";
 
-    console.log("검색어:", formData.get("search_name"));
-    console.log("전체 데이터:", [...formData.entries()]);
-    console.log("객체 변환:", Object.fromEntries(formData.entries()));
+    // console.log("검색어:", formData.get("search_name"));
+    // console.log("전체 데이터:", [...formData.entries()]);
+    // console.log("객체 변환:", Object.fromEntries(formData.entries()));
 
-    if(typeof searchName === "string"){
+    if(searchName === ""){
+        Log( "검색어가 비어있습니다. 검색을 진행하지 않습니다.");
+        return;
+    }
+    else if(typeof searchName === "string"){
         Log( "검색어가 문자열입니다. 검색을 진행합니다. : "+ searchName);
-        const backendURL = getBackendURL();
         
-        
-
+        navigate("/search?search_name="+encodeURIComponent(searchName));
     }
     else{
         Log( "검색어가 문자열이 아닙니다.");
@@ -52,13 +57,15 @@ const SearchFormCss = {
 
 
 export default function SearchForm(){
+    const navigate = useNavigate();
+
 
     return(
          <form 
           action ="/search"
           className ={SearchFormCss.form}
           aria-label="Search for github users"
-          onSubmit={handleSearchSubmit}
+          onSubmit={(e)=>handleSearchSubmit(e, navigate)}
           >
             <input 
             type="text"
