@@ -23,7 +23,7 @@ export default function Dashboard(){
     
     const denchInstance = useRef(dench(`${backendurl}/api`, "dashboardDench"));
     
-    const { data, error, isLoading, isError} = useQuery<GithubUser>({
+    const { data, error, isLoading, isError} = useQuery({
         queryKey: ["githubUserData"],
         queryFn : async()=>{
             const res = await denchInstance.current.get<CommonResponse<GithubUser>>(

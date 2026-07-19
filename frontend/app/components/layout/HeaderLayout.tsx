@@ -1,7 +1,9 @@
-import { useNavigate } from "react-router"
-import SideTitleLogo from "../design/SideTitleLogo"
+import { useNavigate } from "react-router";
+import SideTitleLogo from "../design/SideTitleLogo";
 
-export default function Header({children} : {children? : React.ReactNode}){
+
+
+export default function HeaderLayout({children} : {children? : React.ReactNode}){
 
     const navigate = useNavigate();
 

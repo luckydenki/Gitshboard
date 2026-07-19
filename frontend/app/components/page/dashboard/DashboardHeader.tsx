@@ -2,7 +2,7 @@ import { dench, HTTPCredentials } from "dench-fetch";
 import { useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import Header from "~/components/layout/Header";
+import HeaderLayout from "~/components/layout/HeaderLayout";
 import getBackendURL from "~/utils/getBackendURL";
 import type { CommonResponse } from "~/types/common/common";
 
@@ -72,7 +72,7 @@ export default function DashboardHeader(){
     }, []);
 
     return(
-        <Header>
+        <HeaderLayout>
                 <div className="flex flex-row gap-6 text-xl font-medium not-sm:text-sm not-sm:font-light tracking-[0.12em] text-gray-800 dark:text-gray-200">
                     {menus}
                 </div>
@@ -86,7 +86,7 @@ export default function DashboardHeader(){
                     />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-200 not-sm:hidden">{data?.login}</span>
                 </div>
-        </Header>
+        </HeaderLayout>
     )
 }
 
