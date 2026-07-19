@@ -4,10 +4,6 @@
     "frontend",
     "backend"
   ],
-  "dependencies": {
-    "backend": "file:backend",
-    "frontend": "file:frontend"
-  },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "husky": "^9.1.7"
