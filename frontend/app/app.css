@@ -20,9 +20,9 @@ body {
 
 h2 {
   font-size : 2rem;
-
   @media (width < 40rem){
     font-size : 1.5rem;
+
   }
 
 }
