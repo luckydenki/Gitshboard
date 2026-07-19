@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SpinFloatEffect from "./SpinFloatEffect";
+import SpinFloatEffect from "../design/SpinFloatEffect";
 
 
 export interface NavFloatButtonProps{

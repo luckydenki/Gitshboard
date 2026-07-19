@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { Loading } from "~/components/common/Loading";
+import { Loading } from "~/components/design/Loading";
 import DashboardSection from "~/components/page/dashboard/DashboardSection";
 import useErrorCallback from "~/hooks/useErrorCallback";
 import { useQuery } from "@tanstack/react-query";
@@ -23,7 +23,7 @@ export default function Dashboard(){
     
     const denchInstance = useRef(dench(`${backendurl}/api`, "dashboardDench"));
     
-    const { data, error, isLoading, isError} = useQuery<GithubUser>({
+    const { data, error, isLoading, isError} = useQuery({
         queryKey: ["githubUserData"],
         queryFn : async()=>{
             const res = await denchInstance.current.get<CommonResponse<GithubUser>>(

@@ -9,6 +9,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 
 /**
@@ -54,7 +55,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 //Outlet은 현재 라우트의 자식 라우트를 렌더링하는 컴포넌트.
 //루트 레벨에서는 자식 라우트를 렌더링하기 위해 Outlet을 사용함.
 export default function App() {
-  return <Outlet />;
+  return (
+        <Outlet />
+
+  );
 }
 
 /**

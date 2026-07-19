@@ -1,19 +1,25 @@
-import { useQuery } from "@tanstack/react-query"
-import { useMemo, useRef } from "react"
-import { useNavigate } from "react-router"
-import { dench, HTTPCredentials } from "dench-fetch"
-import { Github } from "~/icons/Github"
-import type { CommonResponse } from "~/types/common/common"
-import useErrorCallback from "~/hooks/useErrorCallback"
-import getBackendURL from "~/utils/getBackendURL"
+import { dench, HTTPCredentials } from "dench-fetch";
+import { useMemo, useRef } from "react";
+import { useNavigate } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import HeaderLayout from "~/components/layout/variant/HeaderLayout";
+import getBackendURL from "~/utils/getBackendURL";
+import type { CommonResponse } from "~/types/common/common";
+
+/*
+    사용 페이지
+    dashboard.tsx
+    statpage.tsx
+*/
+
+
 
 interface UserDataState{
     login : string,
     avatarUrl : string
 }
 
-
-function HeaderMenu({name, onClick} : {name: string, onClick : ()=>void}){
+function DashboardMenu({name, onClick} : {name: string, onClick : ()=>void}){
 
     return(
         <>
@@ -23,19 +29,16 @@ function HeaderMenu({name, onClick} : {name: string, onClick : ()=>void}){
     )
 
 }
-/*
-onClick={()=>{
-                navigate("/statpage");
-            }}
-*/
 
-export default function Header(){
 
+
+export default function DashboardHeader(){
+    
+    const navigate = useNavigate();
     const backendurl = getBackendURL();
-
     const denchInstance = useRef(dench(`${backendurl}/api/`, "headerDench"));
 
-    const { data, error, isLoading, isError} = useQuery<UserDataState, Error>(
+    const { data, error, isLoading, isError} = useQuery(
         {
             queryKey: ["headerUserData"], 
             queryFn: async() =>{
@@ -59,13 +62,7 @@ export default function Header(){
         }
     );
 
-    const navigate = useNavigate();
-
-    useErrorCallback(isError, ()=>{
-        navigate("/");
-    })
-
-
+    
     const menus = useMemo(()=> {
         const menuList = [
             {name : "Profile", link : "/dashboard"},
@@ -73,29 +70,15 @@ export default function Header(){
         ]
 
         return menuList.map((menu, index)=>{
-            return (<HeaderMenu key={index} 
+            return (<DashboardMenu key={index} 
                 name={menu.name} 
                 onClick={()=>{
                 navigate(menu.link); }} />  )
         })
     }, []);
 
-
-
     return(
-        <header className="sticky top-0 z-10 bg-white/80 px-6 py-4 shadow-[0_12px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:bg-gray-950/70">
-            <div className="mx-auto flex max-w-360 items-center justify-between">
-                <div className="flex items-center gap-3 hover:cursor-pointer" onClick={()=>{
-                    navigate("/dashboard")
-                }}>
-                    <img src="/Gitshboard_alpha.png" alt="Gitshboard Logo" className="w-10 sm:hidden" />
-                    <span className="text-2xl font-bold  text-gray-500 dark:text-gray-400 not-sm:hidden">
-                        <span>Git</span>
-                        <span className="text-github-light">sh</span>
-                        <span>board</span>
-                    </span>
-                </div>
-
+        <HeaderLayout>
                 <div className="flex flex-row gap-6 text-xl font-medium not-sm:text-sm not-sm:font-light tracking-[0.12em] text-gray-800 dark:text-gray-200">
                     {menus}
                 </div>
@@ -109,8 +92,7 @@ export default function Header(){
                     />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-200 not-sm:hidden">{data?.login}</span>
                 </div>
-            </div>
-        </header>
+        </HeaderLayout>
     )
 }
-//아바타 url, 로그인 명
+

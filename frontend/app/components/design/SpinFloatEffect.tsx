@@ -1,8 +1,10 @@
 
 
-
-
-
+/** 
+ *  
+ *  그냥 modal이 켜질때 스피너가 돌아가는 효과가 담긴 컴포넌트입니다.
+ * 
+*/
 export default function SpinFloatEffect({ isModalOpen }: { isModalOpen: boolean }){
     return(
         <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2

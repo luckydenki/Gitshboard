@@ -9,6 +9,7 @@ import auth_router from './routes/auth.routes';
 import testing_router from './routes/testing.routes';
 import repo_router from './routes/repo.routes';
 import { TestSchema, root } from './graphql/test';
+import search_router from './routes/search.routes';
 
 
 dotenv.config();
@@ -39,6 +40,7 @@ app.use('/api/users', user_router);
 app.use('/api/auth', auth_router);
 app.use('/api/testing', testing_router);
 app.use('/api/repos', repo_router);
+app.use('/api/search', search_router);
 
 
 app.use('/graphql', 
