@@ -1,6 +1,7 @@
 
 
 
+
 export default function TitleLogo(){
 
 
@@ -14,5 +15,4 @@ export default function TitleLogo(){
             </h1>
         </div>
     )
-
 }
