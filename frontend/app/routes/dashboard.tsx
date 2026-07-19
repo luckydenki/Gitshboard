@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { Loading } from "~/components/common/Loading";
+import { Loading } from "~/components/design/Loading";
 import DashboardSection from "~/components/page/dashboard/DashboardSection";
 import useErrorCallback from "~/hooks/useErrorCallback";
 import { useQuery } from "@tanstack/react-query";

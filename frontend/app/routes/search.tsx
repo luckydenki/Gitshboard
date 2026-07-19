@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router"
 import type { CommonErrorResponse, CommonResponse, ErrorStatus, SuccessStatus } from "~/types/common/common";
 import getBackendURL from "~/utils/getBackendURL";
+import "~/styles/search.css";
 
 interface GithubUserSearchResponse{
     total_count: number
@@ -58,7 +59,7 @@ export default function Search() {
     }
 
     return(
-        <div className="flex flex-col h-full items-center justify-center">
+        <div className="flex flex-col h-full items-center justify-center search-page">
 
             <header> 
                 <h1>Search Results for "{name}"</h1>
@@ -75,7 +76,7 @@ export default function Search() {
                     )
                 })}
             </section>
-            
+
         </div>
     )
 }

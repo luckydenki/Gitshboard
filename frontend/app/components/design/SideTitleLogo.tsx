@@ -1,9 +1,13 @@
 
 
-
+/**
+ * 사이드바에 표시되는 로고와 제목을 렌더링하는 버튼 컴포넌트입니다. 
+ * 
+ * @param param0 
+ * 
+ * @returns 
+ */
 export default function SideTitleLogo({ onClick }: { onClick: () => void }){
-
-
     return(
         <button className="flex items-center gap-3 hover:cursor-pointer" onClick={
             onClick
