@@ -18,6 +18,19 @@ body {
   min-height: 100%;
 }
 
+h2 {
+  font-size : 2rem;
+
+  @media (width < 40rem){
+    font-size : 1.5rem;
+  }
+
+}
+
+
+
+
+
 /*
   +는 x축을 기준으로 오른쪽 이동, y축을 기준으로는 아래 이동임
   %이동은 요소의 너비를 기준으로 이동함

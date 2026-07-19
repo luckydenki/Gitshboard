@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router"
 import type { CommonErrorResponse, CommonResponse, ErrorStatus, SuccessStatus } from "~/types/common/common";
 import getBackendURL from "~/utils/getBackendURL";
-import "~/styles/search.css";
+import "../routes/search.css";
 
 interface GithubUserSearchResponse{
     total_count: number
@@ -59,18 +59,37 @@ export default function Search() {
     }
 
     return(
-        <div className="flex flex-col h-full items-center justify-center search-page">
-
+        <div className="flex flex-col h-full w-full lg:px-8 px-6 not-sm:px-4 py-10 gap-4 min-h-screen">
             <header> 
-                <h1>Search Results for "{name}"</h1>
+                <h2 className="not-md">Search Results for "{name}"</h2>
             </header>
-            <section>
+            <div>
+        
+            </div>
+            <section className="flex flex-col gap-4  min-w-80 py-4">
                 {data?.items.map((user)=>{
                     return(
-                        <article key={user.id} className="flex ">
+                        <article key={user.id} className="flex flex-col shadow-md">
                             <a href={user.html_url} target="_blank" rel="noopener noreferrer">
-                            <img src={user.avatar_url} alt={`${user.login}'s avatar`} width={50} height={50}/>
-                            <span>{user.login}</span>
+                                <div className={`
+                                        flex items-center gap-6 justify-between px-6 py-4
+                                        rounded-2xl
+                                        bg-white
+                                        hover:bg-gray-100 dark:hover:bg-gray-800
+                                    `}>
+                                    <img src={user.avatar_url} alt={`${user.login}'s avatar`}
+                                     width={50} height={50}
+                                     className="rounded-full border-2 border-gray-400"
+                                     />
+                                     <div className="flex flex-col gap-1 items-end">
+                                        <span className="text-xl not-sm:text-md">{user.login}</span>
+                                        <span className={`px-2
+                                            text-sm text-center
+                                            not-sm:text-xs
+                                            rounded-full
+                                            bg-gray-300`}>{user.type}</span>
+                                    </div>
+                                </div>
                             </a>
                         </article>
                     )

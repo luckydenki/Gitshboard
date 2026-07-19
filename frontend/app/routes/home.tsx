@@ -47,7 +47,7 @@ export default function Home() {
 
   return (
 
-      <main className="home-ambient  flex flex-col gap-8 min-h-screen items-center justify-center overflow-hidden px-6 text-gray-950 dark:text-white">
+      <main className="home-ambient flex flex-col gap-8 min-h-screen items-center justify-center overflow-hidden px-6 text-gray-950 dark:text-white">
         
         <header>
             <TitleLogo/>
