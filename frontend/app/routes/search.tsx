@@ -15,8 +15,7 @@ interface GithubUserSearchResponse{
         id: number,
         avatar_url: string,
         html_url: string,
-        type: string,
-        
+        type: "User" | "Organization"
     }>
 }
 
@@ -39,24 +38,13 @@ function PageButton({pageNumber, isActive, onClick} : {pageNumber: number, isAct
 }
 
 
-function Pagination(total_count : number, page:number, per_page :number ){
-
-    const totalCount = total_count ?? 0;
-    const pageCount = Math.ceil(totalCount / per_page);
-    const cluster = Math.floor((page-1) /per_page);
-
-
-
-}
-
-
-
 export default function Search() {
 
     const [searchParams] = useSearchParams();
     const navigate = useNavigate()
     const per_page = useRef(10);
-        
+    const [category, SetCategory] = useState("all");
+
     const name : string = searchParams.get("name") ?? "";
     const page : string = searchParams.get("page") ?? "1";
 
@@ -94,6 +82,18 @@ export default function Search() {
             enabled : !!name, // name이 존재할 때만 쿼리 실행
          }
     );
+
+    const filter_items = useMemo(()=>{
+        if(isLoading || data === undefined) return [];        
+        if(category === "all") return data.items;
+        const items = data.items;
+
+        const filter_items = items.filter((e)=>{
+            return e.type === category;
+        })
+        return filter_items;      
+
+    }, [category, isLoading])
 
 
     const PaginationButton = useMemo(()=>{
@@ -140,17 +140,25 @@ export default function Search() {
         <div className="flex flex-col h-full lg:px-8 px-6 not-sm:px-4 py-6 gap-4 min-h-screen">
             <section className="flex flex-col gap-4 max-w-7xl w-full self-center py-4">
                 <header> 
-                    <h2 className="not-md text-gray-950">Search Results for "{name}"</h2>
+                    <h2 className="not-md text-gray-900 font-semibold">Search Results for 
+                        <span className="text-github-light"> "{name}"</span>
+                    </h2>
                 </header>
 
                 <section>
                     <div className="flex gap-2 justify-between">
-                        <select>
-                            <option value="user">
-                                user
+
+                        <select name="selectedType" defaultValue="all"
+                            onChange ={(e)=>{ SetCategory(()=>e.target.value)}}
+                        >
+                            <option value ="all">
+                                all
                             </option>
-                            <option value="repository">
-                                repository
+                            <option value="User">
+                                User
+                            </option>
+                            <option value="Organization">
+                                Organization
                             </option>
                         </select>
                         
@@ -159,7 +167,48 @@ export default function Search() {
                     </div>
                 </section>
 
-                {data?.items.map((user)=>{
+                {  
+                    filter_items.length === 0 ? (
+                        <h3 className="flex justify-center text-xl py-4">
+                            There is no results.
+                        </h3>
+                    ) :
+                    (
+                        filter_items.map((user)=>{
+                                        return(
+                                            <article key={user.id} className="flex flex-col">
+                                                <a href={user.html_url} target="_blank" rel="noopener noreferrer">
+                                                    <div className={`
+                                                            flex items-center gap-6 justify-between px-6 py-4
+                                                            min-w-80
+                                                            rounded-[1.75rem]
+                                                            bg-white  shadow-md
+                                                            hover:bg-gray-100 dark:hover:bg-gray-800
+                                                        `}>
+                                                        <img src={user.avatar_url} alt={`${user.login}'s avatar`}
+                                                        width={50} height={50}
+                                                        className="rounded-full border-2 border-gray-400"
+                                                        />
+                                                        <div className="flex flex-col gap-1 items-end">
+                                                            <span className="text-xl not-sm:text-md">{user.login}</span>
+                                                            <span className={`px-2
+                                                                text-sm text-center
+                                                                not-sm:text-xs
+                                                                rounded-full
+                                                                bg-gray-300`}>{user.type}</span>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </article>
+                                        )
+                                    })
+                    )
+
+                }
+
+
+
+                {filter_items.map((user)=>{
                     return(
                         <article key={user.id} className="flex flex-col">
                             <a href={user.html_url} target="_blank" rel="noopener noreferrer">
@@ -187,6 +236,7 @@ export default function Search() {
                         </article>
                     )
                 })}
+
                 <footer className="flex self-center">
                     <button className={`w-12 
                         text-center
