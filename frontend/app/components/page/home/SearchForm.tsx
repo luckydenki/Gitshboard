@@ -11,10 +11,6 @@ const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: Ret
     const formData = new FormData(e.currentTarget);
     const searchName = formData.get("search_name")??"";
 
-    // console.log("검색어:", formData.get("search_name"));
-    // console.log("전체 데이터:", [...formData.entries()]);
-    // console.log("객체 변환:", Object.fromEntries(formData.entries()));
-
     if(searchName === ""){
         Log( "검색어가 비어있습니다. 검색을 진행하지 않습니다.");
         return;

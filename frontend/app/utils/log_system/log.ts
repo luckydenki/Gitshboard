@@ -18,21 +18,36 @@ export function isLocal(){
 }
 
 
-export function Log(logging : any){
-    
-    switch(logMode){
+function log_switch(logf: Function, logging : any){
+
+    switch (logMode) {
         case LogMode.LOG:
-            console.log(logging);
+            logf(...logging);
             break;
-        
+
         case LogMode.AUTO:
-            if(isLocal()){
-                console.log(logging);
-            }    
+            if (isLocal()) {
+                logf(...logging);
+            }
             break;
-        
+
         default:
             break;
 
     }
+
+}
+
+
+export function Log(...logging : any){
+    
+    log_switch(console.log, logging);
+
+}
+
+
+export function ErrorLog(...logging : any){
+
+    log_switch(console.error, logging);
+
 }

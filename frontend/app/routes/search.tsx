@@ -4,6 +4,7 @@ import type { CommonErrorResponse, CommonResponse, ErrorStatus, SuccessStatus } 
 import getBackendURL from "~/utils/getBackendURL";
 import "../routes/search.css";
 import { useMemo, useRef, useState, type JSX } from "react";
+import { ErrorLog, Log } from "~/utils/log_system/log";
 
 interface GithubUserSearchResponse{
     total_count: number
@@ -58,14 +59,14 @@ export default function Search() {
     const name : string = searchParams.get("name") ?? "";
     const page : string = searchParams.get("page") ?? "1";
 
-    console.log("Search page loaded with search_name:", name, page);
+    Log("Search page loaded with search_name:", name, page);
 
     const { data, isLoading, isError} = useQuery(
          {
             queryKey : ["search", name, page],
             queryFn : async ()=>{
                 const backendURL = getBackendURL();
-                console.log("backendURL:", backendURL);
+                Log("backendURL:", backendURL);
                 try{
                     const urlParams = new URLSearchParams({
                         name : name,
@@ -73,7 +74,7 @@ export default function Search() {
                         per_page : per_page.current.toString()
                     });
 
-                    console.log("params" , urlParams.toString());
+                    Log("params" , urlParams.toString());
 
                     const res = await fetch(`${backendURL}/api/search?${urlParams.toString()}`);
                     if(res.ok){
@@ -85,7 +86,7 @@ export default function Search() {
                         throw new Error(`Error ${errorData.status}: ${errorData.title} - ${errorData.detail}`);
                     }
                 }catch(error){
-                    console.error("Failed to fetch search results:", error);
+                    ErrorLog("Failed to fetch search results:", error);
                 }
             },
             staleTime :1 * 20 * 1000,
@@ -102,7 +103,7 @@ export default function Search() {
         const pageCount = Math.ceil(totalCount / perpage);
 
         const cluster = Math.floor((currentpage-1) /perpage);
-        console.log("cluster ",cluster, "current page", currentpage);
+        Log("cluster ",cluster, "current page", currentpage);
         const buttons: Array<JSX.Element> = [];
 
 
@@ -126,7 +127,7 @@ export default function Search() {
     },[data?.total_count]);
 
 
-    console.log("frontend data" ,data);
+    Log("frontend data" ,data);
 
     if(isLoading){
         return <div>Loading...</div>
