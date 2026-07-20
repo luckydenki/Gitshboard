@@ -13,7 +13,8 @@ interface GithubUserSearchResponse{
         id: number,
         avatar_url: string,
         html_url: string,
-        type: string
+        type: string,
+        
     }>
 }
 
@@ -24,14 +25,26 @@ function PageButton({pageNumber, isActive, onClick} : {pageNumber: number, isAct
         <button className={`w-12 h-12
             ${isActive ? "bg-gray-300" : "bg-white"}
             text-center
-            hover:bg-gray-400
+            not-disabled:hover:bg-gray-400
             not-sm:text-xs not-sm:w-8 not-sm:h-8
             `}
             onClick={onClick}
+            disabled={isActive}
             >
             {pageNumber}
         </button>
     )
+}
+
+
+function Pagination(total_count : number, page:number, per_page :number ){
+
+    const totalCount = total_count ?? 0;
+    const pageCount = Math.ceil(totalCount / per_page);
+    const cluster = Math.floor((page-1) /per_page);
+
+
+
 }
 
 
@@ -43,7 +56,7 @@ export default function Search() {
     const per_page = useRef(10);
         
     const name : string = searchParams.get("name") ?? "";
-    const page : string = searchParams.get("page") ?? "";
+    const page : string = searchParams.get("page") ?? "1";
 
     console.log("Search page loaded with search_name:", name, page);
 
@@ -82,20 +95,22 @@ export default function Search() {
 
 
     const PaginationButton = useMemo(()=>{
+
         const totalCount = data?.total_count ?? 0;
         const currentpage = Number(page);
         const perpage = per_page.current;
         const pageCount = Math.ceil(totalCount / perpage);
 
-        const cluster = (currentpage-1) /perpage;
-
+        const cluster = Math.floor((currentpage-1) /perpage);
+        console.log("cluster ",cluster, "current page", currentpage);
         const buttons: Array<JSX.Element> = [];
 
 
-
-
         for(let i = cluster * 10 + 1; i <= Math.min(pageCount,cluster * 10 + 10); i++){
-            buttons.push(<PageButton key={i} pageNumber={i} isActive={false} onClick={()=>{
+
+            const isActive = Number(page) == i ?  true : false;
+
+            buttons.push(<PageButton key={i} pageNumber={i} isActive={isActive} onClick={()=>{
 
                 const searchParams = new URLSearchParams({
                     name : name,
@@ -106,6 +121,7 @@ export default function Search() {
                 //console.log("page : ", i);
             }} />);
         }
+
         return buttons;
     },[data?.total_count]);
 
@@ -142,6 +158,7 @@ export default function Search() {
                             <a href={user.html_url} target="_blank" rel="noopener noreferrer">
                                 <div className={`
                                         flex items-center gap-6 justify-between px-6 py-4
+                                        min-w-80
                                         rounded-[1.75rem]
                                         bg-white  shadow-md
                                         hover:bg-gray-100 dark:hover:bg-gray-800
@@ -170,7 +187,12 @@ export default function Search() {
                         not-sm:text-xs not-sm:w-8 not-sm:h-8
                         `}
                         onClick={()=>{
-                            navigate("/")
+                            const searchParams = new URLSearchParams({
+                                    name : name,
+                                    page : Math.max(1,Number(page) - 10).toString(),
+                                })
+
+                            navigate(`/search?${searchParams.toString()}`)
                             console.log("뒤로가기")
                         }}
                         >
@@ -183,10 +205,15 @@ export default function Search() {
                         not-sm:text-xs not-sm:w-8 not-sm:h-8
                         `}
                         onClick={()=>{
+                            const total_count = data?.total_count ?? 0;
+
                             const searchParams = new URLSearchParams({
                                 name : name,
-                                page : page.toString(),
+                                page : Math.min(total_count ,Number(page) + 10).toString(),
                             })
+
+                            navigate(`/search?${searchParams.toString()}`)
+
                             console.log("앞으로가기")
                         }}
                         >
