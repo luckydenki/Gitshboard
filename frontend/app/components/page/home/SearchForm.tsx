@@ -30,7 +30,7 @@ const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: Ret
 
 const SearchFormCss = {
     form : `flex flex-row
-            w-full min-w-md max-w-4xl pl-6 pr-2 py-1
+            w-full min-w-80 max-w-4xl pl-6 pr-2 py-1
             border rounded-full border-gray-300 bg-white shadow-md
             text-gray-950`,
     

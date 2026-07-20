@@ -5,6 +5,7 @@ import getBackendURL from "~/utils/getBackendURL";
 import "../routes/search.css";
 import { useMemo, useRef, useState, type JSX } from "react";
 import { ErrorLog, Log } from "~/utils/log_system/log";
+import SearchForm from "~/components/page/home/SearchForm";
 
 interface GithubUserSearchResponse{
     total_count: number
@@ -142,16 +143,21 @@ export default function Search() {
                     <h2 className="not-md text-gray-950">Search Results for "{name}"</h2>
                 </header>
 
-                <div>
-                    <select>
-                         <option value="user">
-                            user
-                        </option>
-                        <option value="repository">
-                            repository
-                        </option>
-                    </select>
-                </div>
+                <section>
+                    <div className="flex gap-2 justify-between">
+                        <select>
+                            <option value="user">
+                                user
+                            </option>
+                            <option value="repository">
+                                repository
+                            </option>
+                        </select>
+                        
+
+                        <SearchForm/>
+                    </div>
+                </section>
 
                 {data?.items.map((user)=>{
                     return(
