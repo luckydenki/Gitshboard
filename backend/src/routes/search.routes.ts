@@ -4,16 +4,19 @@ import { CommonErrorResponse, CommonResponse } from "../types/middlewares/common
 const search_router = Router();
 
 
+interface GithubUserSearchItem{
+    login: string,
+    id: number,
+    avatar_url: string,
+    html_url: string,
+    type: string
+}
+
+
 interface GithubUserSearchResponse{
     total_count: number
     incomplete_results: boolean,
-    items: Array<{
-        login: string,
-        id: number,
-        avatar_url: string,
-        html_url: string,
-        type: string
-    }>
+    items: Array<GithubUserSearchItem>
 }
 
 interface GithubSearchErrorResponse {
@@ -29,7 +32,7 @@ search_router.get("/", async(req, res)=>{
     const query = req.query;
     const name = query.name as string;
     const page = query.page as string ?? "1";
-    const per_page = query.page as string ?? "10"; 
+    const per_page = query.per_page as string ?? "10"; 
 
     const params = new URLSearchParams({ q : name, page : page, per_page : per_page })
 
@@ -53,7 +56,14 @@ search_router.get("/", async(req, res)=>{
 
         
         if(search_res.ok){
-            const data : GithubUserSearchResponse = await search_res.json();
+            const data: GithubUserSearchResponse  = await search_res.json();
+
+            data.items.forEach((e, idx)=>{
+                const { id, avatar_url, html_url, login, type } = e;
+                data.items[idx] = { id, avatar_url, html_url, login, type};
+            })
+
+
             const toResponse : CommonResponse<GithubUserSearchResponse> = {
                 status :  200,
                 success : true,

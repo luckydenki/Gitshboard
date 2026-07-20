@@ -11,10 +11,6 @@ const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: Ret
     const formData = new FormData(e.currentTarget);
     const searchName = formData.get("search_name")??"";
 
-    // console.log("검색어:", formData.get("search_name"));
-    // console.log("전체 데이터:", [...formData.entries()]);
-    // console.log("객체 변환:", Object.fromEntries(formData.entries()));
-
     if(searchName === ""){
         Log( "검색어가 비어있습니다. 검색을 진행하지 않습니다.");
         return;
@@ -22,7 +18,7 @@ const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: Ret
     else if(typeof searchName === "string"){
         Log( "검색어가 문자열입니다. 검색을 진행합니다. : "+ searchName);
         
-        navigate("/search?search_name="+encodeURIComponent(searchName));
+        navigate("/search?name="+encodeURIComponent(searchName));
     }
     else{
         Log( "검색어가 문자열이 아닙니다.");
@@ -34,7 +30,7 @@ const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: Ret
 
 const SearchFormCss = {
     form : `flex flex-row
-            w-full min-w-md max-w-4xl pl-6 pr-2 py-1
+            w-full min-w-80 max-w-4xl pl-6 pr-2 py-1
             border rounded-full border-gray-300 bg-white shadow-md
             text-gray-950`,
     

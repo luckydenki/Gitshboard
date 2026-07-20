@@ -78,7 +78,7 @@ export default function DashboardHeader(){
     }, []);
 
     return(
-        <HeaderLayout>
+        <HeaderLayout onClick={()=>navigate("/dashboard")}>
                 <div className="flex flex-row gap-6 text-xl font-medium not-sm:text-sm not-sm:font-light tracking-[0.12em] text-gray-800 dark:text-gray-200">
                     {menus}
                 </div>

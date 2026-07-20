@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { Outlet } from "react-router";
 import HeaderLayout from "./variant/HeaderLayout";
+import SearchHeader from "./variant/SearchHeader";
 
 
 
@@ -13,7 +14,7 @@ export default function QueryClientLayout() {
 
     return(
         <QueryClientProvider client ={queryClient}>
-            <HeaderLayout/>
+            <SearchHeader/>
             <Outlet/>
         </QueryClientProvider>
 
