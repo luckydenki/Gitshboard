@@ -119,8 +119,7 @@ export default function Search() {
                     page : i.toString(),
                 })
 
-                navigate(`/search?${searchParams.toString()}`);
-                //console.log("page : ", i);
+                navigate(`/search?${searchParams.toString()}`);;
             }} />);
         }
 
@@ -146,9 +145,12 @@ export default function Search() {
                 </header>
 
                 <section>
-                    <div className="flex gap-2 justify-between">
+                    <div className={`flex gap-4 justify-between
+                            not-sm:flex-col-reverse not-sm:gap-4 not-sm:items-start
+                        `}>
 
                         <select name="selectedType" defaultValue="all"
+                            className="p-2 hover:bg-gray-200 rounded-xl "
                             onChange ={(e)=>{ SetCategory(()=>e.target.value)}}
                         >
                             <option value ="all">
