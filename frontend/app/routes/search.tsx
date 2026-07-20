@@ -39,11 +39,9 @@ function PageButton({pageNumber, isActive, onClick} : {pageNumber: number, isAct
 export default function Search() {
 
     const [searchParams] = useSearchParams();
-    const [paginationCluster, setPaginationCluster] = useState(0);
     const navigate = useNavigate()
-    const clusterSize = useRef(8);
+    const per_page = useRef(10);
         
-
     const name : string = searchParams.get("name") ?? "";
     const page : string = searchParams.get("page") ?? "";
 
@@ -59,7 +57,7 @@ export default function Search() {
                     const urlParams = new URLSearchParams({
                         name : name,
                         page : page,
-                        per_page : clusterSize.current.toString()
+                        per_page : per_page.current.toString()
                     });
 
                     console.log("params" , urlParams.toString());
@@ -85,11 +83,18 @@ export default function Search() {
 
     const PaginationButton = useMemo(()=>{
         const totalCount = data?.total_count ?? 0;
-        const getCount = 10;
-        const pageCount = Math.ceil(totalCount / getCount);
-        
+        const currentpage = Number(page);
+        const perpage = per_page.current;
+        const pageCount = Math.ceil(totalCount / perpage);
+
+        const cluster = (currentpage-1) /perpage;
+
         const buttons: Array<JSX.Element> = [];
-        for(let i = paginationCluster * 10 + 1; i <= Math.min(pageCount,paginationCluster * 10 + 10); i++){
+
+
+
+
+        for(let i = cluster * 10 + 1; i <= Math.min(pageCount,cluster * 10 + 10); i++){
             buttons.push(<PageButton key={i} pageNumber={i} isActive={false} onClick={()=>{
 
                 const searchParams = new URLSearchParams({
@@ -102,7 +107,7 @@ export default function Search() {
             }} />);
         }
         return buttons;
-    },[data?.total_count, paginationCluster]);
+    },[data?.total_count]);
 
 
     console.log("frontend data" ,data);
@@ -163,7 +168,12 @@ export default function Search() {
                         text-center
                         hover:bg-gray-400
                         not-sm:text-xs not-sm:w-8 not-sm:h-8
-                        `}>
+                        `}
+                        onClick={()=>{
+                            navigate("/")
+                            console.log("뒤로가기")
+                        }}
+                        >
                         {"<"}
                     </button>
                     {PaginationButton}
@@ -171,7 +181,15 @@ export default function Search() {
                         text-center
                         hover:bg-gray-400
                         not-sm:text-xs not-sm:w-8 not-sm:h-8
-                        `}>
+                        `}
+                        onClick={()=>{
+                            const searchParams = new URLSearchParams({
+                                name : name,
+                                page : page.toString(),
+                            })
+                            console.log("앞으로가기")
+                        }}
+                        >
                         {">"}
                     </button>
                 </footer>
