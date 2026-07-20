@@ -29,7 +29,7 @@ search_router.get("/", async(req, res)=>{
     const query = req.query;
     const name = query.name as string;
     const page = query.page as string ?? "1";
-    const per_page = query.page as string ?? "10"; 
+    const per_page = query.per_page as string ?? "10"; 
 
     const params = new URLSearchParams({ q : name, page : page, per_page : per_page })
 

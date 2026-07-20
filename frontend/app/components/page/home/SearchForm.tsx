@@ -22,7 +22,7 @@ const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: Ret
     else if(typeof searchName === "string"){
         Log( "검색어가 문자열입니다. 검색을 진행합니다. : "+ searchName);
         
-        navigate("/search?search_name="+encodeURIComponent(searchName));
+        navigate("/search?name="+encodeURIComponent(searchName));
     }
     else{
         Log( "검색어가 문자열이 아닙니다.");

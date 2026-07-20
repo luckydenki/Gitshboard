@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "react-router"
+import { useNavigate, useSearchParams } from "react-router"
 import type { CommonErrorResponse, CommonResponse, ErrorStatus, SuccessStatus } from "~/types/common/common";
 import getBackendURL from "~/utils/getBackendURL";
 import "../routes/search.css";
@@ -18,7 +18,7 @@ interface GithubUserSearchResponse{
 }
 
 
-function PageButton({pageNumber, isActive} : {pageNumber: number, isActive: boolean}){
+function PageButton({pageNumber, isActive, onClick} : {pageNumber: number, isActive: boolean, onClick : ()=>void}){
 
     return(
         <button className={`w-12 h-12
@@ -26,7 +26,9 @@ function PageButton({pageNumber, isActive} : {pageNumber: number, isActive: bool
             text-center
             hover:bg-gray-400
             not-sm:text-xs not-sm:w-8 not-sm:h-8
-            `}>
+            `}
+            onClick={onClick}
+            >
             {pageNumber}
         </button>
     )
@@ -38,21 +40,31 @@ export default function Search() {
 
     const [searchParams] = useSearchParams();
     const [paginationCluster, setPaginationCluster] = useState(0);
-    const clusterSize = useRef(10);
+    const navigate = useNavigate()
+    const clusterSize = useRef(8);
         
 
-    const name : string = searchParams.get("search_name") ?? "";
+    const name : string = searchParams.get("name") ?? "";
+    const page : string = searchParams.get("page") ?? "";
 
-    console.log("Search page loaded with search_name:", name);
+    console.log("Search page loaded with search_name:", name, page);
 
     const { data, isLoading, isError} = useQuery(
          {
-            queryKey : ["search", name],
+            queryKey : ["search", name, page],
             queryFn : async ()=>{
                 const backendURL = getBackendURL();
                 console.log("backendURL:", backendURL);
                 try{
-                    const res = await fetch(`${backendURL}/api/search?name=${encodeURIComponent(name)}`);
+                    const urlParams = new URLSearchParams({
+                        name : name,
+                        page : page,
+                        per_page : clusterSize.current.toString()
+                    });
+
+                    console.log("params" , urlParams.toString());
+
+                    const res = await fetch(`${backendURL}/api/search?${urlParams.toString()}`);
                     if(res.ok){
                         const data : CommonResponse<GithubUserSearchResponse> = await res.json();
                         return data.data;
@@ -64,10 +76,8 @@ export default function Search() {
                 }catch(error){
                     console.error("Failed to fetch search results:", error);
                 }
-
             },
-            staleTime : 5* 60 * 1000, // 5분
-            gcTime : 10 * 60 * 1000, // 10분
+            staleTime :1 * 20 * 1000,
             enabled : !!name, // name이 존재할 때만 쿼리 실행
          }
     );
@@ -80,7 +90,16 @@ export default function Search() {
         
         const buttons: Array<JSX.Element> = [];
         for(let i = paginationCluster * 10 + 1; i <= Math.min(pageCount,paginationCluster * 10 + 10); i++){
-            buttons.push(<PageButton key={i} pageNumber={i} isActive={false} />);
+            buttons.push(<PageButton key={i} pageNumber={i} isActive={false} onClick={()=>{
+
+                const searchParams = new URLSearchParams({
+                    name : name,
+                    page : i.toString(),
+                })
+
+                navigate(`/search?${searchParams.toString()}`);
+                //console.log("page : ", i);
+            }} />);
         }
         return buttons;
     },[data?.total_count, paginationCluster]);
