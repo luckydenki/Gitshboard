@@ -56,30 +56,13 @@
 #### 6. 프로젝트 상태 분석
 마지막 Push 시점과 보관 여부를 기준으로 프로젝트를 Active, Idle, Dormant, Archived 상태로 구분합니다.
 
+#### 7. 다른 계정 검색
+Github 공개 api를 이용해 로그인이 없어도 다른 계정을 검색할 수 있습니다. (단 Oauth api 한계상 토큰 없는 호출은 횟수 제한 있음)
+
 
 외에도 현재 다른 계정 검색, 레포 통계 확인 등의 기능을 준비 중입니다.
 
 
-## 아키텍처
-> 해당 아키텍처는 최종 아키텍처가 아니며, 추후 인프라 설계가 바뀌면 아키텍처도 바뀔 수 있습니다.
-
-```mermaid
-flowchart LR
-    U[사용자 브라우저]
-    F[React 프런트엔드<br/>React Router · TanStack Query · Zustand]
-    B[Express API 서버<br/>JWT 인증 미들웨어]
-    G[GitHub OAuth<br/>REST · GraphQL API]
-    P[(PostgreSQL)]
-
-    U --> F
-    F -->|OAuth 인증 요청| G
-    G -->|Authorization Code| F
-    F -->|Code · API 요청<br/>HttpOnly Cookie| B
-    B -->|Access Token 교환<br/>사용자·저장소 데이터 조회| G
-    G -->|GitHub 데이터| B
-    B <-->|Prisma ORM<br/>사용자·토큰 저장| P
-    B -->|JSON 응답| F
-```
 
 - **Frontend (`frontend/`)**: React Router 기반 SPA로 화면 라우팅, API 상태 관리, 통계 계산과 시각화를 담당합니다.
 - **Backend (`backend/`)**: Express 기반 REST API로 OAuth 처리, JWT 검증, GitHub API 연동을 담당합니다.
