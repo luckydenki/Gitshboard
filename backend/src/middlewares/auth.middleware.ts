@@ -104,7 +104,10 @@ export async function checkToken(req : AuthRequest, res : Response, next : NextF
     }
     catch (error) {
         console.error("Error : Token verification error", error);
-        return res.status(401).json({ error: '유효하지 않은 토큰입니다.' });
+        req.state = "failed";
+        req.decoded_token = { userId: -1, githubId: -1 };
+        next();
+        return;
     }
     
 }
