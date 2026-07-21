@@ -1,5 +1,7 @@
 import {Router} from "express";
 import { CommonErrorResponse, CommonResponse } from "../types/middlewares/common";
+import { authToken, checkToken, checkUser } from "../middlewares/auth.middleware";
+import { AuthRequest } from "../types/middlewares/auth";
 
 const search_router = Router();
 
@@ -27,7 +29,7 @@ interface GithubSearchErrorResponse {
 }
 
 
-search_router.get("/", async(req, res)=>{
+search_router.get("/", checkToken, checkUser, async(req : AuthRequest, res)=>{
 
     const query = req.query;
     const name = query.name as string;
@@ -35,6 +37,16 @@ search_router.get("/", async(req, res)=>{
     const per_page = query.per_page as string ?? "10"; 
 
     const params = new URLSearchParams({ q : name, page : page, per_page : per_page })
+
+    let github_token : string |  undefined = undefined;
+
+    if(req.state == 'success'){
+        github_token = req.user?.githubAccessToken!
+        console.log("이 요청은 인증 요청입니다.");
+    }
+    else{
+        console.log("이 요청은 비인증 요청입니다.", github_token);
+    }
 
 
     try{
@@ -51,7 +63,10 @@ search_router.get("/", async(req, res)=>{
 
         const search_res = await fetch(`https://api.github.com/search/users?${params.toString()}`,
         {
-            method : "GET"
+            method : "GET",
+            headers : {
+                'Authorization' : `${github_token ? `token ${github_token}` : undefined}`
+            }
         });
 
         

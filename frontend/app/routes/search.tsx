@@ -65,7 +65,9 @@ export default function Search() {
 
                     Log("params" , urlParams.toString());
 
-                    const res = await fetch(`${backendURL}/api/search?${urlParams.toString()}`);
+                    const res = await fetch(`${backendURL}/api/search?${urlParams.toString()}`,{
+                        credentials :"include"
+                    });
                     if(res.ok){
                         const data : CommonResponse<GithubUserSearchResponse> = await res.json();
                         return data.data;
