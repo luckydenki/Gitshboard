@@ -52,20 +52,20 @@ const SearchFormCss = {
 
 
 
-export default function SearchForm(){
+export default function SearchForm({Customform, CustomInput} : {Customform? : string, CustomInput? : string}){
     const navigate = useNavigate();
 
 
     return(
          <form 
           action ="/search"
-          className ={SearchFormCss.form}
+          className ={Customform ? Customform : SearchFormCss.form}
           aria-label="Search for github users"
           onSubmit={(e)=>handleSearchSubmit(e, navigate)}
           >
             <input 
             type="text"
-            className={SearchFormCss.input}
+            className={CustomInput ? CustomInput :SearchFormCss.input}
             placeholder="Search for users"
             name="search_name"
             />
@@ -74,6 +74,6 @@ export default function SearchForm(){
             type="submit" 
             className={SearchFormCss.submit_button}
             ></button>
-          </form>
+        </form>
     )
 }
