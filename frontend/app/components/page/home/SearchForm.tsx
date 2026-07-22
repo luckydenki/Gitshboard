@@ -52,7 +52,7 @@ const SearchFormCss = {
 
 
 
-export default function SearchForm({Customform, CustomInput} : {Customform? : string, CustomInput? : string}){
+export default function SearchForm({Customform, CustomInput, CustomButton} : {Customform? : string, CustomInput? : string, CustomButton? :string}){
     const navigate = useNavigate();
 
 
@@ -72,7 +72,7 @@ export default function SearchForm({Customform, CustomInput} : {Customform? : st
 
             <button 
             type="submit" 
-            className={SearchFormCss.submit_button}
+            className={CustomButton ? CustomButton : SearchFormCss.submit_button }
             ></button>
         </form>
     )

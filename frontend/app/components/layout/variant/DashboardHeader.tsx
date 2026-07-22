@@ -81,15 +81,36 @@ export default function DashboardHeader(){
     return(
         <HeaderLayout onClick={()=>navigate("/dashboard")}>
             <div className="flex flex-row gap-3">
-                <nav className="flex flex-row gap-6 font-medium text-md not-sm:font-light tracking-[0.12em] text-gray-800 dark:text-gray-200">
+                <nav className={`flex flex-row gap-6 
+                    font-medium text-md 
+                    not-sm:font-light 
+                    not-sm:text-sm
+                    tracking-[0.12em] 
+                    text-gray-800
+                     dark:text-gray-200`}>
                     {menus}
                 </nav>
 
                 <SearchForm
                     Customform={`
                         flex flex-row rounded-full shadow-md text-sm pl-4 pr-2 py-1
+                        gap-2
+                        items-center
+                        
                     `}
-                    CustomInput={`
+                    CustomInput={
+                        `
+                        max-w-10
+                        hover:max-w-80
+                        focus:max-w-80
+                        transition-all duration-300
+                        
+                        `
+                    }
+                    CustomButton={`
+                        rounded-full bg-github-light size-8
+                        z-1
+                        hover:ring-2 hover:ring-github-light hover:bg-github-light/60
                         
                     `}
                 />
