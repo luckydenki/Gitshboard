@@ -1,0 +1,5 @@
+echo "push"
+
+npm run build | exit 1
+
+echo "build complete"

@@ -67,7 +67,6 @@ export default function LoginButton({ ID, URL, mode = "Normal" }: LoginButtonPro
             handleOAuthLogin(ID, URL);
             }}
         > 
-            
             { 
                 mode === "Normal" && (
                  <span className="not-sm:hidden text-xl font-semibold">Login with Github </span> 

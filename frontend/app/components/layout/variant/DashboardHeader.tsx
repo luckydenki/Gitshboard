@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import HeaderLayout from "~/components/layout/variant/HeaderLayout";
 import getBackendURL from "~/utils/getBackendURL";
 import type { CommonResponse } from "~/types/common/common";
+import SearchForm from "~/components/page/home/SearchForm";
 
 /*
     사용 페이지
@@ -79,19 +80,51 @@ export default function DashboardHeader(){
 
     return(
         <HeaderLayout onClick={()=>navigate("/dashboard")}>
-                <div className="flex flex-row gap-6 text-xl font-medium not-sm:text-sm not-sm:font-light tracking-[0.12em] text-gray-800 dark:text-gray-200">
+            <div className="flex flex-row gap-3">
+                <nav className={`flex flex-row gap-6 
+                    font-medium text-md 
+                    not-sm:font-light 
+                    not-sm:text-sm
+                    tracking-[0.12em] 
+                    text-gray-800
+                     dark:text-gray-200`}>
                     {menus}
-                </div>
+                </nav>
 
-                <div className="flex items-center gap-3 rounded-full bg-white px-3 py-2 shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:bg-gray-900">
+                <SearchForm
+                    Customform={`
+                        flex flex-row rounded-full shadow-md text-sm pl-4 pr-2 py-1
+                        gap-2
+                        items-center
+                        
+                    `}
+                    CustomInput={
+                        `
+                        max-w-10
+                        hover:max-w-80
+                        focus:max-w-80
+                        transition-all duration-300
+                        
+                        `
+                    }
+                    CustomButton={`
+                        rounded-full bg-github-light size-8
+                        z-1
+                        hover:ring-2 hover:ring-github-light hover:bg-github-light/60
+                        
+                    `}
+                />
+
+                <button className="flex w-fit items-center gap-3 rounded-full bg-white px-3 py-2 shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:bg-gray-900">
                     <img
                         src={data?.avatarUrl}
                         alt="avatar"
                         fetchPriority="high"
                         className="h-8 w-8 rounded-full"
                     />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200 not-sm:hidden">{data?.login}</span>
-                </div>
+                    <span className="overflow-hidden text-sm font-medium text-gray-700 dark:text-gray-200 not-sm:hidden">{data?.login}</span>
+                </button>
+            </div>
         </HeaderLayout>
     )
 }

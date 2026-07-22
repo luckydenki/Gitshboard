@@ -1,7 +1,10 @@
-import { dench, DenchURLNormalizeMode } from "dench-fetch";
-import getBackendURL from "~/utils/getBackendURL";
+
 import { Log } from "~/utils/log_system/log";
 import { useNavigate } from "react-router";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import getBackendURL from "~/utils/getBackendURL";
+import type { GithubUserSearchResponse } from "~/types/common/search";
+import type { GithubUser } from "~/types/GithubInfo";
 
 
 const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: ReturnType<typeof useNavigate>)=>{
@@ -27,6 +30,25 @@ const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: Ret
 
 }
 
+const handleSearchDebounce = async(keyword : string) =>{
+
+    const backendURL = getBackendURL();
+    const urlParams = new URLSearchParams({
+        name : keyword,
+        per_page : "8"
+    })
+
+
+    const res  = await fetch(`${backendURL}/api/search?${urlParams.toString()}`, {
+        credentials : "include"
+    }).then(async(res)=>{
+        return await res.json();
+    })
+
+    return res.data;
+}
+
+
 
 const SearchFormCss = {
     form : `flex flex-row
@@ -34,7 +56,7 @@ const SearchFormCss = {
             border rounded-full border-gray-300 bg-white shadow-md
             text-gray-950`,
     
-    input : `flex-1 
+    input : `flex-1
             text-md
             focus:outline-none 
             not-sm:text-sm not-sm:h-12 
@@ -52,28 +74,105 @@ const SearchFormCss = {
 
 
 
-export default function SearchForm(){
-    const navigate = useNavigate();
 
+
+export default function SearchForm({Customform, CustomInput, CustomButton} : {Customform? : string, CustomInput? : string, CustomButton? :string}){
+    const navigate = useNavigate();
+    const [isVisible, setIsVisible] = useState<boolean>(false);
+    const form = useRef<HTMLFormElement>(null);
+    const input = useRef<HTMLInputElement>(null);
+    const [debounce_data, setDebouceData] = useState<GithubUserSearchResponse>();
+
+    let c : NodeJS.Timeout;
+
+    const debounce = (e : ChangeEvent<HTMLInputElement, HTMLInputElement> )=>{
+        clearTimeout(c);
+        //console.log("search :", e.target.value);
+        if(e.target.value === "" || e.target.value === undefined){
+            console.log("empty");
+            setDebouceData(undefined)
+            return;
+        }
+
+        c = setTimeout(async()=>{
+            const search = e.target.value;
+            console.log("debounce 실행")
+            const data = await handleSearchDebounce(search);
+            setDebouceData(data);
+            console.log("data : ", data);
+        }, 1500)
+
+        //console.log(e.currentTarget.value)
+    }
+
+
+    useEffect(()=>{
+        return(()=> clearTimeout(c))   
+    },[])
+
+    console.log("items ", debounce_data?.items);
 
     return(
+        <div className="relative flex flex-col w-full min-w-80 max-w-200 justify-center items-center">
+
          <form 
+          ref={form}
           action ="/search"
-          className ={SearchFormCss.form}
+          className ={Customform ? Customform : SearchFormCss.form}
           aria-label="Search for github users"
           onSubmit={(e)=>handleSearchSubmit(e, navigate)}
           >
+
             <input 
+            ref={input}
             type="text"
-            className={SearchFormCss.input}
+            className={CustomInput ? CustomInput :SearchFormCss.input}
             placeholder="Search for users"
             name="search_name"
-            />
+            onFocus={()=>{
+                setIsVisible(true);
+            }}
+            onBlur={()=>{
+                setIsVisible(false);
+            }}
+            onChange={
+                debounce
+            }>
+            </input>
 
             <button 
             type="submit" 
-            className={SearchFormCss.submit_button}
+            className={CustomButton ? CustomButton : SearchFormCss.submit_button }
             ></button>
-          </form>
+        </form>
+
+        <div className={`absolute top-full
+            flex-col w-full gap-1 item px-2 bg-white max-h-80 overflow-y-scroll
+            ${isVisible ? `flex` : `hidden` }
+            `}>
+            {
+                debounce_data?.items.map((e, idx)=>
+                    <button className= {`flex justify-between py-1 border-b border-github-light/50 
+                        hover:bg-gray-400/50`}
+                            key={idx}        
+                            onMouseDown={(btn)=>{
+                            btn.preventDefault();
+                            input!.current!.value = e.login
+                        }}
+                    >
+                        <img src={e.avatar_url} width="50" height="50"/>
+                        <span> 
+                            {e.login}
+                        </span>
+                    </button>
+                ) 
+            }
+        
+               
+            
+        </div>
+
+        </div>
+
     )
 }

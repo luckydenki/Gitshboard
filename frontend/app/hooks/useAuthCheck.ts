@@ -1,4 +1,5 @@
 import {useEffect, useState }  from "react";
+import getBackendURL from "~/utils/getBackendURL";
 
 type CommonResponse = { success: boolean; } | { error: string; }
 
@@ -10,7 +11,9 @@ export default function useAuthCheck(){
       useEffect(()=>{
         const checkLogin = async ()=>{
           try{
-             const res = await fetch('https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app/api/auth/check',{
+            const backendURL = getBackendURL();
+            console.log(backendURL)
+             const res = await fetch(`${backendURL}/api/auth/check`,{
                 method : 'GET',
                 credentials : 'include'
              })

@@ -25,7 +25,7 @@ export default function Home() {
   
   const { loginCheckState } = useAuthCheck();
 
-  console.log("isLocal:", isLocal());
+  console.log("isLocal:", isLocal(), "login check", loginCheckState);
 
   useEffect(()=>{
     if(loginCheckState){
@@ -36,6 +36,7 @@ export default function Home() {
   // console.log("Login Check State:", loginCheckState);
 
   if(loginCheckState === null){
+    console.log("locing check")
     return null;
   }
 
