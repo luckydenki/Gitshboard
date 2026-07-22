@@ -5,6 +5,9 @@
     "husky": "^9.1.7"
   },
   "scripts": {
-      "prepare": "node .husky/install.mjs"
+      "prepare": "node .husky/install.mjs",
+      "build:frontend" : "npm --prefix frontend run build",
+      "build:backend" : "npm --prefix backend run build",
+      "build" : "npm run build:frontend && npm run build:backend"
   }
 }
