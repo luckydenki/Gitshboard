@@ -1,9 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app/:path*"
+      "destination": "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app/api/:path*"
     }
   ]
 }
