@@ -1,6 +1,5 @@
 import  {useEffect, useRef} from 'react'
 import {useSearchParams, useNavigate} from 'react-router';
-import getBackendURL from '~/utils/getBackendURL';
 import { Log } from '~/utils/log_system/log';
 
 export default function Callback() {

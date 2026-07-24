@@ -7,6 +7,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://port-0-gitshboard-mqw7zlvy6c191acf.sel3.cloudtype.app/api/:path*"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
     }
   ]
 }
