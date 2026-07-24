@@ -18,28 +18,22 @@ function OnSetFetchMode(e : React.MouseEvent<HTMLButtonElement>, setFetchMode : 
 
 export default function Dashboard(){
     const navigate = useNavigate();
-
-    const backendurl = getBackendURL();
-    
-    const denchInstance = useRef(dench(`${backendurl}/api`, "dashboardDench"));
     
     const { data, error, isLoading, isError} = useQuery({
         queryKey: ["githubUserData"],
         queryFn : async()=>{
-            const res = await denchInstance.current.get<CommonResponse<GithubUser>>(
-                "users"
-            )
-            .credentials(HTTPCredentials.INCLUDE)
-            .boundaryNormalize()
-            .error((err)=>{
-                console.error("Failed to fetch user data:", err);
+            const json = await fetch("/api/users",{
+                method : 'GET',
+               credentials : HTTPCredentials.INCLUDE,
+            }).then(async(res)=>{
+                return await res.json() as CommonResponse<GithubUser>
             })
-            .toJson();
-            return res.data;
+
+            return json.data;
         },
         staleTime : 1 * 60 * 1000, //1분
         gcTime : 5 * 60 * 1000, //5분
-        retry : (failureCount, error)=>{
+        retry : (failureCount, error)=>{        //retry
             if(error.message.includes("401")){
                 // Handle unauthorized error
                 return false;

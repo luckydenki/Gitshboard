@@ -27,34 +27,79 @@ export const surfaceClass = "rounded-[1.75rem] bg-white shadow-[0_22px_65px_rgba
 
 export const languagesQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
-            const res = await commonAPI.copy().api<CommonResponseType<GithubLanguageRepositoryNode>>("repos/languages").toJson();
+            const res = await fetch(`/api/repos/languages`, {
+                credentials: 'include',
+                }).then(async(res)=>{
+                if(!res.ok){
+                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                }
+                return res.json() as Promise<CommonResponseType<GithubLanguageRepositoryNode>>;
+            })
+
+           // const res = await commonAPI.copy().api<CommonResponseType<GithubLanguageRepositoryNode>>("repos/languages").toJson();
             return res.data;
         }
 
 
 export const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
-            const res = await commonAPI.copy().api<CommonResponseType<GithubCommitTimeRepositoryNode>>("repos/commitTime").toJson();
+            const res = await fetch(`/api/repos/commitTime`, {
+                credentials: 'include',
+                }).then(async(res)=>{
+                if(!res.ok){
+                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                }
+                return res.json() as Promise<CommonResponseType<GithubCommitTimeRepositoryNode>>;
+            })
+
+            //const res = await commonAPI.copy().api<CommonResponseType<GithubCommitTimeRepositoryNode>>("repos/commitTime").toJson();
             return res.data;
         }
 
 
 export const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
-            const res = await commonAPI.copy().api<CommonResponseType<GithubProjectTopicsNode>>("repos/projectTopics").toJson();
+            const res = await fetch(`/api/repos/projectTopics`, {
+                credentials: 'include',
+                }).then(async(res)=>{
+                if(!res.ok){
+                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                }
+                return res.json() as Promise<CommonResponseType<GithubProjectTopicsNode>>;
+            })
+
+            //const res = await commonAPI.copy().api<CommonResponseType<GithubProjectTopicsNode>>("repos/projectTopics").toJson();
             return res.data;
         }
 
 export const developStatsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
-            const res = await commonAPI.copy().api<CommonResponseType<DevelopStatsNode>>("repos/developStats").toJson();
+            const res = await fetch(`/api/repos/developStats`, {
+                credentials: 'include',
+                }).then(async(res)=>{
+                if(!res.ok){
+                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                }
+                return res.json() as Promise<CommonResponseType<DevelopStatsNode>>;
+            })
+
+            //const res = await commonAPI.copy().api<CommonResponseType<DevelopStatsNode>>("repos/developStats").toJson();
             return res.data;
         }
 
 
 export const projectLiveRateQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
-            const res = await commonAPI.copy().api<CommonResponseType<ProjectLiveRateNode>>("repos/projectLiveRate").toJson();
+            const res = await fetch(`/api/repos/projectLiveRate`, {
+                credentials: 'include',
+                }).then(async(res)=>{
+                if(!res.ok){
+                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                }
+                return res.json() as Promise<CommonResponseType<ProjectLiveRateNode>>;
+            })
+
+            //const res = await commonAPI.copy().api<CommonResponseType<ProjectLiveRateNode>>("repos/projectLiveRate").toJson();
             return res.data;
         }
 

@@ -6,8 +6,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import React from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";
-import type { CommonResponse } from "~/types/common/common";
-import type { GithubLanguageRepositoryNode, GithubRepoCommonResponse } from "~/types/page/statpage";
 
 
 export default React.memo(TechnologyDistributionArticle);
