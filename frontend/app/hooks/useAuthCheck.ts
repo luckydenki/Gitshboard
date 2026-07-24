@@ -11,9 +11,7 @@ export default function useAuthCheck(){
       useEffect(()=>{
         const checkLogin = async ()=>{
           try{
-            const backendURL = getBackendURL();
-            console.log(backendURL)
-             const res = await fetch(`${backendURL}/api/auth/check`,{
+             const res = await fetch(`/api/auth/check`,{
                 method : 'GET',
                 credentials : 'include'
              })

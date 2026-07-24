@@ -36,9 +36,8 @@ export default function useFetchAll<T extends any[]>( config? : RequestInit, sta
 
         const fetchData = async()=>{
             try{
-                const backendURL = getBackendURL();
                 const req = api_url.map(async(url)=>{
-                    const res = await fetch(`${backendURL}/${url}`,
+                    const res = await fetch(`/${url}`,
                         config ? config : {}
                     )   
                     

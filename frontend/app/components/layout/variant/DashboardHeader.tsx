@@ -43,13 +43,13 @@ export default function DashboardHeader(){
         {
             queryKey: ["headerUserData"], 
             queryFn: async() =>{
-                const res = await denchInstance.current.get<CommonResponse<UserDataState>>("users/userheader")
-                .credentials(HTTPCredentials.INCLUDE)
-                .error((err)=>{
-                    console.error("Failed to fetch user header data:", err);
+                const json = await fetch(`/api/users/userheader`,{
+                    method : 'GET',
+                    credentials : HTTPCredentials.INCLUDE,
+                }).then(async(res)=>{
+                    return await res.json() as CommonResponse<UserDataState>
                 })
-                .toJson()
-                return res.data;
+                return json.data;
             },
             staleTime : 5 * 60 * 1000, //5분,
             retry : (failureCount, error)=>{

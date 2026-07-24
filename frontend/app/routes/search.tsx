@@ -65,7 +65,7 @@ export default function Search() {
 
                     Log("params" , urlParams.toString());
 
-                    const res = await fetch(`${backendURL}/api/search?${urlParams.toString()}`,{
+                    const res = await fetch(`/api/search?${urlParams.toString()}`,{
                         credentials :"include"
                     });
                     if(res.ok){
