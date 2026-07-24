@@ -30,11 +30,9 @@ jobs:
               dockerfile: Dockerfile
               env:
                 - name: GITHUB_CLIENT_ID
-                  value: Ov23li2P0q03yPDXWrNE
+                  value: Ov23liYCezWSz7RLjagG
                 - name: GITHUB_CLIENT_SECRET
-                  value: a2969cc855cc503eea2a21756777cb734df3d150
-                - name: GITHUB_CALLBACK_URL
-                  value: http://localhost:5173/auth/github/callback
+                  value: 2748d353270f6481d4f3984b58540cd61f8869bc
                 - name: DATABASE_URL
                   value: postgresql://postgres.hzivgipftbsvvppkxqxi:0901zxcasd.!@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true
                 - name: DIRECT_URL
