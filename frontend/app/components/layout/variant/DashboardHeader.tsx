@@ -1,6 +1,6 @@
 import { dench, HTTPCredentials } from "dench-fetch";
 import { useMemo, useRef } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import HeaderLayout from "~/components/layout/variant/HeaderLayout";
 import getBackendURL from "~/utils/getBackendURL";
@@ -20,12 +20,14 @@ interface UserDataState{
     avatarUrl : string
 }
 
-function DashboardMenu({name, onClick} : {name: string, onClick : ()=>void}){
+function DashboardMenu({name, href, onClick} : {name: string, href:string, onClick?: ()=>void}){
 
     return(
         <>
-          <button className="hover:text-gray-400 hover:cursor-pointer dark:hover:text-gray-300"
-            onClick={onClick}>{name}</button>
+          <Link 
+            className="hover:text-gray-400 dark:hover:text-gray-300"
+            to={href}
+            onClick={onClick}>{name}</Link>
         </>
     )
 
@@ -73,15 +75,14 @@ export default function DashboardHeader(){
         return menuList.map((menu, index)=>{
             return (<DashboardMenu key={index} 
                 name={menu.name} 
-                onClick={()=>{
-                navigate(menu.link); }} />  )
+                href={menu.link} />  )
         })
     }, []);
 
     return(
-        <HeaderLayout onClick={()=>navigate("/dashboard")}>
+        <HeaderLayout href="/dashboard">
             <div className="flex flex-row gap-3">
-                <nav className={`flex flex-row gap-6 
+                <nav className={`flex flex-row gap-6 items-center
                     font-medium text-md 
                     not-sm:font-light 
                     not-sm:text-sm
