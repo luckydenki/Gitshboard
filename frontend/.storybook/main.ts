@@ -13,6 +13,15 @@ const config: StorybookConfig = {
     "@storybook/addon-docs",
     "@storybook/addon-mcp"
   ],
-  "framework": "@storybook/react-vite"
+  "framework": "@storybook/react-vite",
+
+  core : {
+    builder : {
+      name : "@storybook/builder-vite",
+      options : {
+        viteConfigPath : "../frontend/vite.storybook.config.ts"  //별도의 vite 환경 설정
+      }
+    }
+  }
 };
 export default config;
