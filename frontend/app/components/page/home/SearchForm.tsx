@@ -125,6 +125,7 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
 
             <input 
             ref={input}
+            aria-label="Search for github users input field"
             type="text"
             className={CustomInput ? CustomInput :SearchFormCss.input}
             placeholder="Search for users"
@@ -139,11 +140,18 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
                 debounce
             }>
             </input>
+            
 
             <button 
             type="submit" 
+            aria-label="Search users"
+            aria-hidden="true"
             className={CustomButton ? CustomButton : SearchFormCss.submit_button }
             ></button>
+            {/* 
+                해당 버튼과 인풋 필드는 UI를 설명할 텍스트가 없기 때문에 aria-label을 사용함
+                aria-hidden를 사용하여 스크린 리더가 버튼을 (아이콘 까지 중복으로 읽는 것을) 무시하도록 함
+            */}
         </form>
 
         <div className={`absolute top-full

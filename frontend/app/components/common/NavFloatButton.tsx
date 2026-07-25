@@ -15,8 +15,9 @@ export function NavFloatButton({ onFetchClick, render_time } : NavFloatButtonPro
 
 
     return(
-        <nav className = "fixed bottom-8 right-8 w-20 h-20 rounded-full shadow-md bg-white transition-all duration-200 hover:-translate-y-0.5  dark:bg-white"
-                onClick = {() => {
+        <button 
+            className = "fixed bottom-8 right-8 w-20 h-20 rounded-full shadow-md bg-white transition-all duration-200 hover:-translate-y-0.5  dark:bg-white"
+            onClick = {() => {
                     setModalOpen(prev => !prev);
                 }}
             >
@@ -35,6 +36,6 @@ export function NavFloatButton({ onFetchClick, render_time } : NavFloatButtonPro
                         </section>
                     </div>
                 )}
-            </nav>
+        </button>
     )
 }
