@@ -14,7 +14,7 @@ export default function SideTitleLogo({ href ,onClick }: { href: string, onClick
         className="flex items-center gap-3 hover:cursor-pointer" to={href} onClick={
             onClick
         }>
-            <img src="/Gitshboard_alpha.png" alt="Gitshboard Logo" className="min-w-10 sm:hidden" />
+            <img src="/Gitshboard_alpha.png" alt="Gitshboard Logo" className="min-w-10 w-10 sm:hidden" />
             <span className="text-2xl font-bold  text-gray-500 dark:text-gray-400 not-sm:hidden">
                 <span>Git</span>
                 <span className="text-github-light">sh</span>

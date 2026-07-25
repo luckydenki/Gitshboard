@@ -14,7 +14,7 @@ export default function SearchHeader(){
  
     Log("auth ", auth);
     return(
-        <HeaderLayout onClick={()=>navigate("/")}>
+        <HeaderLayout href="/">
             {!auth.loginCheckState ? (
                 <LoginButton ID={ID} URL={URL} mode={"Tiny"}/>
                 ):(

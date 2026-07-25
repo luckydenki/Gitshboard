@@ -3,8 +3,8 @@ import { Log } from "~/utils/log_system/log";
 import { useNavigate } from "react-router";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import getBackendURL from "~/utils/getBackendURL";
+import { GoSearch } from "react-icons/go";
 import type { GithubUserSearchResponse } from "~/types/common/search";
-import type { GithubUser } from "~/types/GithubInfo";
 
 
 const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: ReturnType<typeof useNavigate>)=>{
@@ -63,7 +63,7 @@ const SearchFormCss = {
             dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-github-light dark:focus:ring-github-light/50 
             transition-all duration-200`,
 
-    submit_button : `size-12 
+    submit_button : ` flex items-center justify-center size-12 
             bg-github-light/50 rounded-full
             hover:ring-2 hover:ring-github-light hover:bg-github-light/60
             focus:outline-none focus:ring-2 focus:ring-gray-800
@@ -147,7 +147,9 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
             aria-label="Search users"
             aria-hidden="true"
             className={CustomButton ? CustomButton : SearchFormCss.submit_button }
-            ></button>
+            >
+                <GoSearch/>
+            </button>
             {/* 
                 해당 버튼과 인풋 필드는 UI를 설명할 텍스트가 없기 때문에 aria-label을 사용함
                 aria-hidden를 사용하여 스크린 리더가 버튼을 (아이콘 까지 중복으로 읽는 것을) 무시하도록 함

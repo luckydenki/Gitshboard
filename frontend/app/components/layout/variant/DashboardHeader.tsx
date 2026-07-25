@@ -36,8 +36,7 @@ function DashboardMenu({name, href, onClick} : {name: string, href:string, onCli
 
 
 export default function DashboardHeader(){
-    
-    const navigate = useNavigate();
+
     const backendurl = getBackendURL();
     const denchInstance = useRef(dench(`${backendurl}/api/`, "headerDench"));
 
@@ -109,6 +108,7 @@ export default function DashboardHeader(){
                         `
                     }
                     CustomButton={`
+                        flex items-center justify-center
                         rounded-full bg-github-light size-8
                         z-1
                         hover:ring-2 hover:ring-github-light hover:bg-github-light/60
