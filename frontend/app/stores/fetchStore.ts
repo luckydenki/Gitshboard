@@ -46,7 +46,7 @@ const useFetchStore = create<FetchStore>()(
         //저장소 생성 함수로, 내부에서 자동으로 json.stringify와 json.parse를 하여
         //데이터를 저장하고 불러올 때 객체 형태로 다룰 수 있도록 해줌.
 
-        onRehydrateStorage : (state)=>{
+        onRehydrateStorage : ()=>{
             //hydration 시작시 호출되는 로직
 
 

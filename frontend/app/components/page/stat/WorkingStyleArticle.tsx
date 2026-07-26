@@ -36,8 +36,6 @@ function WorkingStyleArticle({backendURL} : {backendURL : DenchHTTPURL}){
     
     const denchInstance = useState(() => dench(`${backendURL}/api`, "workingStyleArticleDench"))[0];
     const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
-        
-    const count = useRef(0);
 
     const [percents, setPercents] = useState<number[]>([]);
 

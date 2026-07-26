@@ -50,7 +50,7 @@ export default function Search() {
 
     Log("Search page loaded with search_name:", name, page);
 
-    const { data, isLoading} = useQuery(
+    const { data, isLoading, isError} = useQuery(
          {
             queryKey : ["search", name, page],
             queryFn : async ()=>{
@@ -135,6 +135,9 @@ export default function Search() {
         return <div>Loading...</div>
     }
 
+    if(isError){
+        return <div>Error occurred while fetching data.</div>
+    }
 
 
     return(
