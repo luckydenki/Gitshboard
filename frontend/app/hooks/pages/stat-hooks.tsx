@@ -1,12 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import type { DenchGetBuilder } from "dench-fetch";
+import { useMemo } from "react";
+import {
+    calculateCommitStats,
+    calculateDeveloperProfile,
+    calculateLanguageStats,
+    calculateProjectCategories,
+    calculateProjectHealth,
+} from "~/utils/statpage";
 import type { CommonResponse } from "~/types/common/common";
 import type { DevelopStatsNode, GithubCommitTimeRepositoryNode, GithubLanguageRepositoryNode, GithubProjectTopicsNode, GithubRepoCommonResponse, ProjectLiveRateNode } from "~/types/page/statpage";
 
 type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>;
 
 
-export const languagesQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+const languagesQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
             const res = await fetch(`/api/repos/languages`, {
                 credentials: 'include',
@@ -22,7 +30,7 @@ export const languagesQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         }
 
 
-export const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
             const res = await fetch(`/api/repos/commitTime`, {
                 credentials: 'include',
@@ -38,7 +46,7 @@ export const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         }
 
 
-export const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {   
             const res = await fetch(`/api/repos/projectTopics`, {
                 credentials: 'include',
@@ -53,7 +61,7 @@ export const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=
             return res.data;
         }
 
-export const developStatsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+const developStatsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
             const res = await fetch(`/api/repos/developStats`, {
                 credentials: 'include',
@@ -136,3 +144,20 @@ export function useStatQuery(commonAPI : DenchGetBuilder<unknown>){
     };  
 
 }
+
+export function useAnalyticsData({ data } : { data: readonly any[] }){
+        const analytics = useMemo(() => ({
+            languages: calculateLanguageStats(data?.[0]),
+            commits: calculateCommitStats(data?.[1]),
+            categories: calculateProjectCategories(data?.[2]),
+            developer: calculateDeveloperProfile(data?.[3]),
+            health: calculateProjectHealth(data?.[4]),
+        }), [data]);
+
+
+        return {
+            analytics
+        } 
+}
+
+

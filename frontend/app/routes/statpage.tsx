@@ -1,5 +1,5 @@
 import { dench, HTTPCredentials } from "dench-fetch";
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import OverviewSection from "~/components/page/stat/OverviewSection";
 import PreferredCommitTimeArticle from "~/components/page/stat/PreferredCommitTimeArticle";
 import RepositoryActivitySection from "~/components/page/stat/RepositoryActivitySection";
@@ -8,16 +8,21 @@ import StatTitleSection from "~/components/page/stat/StatTitleSection";
 import TechnologyDistributionArticle from "~/components/page/stat/TechnologyDistributionArticle";
 import WeekActivityArticle from "~/components/page/stat/WeekActivityArticle";
 import WorkingStyleArticle from "~/components/page/stat/WorkingStyleArticle";
-import { useStatQuery } from "~/hooks/pages/stat-hooks";
+import { useAnalyticsData, useStatQuery } from "~/hooks/pages/stat-hooks";
 import getBackendURL from "~/utils/getBackendURL";
-import {
-    calculateCommitStats,
-    calculateDeveloperProfile,
-    calculateLanguageStats,
-    calculateProjectCategories,
-    calculateProjectHealth,
-} from "~/utils/statpage";
 
+
+/**
+ * 페이지 컴포넌트 규칙
+ * 
+ * 1. 페이지 렌더링을 바꾸는 상태 (useState)는 페이지에서 관리함
+ * 2. 그 외 useQuery, useMemo, useEffect 등은 hooks에서 관리함
+ * 3. 의사 결정 로직, 선언적 로직들을 제외한 보여져야 할 UI는 components에서 관리함
+ * ex) { isloading ? <LoadingSkeleton /> : <DataComponent data={data} /> }
+ * 이런 isloading, isError 같은 ui 상태를 제어하는 것들은 페이지 내에서 관리하고 따로 컴포넌트화 시키지 말것.
+ * 
+ * 
+ */
 
 
 export const surfaceClass = "rounded-[1.75rem] bg-white shadow-[0_22px_65px_rgba(15,23,42,0.08)] dark:bg-gray-900";
@@ -29,8 +34,6 @@ export default function StatPage(){
     const denchInstance = useState(()=>dench(`${backendurl}/api`, "statPageDench"))[0];
     const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
 
-    console.log("StatPage");
-
     const { commitTimeQuery, developStatsQuery, languagesQuery, projectLiveRateQuery, projectTopicsQuery } =   useStatQuery(commonAPI)
 
     const isLoading = languagesQuery.isLoading || commitTimeQuery.isLoading || projectTopicsQuery.isLoading || developStatsQuery.isLoading || projectLiveRateQuery.isLoading;
@@ -38,14 +41,7 @@ export default function StatPage(){
     const data = [languagesQuery.data, commitTimeQuery.data, projectTopicsQuery.data, developStatsQuery.data, projectLiveRateQuery.data] as const;
     
 
-    const analytics = useMemo(() => ({
-        languages: calculateLanguageStats(data?.[0]),
-        commits: calculateCommitStats(data?.[1]),
-        categories: calculateProjectCategories(data?.[2]),
-        developer: calculateDeveloperProfile(data?.[3]),
-        health: calculateProjectHealth(data?.[4]),
-    }), [data]);
-
+    const { analytics } = useAnalyticsData({ data });
 
     return(
         <div className="min-h-screen bg-[#f4f6f1] text-gray-950 dark:bg-gray-950 dark:text-white">

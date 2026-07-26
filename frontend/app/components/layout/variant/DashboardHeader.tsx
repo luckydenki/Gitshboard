@@ -13,8 +13,6 @@ import SearchForm from "~/components/page/home/SearchForm";
     statpage.tsx
 */
 
-
-
 interface UserDataState{
     login : string,
     avatarUrl : string
@@ -36,9 +34,6 @@ function DashboardMenu({name, href, onClick} : {name: string, href:string, onCli
 
 
 export default function DashboardHeader(){
-
-    //const backendurl = getBackendURL();
-    //const denchInstance = useRef(dench(`${backendurl}/api/`, "headerDench"));
 
     const { data} = useQuery(
         {
