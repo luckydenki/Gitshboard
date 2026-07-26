@@ -4,9 +4,7 @@ import { calculateDeveloperProfile } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
-import type { CommonResponse } from "~/types/common/common";
 import { useQuery } from "@tanstack/react-query";
-import type { DevelopStatsNode, GithubRepoCommonResponse } from "~/types/page/statpage";
 import React from "react";
 
 

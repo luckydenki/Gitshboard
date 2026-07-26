@@ -3,23 +3,20 @@ import { Loading } from "~/components/design/Loading";
 import DashboardSection from "~/components/page/dashboard/DashboardSection";
 import useErrorCallback from "~/hooks/useErrorCallback";
 import { useQuery } from "@tanstack/react-query";
-import { dench } from "dench-fetch";
-import { useRef } from "react";
 import { HTTPCredentials } from "dench-fetch";
 import type { GithubUser } from "~/types/GithubInfo";
 import type { CommonResponse } from "~/types/common/common";
-import getBackendURL from "~/utils/getBackendURL";
 
-function OnSetFetchMode(e : React.MouseEvent<HTMLButtonElement>, setFetchMode : React.Dispatch<React.SetStateAction<1|2|3>>){
-    const val = e.currentTarget.value
-    setFetchMode(Number(val) as 1|2|3);
-}
+// function OnSetFetchMode(e : React.MouseEvent<HTMLButtonElement>, setFetchMode : React.Dispatch<React.SetStateAction<1|2|3>>){
+//     const val = e.currentTarget.value
+//     setFetchMode(Number(val) as 1|2|3);
+// }
 
 
 export default function Dashboard(){
     const navigate = useNavigate();
     
-    const { data, error, isLoading, isError} = useQuery({
+    const { data, isLoading, isError} = useQuery({
         queryKey: ["githubUserData"],
         queryFn : async()=>{
             const json = await fetch("/api/users",{

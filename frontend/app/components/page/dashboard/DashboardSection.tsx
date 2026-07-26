@@ -16,7 +16,7 @@ export interface DashboardSectionProps {
 export default function DashboardSection({ userDataState, loading }: DashboardSectionProps){
 
     const navigate = useNavigate();
-    
+
     const { dataState, isLoading, isError} = useFetchAll<[GithubRepositoryResponse]>({
         method :'GET',
         credentials : 'include'

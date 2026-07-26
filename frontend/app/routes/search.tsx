@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router"
-import type { CommonErrorResponse, CommonResponse, ErrorStatus, SuccessStatus } from "~/types/common/common";
+import type { CommonErrorResponse, CommonResponse } from "~/types/common/common";
 import getBackendURL from "~/utils/getBackendURL";
 import "../routes/search.css";
 import { useMemo, useRef, useState, type JSX } from "react";
@@ -50,7 +50,7 @@ export default function Search() {
 
     Log("Search page loaded with search_name:", name, page);
 
-    const { data, isLoading, isError} = useQuery(
+    const { data, isLoading} = useQuery(
          {
             queryKey : ["search", name, page],
             queryFn : async ()=>{

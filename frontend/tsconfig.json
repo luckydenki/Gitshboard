@@ -18,6 +18,8 @@
     "paths": {
       "~/*": ["./app/*"]
     },
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,

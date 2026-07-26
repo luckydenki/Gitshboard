@@ -4,8 +4,6 @@ import EmptyState from "./EmptyState";
 import { calculateProjectCategories } from "~/utils/statpage";
 import { useMemo, useState } from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
-import type { GithubProjectTopicsNode, GithubRepoCommonResponse } from "~/types/page/statpage";
-import type { CommonResponse } from "~/types/common/common";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 

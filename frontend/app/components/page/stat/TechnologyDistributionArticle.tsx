@@ -2,7 +2,7 @@ import { languagesQueryFn, surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import { calculateLanguageStats } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import React from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";

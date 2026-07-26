@@ -5,8 +5,6 @@ import { calculateProjectHealth, type ProjectStatus } from "~/utils/statpage";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
-import type { GithubRepoCommonResponse, ProjectLiveRateNode } from "~/types/page/statpage";
-import type { CommonResponse } from "~/types/common/common";
 import React from "react";
 
 

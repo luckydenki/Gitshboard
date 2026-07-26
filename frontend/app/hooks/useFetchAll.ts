@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import useFetchStore from "~/stores/fetchStore";
-import getBackendURL from "~/utils/getBackendURL";
-
 
 
 /**

@@ -5,21 +5,6 @@ import { HTTPCredentials } from "dench-fetch";
 import useRegistLoading from "~/hooks/dev/useRegistLoading";
 import type { TestResponse } from "~/routes/testpage";
 
-
-interface UseTanstackDenchOptions {
-    url : string;
-    api : string;
-    queryKey : string;
-    label : string;
-}
-
-interface UseTanstackDenchResult<T>{
-    data : T | undefined;
-    error : Error | null;
-    isLoading : boolean;
-}
-
-
 export default function TanstackComponent(){
     
     const denchInstance = useRef(dench("http://localhost:3000/api/", "3000test"));

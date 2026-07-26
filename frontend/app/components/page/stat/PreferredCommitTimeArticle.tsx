@@ -4,8 +4,8 @@ import { calculateCommitStats, formatHour } from "~/utils/statpage";
 import { useEffect, useMemo, useState } from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";
-import type { CommonResponse } from "~/types/common/common";
-import type { GithubCommitTimeRepositoryNode, GithubRepoCommonResponse } from "~/types/page/statpage";
+//import type { CommonResponse } from "~/types/common/common";
+//import type { GithubCommitTimeRepositoryNode, GithubRepoCommonResponse } from "~/types/page/statpage";
 import React from "react";
 
 export default React.memo(PreferredCommitTimeArticle);
@@ -26,7 +26,7 @@ function PreferredCommitTimeArticle({backendURL} : {backendURL : DenchHTTPURL}){
     
     const [percents, setPercents] = useState<number[]>([]);
 
-    const { data, isLoading, isError } = useQuery({
+    const { data, isLoading } = useQuery({
         queryKey : ["preferredCommitTimeArticleData"],
         queryFn : async()=> { return await commitTimeQueryFn(commonAPI)},
         staleTime : 5 * 60 * 1000,

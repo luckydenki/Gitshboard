@@ -1,9 +1,9 @@
-import { dench, HTTPCredentials } from "dench-fetch";
-import { useMemo, useRef } from "react";
-import { Link, useNavigate } from "react-router";
+import { HTTPCredentials } from "dench-fetch";
+import { useMemo } from "react";
+import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import HeaderLayout from "~/components/layout/variant/HeaderLayout";
-import getBackendURL from "~/utils/getBackendURL";
+//import getBackendURL from "~/utils/getBackendURL";
 import type { CommonResponse } from "~/types/common/common";
 import SearchForm from "~/components/page/home/SearchForm";
 
@@ -37,10 +37,10 @@ function DashboardMenu({name, href, onClick} : {name: string, href:string, onCli
 
 export default function DashboardHeader(){
 
-    const backendurl = getBackendURL();
-    const denchInstance = useRef(dench(`${backendurl}/api/`, "headerDench"));
+    //const backendurl = getBackendURL();
+    //const denchInstance = useRef(dench(`${backendurl}/api/`, "headerDench"));
 
-    const { data, error, isLoading, isError} = useQuery(
+    const { data} = useQuery(
         {
             queryKey: ["headerUserData"], 
             queryFn: async() =>{

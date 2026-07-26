@@ -5,8 +5,6 @@ import SectionHeading from "./SectionHeading";
 import { useEffect, useMemo, useState } from "react";
 import { dench, HTTPCredentials } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";
-import type { GithubCommitTimeRepositoryNode, GithubRepoCommonResponse } from "~/types/page/statpage";
-import type { CommonResponse } from "~/types/common/common";
 import React from "react";
 import type { DenchHTTPURL } from "~/types/common/url";
 

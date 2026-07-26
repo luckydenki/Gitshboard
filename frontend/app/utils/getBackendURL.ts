@@ -1,7 +1,4 @@
 import type { DenchHTTPURL } from "dench-fetch";
-import { useMemo, useRef } from "react";
-
-
 
 
 export default function getBackendURL(): DenchHTTPURL{
