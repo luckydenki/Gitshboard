@@ -6,6 +6,9 @@ import "../routes/search.css";
 import { useMemo, useRef, useState, type JSX } from "react";
 import { ErrorLog, Log } from "~/utils/log_system/log";
 import SearchForm from "~/components/page/home/SearchForm";
+import SearchTitle from "~/components/page/search/SearchTitle";
+import SearchCategorySelect from "~/components/page/search/SearchCategorySelect";
+import SearchPagination from "~/components/page/search/SearchPagination";
 
 interface GithubUserSearchResponse{
     total_count: number
@@ -47,8 +50,6 @@ export default function Search() {
 
     const name : string = searchParams.get("name") ?? "";
     const page : string = searchParams.get("page") ?? "1";
-
-    Log("Search page loaded with search_name:", name, page);
 
     const { data, isLoading, isError} = useQuery(
          {
@@ -95,7 +96,7 @@ export default function Search() {
         })
         return filter_items;      
 
-    }, [category, isLoading])
+    }, [category, isLoading, data])
 
 
     const PaginationButton = useMemo(()=>{
@@ -143,33 +144,15 @@ export default function Search() {
     return(
         <div className="flex flex-col h-full lg:px-8 px-6 not-sm:px-4 py-6 gap-4 min-h-screen">
             <section className="flex flex-col gap-4 max-w-7xl w-full self-center py-4">
-                <header> 
-                    <h2 className="not-md text-gray-900 font-semibold">Search Results for 
-                        <span className="text-github-light"> "{name}"</span>
-                    </h2>
-                </header>
 
+                <SearchTitle name={name}/>
+              
                 <section>
                     <div className={`flex gap-4 justify-between
                             not-sm:flex-col-reverse not-sm:gap-4 not-sm:items-start
                         `}>
 
-                        <select name="selectedType" defaultValue="all"
-                            className="p-2 hover:bg-gray-200 rounded-xl "
-                            onChange ={(e)=>{ SetCategory(()=>e.target.value)}}
-                        >
-                            <option value ="all">
-                                all
-                            </option>
-                            <option value="User">
-                                User
-                            </option>
-                            <option value="Organization">
-                                Organization
-                            </option>
-                        </select>
-                        
-
+                        <SearchCategorySelect setCategory={SetCategory}/>
                         <SearchForm/>
                     </div>
                 </section>
@@ -244,46 +227,11 @@ export default function Search() {
                     )
                 })}
 
-                <footer className="flex self-center">
-                    <button className={`w-12 
-                        text-center
-                        hover:bg-gray-400
-                        not-sm:text-xs not-sm:w-8 not-sm:h-8
-                        `}
-                        onClick={()=>{
-                            const searchParams = new URLSearchParams({
-                                    name : name,
-                                    page : Math.max(1,Number(page) - 10).toString(),
-                                })
 
-                            navigate(`/search?${searchParams.toString()}`)
-                            console.log("뒤로가기")
-                        }}
-                        >
-                        {"<"}
-                    </button>
+                <SearchPagination name={name} page={page} data={data}>
                     {PaginationButton}
-                     <button className={`w-12
-                        text-center
-                        hover:bg-gray-400
-                        not-sm:text-xs not-sm:w-8 not-sm:h-8
-                        `}
-                        onClick={()=>{
-                            const total_count = data?.total_count ?? 0;
+                </SearchPagination>
 
-                            const searchParams = new URLSearchParams({
-                                name : name,
-                                page : Math.min(total_count ,Number(page) + 10).toString(),
-                            })
-
-                            navigate(`/search?${searchParams.toString()}`)
-
-                            console.log("앞으로가기")
-                        }}
-                        >
-                        {">"}
-                    </button>
-                </footer>
             </section>
 
         </div>
