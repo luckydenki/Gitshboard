@@ -2,7 +2,6 @@
 import { Log } from "~/utils/log_system/log";
 import { useNavigate } from "react-router";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import getBackendURL from "~/utils/getBackendURL";
 import { GoSearch } from "react-icons/go";
 import type { GithubUserSearchResponse } from "~/types/common/search";
 
@@ -32,14 +31,13 @@ const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: Ret
 
 const handleSearchDebounce = async(keyword : string) =>{
 
-    const backendURL = getBackendURL();
     const urlParams = new URLSearchParams({
         name : keyword,
         per_page : "8"
     })
 
 
-    const res  = await fetch(`${backendURL}/api/search?${urlParams.toString()}`, {
+    const res  = await fetch(`/api/search?${urlParams.toString()}`, {
         credentials : "include"
     }).then(async(res)=>{
         return await res.json();
