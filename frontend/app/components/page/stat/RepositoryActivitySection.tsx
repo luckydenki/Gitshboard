@@ -33,6 +33,25 @@ function Skeleton(){
 }
 
 
+function LoadDataSkeleton({children} : {children : React.ReactNode}){
+
+    return(
+            <section className={`${surfaceClass} p-7 md:p-8`}>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <SectionHeading eyebrow="Project health" title="Repository activity" detail="Recency, archive state, and ownership" />
+                    <div className="flex gap-5 text-sm text-gray-500 dark:text-gray-400">
+                        <span> active</span>
+                        <span> dormant</span>
+                        <span> archived</span>
+                    </div>
+                </div>
+                    {children}
+            </section>
+    )
+}
+
+
+
 function RepositoryActivitySection({backendURL} : {backendURL : DenchHTTPURL}){
 
         const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "repositoryActivitySectionDench"));
@@ -56,21 +75,26 @@ function RepositoryActivitySection({backendURL} : {backendURL : DenchHTTPURL}){
             }
 
             return(
-             <section className={`${surfaceClass} p-7 md:p-8`}>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <SectionHeading eyebrow="Project health" title="Repository activity" detail="Recency, archive state, and ownership" />
-                    <div className="flex gap-5 text-sm text-gray-500 dark:text-gray-400">
-                        <span> active</span>
-                        <span> dormant</span>
-                        <span> archived</span>
+
+                <LoadDataSkeleton>
+                    <div className="mt-8 grid gap-3">
+                        {skeletons}
                     </div>
-                </div>
-                <div className="mt-8 grid gap-3">
-                    {skeletons}
-                </div>
-            </section>
+                </LoadDataSkeleton>
+ 
             )
         }
+
+        if(isError){
+            return(
+                <LoadDataSkeleton>
+                    <div className="mt-8 grid gap-3">
+                        <EmptyState text="Failed to load repository activity data" />
+                    </div>
+                </LoadDataSkeleton>
+            )
+        }
+
 
         return(
         <section className={`${surfaceClass} p-7 md:p-8`}>

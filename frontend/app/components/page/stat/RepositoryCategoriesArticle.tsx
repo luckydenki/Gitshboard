@@ -22,6 +22,20 @@ function Skeleton(){
     )
 }
 
+function LoadDataSkeleton({children} : {children : React.ReactNode}){
+
+    return(
+        <article className={`${surfaceClass} p-7 md:p-8 lg:col-span-2 xl:col-span-1`}>
+                <SectionHeading eyebrow="Project types" title="Repository categories" detail="Inferred from names and topics" />
+                <div className="mt-8 space-y-4">
+                    {children}
+                </div>
+        </article> 
+    )
+}
+
+
+
 function RepositoryCategoriesArticle({backendURL} : {backendURL : DenchHTTPURL}){
 
     const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "repositoryCategoriesArticleDench"));
@@ -46,12 +60,19 @@ function RepositoryCategoriesArticle({backendURL} : {backendURL : DenchHTTPURL})
         }
 
         return (
-             <article className={`${surfaceClass} p-7 md:p-8 lg:col-span-2 xl:col-span-1`}>
-                <SectionHeading eyebrow="Project types" title="Repository categories" detail="Inferred from names and topics" />
+            <LoadDataSkeleton>
                 <div className="mt-8 space-y-4">
                     {skeletons}
                 </div>
-            </article> 
+            </LoadDataSkeleton> 
+        )
+    }
+
+    if(isError){
+        return (
+            <LoadDataSkeleton>
+                <EmptyState text="Failed to load project topic data" />
+            </LoadDataSkeleton> 
         )
     }
 

@@ -1,5 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { dench, HTTPCredentials, type DenchGetBuilder } from "dench-fetch";
+import { dench, HTTPCredentials } from "dench-fetch";
 import { useMemo, useState } from "react"
 import OverviewSection from "~/components/page/stat/OverviewSection";
 import PreferredCommitTimeArticle from "~/components/page/stat/PreferredCommitTimeArticle";
@@ -9,8 +8,7 @@ import StatTitleSection from "~/components/page/stat/StatTitleSection";
 import TechnologyDistributionArticle from "~/components/page/stat/TechnologyDistributionArticle";
 import WeekActivityArticle from "~/components/page/stat/WeekActivityArticle";
 import WorkingStyleArticle from "~/components/page/stat/WorkingStyleArticle";
-import type { CommonResponse } from "~/types/common/common";
-import type { DevelopStatsNode, GithubCommitTimeRepositoryNode, GithubLanguageRepositoryNode, GithubProjectTopicsNode, GithubRepoCommonResponse, ProjectLiveRateNode } from "~/types/page/statpage";
+import { useStatQuery } from "~/hooks/pages/stat-hooks";
 import getBackendURL from "~/utils/getBackendURL";
 import {
     calculateCommitStats,
@@ -21,88 +19,8 @@ import {
 } from "~/utils/statpage";
 
 
-type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>
 
 export const surfaceClass = "rounded-[1.75rem] bg-white shadow-[0_22px_65px_rgba(15,23,42,0.08)] dark:bg-gray-900";
-
-export const languagesQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
-        {
-            const res = await fetch(`/api/repos/languages`, {
-                credentials: 'include',
-                }).then(async(res)=>{
-                if(!res.ok){
-                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
-                }
-                return res.json() as Promise<CommonResponseType<GithubLanguageRepositoryNode>>;
-            })
-
-           // const res = await commonAPI.copy().api<CommonResponseType<GithubLanguageRepositoryNode>>("repos/languages").toJson();
-            return res.data;
-        }
-
-
-export const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
-        {
-            const res = await fetch(`/api/repos/commitTime`, {
-                credentials: 'include',
-                }).then(async(res)=>{
-                if(!res.ok){
-                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
-                }
-                return res.json() as Promise<CommonResponseType<GithubCommitTimeRepositoryNode>>;
-            })
-
-            //const res = await commonAPI.copy().api<CommonResponseType<GithubCommitTimeRepositoryNode>>("repos/commitTime").toJson();
-            return res.data;
-        }
-
-
-export const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
-        {   
-            const res = await fetch(`/api/repos/projectTopics`, {
-                credentials: 'include',
-                }).then(async(res)=>{
-                if(!res.ok){
-                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
-                }
-                return res.json() as Promise<CommonResponseType<GithubProjectTopicsNode>>;
-            })
-
-            //const res = await commonAPI.copy().api<CommonResponseType<GithubProjectTopicsNode>>("repos/projectTopics").toJson();
-            return res.data;
-        }
-
-export const developStatsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
-        {
-            const res = await fetch(`/api/repos/developStats`, {
-                credentials: 'include',
-                }).then(async(res)=>{
-                if(!res.ok){
-                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
-                }
-                return res.json() as Promise<CommonResponseType<DevelopStatsNode>>;
-            })
-
-            //const res = await commonAPI.copy().api<CommonResponseType<DevelopStatsNode>>("repos/developStats").toJson();
-            return res.data;
-        }
-
-
-export const projectLiveRateQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
-        {
-            const res = await fetch(`/api/repos/projectLiveRate`, {
-                credentials: 'include',
-                }).then(async(res)=>{
-                if(!res.ok){
-                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
-                }
-                return res.json() as Promise<CommonResponseType<ProjectLiveRateNode>>;
-            })
-
-            //const res = await commonAPI.copy().api<CommonResponseType<ProjectLiveRateNode>>("repos/projectLiveRate").toJson();
-            return res.data;
-        }
-
 
 
 export default function StatPage(){
@@ -113,45 +31,7 @@ export default function StatPage(){
 
     console.log("StatPage");
 
-    const languagesQuery = useQuery({
-        queryKey : ["languagesData"],
-        queryFn : () => languagesQueryFn(commonAPI),
-        staleTime : 5 * 60 * 1000,
-        gcTime : 10 * 60 * 1000,
-    } 
-    )
-
-    const commitTimeQuery = useQuery({
-        queryKey : ["commitTimeData"],
-        queryFn : async()=>{return await commitTimeQueryFn(commonAPI)},
-        staleTime : 5 * 60 * 1000,
-        gcTime : 10 * 60 * 1000,
-    } 
-    )
-
-    const projectTopicsQuery = useQuery({
-        queryKey : ["projectTopicsData"],
-        queryFn : async()=>{ return await projectTopicsQueryFn(commonAPI);},
-        staleTime : 5 * 60 * 1000,
-        gcTime : 10 * 60 * 1000,
-    } 
-    )
-    
-    const developStatsQuery = useQuery({
-        queryKey : ["developStatsData"],
-        queryFn : async()=>{ return await developStatsQueryFn(commonAPI);},
-        staleTime : 5 * 60 * 1000,
-        gcTime : 10 * 60 * 1000,
-    } 
-    )
-
-    const projectLiveRateQuery = useQuery({
-        queryKey : ["projectLiveRateData"],
-        queryFn : async()=>{ return await projectLiveRateQueryFn(commonAPI);},
-        staleTime : 5 * 60 * 1000,
-        gcTime : 10 * 60 * 1000,
-    } 
-    )
+    const { commitTimeQuery, developStatsQuery, languagesQuery, projectLiveRateQuery, projectTopicsQuery } =   useStatQuery(commonAPI)
 
     const isLoading = languagesQuery.isLoading || commitTimeQuery.isLoading || projectTopicsQuery.isLoading || developStatsQuery.isLoading || projectLiveRateQuery.isLoading;
     const isError = languagesQuery.isError || commitTimeQuery.isError || projectTopicsQuery.isError || developStatsQuery.isError || projectLiveRateQuery.isError;
