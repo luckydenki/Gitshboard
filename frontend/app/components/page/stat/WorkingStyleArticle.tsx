@@ -83,7 +83,15 @@ function WorkingStyleArticle({backendURL} : {backendURL : DenchHTTPURL}){
         )
     }
 
-    console.log("렌더링 ", count.current++);
+    if(isError){
+        return(
+            <article className={`${surfaceClass} p-7 md:p-8`}>
+                <SectionHeading eyebrow="Development profile" title="Working style" detail="Inferred from time, stack, and topics" />
+                <EmptyState text="Failed to fetch developer profile data" />
+            </article>
+        )
+    }
+
 
     return(
             <article className={`${surfaceClass} p-7 md:p-8`}>

@@ -59,7 +59,6 @@ export const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
 
 export const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {   
-            commonAPI;
             const res = await fetch(`/api/repos/projectTopics`, {
                 credentials: 'include',
                 }).then(async(res)=>{
@@ -75,7 +74,6 @@ export const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=
 
 export const developStatsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
-            commonAPI;
             const res = await fetch(`/api/repos/developStats`, {
                 credentials: 'include',
                 }).then(async(res)=>{

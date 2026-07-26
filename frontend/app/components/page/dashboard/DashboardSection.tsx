@@ -9,11 +9,11 @@ import useErrorCallback from "~/hooks/useErrorCallback"
 
 export interface DashboardSectionProps { 
     userDataState : GithubUser,
-    loading : boolean
+    // loading : boolean
 }
         
 
-export default function DashboardSection({ userDataState, loading }: DashboardSectionProps){
+export default function DashboardSection({ userDataState }: DashboardSectionProps){
 
     const navigate = useNavigate();
 

@@ -7,12 +7,6 @@ import { HTTPCredentials } from "dench-fetch";
 import type { GithubUser } from "~/types/GithubInfo";
 import type { CommonResponse } from "~/types/common/common";
 
-// function OnSetFetchMode(e : React.MouseEvent<HTMLButtonElement>, setFetchMode : React.Dispatch<React.SetStateAction<1|2|3>>){
-//     const val = e.currentTarget.value
-//     setFetchMode(Number(val) as 1|2|3);
-// }
-
-
 export default function Dashboard(){
     const navigate = useNavigate();
     
@@ -51,7 +45,7 @@ export default function Dashboard(){
     }
     return (
         <div className="min-h-screen bg-[#f4f6f1] text-gray-950 dark:bg-gray-950">
-            <DashboardSection userDataState={data!} loading={isLoading} />
+            <DashboardSection userDataState={data!} />
         </div>
     );
 }
