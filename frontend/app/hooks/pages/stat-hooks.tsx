@@ -14,7 +14,7 @@ import type { DevelopStatsNode, GithubCommitTimeRepositoryNode, GithubLanguageRe
 type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>;
 
 
-const languagesQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+export const languagesQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
             const res = await fetch(`/api/repos/languages`, {
                 credentials: 'include',
@@ -30,7 +30,7 @@ const languagesQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         }
 
 
-const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+export const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
             const res = await fetch(`/api/repos/commitTime`, {
                 credentials: 'include',
@@ -46,7 +46,7 @@ const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         }
 
 
-const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+export const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {   
             const res = await fetch(`/api/repos/projectTopics`, {
                 credentials: 'include',
@@ -61,7 +61,7 @@ const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
             return res.data;
         }
 
-const developStatsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+export const developStatsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         {
             const res = await fetch(`/api/repos/developStats`, {
                 credentials: 'include',
