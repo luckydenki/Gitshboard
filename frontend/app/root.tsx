@@ -17,6 +17,9 @@ import "./app.css";
  */
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  // preconnect : 브라우저에게 특정 도메인과의 연결을 미리 설정하도록 지시하는 링크 관계입니다. 
+  // 이를 통해 브라우저는 해당 도메인에 대한 DNS 조회, TCP 핸드셰이크, TLS 협상 등을 미리 수행하여 
+  // 실제 요청 시 지연 시간을 줄일 수 있습니다.
   {
     rel: "preconnect",
     href: "https://fonts.gstatic.com",
@@ -27,6 +30,18 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
 ];
+
+// React-router는 links를 export 시키면 자동으로 head에 link를 추가해줍니다.
+// 따라서 글로벌 스타일과 폰트를 설정하는 링크를 반환하는 함수를 export 시켜야함.
+// 배열 안의 객체 하나하나가 <link> 태그의 속성으로 변환되어 head에 추가됩니다.
+
+export const meta: Route.MetaFunction = () => [
+  { title : "React-Github"  },
+  { name : "description", content : "React-Github is a web application that provides GitHub repository statistics and insights." },
+];
+
+
+
 
 /**
  * 전역 레이아웃 컴포넌트입니다.
