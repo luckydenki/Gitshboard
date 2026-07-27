@@ -1,4 +1,5 @@
-import { projectLiveRateQueryFn, surfaceClass } from "~/routes/statpage";
+import {  surfaceClass } from "~/routes/statpage";
+import { projectLiveRateQueryFn } from "~/hooks/pages/stat-hooks";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
 import { calculateProjectHealth, type ProjectStatus } from "~/utils/statpage";

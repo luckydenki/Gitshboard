@@ -1,4 +1,4 @@
-import { projectTopicsQueryFn, surfaceClass } from "~/routes/statpage";
+import {  surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import EmptyState from "./EmptyState";
 import { calculateProjectCategories } from "~/utils/statpage";
@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
+import { projectTopicsQueryFn } from "~/hooks/pages/stat-hooks";
 
 
 export default React.memo(RepositoryCategoriesArticle);

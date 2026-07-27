@@ -1,12 +1,11 @@
-import { commitTimeQueryFn, surfaceClass } from "~/routes/statpage";
+import { surfaceClass} from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import { calculateCommitStats, formatHour } from "~/utils/statpage";
 import { useEffect, useMemo, useState } from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";
-//import type { CommonResponse } from "~/types/common/common";
-//import type { GithubCommitTimeRepositoryNode, GithubRepoCommonResponse } from "~/types/page/statpage";
 import React from "react";
+import { commitTimeQueryFn } from "~/hooks/pages/stat-hooks";
 
 export default React.memo(PreferredCommitTimeArticle);
 

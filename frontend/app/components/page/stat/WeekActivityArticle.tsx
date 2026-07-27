@@ -1,4 +1,4 @@
-import { commitTimeQueryFn, surfaceClass } from "~/routes/statpage";
+import {  surfaceClass } from "~/routes/statpage";
 import { calculateCommitStats } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
@@ -7,6 +7,7 @@ import { dench, HTTPCredentials } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import type { DenchHTTPURL } from "~/types/common/url";
+import { commitTimeQueryFn } from "~/hooks/pages/stat-hooks";
 
 
 export default React.memo(WeekActivityArticle);

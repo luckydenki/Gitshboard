@@ -1,4 +1,4 @@
-import { developStatsQueryFn, surfaceClass } from "~/routes/statpage";
+import {  surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import { calculateDeveloperProfile } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
+import { developStatsQueryFn } from "~/hooks/pages/stat-hooks";
 
 
 export default React.memo(WorkingStyleArticle);
