@@ -60,7 +60,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const HasRequiredControls: Story = {
+export const 필요_UI요소_확인: Story = {
   play: async ({ canvas }) => {
     await expect(
       canvas.getByRole("textbox", {
@@ -73,7 +73,7 @@ export const HasRequiredControls: Story = {
   },
 };
 
-export const ShowsAutocompleteResults: Story = {
+export const 자동_완성_결과: Story = {
   beforeEach: mockAutocompleteRequest,
   play: async ({ canvas }) => {
     const input = canvas.getByRole("textbox", {
@@ -88,7 +88,7 @@ export const ShowsAutocompleteResults: Story = {
   },
 };
 
-export const NavigatesOnSubmit: Story = {
+export const 제출_시_이동: Story = {
   play: async ({ canvas }) => {
     const input = canvas.getByRole("textbox", {
       name: "Search for github users input field",
@@ -105,7 +105,7 @@ export const NavigatesOnSubmit: Story = {
   },
 };
 
-export const SupportsKeyboardFocus: Story = {
+export const 키보드_포커스_지원: Story = {
   play: async ({ canvas }) => {
     const input = canvas.getByRole("textbox", {
       name: "Search for github users input field",
