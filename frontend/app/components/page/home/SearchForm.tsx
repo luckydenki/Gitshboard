@@ -143,7 +143,6 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
             <button 
             type="submit" 
             aria-label="Search users"
-            aria-hidden="true"
             className={CustomButton ? CustomButton : SearchFormCss.submit_button }
             >
                 <GoSearch/>
@@ -168,7 +167,7 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
                             input!.current!.value = e.login
                         }}
                     >
-                        <img src={e.avatar_url} width="50" height="50"/>
+                        <img src={e.avatar_url} alt={`${e.login}'s avatar`} width="50" height="50"/>
                         <span> 
                             {e.login}
                         </span>
