@@ -10,3 +10,6 @@
 
 *storybook.log
 storybook-static
+
+/playwright-report/data
+/test-results
