@@ -14,7 +14,7 @@ export default function StatTitleSection({title, isLoading, isError} : StatTitle
                 <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
                     <div className="max-w-2xl">
                         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-gray-400">Account analytics</p>
-                        <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">Development statistics</h1>
+                        <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">{title}</h1>
                         <p className="mt-5 max-w-xl text-base leading-7 text-gray-500 dark:text-gray-400">
                             Repository activity, technology usage, and project health in one workspace.
                         </p>

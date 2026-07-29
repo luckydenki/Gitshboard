@@ -7,15 +7,6 @@ type ErrorCallback = (() => void) | string;
 
 type ErrorMap = Partial<Record<ErrorCode, ErrorCallback>>;
 
-
-const errorMap : ErrorMap = {
-    404 :  undefined,
-    500 :  undefined,    
-    401 :  undefined,
-    403 :  undefined,
-    400 :  undefined
-}
-
 export default function useFetchErrorCallback(isError : boolean, errorCode : ErrorCode, errorMap : ErrorMap ) {
     useEffect(()=>{
         if(!isError) return;

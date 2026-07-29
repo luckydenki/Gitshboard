@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+
 // USE_VITE_PROXY=false npx vercel dev --listen 5173
 
 export default defineConfig(() => {
@@ -12,6 +13,8 @@ export default defineConfig(() => {
 
   return {
     plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
+    resolve: {
+    },
     server: {          
       host : "0.0.0.0",
       port : Number(process.env.PORT) || 5173,

@@ -1,13 +1,10 @@
-import { projectTopicsQueryFn, surfaceClass } from "~/routes/statpage";
+import {  surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import EmptyState from "./EmptyState";
 import { calculateProjectCategories } from "~/utils/statpage";
-import { useMemo, useState } from "react";
-import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
-import type { GithubProjectTopicsNode, GithubRepoCommonResponse } from "~/types/page/statpage";
-import type { CommonResponse } from "~/types/common/common";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo} from "react";
 import React from "react";
+import {  useProjectTopicsQuery } from "~/hooks/pages/stat-hooks";
 
 
 export default React.memo(RepositoryCategoriesArticle);
@@ -24,18 +21,23 @@ function Skeleton(){
     )
 }
 
-function RepositoryCategoriesArticle({backendURL} : {backendURL : DenchHTTPURL}){
+function LoadDataSkeleton({children} : {children : React.ReactNode}){
 
-    const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "repositoryCategoriesArticleDench"));
+    return(
+        <article className={`${surfaceClass} p-7 md:p-8 lg:col-span-2 xl:col-span-1`}>
+                <SectionHeading eyebrow="Project types" title="Repository categories" detail="Inferred from names and topics" />
+                <div className="mt-8 space-y-4">
+                    {children}
+                </div>
+        </article> 
+    )
+}
 
-    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
 
-    const { data, isLoading, isError } = useQuery({
-        queryKey : ["repositoryCategoriesArticleData"],
-        queryFn : async()=>{ return await projectTopicsQueryFn(commonAPI)},
-        staleTime : 5 * 60 * 1000,
-        gcTime : 10 * 60 * 1000,
-    })
+
+function RepositoryCategoriesArticle(){
+
+    const { data, isLoading, isError } = useProjectTopicsQuery();
 
     const categories = useMemo(()=> calculateProjectCategories(data),[data])
 
@@ -48,12 +50,19 @@ function RepositoryCategoriesArticle({backendURL} : {backendURL : DenchHTTPURL})
         }
 
         return (
-             <article className={`${surfaceClass} p-7 md:p-8 lg:col-span-2 xl:col-span-1`}>
-                <SectionHeading eyebrow="Project types" title="Repository categories" detail="Inferred from names and topics" />
+            <LoadDataSkeleton>
                 <div className="mt-8 space-y-4">
                     {skeletons}
                 </div>
-            </article> 
+            </LoadDataSkeleton> 
+        )
+    }
+
+    if(isError){
+        return (
+            <LoadDataSkeleton>
+                <EmptyState text="Failed to load project topic data" />
+            </LoadDataSkeleton> 
         )
     }
 

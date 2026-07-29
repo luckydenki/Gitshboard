@@ -1,9 +1,9 @@
-import { dench, HTTPCredentials } from "dench-fetch";
-import { useMemo, useRef } from "react";
-import { useNavigate } from "react-router";
+import { HTTPCredentials } from "dench-fetch";
+import { useMemo } from "react";
+import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import HeaderLayout from "~/components/layout/variant/HeaderLayout";
-import getBackendURL from "~/utils/getBackendURL";
+//import getBackendURL from "~/utils/getBackendURL";
 import type { CommonResponse } from "~/types/common/common";
 import SearchForm from "~/components/page/home/SearchForm";
 
@@ -13,19 +13,19 @@ import SearchForm from "~/components/page/home/SearchForm";
     statpage.tsx
 */
 
-
-
 interface UserDataState{
     login : string,
     avatarUrl : string
 }
 
-function DashboardMenu({name, onClick} : {name: string, onClick : ()=>void}){
+function DashboardMenu({name, href, onClick} : {name: string, href:string, onClick?: ()=>void}){
 
     return(
         <>
-          <button className="hover:text-gray-400 hover:cursor-pointer dark:hover:text-gray-300"
-            onClick={onClick}>{name}</button>
+          <Link 
+            className="hover:text-gray-400 dark:hover:text-gray-300"
+            to={href}
+            onClick={onClick}>{name}</Link>
         </>
     )
 
@@ -34,12 +34,8 @@ function DashboardMenu({name, onClick} : {name: string, onClick : ()=>void}){
 
 
 export default function DashboardHeader(){
-    
-    const navigate = useNavigate();
-    const backendurl = getBackendURL();
-    const denchInstance = useRef(dench(`${backendurl}/api/`, "headerDench"));
 
-    const { data, error, isLoading, isError} = useQuery(
+    const { data} = useQuery(
         {
             queryKey: ["headerUserData"], 
             queryFn: async() =>{
@@ -73,15 +69,14 @@ export default function DashboardHeader(){
         return menuList.map((menu, index)=>{
             return (<DashboardMenu key={index} 
                 name={menu.name} 
-                onClick={()=>{
-                navigate(menu.link); }} />  )
+                href={menu.link} />  )
         })
     }, []);
 
     return(
-        <HeaderLayout onClick={()=>navigate("/dashboard")}>
+        <HeaderLayout href="/dashboard">
             <div className="flex flex-row gap-3">
-                <nav className={`flex flex-row gap-6 
+                <nav className={`flex flex-row gap-6 items-center
                     font-medium text-md 
                     not-sm:font-light 
                     not-sm:text-sm
@@ -108,6 +103,7 @@ export default function DashboardHeader(){
                         `
                     }
                     CustomButton={`
+                        flex items-center justify-center
                         rounded-full bg-github-light size-8
                         z-1
                         hover:ring-2 hover:ring-github-light hover:bg-github-light/60

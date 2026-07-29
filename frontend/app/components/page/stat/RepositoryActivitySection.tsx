@@ -1,12 +1,10 @@
-import { projectLiveRateQueryFn, surfaceClass } from "~/routes/statpage";
+import {  surfaceClass } from "~/routes/statpage";
+import {  useProjectLiveRateQuery } from "~/hooks/pages/stat-hooks";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
 import { calculateProjectHealth, type ProjectStatus } from "~/utils/statpage";
-import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
-import type { GithubRepoCommonResponse, ProjectLiveRateNode } from "~/types/page/statpage";
-import type { CommonResponse } from "~/types/common/common";
 import React from "react";
 
 
@@ -35,19 +33,28 @@ function Skeleton(){
 }
 
 
-function RepositoryActivitySection({backendURL} : {backendURL : DenchHTTPURL}){
+function LoadDataSkeleton({children} : {children : React.ReactNode}){
 
-        const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "repositoryActivitySectionDench"));
-        const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
-                
+    return(
+            <section className={`${surfaceClass} p-7 md:p-8`}>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <SectionHeading eyebrow="Project health" title="Repository activity" detail="Recency, archive state, and ownership" />
+                    <div className="flex gap-5 text-sm text-gray-500 dark:text-gray-400">
+                        <span> active</span>
+                        <span> dormant</span>
+                        <span> archived</span>
+                    </div>
+                </div>
+                    {children}
+            </section>
+    )
+}
 
-        const {data, isLoading, isError} = useQuery({
-            queryKey : ["repositoryActivitySection"],
-            queryFn : async()=>{ return await projectLiveRateQueryFn(commonAPI) },
-            staleTime : 5 * 60 * 1000,
-            gcTime : 10 * 60 * 1000,
-        })
 
+
+function RepositoryActivitySection(){
+
+        const { data, isLoading, isError } = useProjectLiveRateQuery();
         const health = useMemo(() => calculateProjectHealth(data!), [data]);
 
 
@@ -58,21 +65,26 @@ function RepositoryActivitySection({backendURL} : {backendURL : DenchHTTPURL}){
             }
 
             return(
-             <section className={`${surfaceClass} p-7 md:p-8`}>
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <SectionHeading eyebrow="Project health" title="Repository activity" detail="Recency, archive state, and ownership" />
-                    <div className="flex gap-5 text-sm text-gray-500 dark:text-gray-400">
-                        <span> active</span>
-                        <span> dormant</span>
-                        <span> archived</span>
+
+                <LoadDataSkeleton>
+                    <div className="mt-8 grid gap-3">
+                        {skeletons}
                     </div>
-                </div>
-                <div className="mt-8 grid gap-3">
-                    {skeletons}
-                </div>
-            </section>
+                </LoadDataSkeleton>
+ 
             )
         }
+
+        if(isError){
+            return(
+                <LoadDataSkeleton>
+                    <div className="mt-8 grid gap-3">
+                        <EmptyState text="Failed to load repository activity data" />
+                    </div>
+                </LoadDataSkeleton>
+            )
+        }
+
 
         return(
         <section className={`${surfaceClass} p-7 md:p-8`}>

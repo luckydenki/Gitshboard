@@ -1,6 +1,4 @@
 import {useEffect, useState }  from "react";
-import getBackendURL from "~/utils/getBackendURL";
-
 type CommonResponse = { success: boolean; } | { error: string; }
 
 export default function useAuthCheck(){

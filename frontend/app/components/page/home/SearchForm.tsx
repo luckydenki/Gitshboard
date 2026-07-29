@@ -2,9 +2,8 @@
 import { Log } from "~/utils/log_system/log";
 import { useNavigate } from "react-router";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import getBackendURL from "~/utils/getBackendURL";
+import { GoSearch } from "react-icons/go";
 import type { GithubUserSearchResponse } from "~/types/common/search";
-import type { GithubUser } from "~/types/GithubInfo";
 
 
 const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: ReturnType<typeof useNavigate>)=>{
@@ -32,14 +31,13 @@ const handleSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>, navigate: Ret
 
 const handleSearchDebounce = async(keyword : string) =>{
 
-    const backendURL = getBackendURL();
     const urlParams = new URLSearchParams({
         name : keyword,
         per_page : "8"
     })
 
 
-    const res  = await fetch(`${backendURL}/api/search?${urlParams.toString()}`, {
+    const res  = await fetch(`/api/search?${urlParams.toString()}`, {
         credentials : "include"
     }).then(async(res)=>{
         return await res.json();
@@ -63,7 +61,7 @@ const SearchFormCss = {
             dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-github-light dark:focus:ring-github-light/50 
             transition-all duration-200`,
 
-    submit_button : `size-12 
+    submit_button : ` flex items-center justify-center size-12 
             bg-github-light/50 rounded-full
             hover:ring-2 hover:ring-github-light hover:bg-github-light/60
             focus:outline-none focus:ring-2 focus:ring-gray-800
@@ -125,6 +123,7 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
 
             <input 
             ref={input}
+            aria-label="Search for github users input field"
             type="text"
             className={CustomInput ? CustomInput :SearchFormCss.input}
             placeholder="Search for users"
@@ -139,11 +138,19 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
                 debounce
             }>
             </input>
+            
 
             <button 
             type="submit" 
+            aria-label="Search users"
             className={CustomButton ? CustomButton : SearchFormCss.submit_button }
-            ></button>
+            >
+                <GoSearch/>
+            </button>
+            {/* 
+                해당 버튼과 인풋 필드는 UI를 설명할 텍스트가 없기 때문에 aria-label을 사용함
+                aria-hidden를 사용하여 스크린 리더가 버튼을 (아이콘 까지 중복으로 읽는 것을) 무시하도록 함
+            */}
         </form>
 
         <div className={`absolute top-full
@@ -160,7 +167,7 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
                             input!.current!.value = e.login
                         }}
                     >
-                        <img src={e.avatar_url} width="50" height="50"/>
+                        <img src={e.avatar_url} alt={`${e.login}'s avatar`} width="50" height="50"/>
                         <span> 
                             {e.login}
                         </span>

@@ -1,6 +1,8 @@
 {
   "include": [
-    "**/*",
+    "app/**/*",
+    ".storybook/**/*.ts",
+    ".storybook/**/*.tsx",
     "**/.server/**/*",
     "**/.client/**/*",
     ".react-router/types/**/*"
@@ -16,12 +18,15 @@
     "paths": {
       "~/*": ["./app/*"]
     },
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true, // Vite 호환 설정 
     "skipLibCheck": true,
-    "strict": true
+    "strict": true,
+    "forceConsistentCasingInFileNames": true // 파일 이름 대소문자 일관성 강제
   }
 }
