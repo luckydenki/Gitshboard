@@ -3,10 +3,8 @@ import SectionHeading from "./SectionHeading";
 import { calculateDeveloperProfile } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
-import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import { developStatsQueryFn } from "~/hooks/pages/stat-hooks";
+import {  useDevelopStatsQuery } from "~/hooks/pages/stat-hooks";
 
 
 export default React.memo(WorkingStyleArticle);
@@ -33,19 +31,12 @@ function BottomSkeleton(){
 }
 
 
-function WorkingStyleArticle({backendURL} : {backendURL : DenchHTTPURL}){
+function WorkingStyleArticle(){
     
-    const denchInstance = useState(() => dench(`${backendURL}/api`, "workingStyleArticleDench"))[0];
-    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
 
     const [percents, setPercents] = useState<number[]>([]);
 
-    const { data, isLoading, isError } = useQuery({
-        queryKey: ["workingStyleArticleData"],
-        queryFn: async () => { return await developStatsQueryFn(commonAPI) },
-        staleTime : 5 * 60 * 1000,
-        gcTime : 10 * 60 * 1000,
-    });
+    const { data, isLoading, isError } = useDevelopStatsQuery();
 
     const developer = useMemo(()=> calculateDeveloperProfile(data!), [data]);
 

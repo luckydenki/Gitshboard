@@ -3,11 +3,9 @@ import { calculateCommitStats } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
 import { useEffect, useMemo, useState } from "react";
-import { dench, HTTPCredentials } from "dench-fetch";
-import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import type { DenchHTTPURL } from "~/types/common/url";
-import { commitTimeQueryFn } from "~/hooks/pages/stat-hooks";
+import { useCommitTimeQuery } from "~/hooks/pages/stat-hooks";
 
 
 export default React.memo(WeekActivityArticle);
@@ -26,20 +24,10 @@ function Skeleton(){
 
 
 
-function WeekActivityArticle({backendURL} : {backendURL : DenchHTTPURL}){
+function WeekActivityArticle(){
     
-    const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "weekActivityArticleDench"));
-
-    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
-
     const [percents, setPercents] = useState<number[]>([]);
-
-    const  { data, isLoading, isError}  = useQuery({
-        queryKey : ["weekActivityArticleData"],
-        queryFn : async()=>{ return await commitTimeQueryFn(commonAPI)},
-        staleTime : 5 * 60 * 1000,
-        gcTime : 10 * 60 * 1000,
-    })
+    const  { data, isLoading, isError}  = useCommitTimeQuery();
 
     useEffect(()=>{
         if(!isLoading){
@@ -65,6 +53,17 @@ function WeekActivityArticle({backendURL} : {backendURL : DenchHTTPURL}){
                 <SectionHeading eyebrow="Commit rhythm" title="Weekly activity" detail="Default branch commit frequency" />
                 <div className="mt-8 flex h-64 items-end gap-3">
                     {skeletons}
+                </div>
+            </article>
+        )
+    }
+
+    if(isError){
+        return(
+            <article className={`flex flex-col ${surfaceClass} p-7 md:p-8`}>
+                <SectionHeading eyebrow="Commit rhythm" title="Weekly activity" detail="Default branch commit frequency" />
+                <div className="mt-8 flex h-64 items-center justify-center">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Failed to load data</p>
                 </div>
             </article>
         )

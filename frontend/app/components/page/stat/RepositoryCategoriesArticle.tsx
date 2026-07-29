@@ -2,11 +2,9 @@ import {  surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import EmptyState from "./EmptyState";
 import { calculateProjectCategories } from "~/utils/statpage";
-import { useMemo, useState } from "react";
-import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo} from "react";
 import React from "react";
-import { projectTopicsQueryFn } from "~/hooks/pages/stat-hooks";
+import {  useProjectTopicsQuery } from "~/hooks/pages/stat-hooks";
 
 
 export default React.memo(RepositoryCategoriesArticle);
@@ -37,18 +35,9 @@ function LoadDataSkeleton({children} : {children : React.ReactNode}){
 
 
 
-function RepositoryCategoriesArticle({backendURL} : {backendURL : DenchHTTPURL}){
+function RepositoryCategoriesArticle(){
 
-    const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "repositoryCategoriesArticleDench"));
-
-    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
-
-    const { data, isLoading, isError } = useQuery({
-        queryKey : ["repositoryCategoriesArticleData"],
-        queryFn : async()=>{ return await projectTopicsQueryFn(commonAPI)},
-        staleTime : 5 * 60 * 1000,
-        gcTime : 10 * 60 * 1000,
-    })
+    const { data, isLoading, isError } = useProjectTopicsQuery();
 
     const categories = useMemo(()=> calculateProjectCategories(data),[data])
 

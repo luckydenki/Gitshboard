@@ -1,5 +1,3 @@
-import { dench, HTTPCredentials } from "dench-fetch";
-import { useState } from "react"
 import OverviewSection from "~/components/page/stat/OverviewSection";
 import PreferredCommitTimeArticle from "~/components/page/stat/PreferredCommitTimeArticle";
 import RepositoryActivitySection from "~/components/page/stat/RepositoryActivitySection";
@@ -9,14 +7,13 @@ import TechnologyDistributionArticle from "~/components/page/stat/TechnologyDist
 import WeekActivityArticle from "~/components/page/stat/WeekActivityArticle";
 import WorkingStyleArticle from "~/components/page/stat/WorkingStyleArticle";
 import { useAnalyticsData, useStatQuery } from "~/hooks/pages/stat-hooks";
-import getBackendURL from "~/utils/getBackendURL";
 
 
 /**
  * 페이지 컴포넌트 규칙
  * 
  * 1. 페이지 렌더링을 바꾸는 상태 (useState)는 페이지에서 관리함
- * 2. 그 외 useQuery, useMemo, useEffect 등은 hooks에서 관리함
+ * 2. 그 외 useQuery, useMemo, useEffect 등은 "되도록" hooks에서 관리함 (너무 간단한 컴포넌트면 굳이 그럴 필요 없음)
  * 3. 의사 결정 로직, 선언적 로직들을 제외한 보여져야 할 UI는 components에서 관리함
  * ex) { isloading ? <LoadingSkeleton /> : <DataComponent data={data} /> }
  * 이런 isloading, isError 같은 ui 상태를 제어하는 것들은 페이지 내에서 관리하고 따로 컴포넌트화 시키지 말것.
@@ -30,11 +27,7 @@ export const surfaceClass = "rounded-[1.75rem] bg-white shadow-[0_22px_65px_rgba
 
 export default function StatPage(){
 
-    const backendurl = getBackendURL();
-    const denchInstance = useState(()=>dench(`${backendurl}/api`, "statPageDench"))[0];
-    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
-
-    const { commitTimeQuery, developStatsQuery, languagesQuery, projectLiveRateQuery, projectTopicsQuery } =   useStatQuery(commonAPI)
+    const { commitTimeQuery, developStatsQuery, languagesQuery, projectLiveRateQuery, projectTopicsQuery } =   useStatQuery();
 
     const isLoading = languagesQuery.isLoading || commitTimeQuery.isLoading || projectTopicsQuery.isLoading || developStatsQuery.isLoading || projectLiveRateQuery.isLoading;
     const isError = languagesQuery.isError || commitTimeQuery.isError || projectTopicsQuery.isError || developStatsQuery.isError || projectLiveRateQuery.isError;
@@ -50,17 +43,17 @@ export default function StatPage(){
                 <OverviewSection analytics={analytics} isLoading={isLoading} />
 
                 <section className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
-                    <TechnologyDistributionArticle backendURL={backendurl} />
-                    <WeekActivityArticle backendURL={backendurl} />
+                    <TechnologyDistributionArticle  />
+                    <WeekActivityArticle />
                 </section>
 
                 <section className="grid gap-8 lg:grid-cols-2 xl:grid-cols-3">
-                    <PreferredCommitTimeArticle backendURL={backendurl} />
-                    <WorkingStyleArticle backendURL={backendurl} />
-                    <RepositoryCategoriesArticle backendURL={backendurl} />     
+                    <PreferredCommitTimeArticle />
+                    <WorkingStyleArticle  />
+                    <RepositoryCategoriesArticle />
                 </section>
 
-                <RepositoryActivitySection backendURL={backendurl} />
+                <RepositoryActivitySection />
             </main>
         </div>
     )

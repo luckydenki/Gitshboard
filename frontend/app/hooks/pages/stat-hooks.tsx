@@ -14,7 +14,7 @@ import type { DevelopStatsNode, GithubCommitTimeRepositoryNode, GithubLanguageRe
 type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>;
 
 
-export const languagesQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+const languagesQueryFn = async()=>
         {
             const res = await fetch(`/api/repos/languages`, {
                 credentials: 'include',
@@ -30,7 +30,7 @@ export const languagesQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         }
 
 
-export const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+const commitTimeQueryFn = async()=>
         {
             const res = await fetch(`/api/repos/commitTime`, {
                 credentials: 'include',
@@ -46,7 +46,7 @@ export const commitTimeQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         }
 
 
-export const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+const projectTopicsQueryFn = async()=>
         {   
             const res = await fetch(`/api/repos/projectTopics`, {
                 credentials: 'include',
@@ -61,7 +61,7 @@ export const projectTopicsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=
             return res.data;
         }
 
-export const developStatsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+const developStatsQueryFn = async()=>
         {
             const res = await fetch(`/api/repos/developStats`, {
                 credentials: 'include',
@@ -77,7 +77,7 @@ export const developStatsQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
         }
 
 
-export const projectLiveRateQueryFn = async(commonAPI : DenchGetBuilder<unknown>)=>
+const projectLiveRateQueryFn = async()=>
         {
             const res = await fetch(`/api/repos/projectLiveRate`, {
                 credentials: 'include',
@@ -93,48 +93,70 @@ export const projectLiveRateQueryFn = async(commonAPI : DenchGetBuilder<unknown>
         }
 
 
-export function useStatQuery(commonAPI : DenchGetBuilder<unknown>){
-
-    const languagesQuery = useQuery({
+export function useLanguagesQuery(){
+    return useQuery({
         queryKey: ["languagesData"],
-        queryFn: () => languagesQueryFn(commonAPI),
+        queryFn: () => languagesQueryFn(),
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-    }
-    )
+    });
+}
 
-    const commitTimeQuery = useQuery({
+export function useCommitTimeQuery(){
+    return useQuery({
         queryKey: ["commitTimeData"],
-        queryFn: async () => { return await commitTimeQueryFn(commonAPI) },
+        queryFn: async () => { return await commitTimeQueryFn() },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-    }
-    )
+    });
+}
 
-    const projectTopicsQuery = useQuery({
+
+export function useProjectTopicsQuery(){
+    return useQuery({
         queryKey: ["projectTopicsData"],
-        queryFn: async () => { return await projectTopicsQueryFn(commonAPI); },
+        queryFn: async () => { return await projectTopicsQueryFn(); },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-    }
-    )
+    });
+}
 
-    const developStatsQuery = useQuery({
-        queryKey: ["developStatsData"],
-        queryFn: async () => { return await developStatsQueryFn(commonAPI); },
+
+export function useDevelopStatsQuery(){
+    return useQuery({
+        queryKey: ["developStatsData"], 
+        queryFn: async () => { return await developStatsQueryFn(); },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-    }
-    )
+    });
+}
 
-    const projectLiveRateQuery = useQuery({
+export function useProjectLiveRateQuery(){
+    return useQuery({
         queryKey: ["projectLiveRateData"],
-        queryFn: async () => { return await projectLiveRateQueryFn(commonAPI); },
+        queryFn: async () => { return await projectLiveRateQueryFn(); },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-    }
-    )
-    
+    });
+}   
+
+
+
+
+
+
+
+
+
+
+export function useStatQuery(){
+
+    const languagesQuery = useLanguagesQuery();
+    const commitTimeQuery = useCommitTimeQuery();
+    const projectTopicsQuery = useProjectTopicsQuery();
+    const developStatsQuery = useDevelopStatsQuery();
+    const projectLiveRateQuery = useProjectLiveRateQuery();
+
     return {
         languagesQuery,
         commitTimeQuery,

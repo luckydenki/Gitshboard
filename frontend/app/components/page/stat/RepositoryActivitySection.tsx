@@ -1,9 +1,8 @@
 import {  surfaceClass } from "~/routes/statpage";
-import { projectLiveRateQueryFn } from "~/hooks/pages/stat-hooks";
+import {  useProjectLiveRateQuery } from "~/hooks/pages/stat-hooks";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
 import { calculateProjectHealth, type ProjectStatus } from "~/utils/statpage";
-import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import React from "react";
@@ -53,19 +52,9 @@ function LoadDataSkeleton({children} : {children : React.ReactNode}){
 
 
 
-function RepositoryActivitySection({backendURL} : {backendURL : DenchHTTPURL}){
+function RepositoryActivitySection(){
 
-        const [denchInstance] = useState(()=>dench(`${backendURL}/api`, "repositoryActivitySectionDench"));
-        const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
-                
-
-        const {data, isLoading, isError} = useQuery({
-            queryKey : ["repositoryActivitySection"],
-            queryFn : async()=>{ return await projectLiveRateQueryFn(commonAPI) },
-            staleTime : 5 * 60 * 1000,
-            gcTime : 10 * 60 * 1000,
-        })
-
+        const { data, isLoading, isError } = useProjectLiveRateQuery();
         const health = useMemo(() => calculateProjectHealth(data!), [data]);
 
 

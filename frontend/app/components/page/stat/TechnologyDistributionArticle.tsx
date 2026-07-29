@@ -4,9 +4,8 @@ import { calculateLanguageStats } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
 import { useEffect, useMemo, useState } from "react";
 import React from "react";
-import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
-import { useQuery } from "@tanstack/react-query";
-import { languagesQueryFn } from "~/hooks/pages/stat-hooks";
+
+import { useLanguagesQuery } from "~/hooks/pages/stat-hooks";
 
 
 export default React.memo(TechnologyDistributionArticle);
@@ -26,19 +25,10 @@ function LoadingSkelton(){
 }
 
 
-function TechnologyDistributionArticle({backendURL} : {backendURL : DenchHTTPURL}){
+function TechnologyDistributionArticle(){
 
     const [percents, setPercents] = useState<number[]>([]);
-    const[denchInstance] = useState(()=>dench(`${backendURL}/api`, "technologyDistributionArticleDench"));
-    const commonAPI =  denchInstance.get("").error((err)=>{ console.error("Failed to fetch data:", err); }).credentials(HTTPCredentials.INCLUDE)
-
-
-    const { data, isLoading, isError} = useQuery({
-        queryKey : ["languagesData"],
-        queryFn : async()=>{ return await languagesQueryFn(commonAPI)},
-        staleTime : 5 * 60 * 1000,
-        gcTime : 10 * 60 * 1000,
-    })
+    const { data, isLoading, isError} = useLanguagesQuery();
 
     const languages = useMemo(() => calculateLanguageStats(data!), [data]);
 
@@ -67,6 +57,17 @@ function TechnologyDistributionArticle({backendURL} : {backendURL : DenchHTTPURL
         )
     }
 
+
+    if(isError){
+        return(
+            <article className={`${surfaceClass} p-7 md:p-8`}>
+                <SectionHeading eyebrow="Languages" title="Technology distribution" detail="Code volume across repositories" />
+                <div className="mt-8 space-y-7">
+                    <EmptyState text="Failed to load language data" />
+                </div>
+            </article>
+        )
+    }
 
 
 
