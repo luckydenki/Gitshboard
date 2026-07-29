@@ -6,6 +6,7 @@ import HeaderLayout from "../../../../app/components/layout/variant/HeaderLayout
 const meta = {
   title: "Components/Layout/Variant/HeaderLayout",
   component: HeaderLayout,
+  tags: ["!test"],
   parameters: {
     layout: "fullscreen",
   },

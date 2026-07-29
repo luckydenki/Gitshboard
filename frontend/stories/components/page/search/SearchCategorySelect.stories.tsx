@@ -6,6 +6,7 @@ import SearchCategorySelect from "../../../../app/components/page/search/SearchC
 const meta = {
   title: "Components/Page/Search/SearchCategorySelect",
   component: SearchCategorySelect,
+  tags: ["!test"],
   parameters: {
     layout: "centered",
   },

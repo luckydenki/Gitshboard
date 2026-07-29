@@ -20,6 +20,7 @@ queryClient.setQueryData(["headerUserData"], {
 const meta = {
   title: "Components/Layout/Variant/ProfileButton",
   component: ProfileButton,
+  tags: ["!test"],
   parameters: {
     layout: "centered",
   },

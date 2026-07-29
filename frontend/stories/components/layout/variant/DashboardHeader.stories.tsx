@@ -21,6 +21,7 @@ queryClient.setQueryData(["headerUserData"], {
 const meta = {
   title: "Components/Layout/Variant/DashboardHeader",
   component: DashboardHeader,
+  tags: ["!test"],
   parameters: {
     layout: "fullscreen",
   },

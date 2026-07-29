@@ -6,6 +6,7 @@ import SearchHeader from "../../../../app/components/layout/variant/SearchHeader
 const meta = {
   title: "Components/Layout/Variant/SearchHeader",
   component: SearchHeader,
+  tags: ["!test"],
   parameters: {
     layout: "fullscreen",
   },

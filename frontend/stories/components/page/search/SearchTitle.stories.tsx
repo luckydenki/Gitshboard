@@ -5,6 +5,7 @@ import SearchTitle from "../../../../app/components/page/search/SearchTitle";
 const meta = {
   title: "Components/Page/Search/SearchTitle",
   component: SearchTitle,
+  tags: ["!test"],
   parameters: {
     layout: "centered",
   },

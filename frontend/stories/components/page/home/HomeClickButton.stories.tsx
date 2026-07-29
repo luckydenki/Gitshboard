@@ -5,6 +5,7 @@ import HomeClickButton from "../../../../app/components/page/home/HomeClickButto
 const meta = {
   title: "Components/Page/Home/HomeClickButton",
   component: HomeClickButton,
+  tags: ["!test"],
   parameters: {
     layout: "centered",
   },

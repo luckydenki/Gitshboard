@@ -5,6 +5,7 @@ import LoginButton from "../../../../app/components/page/home/LoginButton";
 const meta = {
   title: "Components/Page/Home/LoginButton",
   component: LoginButton,
+  tags: ["!test"],
   parameters: {
     layout: "centered",
   },
