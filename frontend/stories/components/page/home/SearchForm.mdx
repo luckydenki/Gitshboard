@@ -1,0 +1,22 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks';
+import * as SearchFormStories from './SearchForm.stories';
+
+<Meta of={SearchFormStories} />
+
+# SearchForm
+> GitHub 사용자를 검색하기 위한 검색 폼입니다.
+
+## 주요 기능
+
+- 검색어를 입력할 수 있습니다.
+- 입력 후 1.5초가 지나면 자동완성 목록이 표시됩니다.
+- 검색 버튼을 누르면 `/search?name={검색어}`로 이동합니다.
+- 키보드만으로 모든 기능을 사용할 수 있습니다.
+
+## Props
+
+<Controls of={SearchFormStories.Default} />
+
+## 사용 시 주의사항
+
+`SearchForm`은 내부에서 React Router의 `navigate`를 사용하므로 Storybook에서 렌더링할 때 `MemoryRouter`가 필요합니다.
