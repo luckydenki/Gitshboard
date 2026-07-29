@@ -6,7 +6,7 @@
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
-    "test" : "npm run test:vitest && npm run test:e2e",
+    "test" : "npm run test:vitest",
     "test:vitest": "vitest run",
     "test:e2e" : "npx playwright test",
     "docker-dev": "docker compose up -d react-dev",
