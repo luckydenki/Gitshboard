@@ -11,5 +11,5 @@
 *storybook.log
 storybook-static
 
-/playwright-report/data
-/test-results
+/playwright-report/**
+/test-results/**
