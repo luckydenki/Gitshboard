@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect} from "react";
 import { useNavigate } from "react-router";
 import type { Route } from "./+types/home";
-import useAuthCheck from "~/hooks/useAuthCheck";
 
-import SearchForm from "~/components/page/home/SearchForm";
-import LoginButton from "~/components/page/home/LoginButton";
 import { isLocal} from '~/utils/log_system/log';
 import TitleLogo from "~/components/design/TitleLogo";
+import useAuthCheck from "~/hooks/useAuthCheck";
+import SearchForm from "~/components/page/home/SearchForm";
+import LoginButton from "~/components/page/home/LoginButton";
 
 
 export function meta({}: Route.MetaArgs) {
