@@ -4,7 +4,6 @@ import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
 import { useEffect, useMemo, useState } from "react";
 import React from "react";
-import type { DenchHTTPURL } from "~/types/common/url";
 import { useCommitTimeQuery } from "~/hooks/pages/stat-hooks";
 
 

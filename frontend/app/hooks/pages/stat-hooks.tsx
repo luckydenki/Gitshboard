@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import type { DenchGetBuilder } from "dench-fetch";
 import { useMemo } from "react";
 import {
     calculateCommitStats,

@@ -3,8 +3,7 @@ import {  useProjectLiveRateQuery } from "~/hooks/pages/stat-hooks";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
 import { calculateProjectHealth, type ProjectStatus } from "~/utils/statpage";
-import { useMemo, useState } from "react";
-import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
+import { useMemo } from "react";
 import React from "react";
 
 
