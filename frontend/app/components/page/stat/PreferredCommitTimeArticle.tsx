@@ -2,7 +2,6 @@ import { surfaceClass} from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import { calculateCommitStats, formatHour } from "~/utils/statpage";
 import { useEffect, useMemo, useState } from "react";
-import { dench, HTTPCredentials, type DenchHTTPURL } from "dench-fetch";
 import React from "react";
 import { useCommitTimeQuery } from "~/hooks/pages/stat-hooks";
 

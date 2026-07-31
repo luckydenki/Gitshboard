@@ -11,5 +11,7 @@
 *storybook.log
 storybook-static
 
-/playwright-report/**
-/test-results/**
+# Playwright
+playwright-report/
+test-results/
+playwright/.cache/
