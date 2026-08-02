@@ -5,7 +5,7 @@ import type {
     GithubProjectTopicsNode,
     GithubRepoCommonResponse,
     ProjectLiveRateNode,
-} from "../types/statpage"
+} from "../types/stat"
 
 const languageColors: Record<string, string> = {
     TypeScript: "bg-[#3178c6]",

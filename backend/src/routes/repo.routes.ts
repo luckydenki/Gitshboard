@@ -3,8 +3,8 @@ import { authToken, authUser } from "../middlewares/auth.middleware";
 import { AuthRequest } from "../types/middlewares/auth";
 import { CommonResponse, CommonErrorResponse, GithubCommonResponse } from "../types/middlewares/common";
 import { dench, DenchAuthType } from "dench-fetch";
-import { DevelopStatsNode, GithubCommitTimeRepositoryNode, GithubLanguageRepositoryNode, GithubProjectTopicsNode, GithubRepoCommonResponse, ProjectLiveRateNode } from "../types/statpage";
-import { calculateCommitStats, calculateDeveloperProfile, calculateLanguageStats, calculateProjectCategories, calculateProjectHealth,  CommitStats,  DeveloperProfileStats,  LanguageStat, ProjectCategoryStat, ProjectHealthStats } from "../utils/statpage";
+import { DevelopStatsNode, GithubCommitTimeRepositoryNode, GithubLanguageRepositoryNode, GithubProjectTopicsNode, GithubRepoCommonResponse, ProjectLiveRateNode } from "../types/stat";
+import { calculateCommitStats, calculateDeveloperProfile, calculateLanguageStats, calculateProjectCategories, calculateProjectHealth,  CommitStats,  DeveloperProfileStats,  LanguageStat, ProjectCategoryStat, ProjectHealthStats } from "../utils/stat";
 const repo_router = Router();
 
 
