@@ -6,18 +6,6 @@ import { GithubCommonResponse } from '../types/middlewares/common';
 const user_router = Router();
 
 
-/**
- * 
- * GitHub API에서 사용자 정보를 받아올 때 발생할 수 있는 에러의 타입을 정의하는 인터페이스입니다.
- * 
- */
-interface GithubErrorResponse{
-    message : string,
-    documentation_url : string
-}
-
-
-
 interface GithubUserResponse{
     user : {
         login : string,

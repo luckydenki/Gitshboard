@@ -10,6 +10,17 @@ const repo_router = Router();
 
 const denchInstance = dench("https://api.github.com/graphql", "projectTopicsDench");
 
+/*
+    graphql은 etag를 지원하지 않음
+
+    만약 github api에서 일반 rest api를 사용해서 etag를 쓰고 싶다면 다음 내용을 헤더에 추가할 것
+
+    1. 'Accept' : 'application/vnd.github+json',    //github api에서 json 형식으로 응답을 받기 위해 필요함.
+    2. 'X-GitHub-Api-Version' : '2022-11-28'        //github api 버전.
+
+*/
+
+
 // api/repos/health
 repo_router.get('/health', (req, res)=>{
     res.json({ message: 'Repo route is working!' });
@@ -63,19 +74,23 @@ repo_router.get('/languages', authToken, authUser, async(req : AuthRequest, res)
             })
         });
 
+        const etag= github_response.headers.get('etag');
+        console.log("ETag from GitHub response:", etag);
+
         if(github_response.ok){
             const githubData = await github_response.json();
 
-
             const userData: GithubRepoCommonResponse<GithubLanguageRepositoryNode> = githubData.data;
             const languageStats = calculateLanguageStats(userData);
+
+
+           // console.log("[backend] languageStats", languageStats);
 
             const responseData : CommonResponse<LanguageStat[]> = {
                 success : true,
                 status : 200,
                 data : languageStats
             }
-            console.log("[backend] languageStats:", responseData);
 
 
             res.status(200).json(responseData);
@@ -150,14 +165,13 @@ repo_router.get('/commitTime', authToken, authUser, async(req : AuthRequest, res
             const userData : GithubRepoCommonResponse<GithubCommitTimeRepositoryNode> = githubData.data;
             const commitStats : CommitStats = calculateCommitStats(userData);
 
-           // console.log(userData);
+           // console.log("[backend] commitStats:", commitStats);
 
             const responseData : CommonResponse<CommitStats> = {
                 success : true,
                 status : 200,
                 data : commitStats
             }
-            console.log("[backend] commitStats:", responseData);
             res.status(200).json(responseData);
 
         }
@@ -213,8 +227,6 @@ repo_router.get('/projectTopics', authToken, authUser, async(req : AuthRequest, 
     const variables ={
         login : req.user.githubUsername
     }
-
-    console.log("Fetching project topics with variables:", variables);
     
     const github_response = await denchInstance.post<GithubCommonResponse<any>>("", {
         query,
@@ -232,12 +244,12 @@ repo_router.get('/projectTopics', authToken, authUser, async(req : AuthRequest, 
     if(github_response){
         const userData : GithubRepoCommonResponse<GithubProjectTopicsNode> = github_response.data;
         const projectTopics : ProjectCategoryStat[] = calculateProjectCategories(userData);
+        console.log("[backend] projectTopics:", projectTopics);
         const responseData : CommonResponse<ProjectCategoryStat[]> = {
             success : true,
             status : 200,
             data : projectTopics
         }
-        console.log("[backend] projectTopics:", responseData);
         res.status(200).json(responseData);
     }
 })
@@ -303,13 +315,14 @@ repo_router.get('/developStats', authToken, authUser, async(req: AuthRequest, re
     if(github_response){
         const userData = github_response.data;
         const developerProfileStats = calculateDeveloperProfile(userData);
+       // console.log("[backend] developStats:", developerProfileStats);
+
         const responseData : CommonResponse<DeveloperProfileStats> = {
             success : true,
             status : 200,
             data : developerProfileStats
         }
 
-        console.log("[backend] developStats:", responseData);
         res.status(200).json(responseData);
     }
     else{
@@ -372,13 +385,15 @@ repo_router.get('/projectLiveRate', authToken, authUser, async(req: AuthRequest,
     if(github_response){
         const userData = github_response.data;
         const projectHealthStats = calculateProjectHealth(userData);
+
+        //console.log("[backend] projectLiveRate:", projectHealthStats);
+
         const responseData : CommonResponse<ProjectHealthStats> = {
             success : true,
             status : 200,
             data : projectHealthStats
         }
 
-        console.log("[backend] projectLiveRate:", responseData);
         res.status(200).json(responseData);
     }   
     else{
