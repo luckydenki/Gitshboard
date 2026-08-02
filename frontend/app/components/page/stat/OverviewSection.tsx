@@ -1,27 +1,78 @@
+import { useStatQuery } from "~/hooks/pages/stat-hooks";
 import { surfaceClass } from "~/routes/statpage";
-import type { calculateCommitStats, calculateDeveloperProfile, calculateLanguageStats, calculateProjectCategories, calculateProjectHealth } from "~/utils/statpage";
+
+
+export default function OverviewSection(){
+
+    const { languagesQuery, commitTimeQuery, projectLiveRateQuery, isLoading, isError } = useStatQuery();
+
+    if(isLoading){
+        return(
+            <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                <article className={`${surfaceClass} p-6`}>
+                    <p className="h-3 w-24 rounded bg-gray-400 animate-pulse"></p>
+                    <p className="mt-5 h-8 w-16 rounded bg-gray-400 animate-pulse"></p>
+                    <p className="mt-3 h-3 w-32 rounded bg-gray-400 animate-pulse"></p>
+                </article>
+                <article className={`${surfaceClass} p-6`}>
+                    <p className="h-3 w-24 rounded bg-gray-400 animate-pulse"></p>
+                    <p className="mt-5 h-8 w-16 rounded bg-gray-400 animate-pulse"></p>
+                    <p className="mt-3 h-3 w-32 rounded bg-gray-400 animate-pulse"></p>
+                </article>
+                <article className={`${surfaceClass} p-6`}>     
+                <p className="h-3 w-24 rounded bg-gray-400 animate-pulse"></p>
+                <p className="mt-5 h-8 w-16 rounded bg-gray-400 animate-pulse"></p>
+                <p className="mt-3 h-3 w-32 rounded bg-gray-400 animate-pulse"></p>
+                </article>
+                <article className={`${surfaceClass} p-6`}>     
+                <p className="h-3 w-24 rounded bg-gray-400 animate-pulse"></p>
+                <p className="mt-5 h-8 w-16 rounded bg-gray-400 animate-pulse"></p>
+                <p className="mt-3 h-3 w-32 rounded bg-gray-400 animate-pulse"></p>
+                </article>
+            </section>
+        )
+    }
+
+    if(isError){
+        console.error("Error occurred while fetching data for OverviewSection");
+        return(
+            <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                <article className={`${surfaceClass} p-6`}>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">Analyzed repos</p>
+                    <p className="mt-5 truncate text-3xl font-semibold tracking-tight">-</p>
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Failed to load data</p>
+                </article>
+                <article className={`${surfaceClass} p-6`}>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">Recent commits</p>
+                    <p className="mt-5 truncate text-3xl font-semibold tracking-tight">-</p>
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Failed to load data</p>
+                </article>
+                <article className={`${surfaceClass} p-6`}>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">Active projects</p>
+                    <p className="mt-5 truncate text-3xl font-semibold tracking-tight">-</p>
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Failed to load data</p>
+                </article>
+                <article className={`${surfaceClass} p-6`}>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">Primary stack</p>
+                    <p className="mt-5 truncate text-3xl font-semibold tracking-tight">-</p>
+                    <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Failed to load data</p>
+                </article>
+            </section>
+        )
+    }
 
 
 
-export interface OverviewSectionProps{
-    analytics :{
-        languages : ReturnType<typeof calculateLanguageStats>,
-        commits : ReturnType<typeof calculateCommitStats>,
-        categories : ReturnType<typeof calculateProjectCategories>,
-        developer : ReturnType<typeof calculateDeveloperProfile>,
-        health : ReturnType<typeof calculateProjectHealth>,
-    },
-    isLoading : boolean;
-}
-
-
-export default function OverviewSection({analytics, isLoading} : OverviewSectionProps){
-
+    const languages = languagesQuery.data!;
+    const commits = commitTimeQuery.data!;
+    const health = projectLiveRateQuery.data!;
+    
+    
     const overviewStats = [
-        { label: "Analyzed repos", value: analytics.health.total, caption: `${analytics.health.forks} forks included` },
-        { label: "Recent commits", value: analytics.commits.total, caption: "Fetched default branch history" },
-        { label: "Active projects", value: analytics.health.active, caption: "Pushed within 30 days" },
-        { label: "Primary stack", value: analytics.languages[0]?.name ?? "-", caption: "By total code size" },
+        { label: "Analyzed repos", value: health.total, caption: `${health.forks} forks included` },
+        { label: "Recent commits", value: commits.total, caption: "Fetched default branch history" },
+        { label: "Active projects", value: health.active, caption: "Pushed within 30 days" },
+        { label: "Primary stack", value: languages[0]?.name ?? "-", caption: "By total code size" },
     ];
 
         return(

@@ -1,8 +1,7 @@
 import {  surfaceClass } from "~/routes/statpage";
-import { calculateCommitStats } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import { useCommitTimeQuery } from "~/hooks/pages/stat-hooks";
 
@@ -26,19 +25,15 @@ function Skeleton(){
 function WeekActivityArticle(){
     
     const [percents, setPercents] = useState<number[]>([]);
-    const  { data, isLoading, isError}  = useCommitTimeQuery();
+    const  { data : commits, isLoading, isError}  = useCommitTimeQuery();
 
     useEffect(()=>{
-        if(!isLoading){
-            const commits = calculateCommitStats(data!);
-            const maps = commits.weekdays.map((day)=>day.heightPercent ?? 0);
+        if(!isLoading && !isError){
+            const maps = commits!.weekdays.map((day)=>day.heightPercent ?? 0);
             setPercents(maps);
         }
-    }, [isLoading, data]);
+    }, [isLoading, isError, commits]);
 
-
-
-    const commits = useMemo(()=> calculateCommitStats(data!), [data]);
 
     
     if(isLoading){
@@ -72,7 +67,7 @@ function WeekActivityArticle(){
         <article className={`flex flex-col ${surfaceClass} p-7 md:p-8`}>
             <SectionHeading eyebrow="Commit rhythm" title="Weekly activity" detail="Default branch commit frequency" />
             <div className="mt-8 flex h-64 items-end gap-3">
-                {commits.weekdays.map((day, idx) => (
+                {commits!.weekdays.map((day, idx) => (
                     <div key={day.label} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-3">
                         <span className="text-xs font-semibold text-gray-400">{day.count}</span>
                         <div className="flex h-full w-full items-end rounded-2xl bg-gray-100 p-1.5 dark:bg-gray-800">
@@ -85,7 +80,7 @@ function WeekActivityArticle(){
                     </div>
                 ))}
             </div>
-            {!isLoading && commits.total === 0 && <EmptyState text="No commit history available" />}
+            {!isLoading && commits!.total === 0 && <EmptyState text="No commit history available" />}
         </article>
     )
 }

@@ -2,12 +2,12 @@ import {  surfaceClass } from "~/routes/statpage";
 import {  useProjectLiveRateQuery } from "~/hooks/pages/stat-hooks";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";
-import { calculateProjectHealth, type ProjectStatus } from "~/utils/statpage";
-import { useMemo } from "react";
+
 import React from "react";
 
-
 export default React.memo(RepositoryActivitySection);
+
+export type ProjectStatus = "Active" | "Idle" | "Dormant" | "Archived";
 
 
 function getStatusClass(status: ProjectStatus){
@@ -53,8 +53,8 @@ function LoadDataSkeleton({children} : {children : React.ReactNode}){
 
 function RepositoryActivitySection(){
 
-        const { data, isLoading, isError } = useProjectLiveRateQuery();
-        const health = useMemo(() => calculateProjectHealth(data!), [data]);
+        const { data : health, isLoading, isError } = useProjectLiveRateQuery();
+
 
 
         if(isLoading){
@@ -90,13 +90,13 @@ function RepositoryActivitySection(){
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <SectionHeading eyebrow="Project health" title="Repository activity" detail="Recency, archive state, and ownership" />
                 <div className="flex gap-5 text-sm text-gray-500 dark:text-gray-400">
-                    <span><strong className="text-gray-950 dark:text-white">{health.active}</strong> active</span>
-                    <span><strong className="text-gray-950 dark:text-white">{health.dormant}</strong> dormant</span>
-                    <span><strong className="text-gray-950 dark:text-white">{health.archived}</strong> archived</span>
+                    <span><strong className="text-gray-950 dark:text-white">{health!.active}</strong> active</span>
+                    <span><strong className="text-gray-950 dark:text-white">{health!.dormant}</strong> dormant</span>
+                    <span><strong className="text-gray-950 dark:text-white">{health!.archived}</strong> archived</span>
                 </div>
             </div>
             <div className="mt-8 grid gap-3">
-                {health.projects.slice(0, 8).map((project) => (
+                {health!.projects.slice(0, 8).map((project) => (
                     <div key={project.name} className="grid gap-4 rounded-3xl bg-gray-100 px-5 py-4 sm:grid-cols-[1fr_110px_140px_90px] sm:items-center dark:bg-gray-800">
                         <p className="truncate font-semibold">{project.name}</p>
                         <span className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(project.status)}`}>
@@ -106,7 +106,7 @@ function RepositoryActivitySection(){
                         <p className="text-sm text-gray-400">{project.isFork ? "Fork" : "Original"}</p>
                     </div>
                 ))}
-                {!isLoading && health.projects.length === 0 && <EmptyState text="No project activity data available" />}
+                {!isLoading && health!.projects.length === 0 && <EmptyState text="No project activity data available" />}
             </div>
         </section>
 
