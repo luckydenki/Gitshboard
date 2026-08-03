@@ -1,7 +1,10 @@
+name : gitshboard-redis
+
 services:
+  #서비스의 이름이며, 이 이름을 docker compose up 뒤에 붙히면 해당 서비스만 실행할 수 있습니다.
   redis:
     image: redis:8-alpine
-    container_name: gitshboard-redis
+    container_name: gitshboard-redis-container
 
     ports:
       - "127.0.0.1:6380:6379"
@@ -20,7 +23,24 @@ services:
     # 필요 없으면 제거해도 됨.
 
     restart: unless-stopped
+    # unless-stopped는 컨테이너가 수동으로 중지되지 않는 한 항상 재시작하도록 설정하는 옵션입니다.
+
+  
+  # redis-insight는 Redis의 GUI 관리 도구로, Redis 서버를 시각적으로 모니터링하고 관리할 수 있는 웹 기반 인터페이스를 제공합니다.
+  redis-insight:
+    image : redis/redisinsight:latest
+    container_name : gitshboard-redis-insight
+    # 5540포트로 접근 가능한 만큼, localhost:5540으로 접근하면 Redis Insight 웹 인터페이스에 접속할 수 있습니다.
+    ports:
+      - "127.0.0.1:5540:5540"
+    volumes:
+      - redis-insight-data:/data
+    depends_on:
+      - redis
+    restart: unless-stopped
 
 volumes:
   redis-data:
     name: gitshboard-redis-data
+  redis-insight-data:
+    name: gitshboard-redis-insight-data

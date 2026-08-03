@@ -12,7 +12,9 @@
       "test:frontend" : "npm --prefix frontend run test",
       "test": "npm run test:frontend",
       "redis" : "docker compose up -d",
+      "redis:stop" : "docker compose stop",
       "redis:down" : "docker compose down",
+      "redis:reset" : "docker exec -it gitshboard-redis redis-cli FLUSHALL",
       "postredis" : "docker exec -it gitshboard-redis redis-cli ping"
   }
 }
