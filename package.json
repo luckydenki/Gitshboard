@@ -10,6 +10,9 @@
       "build:backend" : "npm --prefix backend run build",
       "build" : "npm run build:frontend && npm run build:backend",
       "test:frontend" : "npm --prefix frontend run test",
-      "test": "npm run test:frontend"
+      "test": "npm run test:frontend",
+      "redis" : "docker compose up -d",
+      "redis:down" : "docker compose down",
+      "postredis" : "docker exec -it gitshboard-redis redis-cli ping"
   }
 }

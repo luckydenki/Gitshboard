@@ -1,0 +1,26 @@
+services:
+  redis:
+    image: redis:8-alpine
+    container_name: gitshboard-redis
+
+    ports:
+      - "127.0.0.1:6380:6379"
+    # 6380:6379란 호스트의 6380 포트를 컨테이너의 6379 포트에 매핑한다는 의미입니다.
+    # 로컬 환경 기준으로 비유하자면 호스트는 내 컴퓨터, 컨테이너는 가상 환경이라고 생각하면 됩니다.
+
+    volumes:
+      - redis-data:/data
+    
+    command:
+      - redis-server
+     # - --appendonly
+     # - "yes"
+    # appendonly는 Redis가 데이터를 디스크에 지속적으로 저장하도록 설정하는 옵션입니다. 
+    # 이 옵션을 활성화하면 Redis는 모든 쓰기 작업을 로그 파일에 기록하여 데이터 손실을 방지합니다.
+    # 필요 없으면 제거해도 됨.
+
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+    name: gitshboard-redis-data
