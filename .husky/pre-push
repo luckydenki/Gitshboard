@@ -1,8 +1,11 @@
+#!/bin/sh
+
 echo "push"
 
 # push 를 하면 build, test 등을 실행할 것인지, 안하고 바로 push 할 것인지 선택하게 해줍시다.
 # y를 누르면 build, test 를 실행하고, n을 누르면 바로 push 합니다.
 read -p "Do you want to run build and test before push? (y/n): " answer
+
 if [[ "$answer" != "y" && "$answer" != "Y" ]]; then
     echo "Skipping build and test. Proceeding with push..."
     exit 0
