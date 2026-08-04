@@ -1,11 +1,10 @@
 
 import  jwt  from 'jsonwebtoken';
-import { PrismaClient, User } from '@prisma/client';
+import {  User } from '@prisma/client';
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../types/middlewares/auth';
 import { prisma } from '../app';
 import { redisClient } from '../infra/redis/redisClient';
-import { createCipheriv, createDecipheriv } from 'node:crypto';
 
 /**
  * JWT 토큰을 검증하여 인증된 사용자임을 확인하는 미들웨어
@@ -44,6 +43,8 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
 /**
  * 
  * userId와 githubId를 기반으로 데이터베이스에서 사용자를 조회하여 인증된 사용자임을 확인하는 미들웨어
+ * decoded된 서버 토큰을 바탕으로 db를 조회하고, github access token을 가져오고 redis에 저장합니다.
+ * 만약 redis에 캐싱되어있다면 곧바로 redis에서 가져옵니다.
  * 
  * @param req 
  * @param res 
@@ -51,7 +52,13 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
  * @returns 
  */
 export async function authUser(req : AuthRequest , res : Response, next : NextFunction){
-    const { userId, githubId } = req.decoded_token!; //authToken 미들웨어에서 디코딩된 토큰 정보 사용
+
+    if(req.decoded_token == undefined){
+        return res.status(401).json({ error : '인증 토큰이 없습니다.' });
+    }
+
+
+    const { userId, githubId } = req.decoded_token; //authToken 미들웨어에서 디코딩된 토큰 정보 사용
 
     const cachedUser = await redisClient.get(`gitshboard:user:${userId}:${githubId}`);
 
