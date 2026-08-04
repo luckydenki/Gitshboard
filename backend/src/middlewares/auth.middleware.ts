@@ -3,8 +3,9 @@ import  jwt  from 'jsonwebtoken';
 import { PrismaClient, User } from '@prisma/client';
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../types/middlewares/auth';
-
-const prisma = new PrismaClient();
+import { prisma } from '../app';
+import { redisClient } from '../infra/redis/redisClient';
+import { createCipheriv, createDecipheriv } from 'node:crypto';
 
 /**
  * JWT 토큰을 검증하여 인증된 사용자임을 확인하는 미들웨어
@@ -22,9 +23,13 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
     }
 
     try{
+        const startTime = performance.now();
         const decoded_token = jwt.verify(token, process.env.JWT_SECRET!);
         const { userId, githubId } = decoded_token as { userId : number, githubId : number };        
         req.decoded_token = { userId, githubId }; //디코딩된 토큰 정보를 요청 객체에 추가
+        const endTime = performance.now();
+        console.log("Token verification time:", (endTime - startTime).toFixed(2), "milliseconds");
+
         next();
     }
     catch(error){
@@ -48,21 +53,57 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
 export async function authUser(req : AuthRequest , res : Response, next : NextFunction){
     const { userId, githubId } = req.decoded_token!; //authToken 미들웨어에서 디코딩된 토큰 정보 사용
 
+    const cachedUser = await redisClient.get(`gitshboard:user:${userId}:${githubId}`);
+
+    if(cachedUser){
+        console.log("Redis hit : user", cachedUser);
+        req.user = JSON.parse(cachedUser) as User;
+        next();
+        return;
+    }
+
     try{
+        const startTime = performance.now();
+        console.log("Redis miss : user not found in cache, querying database...");
         const user : User | null = await prisma.user.findUnique({
             where : {
                 id : userId,
                 githubId : githubId,
             }
         })
+        console.log("Database query result : user", user);
 
         if(!user){
             return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
         }
         else{
             req.user = user; //인증된 사용자 정보를 요청 객체에 추가
+
+            //const cipher = createCipheriv('aes-256-cbc', Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'), Buffer.from(user.githubAccessToken, 'hex'));
+            //createCipheriv 설명
+            /*
+            - 'aes-256-cbc' : AES 알고리즘을 사용하며, 256비트 키와 CBC(Cipher Block Chaining) 모드를 사용합니다.
+            - Buffer.from(process.env.ENCRYPTION_KEY!, 'hex') : 환경 변수 ENCRYPTION_KEY를 16진수 문자열로부터 버퍼로 변환합니다. 이 키는 암호화에 사용됩니다.
+            - Buffer.from(user.githubAccessToken, 'hex') : 사용자의 GitHub 액세스 토큰을 16진수 문자열로부터 버퍼로 변환합니다. 이 값은 초기화 벡터(IV)로 사용됩니다.
+            */
+            //console.log("cipher",cipher);
+
+           // const decipher = createDecipheriv('aes-256-cbc', Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'), Buffer.from(user.githubAccessToken, 'hex'));
+            //createDecipheriv 설명
+            /*
+            - 'aes-256-cbc' : AES 알고리즘을 사용하며, 256비트 키와 CBC(Cipher Block Chaining) 모드를 사용합니다.
+            - Buffer.from(process.env.ENCRYPTION_KEY!, 'hex') : 환경 변수 ENCRYPTION_KEY를 16진수 문자열로부터 버퍼로 변환합니다. 이 키는 복호화에 사용됩니다.
+            - Buffer.from(user.githubAccessToken, 'hex') : 사용자의 GitHub 액세스 토큰을 16진수 문자열로부터 버퍼로 변환합니다. 이 값은 초기화 벡터(IV)로 사용됩니다.
+            */
+
+
+            await redisClient.set(`gitshboard:user:${userId}:${githubId}`, JSON.stringify(user),{
+                expiration : {type : 'EX', value : 300 }  //5분
+            });
             next(); //성공 시 다음 미들웨어로 넘어감
         }
+        const endTime = performance.now();
+        console.log("User authentication time:", (endTime - startTime).toFixed(2), "milliseconds");
 
     }catch(error){
         console.error("Error : User authentication error", error);

@@ -1,10 +1,8 @@
 import { CookieOptions, Router } from 'express';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
 import { AuthRequest} from '../types/middlewares/auth';
 import {authToken, authUser} from '../middlewares/auth.middleware';
-
-const prisma = new PrismaClient();
+import { prisma } from '../app';
 
 const auth_router = Router();
 
@@ -95,7 +93,7 @@ auth_router.post('/github', async (req, res)=>{
                 }
             });
 
-            console.log("Success : Update and Insert user data To DB", user);
+            //console.log("Success : Update and Insert user data To DB", user);
      
             // model User{
             //     id Int @id @default(autoincrement())
@@ -120,12 +118,14 @@ auth_router.post('/github', async (req, res)=>{
             // - 'none' : 모든 상황에서 쿠키 전송 허용, 단 secure 옵션도 true로 설정해야 함 (브라우저 강제 사항)
 
             const cookieOptions : CookieOptions ={
-                httpOnly : true,        //http only 활성화
-                secure : true,         //https에서만 쿠키 전송, 다만 개발환경에서는 false로 설정
-                sameSite : 'none',      //CSRF 공격 방지는 어쩔수가 없이 false로 해야할 듯
-                maxAge : 240 * 60 * 1000, //쿠키 만료 시간 설정, ms 단위, 4시간
+                httpOnly : true,            //http only 활성화
+                secure : true,              //https에서만 쿠키 전송, 다만 개발환경에서는 false로 설정
+                sameSite : 'none',          //CSRF 공격 방지는 어쩔수가 없이 false로 해야할 듯
+                maxAge : 240 * 60 * 1000,   //쿠키 만료 시간 설정, ms 단위, 4시간
             }
             res.cookie('app_token', appToken, cookieOptions);
+
+            
     
             console.log("Success : Set cookie with JWT token", { appToken, cookieOptions });
 

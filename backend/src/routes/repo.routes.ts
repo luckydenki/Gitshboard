@@ -5,9 +5,9 @@ import { CommonResponse, CommonErrorResponse, GithubCommonResponse } from "../ty
 import { dench, DenchAuthType } from "dench-fetch";
 import { DevelopStatsNode, GithubCommitTimeRepositoryNode, GithubLanguageRepositoryNode, GithubProjectTopicsNode, GithubRepoCommonResponse, ProjectLiveRateNode } from "../types/stat";
 import { calculateCommitStats, calculateDeveloperProfile, calculateLanguageStats, calculateProjectCategories, calculateProjectHealth,  CommitStats,  DeveloperProfileStats,  LanguageStat, ProjectCategoryStat, ProjectHealthStats } from "../utils/stat";
+import { redisClient } from "../infra/redis/redisClient";
+
 const repo_router = Router();
-
-
 const denchInstance = dench("https://api.github.com/graphql", "projectTopicsDench");
 
 /*
@@ -17,8 +17,10 @@ const denchInstance = dench("https://api.github.com/graphql", "projectTopicsDenc
 
     1. 'Accept' : 'application/vnd.github+json',    //github api에서 json 형식으로 응답을 받기 위해 필요함.
     2. 'X-GitHub-Api-Version' : '2022-11-28'        //github api 버전.
-
 */
+
+
+const REDIS_DATA_EXPIRATION = 300; // 5분 동안 유지
 
 
 // api/repos/health
@@ -34,6 +36,23 @@ repo_router.get('/languages', authToken, authUser, async(req : AuthRequest, res)
     if(!req.user){
         return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
     }
+
+    //304 Not Modified 요청에 대한 대비
+    const cachedData = await redisClient.get("gitshboard:stats:languages");
+    //console.log("cachedData:", cachedData);
+    //없을 경우 cachedData는 null임.
+    if(cachedData){
+        console.log("Redis hit : languages");
+
+        const responseData : CommonResponse<LanguageStat[]> = {
+            success : true,
+            status : 200,
+            data : JSON.parse(cachedData)
+        }
+        res.status(200).json(responseData);
+        return;
+    }
+    
 
     
     const query = `
@@ -74,14 +93,15 @@ repo_router.get('/languages', authToken, authUser, async(req : AuthRequest, res)
             })
         });
 
-        const etag= github_response.headers.get('etag');
-        console.log("ETag from GitHub response:", etag);
-
         if(github_response.ok){
             const githubData = await github_response.json();
 
             const userData: GithubRepoCommonResponse<GithubLanguageRepositoryNode> = githubData.data;
             const languageStats = calculateLanguageStats(userData);
+
+            redisClient.set("gitshboard:stats:languages", JSON.stringify(languageStats), {
+                expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
+            });
 
 
            // console.log("[backend] languageStats", languageStats);
@@ -119,6 +139,22 @@ repo_router.get('/commitTime', authToken, authUser, async(req : AuthRequest, res
     if(!req.user){
         return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
     }
+
+    //304 Not Modified 요청에 대한 대비
+    const cachedData = await redisClient.get("gitshboard:stats:commitTime");
+
+    //없을 경우 cachedData는 null임.
+    if (cachedData) {
+        console.log("Redis hit : commitTime");
+        const responseData : CommonResponse<CommitStats> = {
+            success : true,
+            status : 200,
+            data : JSON.parse(cachedData)
+        }
+        res.status(200).json(responseData);
+        return;
+    }
+
 
     const query = `
         query GetCommitTimes($login : String!){
@@ -167,6 +203,10 @@ repo_router.get('/commitTime', authToken, authUser, async(req : AuthRequest, res
 
            // console.log("[backend] commitStats:", commitStats);
 
+            redisClient.set("gitshboard:stats:commitTime", JSON.stringify(commitStats), {
+                expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
+            });
+
             const responseData : CommonResponse<CommitStats> = {
                 success : true,
                 status : 200,
@@ -202,6 +242,34 @@ repo_router.get('/projectTopics', authToken, authUser, async(req : AuthRequest, 
     if(!req.user){
         return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
     }
+    
+    
+    //redis 성능 측정 
+
+    const startTime = performance.now();
+
+    const cachedData = await redisClient.get("gitshboard:stats:projectTopics");
+
+    //없을 경우 cachedData는 null임.
+    if (cachedData) {
+        const endTime = performance.now();
+
+        console.log("Redis hit : projectTopics");
+        console.log("Time taken to fetch from Redis:", (endTime - startTime).toFixed(2), "milliseconds");
+
+        const startTime2 = performance.now();
+        const responseData : CommonResponse<ProjectCategoryStat[]> = {
+            success : true,
+            status : 200,
+            data : JSON.parse(cachedData)
+        }
+        const endTime2 = performance.now();
+        res.status(200).json(responseData);
+        console.log("Time taken to parse JSON and prepare response:", (endTime2 - startTime2).toFixed(2), "milliseconds");
+
+        return;
+    }
+
 
     //graphql query에서 String! 이라 되어있는건 String 만 가능하다는 것
     //!를 제거하면 String | null 이므로 null 도 허용된다
@@ -245,6 +313,11 @@ repo_router.get('/projectTopics', authToken, authUser, async(req : AuthRequest, 
         const userData : GithubRepoCommonResponse<GithubProjectTopicsNode> = github_response.data;
         const projectTopics : ProjectCategoryStat[] = calculateProjectCategories(userData);
         console.log("[backend] projectTopics:", projectTopics);
+
+        redisClient.set("gitshboard:stats:projectTopics", JSON.stringify(projectTopics), {
+            expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
+        });
+
         const responseData : CommonResponse<ProjectCategoryStat[]> = {
             success : true,
             status : 200,
@@ -258,6 +331,23 @@ repo_router.get('/projectTopics', authToken, authUser, async(req : AuthRequest, 
 repo_router.get('/developStats', authToken, authUser, async(req: AuthRequest, res)=>{
     if(!req.user){
         return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
+    }
+
+
+    //304 Not Modified 요청에 대한 대비
+    const cachedData = await redisClient.get("gitshboard:stats:developStats");
+
+    //없을 경우 cachedData는 null임.
+    if (cachedData) {
+        console.log("Redis hit : developStats");
+        const responseData : CommonResponse<DeveloperProfileStats> = {
+            success : true,
+            status : 200,
+            data : JSON.parse(cachedData)
+        }
+
+        res.status(200).json(responseData);
+        return;
     }
 
     const query = `
@@ -323,6 +413,10 @@ repo_router.get('/developStats', authToken, authUser, async(req: AuthRequest, re
             data : developerProfileStats
         }
 
+        redisClient.set("gitshboard:stats:developStats", JSON.stringify(developerProfileStats), {
+            expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
+        });
+
         res.status(200).json(responseData);
     }
     else{
@@ -347,6 +441,24 @@ repo_router.get('/projectLiveRate', authToken, authUser, async(req: AuthRequest,
     if(!req.user){
         return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
     }
+
+    //304 Not Modified 요청에 대한 대비
+    const cachedData = await redisClient.get("gitshboard:stats:projectLiveRate");
+
+    //없을 경우 cachedData는 null임.
+    if (cachedData) {
+        console.log("Redis hit : projectLiveRate");
+
+        const responseData : CommonResponse<ProjectHealthStats> = {
+            success : true,
+            status : 200,
+            data : JSON.parse(cachedData)
+        }
+
+        res.status(200).json(responseData);
+        return;
+    }
+
 
     const query = `
         query getProjectLiveRate($login : String!){
@@ -387,6 +499,11 @@ repo_router.get('/projectLiveRate', authToken, authUser, async(req: AuthRequest,
         const projectHealthStats = calculateProjectHealth(userData);
 
         //console.log("[backend] projectLiveRate:", projectHealthStats);
+        redisClient.set("gitshboard:stats:projectLiveRate", JSON.stringify(projectHealthStats), {
+            expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
+        });
+
+
 
         const responseData : CommonResponse<ProjectHealthStats> = {
             success : true,
