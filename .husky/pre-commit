@@ -1,0 +1,13 @@
+#!/bin/sh
+
+printf "커밋 전에 build 테스트를 실행할까요? (y/n): "
+read answer </dev/tty
+
+if [[ "$answer" != "n" && "$answer" != "N" ]]; then
+    echo "Skipping build and test. Proceeding with commit..."
+    exit 0
+fi
+else
+    npm run build || exit 1
+    echo "build complete"
+fi
