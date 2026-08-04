@@ -3,11 +3,24 @@
 printf "커밋 전에 build 테스트를 실행할까요? (y/n): "
 read answer </dev/tty
 
-if [[ "$answer" != "n" && "$answer" != "N" ]]; then
-    echo "Skipping build and test. Proceeding with commit..."
-    exit 0
-fi
-else
-    npm run build || exit 1
-    echo "build complete"
-fi
+case "$answer" in
+  y|Y)
+    echo "Build를 실행합니다..."
+
+    if ! npm run build; then
+      echo "Build가 실패했습니다. 커밋을 중단합니다."
+      exit 1
+    fi
+
+    echo "Build가 성공했습니다."
+    ;;
+  n|N)
+    echo "Build를 건너뛰고 커밋을 진행합니다."
+    ;;
+  *)
+    echo "y 또는 n만 입력해주세요. 커밋을 중단합니다."
+    exit 1
+    ;;
+esac
+
+exit 0
