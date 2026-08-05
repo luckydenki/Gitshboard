@@ -1,8 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { dench, HTTPCredentials } from "dench-fetch";
-import { useRef } from "react";
 import type { CommonResponse } from "~/types/common/common";
-import getBackendURL from "~/utils/getBackendURL";
 
 
 interface UserDataState{
@@ -12,21 +9,22 @@ interface UserDataState{
 
 export default function ProfileButton(){
     
-    const backendurl =getBackendURL();
-    const denchInstance = useRef(dench(`${backendurl}/api/`, "headerDench"));
 
     const { data, error, isLoading, isError} = useQuery(
         {
             queryKey: ["headerUserData"], 
             queryFn: async() =>{
                 
-                const res = await denchInstance.current.get<CommonResponse<UserDataState>>("users/userheader")
-                .credentials(HTTPCredentials.INCLUDE)
-                .error((err)=>{
-                    console.error("Failed to fetch user header data:", err);
+                const res = await fetch("/api/users/userheader",{
+                    credentials : "include",
                 })
-                .toJson()
-                return res.data;
+                
+                if(res.ok){
+                     const res_data = await res.json() as CommonResponse<UserDataState>;
+                     return  res_data.data;
+                }
+
+                throw new Error()
             },
             staleTime : 5 * 60 * 1000, //5분,
             retry : (failureCount, error)=>{
