@@ -29,6 +29,11 @@ interface GithubSearchErrorResponse {
 }
 
 
+search_router.get("/health", (req, res)=>{
+    res.json({ message: 'Search route is working!' });
+})
+
+
 search_router.get("/", checkToken, checkUser, async(req : AuthRequest, res)=>{
 
     const query = req.query;

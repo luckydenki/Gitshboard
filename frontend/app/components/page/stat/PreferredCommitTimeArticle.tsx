@@ -1,7 +1,7 @@
 import { surfaceClass} from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
-import { calculateCommitStats, formatHour } from "~/utils/statpage";
-import { useEffect, useMemo, useState } from "react";
+import {  formatHour } from "~/utils/statpage";
+import { useEffect, useState } from "react";
 import React from "react";
 import { useCommitTimeQuery } from "~/hooks/pages/stat-hooks";
 
@@ -20,13 +20,11 @@ function PreferredCommitTimeArticle(){
 
     const [percents, setPercents] = useState<number[]>([]);
 
-    const { data, isLoading } = useCommitTimeQuery();
-
-    const commits  = useMemo(()=> calculateCommitStats(data!), [data]);       
+    const { data : commits, isLoading, isError } = useCommitTimeQuery();
 
     useEffect(()=>{
-        if(!isLoading){
-            const new_percents =commits.timeBuckets.map((time)=>time.percent ?? 0);
+        if(!isLoading && !isError){
+            const new_percents =commits!.timeBuckets.map((time)=>time.percent ?? 0);
             setPercents(new_percents);
         }
 
@@ -61,10 +59,28 @@ function PreferredCommitTimeArticle(){
     }//테일윈드에서 띄어쓰기 표현은 _로 하는 듯 (transparent_50%, black_50%)
 
 
-    const strongestTime = commits.total > 0
-        ? commits.timeBuckets.reduce(
+    if(isError){
+        return(
+            <article className={`flex flex-col ${surfaceClass} p-7 md:p-8`}>
+                <SectionHeading eyebrow="Work pattern" title="Preferred commit time" detail="Activity by time of day" />
+                <div className="flex-1 mt-8 space-y-5">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Failed to load data</p>
+                </div>
+                <div className="flex flex-col min-h-44 mt-8 rounded-3xl bg-[#eef4ff] p-5 dark:bg-gray-800">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Strongest window</p>
+                    <p className="mt-2 text-lg font-semibold">-</p>
+                    <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">Failed to load data</p>
+                </div>
+            </article>
+        )
+    }
+
+
+
+    const strongestTime = commits!.total > 0
+        ? commits!.timeBuckets.reduce(
             (strongest, current) => current.count > strongest.count ? current : strongest,
-            commits.timeBuckets[0],
+            commits!.timeBuckets[0],
         )
         : undefined;
 
@@ -73,7 +89,7 @@ function PreferredCommitTimeArticle(){
     <article className={`flex flex-col ${surfaceClass} p-7 md:p-8`}>
         <SectionHeading eyebrow="Work pattern" title="Preferred commit time" detail="Activity by time of day" />
         <div className="flex-1 mt-8 space-y-5">
-            {commits.timeBuckets.map((time, idx) => (
+            {commits!.timeBuckets.map((time, idx) => (
                 <div key={time.label} className="grid grid-cols-[90px_1fr_52px] items-center gap-3">
                     <span className="text-sm text-gray-500 dark:text-gray-400">{time.label}</span>
                     <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
@@ -88,7 +104,7 @@ function PreferredCommitTimeArticle(){
             <p className="mt-2 text-lg font-semibold">{strongestTime ? `${strongestTime.label} focus` : "No commit data"}</p>
             <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
                 {strongestTime
-                    ? `Peak activity is around ${formatHour(commits.peakHour)} in your local timezone.`
+                    ? `Peak activity is around ${formatHour(commits!.peakHour)} in your local timezone.`
                     : "Commit time analysis will appear after data is available."}
             </p>
         </div>

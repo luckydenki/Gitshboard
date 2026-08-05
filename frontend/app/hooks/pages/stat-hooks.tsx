@@ -1,16 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 import {
-    calculateCommitStats,
-    calculateDeveloperProfile,
-    calculateLanguageStats,
-    calculateProjectCategories,
-    calculateProjectHealth,
-} from "~/utils/statpage";
+    type CategoryStat,
+    type CommitStats,
+    type DeveloperProfileStats,
+    type LanguageStat,
+    type ProjectHealthStats,
+} from "~/types/page/statpage";
 import type { CommonResponse } from "~/types/common/common";
-import type { DevelopStatsNode, GithubCommitTimeRepositoryNode, GithubLanguageRepositoryNode, GithubProjectTopicsNode, GithubRepoCommonResponse, ProjectLiveRateNode } from "~/types/page/statpage";
-
-type CommonResponseType<T> = CommonResponse<GithubRepoCommonResponse<T>>;
 
 
 const languagesQueryFn = async()=>
@@ -21,10 +17,10 @@ const languagesQueryFn = async()=>
                 if(!res.ok){
                     throw new Error(`API request failed: ${res.status} ${res.statusText}`);
                 }
-                return res.json() as Promise<CommonResponseType<GithubLanguageRepositoryNode>>;
+                return res.json() as Promise<CommonResponse<LanguageStat[]>>;
             })
-
-           // const res = await commonAPI.copy().api<CommonResponseType<GithubLanguageRepositoryNode>>("repos/languages").toJson();
+            console.log("languagesQueryFn res:", res.data);
+         
             return res.data;
         }
 
@@ -37,10 +33,10 @@ const commitTimeQueryFn = async()=>
                 if(!res.ok){
                     throw new Error(`API request failed: ${res.status} ${res.statusText}`);
                 }
-                return res.json() as Promise<CommonResponseType<GithubCommitTimeRepositoryNode>>;
+                return res.json() as Promise<CommonResponse<CommitStats>>;
             })
 
-            //const res = await commonAPI.copy().api<CommonResponseType<GithubCommitTimeRepositoryNode>>("repos/commitTime").toJson();
+
             return res.data;
         }
 
@@ -53,10 +49,8 @@ const projectTopicsQueryFn = async()=>
                 if(!res.ok){
                     throw new Error(`API request failed: ${res.status} ${res.statusText}`);
                 }
-                return res.json() as Promise<CommonResponseType<GithubProjectTopicsNode>>;
+                return res.json() as Promise<CommonResponse<CategoryStat[]>>;
             })
-
-            //const res = await commonAPI.copy().api<CommonResponseType<GithubProjectTopicsNode>>("repos/projectTopics").toJson();
             return res.data;
         }
 
@@ -68,10 +62,9 @@ const developStatsQueryFn = async()=>
                 if(!res.ok){
                     throw new Error(`API request failed: ${res.status} ${res.statusText}`);
                 }
-                return res.json() as Promise<CommonResponseType<DevelopStatsNode>>;
+                return res.json() as Promise<CommonResponse<DeveloperProfileStats>>;
             })
 
-            //const res = await commonAPI.copy().api<CommonResponseType<DevelopStatsNode>>("repos/developStats").toJson();
             return res.data;
         }
 
@@ -84,10 +77,9 @@ const projectLiveRateQueryFn = async()=>
                 if(!res.ok){
                     throw new Error(`API request failed: ${res.status} ${res.statusText}`);
                 }
-                return res.json() as Promise<CommonResponseType<ProjectLiveRateNode>>;
+                return res.json() as Promise<CommonResponse<ProjectHealthStats>>;
             })
 
-            //const res = await commonAPI.copy().api<CommonResponseType<ProjectLiveRateNode>>("repos/projectLiveRate").toJson();
             return res.data;
         }
 
@@ -95,9 +87,10 @@ const projectLiveRateQueryFn = async()=>
 export function useLanguagesQuery(){
     return useQuery({
         queryKey: ["languagesData"],
-        queryFn: () => languagesQueryFn(),
+        queryFn: async() => await languagesQueryFn(),
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
+        retry : 1,
     });
 }
 
@@ -107,6 +100,7 @@ export function useCommitTimeQuery(){
         queryFn: async () => { return await commitTimeQueryFn() },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
+        retry : 1,
     });
 }
 
@@ -117,6 +111,7 @@ export function useProjectTopicsQuery(){
         queryFn: async () => { return await projectTopicsQueryFn(); },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
+        retry : 1,
     });
 }
 
@@ -127,6 +122,7 @@ export function useDevelopStatsQuery(){
         queryFn: async () => { return await developStatsQueryFn(); },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
+        retry : 1,
     });
 }
 
@@ -136,6 +132,7 @@ export function useProjectLiveRateQuery(){
         queryFn: async () => { return await projectLiveRateQueryFn(); },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
+        retry : 1,
     });
 }   
 
@@ -156,29 +153,19 @@ export function useStatQuery(){
     const developStatsQuery = useDevelopStatsQuery();
     const projectLiveRateQuery = useProjectLiveRateQuery();
 
+    const isLoading = languagesQuery.isLoading || commitTimeQuery.isLoading || projectTopicsQuery.isLoading || developStatsQuery.isLoading || projectLiveRateQuery.isLoading;
+    const isError = languagesQuery.isError || commitTimeQuery.isError || projectTopicsQuery.isError || developStatsQuery.isError || projectLiveRateQuery.isError;
+
+
     return {
         languagesQuery,
         commitTimeQuery,
         projectTopicsQuery,
         developStatsQuery,
-        projectLiveRateQuery
+        projectLiveRateQuery,
+        isLoading,
+        isError,
+
     };  
 
 }
-
-export function useAnalyticsData({ data } : { data: readonly any[] }){
-        const analytics = useMemo(() => ({
-            languages: calculateLanguageStats(data?.[0]),
-            commits: calculateCommitStats(data?.[1]),
-            categories: calculateProjectCategories(data?.[2]),
-            developer: calculateDeveloperProfile(data?.[3]),
-            health: calculateProjectHealth(data?.[4]),
-        }), [data]);
-
-
-        return {
-            analytics
-        } 
-}
-
-

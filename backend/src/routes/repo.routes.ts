@@ -1,38 +1,27 @@
 import Router from "express";
 import { authToken, authUser } from "../middlewares/auth.middleware";
 import { AuthRequest } from "../types/middlewares/auth";
-import { GithubCommonResponse } from "../types/middlewares/common";
+import { CommonResponse, CommonErrorResponse, GithubCommonResponse } from "../types/middlewares/common";
 import { dench, DenchAuthType } from "dench-fetch";
+import { DevelopStatsNode, GithubCommitTimeRepositoryNode, GithubLanguageRepositoryNode, GithubProjectTopicsNode, GithubRepoCommonResponse, ProjectLiveRateNode } from "../types/stat";
+import { calculateCommitStats, calculateDeveloperProfile, calculateLanguageStats, calculateProjectCategories, calculateProjectHealth,  CommitStats,  DeveloperProfileStats,  LanguageStat, ProjectCategoryStat, ProjectHealthStats } from "../utils/stat";
+import { redisClient } from "../infra/redis/redisClient";
+
 const repo_router = Router();
-
-interface GithubLanguageNode{
-    size : number,
-    node : { name : string }
-}
-
-
-
-interface GithubRepositoryNode{
-    name : string,
-    languages : {
-        totalSize : number,
-        edges : Array<GithubLanguageNode>
-    }
-}
-
-
-
-interface GithubLanguageResponse{
-    user :{
-        repositories :{
-            nodes : Array<GithubRepositoryNode>
-
-        }
-    }
-}
-
-
 const denchInstance = dench("https://api.github.com/graphql", "projectTopicsDench");
+
+/*
+    graphql은 etag를 지원하지 않음
+
+    만약 github api에서 일반 rest api를 사용해서 etag를 쓰고 싶다면 다음 내용을 헤더에 추가할 것
+
+    1. 'Accept' : 'application/vnd.github+json',    //github api에서 json 형식으로 응답을 받기 위해 필요함.
+    2. 'X-GitHub-Api-Version' : '2022-11-28'        //github api 버전.
+*/
+
+
+const REDIS_DATA_EXPIRATION = 300; // 5분 동안 유지
+
 
 // api/repos/health
 repo_router.get('/health', (req, res)=>{
@@ -47,6 +36,23 @@ repo_router.get('/languages', authToken, authUser, async(req : AuthRequest, res)
     if(!req.user){
         return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
     }
+
+    //304 Not Modified 요청에 대한 대비
+    const cachedData = await redisClient.get("gitshboard:stats:languages");
+    //console.log("cachedData:", cachedData);
+    //없을 경우 cachedData는 null임.
+    if(cachedData){
+        console.log("Redis hit : languages");
+
+        const responseData : CommonResponse<LanguageStat[]> = {
+            success : true,
+            status : 200,
+            data : JSON.parse(cachedData)
+        }
+        res.status(200).json(responseData);
+        return;
+    }
+    
 
     
     const query = `
@@ -90,20 +96,38 @@ repo_router.get('/languages', authToken, authUser, async(req : AuthRequest, res)
         if(github_response.ok){
             const githubData = await github_response.json();
 
+            const userData: GithubRepoCommonResponse<GithubLanguageRepositoryNode> = githubData.data;
+            const languageStats = calculateLanguageStats(userData);
 
-            const userData: GithubLanguageResponse = githubData.data;
-
-            //console.log(userData.user.repositories.nodes);
-
-            res.status(200).json({
-                data : userData
+            redisClient.set("gitshboard:stats:languages", JSON.stringify(languageStats), {
+                expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
             });
+
+
+           // console.log("[backend] languageStats", languageStats);
+
+            const responseData : CommonResponse<LanguageStat[]> = {
+                success : true,
+                status : 200,
+                data : languageStats
+            }
+
+
+            res.status(200).json(responseData);
         }
 
 
     }catch(err){
         console.error("Failed to fetch repository languages:", err);
-        res.status(500).json({ error : '레포지토리 언어 사용량 정보를 가져오는 데 실패했습니다.' });
+
+        const errorResponse : CommonErrorResponse = {
+            type : "https://developer.github.com/v4",
+            title : "GitHub API Error",
+            status : 500,
+            detail : "레포지토리 언어 사용량 정보를 가져오는 데 실패했습니다.",
+        }
+
+        res.status(500).json(errorResponse);
     }
 });
 
@@ -115,6 +139,22 @@ repo_router.get('/commitTime', authToken, authUser, async(req : AuthRequest, res
     if(!req.user){
         return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
     }
+
+    //304 Not Modified 요청에 대한 대비
+    const cachedData = await redisClient.get("gitshboard:stats:commitTime");
+
+    //없을 경우 cachedData는 null임.
+    if (cachedData) {
+        console.log("Redis hit : commitTime");
+        const responseData : CommonResponse<CommitStats> = {
+            success : true,
+            status : 200,
+            data : JSON.parse(cachedData)
+        }
+        res.status(200).json(responseData);
+        return;
+    }
+
 
     const query = `
         query GetCommitTimes($login : String!){
@@ -158,13 +198,21 @@ repo_router.get('/commitTime', authToken, authUser, async(req : AuthRequest, res
         
         if(github_response.ok){
             const githubData = await  github_response.json();
-            const userData = githubData.data;
+            const userData : GithubRepoCommonResponse<GithubCommitTimeRepositoryNode> = githubData.data;
+            const commitStats : CommitStats = calculateCommitStats(userData);
 
-           // console.log(userData);
+           // console.log("[backend] commitStats:", commitStats);
 
-            res.status(200).json({
-                data : userData
-            })
+            redisClient.set("gitshboard:stats:commitTime", JSON.stringify(commitStats), {
+                expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
+            });
+
+            const responseData : CommonResponse<CommitStats> = {
+                success : true,
+                status : 200,
+                data : commitStats
+            }
+            res.status(200).json(responseData);
 
         }
         else{
@@ -174,7 +222,15 @@ repo_router.get('/commitTime', authToken, authUser, async(req : AuthRequest, res
 
     }catch(err){
         console.error("Failed to fetch commit time data:", err);
-        res.status(500).json({ error : '커밋 시간 정보를 가져오는 데 실패했습니다.' });
+
+        const errorResponse : CommonErrorResponse = {
+            type : "https://developer.github.com/v4",
+            title : "GitHub API Error",
+            status : 500,
+            detail : "커밋 시간 정보를 가져오는 데 실패했습니다.",
+        }
+
+        res.status(500).json(errorResponse);
     }
     
 })
@@ -186,6 +242,34 @@ repo_router.get('/projectTopics', authToken, authUser, async(req : AuthRequest, 
     if(!req.user){
         return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
     }
+    
+    
+    //redis 성능 측정 
+
+    const startTime = performance.now();
+
+    const cachedData = await redisClient.get("gitshboard:stats:projectTopics");
+
+    //없을 경우 cachedData는 null임.
+    if (cachedData) {
+        const endTime = performance.now();
+
+        console.log("Redis hit : projectTopics");
+        console.log("Time taken to fetch from Redis:", (endTime - startTime).toFixed(2), "milliseconds");
+
+        const startTime2 = performance.now();
+        const responseData : CommonResponse<ProjectCategoryStat[]> = {
+            success : true,
+            status : 200,
+            data : JSON.parse(cachedData)
+        }
+        const endTime2 = performance.now();
+        res.status(200).json(responseData);
+        console.log("Time taken to parse JSON and prepare response:", (endTime2 - startTime2).toFixed(2), "milliseconds");
+
+        return;
+    }
+
 
     //graphql query에서 String! 이라 되어있는건 String 만 가능하다는 것
     //!를 제거하면 String | null 이므로 null 도 허용된다
@@ -211,10 +295,8 @@ repo_router.get('/projectTopics', authToken, authUser, async(req : AuthRequest, 
     const variables ={
         login : req.user.githubUsername
     }
-
-    console.log("Fetching project topics with variables:", variables);
     
-    const config = denchInstance.post<GithubCommonResponse<any>>("", {
+    const github_response = await denchInstance.post<GithubCommonResponse<any>>("", {
         query,
         variables
     })
@@ -223,25 +305,49 @@ repo_router.get('/projectTopics', authToken, authUser, async(req : AuthRequest, 
     .error((err)=>{
         console.error("Failed to fetch project topics data:", err);
         res.status(500).json({ error : '프로젝트 토픽 정보를 가져오는 데 실패했습니다.' });
-    })
+    }).toJson();
     
-    const github_response = await config.toJson();
+
 
     if(github_response){
-        const userData = github_response.data;
-        console.log("Fetched project topics data:", userData);
-        res.status(200).json({
-            data : userData
-        })
+        const userData : GithubRepoCommonResponse<GithubProjectTopicsNode> = github_response.data;
+        const projectTopics : ProjectCategoryStat[] = calculateProjectCategories(userData);
+        console.log("[backend] projectTopics:", projectTopics);
+
+        redisClient.set("gitshboard:stats:projectTopics", JSON.stringify(projectTopics), {
+            expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
+        });
+
+        const responseData : CommonResponse<ProjectCategoryStat[]> = {
+            success : true,
+            status : 200,
+            data : projectTopics
+        }
+        res.status(200).json(responseData);
     }
-    
-    
 })
 
 
 repo_router.get('/developStats', authToken, authUser, async(req: AuthRequest, res)=>{
     if(!req.user){
         return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
+    }
+
+
+    //304 Not Modified 요청에 대한 대비
+    const cachedData = await redisClient.get("gitshboard:stats:developStats");
+
+    //없을 경우 cachedData는 null임.
+    if (cachedData) {
+        console.log("Redis hit : developStats");
+        const responseData : CommonResponse<DeveloperProfileStats> = {
+            success : true,
+            status : 200,
+            data : JSON.parse(cachedData)
+        }
+
+        res.status(200).json(responseData);
+        return;
     }
 
     const query = `
@@ -284,7 +390,7 @@ repo_router.get('/developStats', authToken, authUser, async(req: AuthRequest, re
         login : req.user.githubUsername
     }
 
-    const github_response = await denchInstance.post<GithubCommonResponse<any>>("",{
+    const github_response = await denchInstance.post<GithubCommonResponse<GithubRepoCommonResponse<DevelopStatsNode>>>("",{
         query,
         variables
     })
@@ -298,22 +404,61 @@ repo_router.get('/developStats', authToken, authUser, async(req: AuthRequest, re
 
     if(github_response){
         const userData = github_response.data;
-        console.log("Fetched development stats data:", userData);
-        res.status(200).json({
-            data : userData
-        })
+        const developerProfileStats = calculateDeveloperProfile(userData);
+       // console.log("[backend] developStats:", developerProfileStats);
+
+        const responseData : CommonResponse<DeveloperProfileStats> = {
+            success : true,
+            status : 200,
+            data : developerProfileStats
+        }
+
+        redisClient.set("gitshboard:stats:developStats", JSON.stringify(developerProfileStats), {
+            expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
+        });
+
+        res.status(200).json(responseData);
     }
     else{
-        res.status(500).json({ error : '개발 통계 정보를 가져오는 데 실패했습니다.' });
+        const errorResponse : CommonErrorResponse = {
+            type : "https://developer.github.com/v4",
+            title : "GitHub API Error",
+            status : 500,
+            detail : "개발 통계 정보를 가져오는 데 실패했습니다.",
+        }
+
+        res.status(500).json(errorResponse);
     }
 })
 
 
+
+
+
+//api : api/repos/projectLiveRate
 repo_router.get('/projectLiveRate', authToken, authUser, async(req: AuthRequest, res)=>{
 
     if(!req.user){
         return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
     }
+
+    //304 Not Modified 요청에 대한 대비
+    const cachedData = await redisClient.get("gitshboard:stats:projectLiveRate");
+
+    //없을 경우 cachedData는 null임.
+    if (cachedData) {
+        console.log("Redis hit : projectLiveRate");
+
+        const responseData : CommonResponse<ProjectHealthStats> = {
+            success : true,
+            status : 200,
+            data : JSON.parse(cachedData)
+        }
+
+        res.status(200).json(responseData);
+        return;
+    }
+
 
     const query = `
         query getProjectLiveRate($login : String!){
@@ -336,7 +481,7 @@ repo_router.get('/projectLiveRate', authToken, authUser, async(req: AuthRequest,
         login : req.user.githubUsername
     }
 
-    const github_response = await denchInstance.post<GithubCommonResponse<any>>("",{
+    const github_response = await denchInstance.post<GithubCommonResponse<GithubRepoCommonResponse<ProjectLiveRateNode>>>("",{
         query,
         variables
     })
@@ -351,13 +496,31 @@ repo_router.get('/projectLiveRate', authToken, authUser, async(req: AuthRequest,
 
     if(github_response){
         const userData = github_response.data;
-        console.log("Fetched project live rate data:", userData);
-        res.status(200).json({
-            data : userData
-        })
+        const projectHealthStats = calculateProjectHealth(userData);
+
+        //console.log("[backend] projectLiveRate:", projectHealthStats);
+        redisClient.set("gitshboard:stats:projectLiveRate", JSON.stringify(projectHealthStats), {
+            expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
+        });
+
+
+
+        const responseData : CommonResponse<ProjectHealthStats> = {
+            success : true,
+            status : 200,
+            data : projectHealthStats
+        }
+
+        res.status(200).json(responseData);
     }   
     else{
-        res.status(500).json({ error : '프로젝트 활동률 정보를 가져오는 데 실패했습니다.' });
+        const errorResponse : CommonErrorResponse = {
+            type : "https://developer.github.com/v4",
+            title : "GitHub API Error",
+            status : 500,
+            detail : "프로젝트 활동률 정보를 가져오는 데 실패했습니다.",
+        }
+        res.status(500).json(errorResponse);
     }
 })
 

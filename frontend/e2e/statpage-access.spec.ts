@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from "playwright/test";
+import { statPageApiData } from "./statpage-fixtures";
 
 const sessionCookie = "e2e-session=authenticated";
 const avatarUrl =
@@ -14,14 +15,6 @@ const fulfillJson = (route: Route, status: number, body: unknown) =>
 const isAuthenticated = async (route: Route) =>
   (await route.request().headerValue("cookie"))?.includes(sessionCookie) ?? false;
 
-const repositoryData = (nodes: unknown[]) => ({
-  user: {
-    repositories: {
-      nodes,
-    },
-  },
-});
-
 const success = <T>(data: T) => ({ success: true, status: 200, data });
 
 async function mockStatPageApis(page: Page) {
@@ -34,14 +27,6 @@ async function mockStatPageApis(page: Page) {
 
     return fulfillJson(route, 200, body);
   };
-  const commitHistory = {
-    target: {
-      history: {
-        nodes: [{ committedDate: "2026-07-28T09:00:00.000Z" }],
-      },
-    },
-  };
-
   await page.route(
     "**/api/auth/check",
     protectedRoute({ success: true }),
@@ -57,73 +42,23 @@ async function mockStatPageApis(page: Page) {
   );
   await page.route(
     "**/api/repos/languages",
-    protectedRoute(
-      success(
-        repositoryData([
-          {
-            name: "e2e-dashboard",
-            languages: {
-              totalSize: 100,
-              edges: [
-                { size: 80, node: { name: "TypeScript" } },
-                { size: 20, node: { name: "CSS" } },
-              ],
-            },
-          },
-        ]),
-      ),
-    ),
+    protectedRoute(success(statPageApiData.languages)),
   );
   await page.route(
     "**/api/repos/commitTime",
-    protectedRoute(
-      success(repositoryData([{ name: "e2e-dashboard", defaultBranchRef: commitHistory }])),
-    ),
+    protectedRoute(success(statPageApiData.commitTime)),
   );
   await page.route(
     "**/api/repos/projectTopics",
-    protectedRoute(
-      success(
-        repositoryData([
-          {
-            name: "e2e-dashboard",
-            repositoryTopics: { nodes: [{ topic: { name: "react" } }] },
-          },
-        ]),
-      ),
-    ),
+    protectedRoute(success(statPageApiData.projectTopics)),
   );
   await page.route(
     "**/api/repos/developStats",
-    protectedRoute(
-      success(
-        repositoryData([
-          {
-            name: "e2e-dashboard",
-            defaultBranchRef: commitHistory,
-            languages: { edges: [{ node: { name: "TypeScript" } }] },
-            repositoryTopics: { nodes: [{ topic: { name: "react" } }] },
-          },
-        ]),
-      ),
-    ),
+    protectedRoute(success(statPageApiData.developStats)),
   );
   await page.route(
     "**/api/repos/projectLiveRate",
-    protectedRoute(
-      success(
-        repositoryData([
-          {
-            name: "e2e-dashboard",
-            createdAt: "2025-01-01T09:00:00.000Z",
-            pushedAt: "2026-07-28T09:00:00.000Z",
-            updatedAt: "2026-07-28T09:00:00.000Z",
-            isArchived: false,
-            isFork: false,
-          },
-        ]),
-      ),
-    ),
+    protectedRoute(success(statPageApiData.projectLiveRate)),
   );
 }
 
@@ -147,6 +82,8 @@ test.describe("/statpage 직접 접근", () => {
       page.getByRole("heading", { name: "Development statistics" }),
     ).toBeVisible();
     await expect(page.getByText("5 sources ready")).toBeVisible();
+    await expect(page.getByText("TypeScript", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("12", { exact: true }).first()).toBeVisible();
   });
 
   test("인증 쿠키가 없으면 홈으로 이동한다", async ({ page }) => {

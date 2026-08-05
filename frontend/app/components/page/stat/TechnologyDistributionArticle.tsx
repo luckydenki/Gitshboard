@@ -1,8 +1,7 @@
 import {  surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
-import { calculateLanguageStats } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 
 import { useLanguagesQuery } from "~/hooks/pages/stat-hooks";
@@ -28,13 +27,13 @@ function LoadingSkelton(){
 function TechnologyDistributionArticle(){
 
     const [percents, setPercents] = useState<number[]>([]);
-    const { data, isLoading, isError} = useLanguagesQuery();
+    const { data : languages, isLoading, isError} = useLanguagesQuery();
 
-    const languages = useMemo(() => calculateLanguageStats(data!), [data]);
+
 
     useEffect(()=>{
-        if(!isLoading){
-            const maps = languages.map((language)=>language.percent ?? 0);
+        if(!isLoading && !isError){
+            const maps = languages!.map((language)=>language.percent ?? 0);
             setPercents(maps);
         }
     },[isLoading, languages]);
@@ -59,6 +58,7 @@ function TechnologyDistributionArticle(){
 
 
     if(isError){
+        console.error("Error occurred while fetching language data for TechnologyDistributionArticle");
         return(
             <article className={`${surfaceClass} p-7 md:p-8`}>
                 <SectionHeading eyebrow="Languages" title="Technology distribution" detail="Code volume across repositories" />
@@ -75,7 +75,7 @@ function TechnologyDistributionArticle(){
     <article className={`${surfaceClass} p-7 md:p-8`}>
         <SectionHeading eyebrow="Languages" title="Technology distribution" detail="Code volume across repositories" />
         <div className="mt-8 space-y-6">
-            {languages.map((language, index) => (
+            {languages!.map((language, index) => (
                 <div key={language.name}>
                     <div className="mb-2 flex items-center justify-between text-sm">
                         <span className="font-medium">{language.name}</span>
@@ -86,7 +86,7 @@ function TechnologyDistributionArticle(){
                     </div>
                 </div>
             ))}
-            {!isLoading && languages.length === 0 && <EmptyState text="No language data available" />}
+            {!isLoading && languages!.length === 0 && <EmptyState text="No language data available" />}
         </div>
     </article>
     )

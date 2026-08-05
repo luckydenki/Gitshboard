@@ -1,4 +1,5 @@
 import { expect, test, type Page, type Route } from "playwright/test";
+import { statPageApiData } from "./statpage-fixtures";
 
 const avatarUrl =
   "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
@@ -86,95 +87,24 @@ async function mockAuthenticatedApis(page: Page) {
 
   await page.route("**/api/users", (route) => fulfillJson(route, success(user)));
 
-  const repositoryData = (nodes: unknown[]) => ({
-    user: {
-      repositories: {
-        nodes,
-      },
-    },
-  });
-
-  const commitHistory = {
-    target: {
-      history: {
-        nodes: [{ committedDate: "2026-07-28T09:00:00.000Z" }],
-      },
-    },
-  };
-
   await page.route("**/api/repos/languages", (route) =>
-    fulfillJson(
-      route,
-      success(
-        repositoryData([
-          {
-            name: "e2e-dashboard",
-            languages: {
-              totalSize: 100,
-              edges: [
-                { size: 80, node: { name: "TypeScript" } },
-                { size: 20, node: { name: "CSS" } },
-              ],
-            },
-          },
-        ]),
-      ),
-    ),
+    fulfillJson(route, success(statPageApiData.languages)),
   );
 
   await page.route("**/api/repos/commitTime", (route) =>
-    fulfillJson(
-      route,
-      success(repositoryData([{ name: "e2e-dashboard", defaultBranchRef: commitHistory }])),
-    ),
+    fulfillJson(route, success(statPageApiData.commitTime)),
   );
 
   await page.route("**/api/repos/projectTopics", (route) =>
-    fulfillJson(
-      route,
-      success(
-        repositoryData([
-          {
-            name: "e2e-dashboard",
-            repositoryTopics: { nodes: [{ topic: { name: "react" } }] },
-          },
-        ]),
-      ),
-    ),
+    fulfillJson(route, success(statPageApiData.projectTopics)),
   );
 
   await page.route("**/api/repos/developStats", (route) =>
-    fulfillJson(
-      route,
-      success(
-        repositoryData([
-          {
-            name: "e2e-dashboard",
-            defaultBranchRef: commitHistory,
-            languages: { edges: [{ node: { name: "TypeScript" } }] },
-            repositoryTopics: { nodes: [{ topic: { name: "react" } }] },
-          },
-        ]),
-      ),
-    ),
+    fulfillJson(route, success(statPageApiData.developStats)),
   );
 
   await page.route("**/api/repos/projectLiveRate", (route) =>
-    fulfillJson(
-      route,
-      success(
-        repositoryData([
-          {
-            name: "e2e-dashboard",
-            createdAt: "2025-01-01T09:00:00.000Z",
-            pushedAt: "2026-07-28T09:00:00.000Z",
-            updatedAt: "2026-07-28T09:00:00.000Z",
-            isArchived: false,
-            isFork: false,
-          },
-        ]),
-      ),
-    ),
+    fulfillJson(route, success(statPageApiData.projectLiveRate)),
   );
 }
 
@@ -198,4 +128,6 @@ test("GitHub OAuth 로그인 후 대시보드와 통계 화면을 확인한다",
     page.getByRole("heading", { name: "Development statistics" }),
   ).toBeVisible();
   await expect(page.getByText("5 sources ready")).toBeVisible();
+  await expect(page.getByText("TypeScript", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("12", { exact: true }).first()).toBeVisible();
 });

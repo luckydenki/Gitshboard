@@ -31,6 +31,12 @@ export interface CommonResponse<T>{
  * 
  * RFC-9457 참고 규격
  * 
+ * - type : string;      // 해당 오류와 관련된 문서화 링크
+ * - title : string;     // 간단한 제목
+ * - status : ErrorStatus;
+ * - detail? : string;   // 상세 설명
+ * - instance? : string; // 오류가 발생 식별용 인스턴스(URI), 보통 요청 경로를 씀
+ * 
  */
 export interface CommonErrorResponse{
     type : string;      // 해당 오류와 관련된 문서화 링크

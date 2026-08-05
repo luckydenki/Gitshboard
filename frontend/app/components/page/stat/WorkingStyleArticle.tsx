@@ -1,8 +1,7 @@
 import {  surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
-import { calculateDeveloperProfile } from "~/utils/statpage";
 import EmptyState from "./EmptyState";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import {  useDevelopStatsQuery } from "~/hooks/pages/stat-hooks";
 
@@ -36,19 +35,17 @@ function WorkingStyleArticle(){
 
     const [percents, setPercents] = useState<number[]>([]);
 
-    const { data, isLoading, isError } = useDevelopStatsQuery();
-
-    const developer = useMemo(()=> calculateDeveloperProfile(data!), [data]);
+    const { data : developer, isLoading, isError } = useDevelopStatsQuery();
 
 
     useEffect(()=>{
-        if(!isLoading){
-            const arr = developer.profiles.map((profile)=>{
+        if(!isLoading && !isError){
+            const arr = developer!.profiles.map((profile)=>{
                 return profile.percent ?? 0;
             })
             setPercents(arr);
         }
-    }, [isLoading, developer.profiles]);
+    }, [isLoading, developer]);
 
 
 
@@ -87,7 +84,7 @@ function WorkingStyleArticle(){
             <article className={`${surfaceClass} p-7 md:p-8`}>
                 <SectionHeading eyebrow="Development profile" title="Working style" detail="Inferred from time, stack, and topics" />
                 <div className="mt-8 space-y-5">
-                    {developer.profiles.slice(0, 5).map((profile, idx) => (
+                    {developer!.profiles.slice(0, 5).map((profile, idx) => (
                         <div key={profile.name}>
                             <div className="mb-2 flex items-center justify-between text-sm">
                                 <span className="font-medium">{profile.name}</span>
@@ -100,14 +97,14 @@ function WorkingStyleArticle(){
                     ))}
                 </div>
                 <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                    {developer.traits.map((trait) => (
+                    {developer!.traits.map((trait) => (
                         <div key={trait.title} className="rounded-3xl bg-gray-100 p-4 dark:bg-gray-800">
                             <p className="text-sm font-semibold">{trait.title}</p>
                             <p className="mt-2 text-xs leading-5 text-gray-500 dark:text-gray-400">{trait.detail}</p>
                         </div>
                     ))}
                 </div>
-                {!isLoading && developer.profiles.length === 0 && <EmptyState text="No developer profile data available" />}
+                {!isLoading && developer!.profiles.length === 0 && <EmptyState text="No developer profile data available" />}
             </article>
     )
 }

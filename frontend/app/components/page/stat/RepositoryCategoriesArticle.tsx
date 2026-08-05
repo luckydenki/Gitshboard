@@ -1,8 +1,6 @@
 import {  surfaceClass } from "~/routes/statpage";
 import SectionHeading from "./SectionHeading";
 import EmptyState from "./EmptyState";
-import { calculateProjectCategories } from "~/utils/statpage";
-import { useMemo} from "react";
 import React from "react";
 import {  useProjectTopicsQuery } from "~/hooks/pages/stat-hooks";
 
@@ -37,11 +35,8 @@ function LoadDataSkeleton({children} : {children : React.ReactNode}){
 
 function RepositoryCategoriesArticle(){
 
-    const { data, isLoading, isError } = useProjectTopicsQuery();
+    const { data : categories, isLoading, isError } = useProjectTopicsQuery();
 
-    const categories = useMemo(()=> calculateProjectCategories(data),[data])
-
-    
     if(isLoading){
 
         const skeletons : ReturnType<typeof Skeleton>[] = [];
@@ -72,7 +67,7 @@ function RepositoryCategoriesArticle(){
         <article className={`${surfaceClass} p-7 md:p-8 lg:col-span-2 xl:col-span-1`}>
                 <SectionHeading eyebrow="Project types" title="Repository categories" detail="Inferred from names and topics" />
                 <div className="mt-8 space-y-4">
-                    {categories.map((category, index) => (
+                    {categories!.map((category, index) => (
                         <div
                             key={category.name}
                             className="flex items-center justify-between rounded-3xl bg-gray-100 px-5 py-4 dark:bg-gray-800"
@@ -85,7 +80,7 @@ function RepositoryCategoriesArticle(){
                         </div>
                     ))}
                 </div>
-                {!isLoading && categories.length === 0 && <EmptyState text="No project topic data available" />}
+                {!isLoading && categories!.length === 0 && <EmptyState text="No project topic data available" />}
             </article>         
     )
 }
