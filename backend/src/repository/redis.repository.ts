@@ -3,9 +3,13 @@ import { redisClient } from "../infra/redis/redisClient";
 class RedisRepository{
 
     public  get = async <T>(key: string): Promise<T | null> => {
+        try{
         const cachedData = await redisClient.get(key);
         if(cachedData){
-            return JSON.parse(cachedData) as T;
+                return JSON.parse(cachedData) as T;
+            }
+        }catch(err){
+            console.error("Failed to get cache", err);
         }
         return null;
     };

@@ -27,7 +27,8 @@ class RepoService {
             const success = await redisRepository.set(`gitshboard:stats:${githubId}:languages`, languageStats, REDIS_DATA_EXPIRATION);
 
             if(!success){
-                throw new Error("Failed to set cache for languages");
+                console.error("Failed to set cache for languages");
+                //redis 가 실패해도 통계 데이터는 반환합니다.
             }
             return languageStats;
 
@@ -58,7 +59,8 @@ class RepoService {
             const commitStats: CommitStats = calculateCommitStats(userData);
             const success = await redisRepository.set(`gitshboard:stats:${githubId}:commitTime`, commitStats, REDIS_DATA_EXPIRATION);
             if(!success){
-                throw new Error("Failed to set cache for commit time");
+                console.error("Failed to set cache for commit time");
+                //redis 가 실패해도 통계 데이터는 반환합니다.
             }
             // console.log("[backend] commitStats:", commitStats);
 
@@ -124,7 +126,8 @@ class RepoService {
             const success = await redisRepository.set(`gitshboard:stats:${githubId}:developStats`, developerProfileStats, REDIS_DATA_EXPIRATION);
 
             if(!success){
-                throw new Error("Failed to set cache for develop stats");
+                console.error("Failed to set cache for develop stats");
+                //redis 가 실패해도 통계 데이터는 반환합니다.
             }
 
             return developerProfileStats;
@@ -157,7 +160,8 @@ class RepoService {
                 const projectHealthStats = calculateProjectHealth(userData);
                 const success = await redisRepository.set(`gitshboard:stats:${githubId}:projectLiveRate`, projectHealthStats, REDIS_DATA_EXPIRATION);
                 if(!success){
-                    throw new Error("Failed to set cache for project live rate");
+                    console.error("Failed to set cache for project live rate");
+                    //redis 가 실패해도 통계 데이터는 반환합니다.
                 }
 
                 return projectHealthStats;
