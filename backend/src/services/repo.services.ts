@@ -18,7 +18,7 @@ class RepoService {
         }
         
         try{
-            const userData : GithubRepoCommonResponse<GithubLanguageRepositoryNode> | null = await githubRepoAPIClient.getLanguages(githubId, githubUsername, githubAccessToken);
+            const userData : GithubRepoCommonResponse<GithubLanguageRepositoryNode> | null = await githubRepoAPIClient.getLanguages(githubUsername, githubAccessToken);
             if(!userData){
                 throw new Error("Failed to fetch languages from GitHub API");
             }
@@ -51,7 +51,7 @@ class RepoService {
 
 
         try{
-            const userData : GithubRepoCommonResponse<GithubCommitTimeRepositoryNode> | null = await githubRepoAPIClient.getCommitTime(githubId, githubUsername, githubAccessToken);
+            const userData : GithubRepoCommonResponse<GithubCommitTimeRepositoryNode> | null = await githubRepoAPIClient.getCommitTime(githubUsername, githubAccessToken);
             if(!userData){
                 throw new Error("Failed to fetch commit time from GitHub API");
             }
@@ -85,7 +85,7 @@ class RepoService {
 
 
         try{
-            const userData : GithubRepoCommonResponse<GithubProjectTopicsNode> | null = await githubRepoAPIClient.getProjectTopics(githubId, githubUsername, githubAccessToken);
+            const userData : GithubRepoCommonResponse<GithubProjectTopicsNode> | null = await githubRepoAPIClient.getProjectTopics(githubUsername, githubAccessToken);
             if(!userData){
                 throw new Error("Failed to fetch project topics from GitHub API");
             }
@@ -118,7 +118,7 @@ class RepoService {
 
 
         try{
-            const userData : GithubRepoCommonResponse<GithubCommitTimeRepositoryNode & GithubLanguageRepositoryNode & GithubProjectTopicsNode> | null = await githubRepoAPIClient.getDevelopStats(githubId, githubUsername, githubAccessToken);
+            const userData : GithubRepoCommonResponse<GithubCommitTimeRepositoryNode & GithubLanguageRepositoryNode & GithubProjectTopicsNode> | null = await githubRepoAPIClient.getDevelopStats(githubUsername, githubAccessToken);
             if(!userData){
                 throw new Error("Failed to fetch develop stats from GitHub API");
             }
@@ -152,7 +152,7 @@ class RepoService {
             }
             
             try{
-                const userData : GithubRepoCommonResponse<ProjectLiveRateNode> | null = await githubRepoAPIClient.getProjectLiveRate(githubId, githubUsername, githubAccessToken);
+                const userData : GithubRepoCommonResponse<ProjectLiveRateNode> | null = await githubRepoAPIClient.getProjectLiveRate(githubUsername, githubAccessToken);
                 if(!userData){
                     throw new Error("Failed to fetch project live rate from GitHub API");
                 }

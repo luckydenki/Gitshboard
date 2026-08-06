@@ -22,7 +22,7 @@ const GithubGraphqlFetch = async(githubAccessToken: string, query: string, varia
 
 class GithubRepoAPIClient{
 
-    public  getLanguages = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
+    public  getLanguages = async( githubUsername : string, githubAccessToken : string) => {
 
     const query = `
             query GetRepoLanguages($login : String!){
@@ -67,7 +67,7 @@ class GithubRepoAPIClient{
     }
 };
 
-    public getCommitTime = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
+    public getCommitTime = async(githubUsername : string, githubAccessToken : string) => {
 
         const query = `
             query GetCommitTimes($login : String!){
@@ -113,7 +113,7 @@ class GithubRepoAPIClient{
     };
 
 
-    public getProjectTopics = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
+    public getProjectTopics = async(githubUsername : string, githubAccessToken : string) => {
           //graphql query에서 String! 이라 되어있는건 String 만 가능하다는 것
                 //!를 제거하면 String | null 이므로 null 도 허용된다
                 const query = `
@@ -168,7 +168,7 @@ class GithubRepoAPIClient{
 
 
 
-    public getDevelopStats = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
+    public getDevelopStats = async(githubUsername : string, githubAccessToken : string) => {
 
         const query = `
             query GetDevelopTime($login : String!){
@@ -238,7 +238,7 @@ class GithubRepoAPIClient{
     }
 
 
-    public getProjectLiveRate = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
+    public getProjectLiveRate = async(githubUsername : string, githubAccessToken : string) => {
 
         const query = `
                 query getProjectLiveRate($login : String!){
