@@ -2,19 +2,21 @@
   "name": "React-Github",
   "devDependencies": {
     "@playwright/test": "^1.61.1",
+    "concurrently": "^10.0.4",
     "husky": "^9.1.7"
   },
   "scripts": {
-      "prepare": "node .husky/install.mjs",
-      "build:frontend" : "npm --prefix frontend run build",
-      "build:backend" : "npm --prefix backend run build",
-      "build" : "npm run build:frontend && npm run build:backend",
-      "test:frontend" : "npm --prefix frontend run test",
-      "test": "npm run test:frontend",
-      "redis" : "docker compose up -d",
-      "redis:stop" : "docker compose stop",
-      "redis:down" : "docker compose down",
-      "redis:reset" : "docker exec -it gitshboard-redis redis-cli FLUSHALL",
-      "postredis" : "docker exec -it gitshboard-redis redis-cli ping"
+    "prepare": "node .husky/install.mjs",
+    "dev": "concurrently \"npm --prefix frontend run dev\" \"npm --prefix backend run dev\" \"npm run redis\"",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:backend": "npm --prefix backend run build",
+    "build": "npm run build:frontend && npm run build:backend",
+    "test:frontend": "npm --prefix frontend run test",
+    "test": "npm run test:frontend",
+    "redis": "docker compose up -d",
+    "redis:stop": "docker compose stop",
+    "redis:down": "docker compose down",
+    "redis:reset": "docker exec -it gitshboard-redis redis-cli FLUSHALL",
+    "postredis": "docker exec -it gitshboard-redis redis-cli ping"
   }
 }
