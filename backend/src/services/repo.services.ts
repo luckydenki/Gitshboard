@@ -6,11 +6,17 @@ import { calculateLanguageStats, CommitStats, LanguageStat, calculateCommitStats
 
 const REDIS_DATA_EXPIRATION = 300; // 5분 동안 유지
 
+const createRedisKey = (githubId: number, dataType: string) => {
+    return `gitshboard:stats:${githubId}:${dataType}`;
+};
+
 class RepoService {
+
+
 
     public getLanguages = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
     
-        const cachedData = await redisRepository.get<LanguageStat[]>(`gitshboard:stats:${githubId}:languages`);
+        const cachedData = await redisRepository.get<LanguageStat[]>(createRedisKey(githubId, "languages"));
         
         if(cachedData){
             console.log("Redis hit : languages");
@@ -24,7 +30,7 @@ class RepoService {
             }
 
             const languageStats = calculateLanguageStats(userData);
-            const success = await redisRepository.set(`gitshboard:stats:${githubId}:languages`, languageStats, REDIS_DATA_EXPIRATION);
+            const success = await redisRepository.set(createRedisKey(githubId, "languages"), languageStats, REDIS_DATA_EXPIRATION);
 
             if(!success){
                 console.error("Failed to set cache for languages");
@@ -41,7 +47,7 @@ class RepoService {
 
     public getCommitTime = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
 
-        const cachedData = await redisRepository.get<CommitStats>(`gitshboard:stats:${githubId}:commitTime`);
+        const cachedData = await redisRepository.get<CommitStats>(createRedisKey(githubId, "commitTime"));
 
         //없을 경우 cachedData는 null임.
         if (cachedData) {
@@ -57,7 +63,7 @@ class RepoService {
             }
 
             const commitStats: CommitStats = calculateCommitStats(userData);
-            const success = await redisRepository.set(`gitshboard:stats:${githubId}:commitTime`, commitStats, REDIS_DATA_EXPIRATION);
+            const success = await redisRepository.set(createRedisKey(githubId, "commitTime"), commitStats, REDIS_DATA_EXPIRATION);
             if(!success){
                 console.error("Failed to set cache for commit time");
                 //redis 가 실패해도 통계 데이터는 반환합니다.
@@ -75,7 +81,7 @@ class RepoService {
 
     public getProjectTopics = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
 
-        const cachedData = await redisRepository.get<ProjectCategoryStat[]>(`gitshboard:stats:${githubId}:projectTopics`);
+        const cachedData = await redisRepository.get<ProjectCategoryStat[]>(createRedisKey(githubId, "projectTopics"));
 
         //없을 경우 cachedData는 null임.
         if (cachedData) {
@@ -90,7 +96,7 @@ class RepoService {
                 throw new Error("Failed to fetch project topics from GitHub API");
             }
             const projectTopics: ProjectCategoryStat[] = calculateProjectCategories(userData);
-            const success = await redisRepository.set(`gitshboard:stats:${githubId}:projectTopics`, projectTopics, REDIS_DATA_EXPIRATION);
+            const success = await redisRepository.set(createRedisKey(githubId, "projectTopics"), projectTopics, REDIS_DATA_EXPIRATION);
             if(!success){
                 throw new Error("Failed to set cache for project topics");
             }
@@ -107,7 +113,7 @@ class RepoService {
 
 
         //304 Not Modified 요청에 대한 대비
-        const cachedData = await redisRepository.get<DeveloperProfileStats>(`gitshboard:stats:${githubId}:developStats`);
+        const cachedData = await redisRepository.get<DeveloperProfileStats>(createRedisKey(githubId, "developStats"));
 
         //없을 경우 cachedData는 null임.
         if (cachedData) {
@@ -123,7 +129,7 @@ class RepoService {
                 throw new Error("Failed to fetch develop stats from GitHub API");
             }
             const developerProfileStats: DeveloperProfileStats = calculateDeveloperProfile(userData);
-            const success = await redisRepository.set(`gitshboard:stats:${githubId}:developStats`, developerProfileStats, REDIS_DATA_EXPIRATION);
+            const success = await redisRepository.set(createRedisKey(githubId, "developStats"), developerProfileStats, REDIS_DATA_EXPIRATION);
 
             if(!success){
                 console.error("Failed to set cache for develop stats");
@@ -143,7 +149,7 @@ class RepoService {
 
     public getProjectLiveRate = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
       //304 Not Modified 요청에 대한 대비
-            const cachedData = await redisRepository.get<ProjectHealthStats>(`gitshboard:stats:${githubId}:projectLiveRate`);
+            const cachedData = await redisRepository.get<ProjectHealthStats>(createRedisKey(githubId, "projectLiveRate"));
 
             //없을 경우 cachedData는 null임.
             if (cachedData) {
@@ -158,7 +164,7 @@ class RepoService {
                 }
 
                 const projectHealthStats = calculateProjectHealth(userData);
-                const success = await redisRepository.set(`gitshboard:stats:${githubId}:projectLiveRate`, projectHealthStats, REDIS_DATA_EXPIRATION);
+                const success = await redisRepository.set(createRedisKey(githubId, "projectLiveRate"), projectHealthStats, REDIS_DATA_EXPIRATION);
                 if(!success){
                     console.error("Failed to set cache for project live rate");
                     //redis 가 실패해도 통계 데이터는 반환합니다.
