@@ -43,14 +43,28 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
 /**
  * 
  * userId와 githubId를 기반으로 데이터베이스에서 사용자를 조회하여 인증된 사용자임을 확인하는 미들웨어
- * decoded된 서버 토큰을 바탕으로 db를 조회하고, github access token을 가져오고 redis에 저장합니다.
- * 만약 redis에 캐싱되어있다면 곧바로 redis에서 가져옵니다.
+ * 
+ * 1. decoded_token이 없으면 401을 반환하여 실패처리 한다.
+ * 2. decoded_token이 있으면 redis에서 캐시된 사용자 정보를 조회하고 바로 반환한다.
+ * 3. redis에 캐시된 정보가 없다면 데이터 베이스에 저장된 사용자 정보를 조회하고 요청 객체에 추가한다.
+ * 4. 데이터베이스에 사용자 정보가 없다면 404를 반환하여 실패처리 한다.
+ * 
+ * 사용자 정보 : User 객체
+ * {
+ *      id : number,
+ *      githubId : number,
+ *      githubUsername : string,
+ *      githubAccessToken : string
+ * }
+ * 
  * 
  * @param req 
  * @param res 
  * @param next 
  * @returns 
  */
+
+// TODO: access token은 민감 정보니 반드시 암호화 하여 저장할 것. (현재는 암호화 미구현)
 export async function authUser(req : AuthRequest , res : Response, next : NextFunction){
 
     if(req.decoded_token == undefined){
