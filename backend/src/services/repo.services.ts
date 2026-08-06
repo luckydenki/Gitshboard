@@ -1,5 +1,5 @@
 import { redisClient } from "../infra/redis/redisClient";
-import { CommonResponse, CommonErrorResponse } from "../types/middlewares/common";
+import redisRepository from "../repository/redis.repository";
 import { GithubLanguageRepositoryNode, GithubRepoCommonResponse, GithubCommitTimeRepositoryNode, GithubProjectTopicsNode } from "../types/stat";
 import { calculateLanguageStats, CommitStats, LanguageStat, calculateCommitStats, ProjectCategoryStat, calculateProjectCategories, calculateDeveloperProfile, DeveloperProfileStats, calculateProjectHealth, ProjectHealthStats } from "../utils/stat";
 
@@ -10,12 +10,11 @@ class RepoService {
 
     public getLanguages = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
     
-        const cachedData = await redisClient.get(`gitshboard:stats:${githubId}:languages`);
+        const cachedData = await redisRepository.get<LanguageStat[]>(`gitshboard:stats:${githubId}:languages`);
         
         if(cachedData){
             console.log("Redis hit : languages");
-            const data = JSON.parse(cachedData) as LanguageStat[];
-            return data;
+            return cachedData;
         }
         
         const query = `
@@ -62,9 +61,9 @@ class RepoService {
                 const userData: GithubRepoCommonResponse<GithubLanguageRepositoryNode> = githubData.data;
                 const languageStats = calculateLanguageStats(userData);
 
-                redisClient.set(`gitshboard:stats:${githubId}:languages`, JSON.stringify(languageStats), {
-                    expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
-                });
+                if(!redisRepository.set(`gitshboard:stats:${githubId}:languages`, languageStats, REDIS_DATA_EXPIRATION)){
+                    throw new Error("Failed to set cache for languages");
+                }
 
                return languageStats;
             }
@@ -79,13 +78,12 @@ class RepoService {
 
     public getCommitTime = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
  //304 Not Modified 요청에 대한 대비
-        const cachedData = await redisClient.get(`gitshboard:stats:${githubId}:commitTime`);
+        const cachedData = await redisRepository.get<CommitStats>(`gitshboard:stats:${githubId}:commitTime`);
 
         //없을 경우 cachedData는 null임.
         if (cachedData) {
-            const data = JSON.parse(cachedData) as CommitStats;
             console.log("Redis hit : commitTime");
-            return data;
+            return cachedData;
         }
 
 
@@ -136,9 +134,9 @@ class RepoService {
 
                 // console.log("[backend] commitStats:", commitStats);
 
-                redisClient.set(`gitshboard:stats:${githubId}:commitTime`, JSON.stringify(commitStats), {
-                    expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
-                });
+                if(!redisRepository.set(`gitshboard:stats:${githubId}:commitTime`, commitStats, REDIS_DATA_EXPIRATION)){
+                    throw new Error("Failed to set cache for commit time");
+                }
 
                 return commitStats;
             }
@@ -156,13 +154,12 @@ class RepoService {
 
     public getProjectTopics = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
 
-        const cachedData = await redisClient.get(`gitshboard:stats:${githubId}:projectTopics`);
+        const cachedData = await redisRepository.get<ProjectCategoryStat[]>(`gitshboard:stats:${githubId}:projectTopics`);
 
         //없을 경우 cachedData는 null임.
         if (cachedData) {
-            const data = JSON.parse(cachedData) as ProjectCategoryStat[];
             console.log("Redis hit : projectTopics");
-            return data;
+            return cachedData;
         }
 
 
@@ -210,9 +207,9 @@ class RepoService {
             const projectTopics: ProjectCategoryStat[] = calculateProjectCategories(userData);
             console.log("[backend] projectTopics:", projectTopics);
 
-            redisClient.set(`gitshboard:stats:${githubId}:projectTopics`, JSON.stringify(projectTopics), {
-                expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
-            });
+            if(!redisRepository.set(`gitshboard:stats:${githubId}:projectTopics`, projectTopics, REDIS_DATA_EXPIRATION)){
+                throw new Error("Failed to set cache for project topics");
+            }
 
             return projectTopics;
 
@@ -227,14 +224,12 @@ class RepoService {
 
 
         //304 Not Modified 요청에 대한 대비
-        const cachedData = await redisClient.get(`gitshboard:stats:${githubId}:developStats`);
+        const cachedData = await redisRepository.get<DeveloperProfileStats>(`gitshboard:stats:${githubId}:developStats`);
 
         //없을 경우 cachedData는 null임.
         if (cachedData) {
             console.log("Redis hit : developStats");
-            const data = JSON.parse(cachedData) as DeveloperProfileStats;
-
-            return data;
+            return cachedData;
         }
 
         const query = `
@@ -294,9 +289,9 @@ class RepoService {
             const userData: GithubRepoCommonResponse<GithubCommitTimeRepositoryNode & GithubLanguageRepositoryNode & GithubProjectTopicsNode> = githubData.data;
             const developerProfileStats: DeveloperProfileStats = calculateDeveloperProfile(userData);
 
-            redisClient.set(`gitshboard:stats:${githubId}:developStats`, JSON.stringify(developerProfileStats), {
-                expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
-            });
+            if(!redisRepository.set(`gitshboard:stats:${githubId}:developStats`, developerProfileStats, REDIS_DATA_EXPIRATION)){
+                throw new Error("Failed to set cache for develop stats");
+            }
 
             return developerProfileStats;
         }
@@ -311,13 +306,12 @@ class RepoService {
 
     public getProjectLiveRate = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
       //304 Not Modified 요청에 대한 대비
-            const cachedData = await redisClient.get(`gitshboard:stats:${githubId}:projectLiveRate`);
-    
+            const cachedData = await redisRepository.get<ProjectHealthStats>(`gitshboard:stats:${githubId}:projectLiveRate`);
+
             //없을 경우 cachedData는 null임.
             if (cachedData) {
                 console.log("Redis hit : projectLiveRate");
-                const data = JSON.parse(cachedData) as ProjectHealthStats;
-                return data;
+                return cachedData;
             }
 
     
@@ -364,9 +358,9 @@ class RepoService {
                 const projectHealthStats = calculateProjectHealth(userData);
     
                 //console.log("[backend] projectLiveRate:", projectHealthStats);
-                redisClient.set(`gitshboard:stats:${githubId}:projectLiveRate`, JSON.stringify(projectHealthStats), {
-                    expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
-                });
+                if(!redisRepository.set(`gitshboard:stats:${githubId}:projectLiveRate`, projectHealthStats, REDIS_DATA_EXPIRATION)){
+                    throw new Error("Failed to set cache for project live rate");
+                }
 
                 return projectHealthStats;
             }   
