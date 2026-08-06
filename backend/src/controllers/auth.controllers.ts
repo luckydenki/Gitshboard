@@ -4,7 +4,7 @@ import { prisma } from '../app';
 import { Request, Response } from 'express';
 import { AuthRequest } from '../types/middlewares/auth';
 import authService from '../services/auth.services';
-import { CommonResponse } from '../types/middlewares/common';
+import { CommonErrorResponse, CommonResponse } from '../types/middlewares/common';
 
 class AuthController {
 
@@ -69,13 +69,19 @@ class AuthController {
                         status : 200,
                         data : githubUserData,
                     }
-
-
                     res.json(response);
 
             }catch(error){
                 console.log("Error : Github authentication error", error);
-                res.status(500).json({error : '인증 실패'});   
+
+                const errorResponse : CommonErrorResponse ={
+                    status : 500,
+                    type : 'Github authentication error',
+                    title : 'Github authentication error',
+                    detail : (error as Error).message,
+                }
+
+                res.status(500).json(errorResponse);
             }
         }
 }
