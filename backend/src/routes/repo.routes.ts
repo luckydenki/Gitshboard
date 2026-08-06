@@ -38,7 +38,7 @@ repo_router.get('/languages', authToken, authUser, async(req : AuthRequest, res)
     }
 
     //304 Not Modified 요청에 대한 대비
-    const cachedData = await redisClient.get("gitshboard:stats:languages");
+    const cachedData = await redisClient.get(`gitshboard:stats:${req.user.githubId}:languages`);
     //console.log("cachedData:", cachedData);
     //없을 경우 cachedData는 null임.
     if(cachedData){
@@ -99,7 +99,7 @@ repo_router.get('/languages', authToken, authUser, async(req : AuthRequest, res)
             const userData: GithubRepoCommonResponse<GithubLanguageRepositoryNode> = githubData.data;
             const languageStats = calculateLanguageStats(userData);
 
-            redisClient.set("gitshboard:stats:languages", JSON.stringify(languageStats), {
+            redisClient.set(`gitshboard:stats:${req.user.githubId}:languages`, JSON.stringify(languageStats), {
                 expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
             });
 
@@ -141,7 +141,7 @@ repo_router.get('/commitTime', authToken, authUser, async(req : AuthRequest, res
     }
 
     //304 Not Modified 요청에 대한 대비
-    const cachedData = await redisClient.get("gitshboard:stats:commitTime");
+    const cachedData = await redisClient.get(`gitshboard:stats:${req.user.githubId}:commitTime`);
 
     //없을 경우 cachedData는 null임.
     if (cachedData) {
@@ -203,7 +203,7 @@ repo_router.get('/commitTime', authToken, authUser, async(req : AuthRequest, res
 
            // console.log("[backend] commitStats:", commitStats);
 
-            redisClient.set("gitshboard:stats:commitTime", JSON.stringify(commitStats), {
+            redisClient.set(`gitshboard:stats:${req.user.githubId}:commitTime`, JSON.stringify(commitStats), {
                 expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
             });
 
@@ -248,7 +248,7 @@ repo_router.get('/projectTopics', authToken, authUser, async(req : AuthRequest, 
 
     const startTime = performance.now();
 
-    const cachedData = await redisClient.get("gitshboard:stats:projectTopics");
+    const cachedData = await redisClient.get(`gitshboard:stats:${req.user.githubId}:projectTopics`);
 
     //없을 경우 cachedData는 null임.
     if (cachedData) {
@@ -314,7 +314,7 @@ repo_router.get('/projectTopics', authToken, authUser, async(req : AuthRequest, 
         const projectTopics : ProjectCategoryStat[] = calculateProjectCategories(userData);
         console.log("[backend] projectTopics:", projectTopics);
 
-        redisClient.set("gitshboard:stats:projectTopics", JSON.stringify(projectTopics), {
+        redisClient.set(`gitshboard:stats:${req.user.githubId}:projectTopics`, JSON.stringify(projectTopics), {
             expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
         });
 
@@ -335,7 +335,7 @@ repo_router.get('/developStats', authToken, authUser, async(req: AuthRequest, re
 
 
     //304 Not Modified 요청에 대한 대비
-    const cachedData = await redisClient.get("gitshboard:stats:developStats");
+    const cachedData = await redisClient.get(`gitshboard:stats:${req.user.githubId}:developStats`);
 
     //없을 경우 cachedData는 null임.
     if (cachedData) {
@@ -413,7 +413,7 @@ repo_router.get('/developStats', authToken, authUser, async(req: AuthRequest, re
             data : developerProfileStats
         }
 
-        redisClient.set("gitshboard:stats:developStats", JSON.stringify(developerProfileStats), {
+        redisClient.set(`gitshboard:stats:${req.user.githubId}:developStats`, JSON.stringify(developerProfileStats), {
             expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
         });
 
@@ -443,7 +443,7 @@ repo_router.get('/projectLiveRate', authToken, authUser, async(req: AuthRequest,
     }
 
     //304 Not Modified 요청에 대한 대비
-    const cachedData = await redisClient.get("gitshboard:stats:projectLiveRate");
+    const cachedData = await redisClient.get(`gitshboard:stats:${req.user.githubId}:projectLiveRate`);
 
     //없을 경우 cachedData는 null임.
     if (cachedData) {
@@ -499,7 +499,7 @@ repo_router.get('/projectLiveRate', authToken, authUser, async(req: AuthRequest,
         const projectHealthStats = calculateProjectHealth(userData);
 
         //console.log("[backend] projectLiveRate:", projectHealthStats);
-        redisClient.set("gitshboard:stats:projectLiveRate", JSON.stringify(projectHealthStats), {
+        redisClient.set(`gitshboard:stats:${req.user.githubId}:projectLiveRate`, JSON.stringify(projectHealthStats), {
             expiration: { type: 'EX', value: REDIS_DATA_EXPIRATION } // 5분 동안 유지
         });
 
