@@ -1,5 +1,6 @@
 import { User } from "@prisma/client";
 import { prisma } from "../app";
+import { getEncryptionToken } from "../utils/encrypt";
 
 
 
@@ -9,7 +10,7 @@ class UserRepository {
 
     public upsertUser = async(githubId: number, githubUsername: string, githubAccessToken: string) : Promise<User|null>=>{
             //테이블 명이 User라면 prisma 멤버에서 카멜케이스로 찾을 수 있음 
-            //upsert는 update + insert인 메서드로, 열이 존재하면 update, 존재하지 않으면 insert를 수행
+            //upsert는 update + insert인 메서드로, 열이 존재하면 update, 존재하지 않으면 insert를 수
 
         try{
             const user = await prisma.user.upsert({

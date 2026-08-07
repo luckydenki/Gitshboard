@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import { CookieOptions } from 'express';
-import { prisma } from '../app';
 import { Request, Response } from 'express';
 import { AuthRequest } from '../types/middlewares/auth';
 import authService from '../services/auth.services';

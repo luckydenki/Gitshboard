@@ -19,9 +19,6 @@ export interface EncryptedToken {
 export const getEncryptionKey = (): Buffer => {
     const encodedKey = process.env.ENCRYPTION_KEY;
 
-    console.log("ENCRYPTION_KEY:", encodedKey);
-    console.log("process.env.GITHUB_CLIENT_ID:", process.env.GITHUB_CLIENT_ID);
-
     if (!encodedKey) {
         throw new Error(
             "ENCRYPTION_KEY 환경변수가 설정되지 않았습니다.",

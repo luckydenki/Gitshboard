@@ -5,7 +5,6 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../types/middlewares/auth';
 import { prisma } from '../app';
 import { redisClient } from '../infra/redis/redisClient';
-import { createCipheriv, randomBytes } from 'crypto';
 import { getDecryptToken, getEncryptionToken } from '../utils/encrypt';
 
 /**
@@ -80,7 +79,17 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
 
     if(cachedUser){
         console.log("Redis hit : user", cachedUser);
-        req.user = JSON.parse(cachedUser) as User;
+
+        const { id, githubId, githubUsername, encryptedToken } = JSON.parse(cachedUser);
+        const githubAccessToken = getDecryptToken(encryptedToken, id); //복호화 테스트
+
+        req.user = {
+            id,
+            githubId,
+            githubUsername,
+            githubAccessToken
+        };
+
         next();
         return;
     }
@@ -102,20 +111,31 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
         else{
             req.user = user; //인증된 사용자 정보를 요청 객체에 추가
 
-            const startTime = performance.now();
+            //const startTime = performance.now();
             //user.githubAccessToken 암호화 작업
             const encryptedToken = getEncryptionToken(user.id, user.githubAccessToken);
-            const endTime = performance.now();
-            console.log("Token encryption time:", (endTime - startTime).toFixed(2), "milliseconds");
+            //const endTime = performance.now();
+            //console.log("Token encryption time:", (endTime - startTime).toFixed(2), "milliseconds");
             console.log("Encrypted githubAccessToken:", encryptedToken);
 
-            const decryptedToken = getDecryptToken(encryptedToken!, user.id); //복호화 테스트
+            //const decryptedToken = getDecryptToken(encryptedToken!, user.id); //복호화 테스트
+            //console.log("Decrypted githubAccessToken:", decryptedToken);
 
-            console.log("Decrypted githubAccessToken:", decryptedToken);
+            const { id, githubId, githubUsername } = user;
 
-            await redisClient.set(`gitshboard:user:${userId}:${githubId}`, JSON.stringify(user),{
+            const redisData = {
+                id,
+                githubId,
+                githubUsername,
+                encryptedToken
+            }
+
+
+            await redisClient.set(`gitshboard:user:${userId}:${githubId}`, JSON.stringify(redisData),{
                 expiration : {type : 'EX', value : 300 }  //5분
             });
+
+
             next(); //성공 시 다음 미들웨어로 넘어감
         }
         const endTime = performance.now();
