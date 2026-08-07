@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { AuthRequest} from '../types/middlewares/auth';
 import {authToken, authUser} from '../middlewares/auth.middleware';
 import authController from '../controllers/auth.controllers';
 

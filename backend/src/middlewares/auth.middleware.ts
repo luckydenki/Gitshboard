@@ -5,6 +5,8 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../types/middlewares/auth';
 import { prisma } from '../app';
 import { redisClient } from '../infra/redis/redisClient';
+import { createCipheriv, randomBytes } from 'crypto';
+import { getDecryptToken, getEncryptionToken } from '../utils/encrypt';
 
 /**
  * JWT 토큰을 검증하여 인증된 사용자임을 확인하는 미들웨어
@@ -100,23 +102,16 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
         else{
             req.user = user; //인증된 사용자 정보를 요청 객체에 추가
 
-            //const cipher = createCipheriv('aes-256-cbc', Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'), Buffer.from(user.githubAccessToken, 'hex'));
-            //createCipheriv 설명
-            /*
-            - 'aes-256-cbc' : AES 알고리즘을 사용하며, 256비트 키와 CBC(Cipher Block Chaining) 모드를 사용합니다.
-            - Buffer.from(process.env.ENCRYPTION_KEY!, 'hex') : 환경 변수 ENCRYPTION_KEY를 16진수 문자열로부터 버퍼로 변환합니다. 이 키는 암호화에 사용됩니다.
-            - Buffer.from(user.githubAccessToken, 'hex') : 사용자의 GitHub 액세스 토큰을 16진수 문자열로부터 버퍼로 변환합니다. 이 값은 초기화 벡터(IV)로 사용됩니다.
-            */
-            //console.log("cipher",cipher);
+            const startTime = performance.now();
+            //user.githubAccessToken 암호화 작업
+            const encryptedToken = getEncryptionToken(user.id, user.githubAccessToken);
+            const endTime = performance.now();
+            console.log("Token encryption time:", (endTime - startTime).toFixed(2), "milliseconds");
+            console.log("Encrypted githubAccessToken:", encryptedToken);
 
-           // const decipher = createDecipheriv('aes-256-cbc', Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'), Buffer.from(user.githubAccessToken, 'hex'));
-            //createDecipheriv 설명
-            /*
-            - 'aes-256-cbc' : AES 알고리즘을 사용하며, 256비트 키와 CBC(Cipher Block Chaining) 모드를 사용합니다.
-            - Buffer.from(process.env.ENCRYPTION_KEY!, 'hex') : 환경 변수 ENCRYPTION_KEY를 16진수 문자열로부터 버퍼로 변환합니다. 이 키는 복호화에 사용됩니다.
-            - Buffer.from(user.githubAccessToken, 'hex') : 사용자의 GitHub 액세스 토큰을 16진수 문자열로부터 버퍼로 변환합니다. 이 값은 초기화 벡터(IV)로 사용됩니다.
-            */
+            const decryptedToken = getDecryptToken(encryptedToken!, user.id); //복호화 테스트
 
+            console.log("Decrypted githubAccessToken:", decryptedToken);
 
             await redisClient.set(`gitshboard:user:${userId}:${githubId}`, JSON.stringify(user),{
                 expiration : {type : 'EX', value : 300 }  //5분
