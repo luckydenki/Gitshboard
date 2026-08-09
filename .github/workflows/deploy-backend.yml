@@ -40,7 +40,7 @@ jobs:
                 - name: TEST_CHECK
                   value: SERVER_CHECKED
                 - name : REDIS_URL
-                  value : redis://:415415asdzxc!@svc.sel3.cloudtype.app:31829
+                  value : redis://:415415asdzxc!@gitshboard-redis:6379
                 - name: JWT_SECRET
                   value: 0901zxcasd.
               args: []
