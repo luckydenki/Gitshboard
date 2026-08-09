@@ -1,4 +1,4 @@
-name : gitshboard-redis
+name : gitshboard-infra
 
 services:
   #서비스의 이름이며, 이 이름을 docker compose up 뒤에 붙히면 해당 서비스만 실행할 수 있습니다.
@@ -39,8 +39,24 @@ services:
       - redis
     restart: unless-stopped
 
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: gitshboard-postgres-container
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 0901zxcasd.
+      POSTGRES_DB: postgres
+    ports:
+      - "127.0.0.1:6543:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data    
+      # volumes를 쓰면 데이터가 컨테이너가 삭제되더라도 유지됩니다. 나름 영속성을 유지하고 싶으면 사용. (그런데 테스트 한다면 volumes 빼는게 좋을듯)
+
 volumes:
   redis-data:
     name: gitshboard-redis-data
   redis-insight-data:
     name: gitshboard-redis-insight-data
+  postgres-data:
+    name: gitshboard-postgres-data
