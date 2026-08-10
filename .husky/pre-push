@@ -15,19 +15,37 @@ case "$answer" in
     npm run build || exit 1
     npm run test || exit 1
     echo "build complete"
-    codex exec "해당 브랜치가 생성된 이후부터 변경된 파일들을 커밋기록을 통해 확인하고, 어떤 작업을 했는지 요약하여 dev/log/[yymmdd]_push.md 에 작성해주세요. 이미 있다면 이어서 작성하세요"
-    echo "codex file write complete"
-    echo "Proceeding with push..."
-
     echo "Build가 성공했습니다."
     ;;
   n|N)
-    echo "Build를 건너뛰고 푸쉬를 진행합니다."
+    echo "Build를 건너뜁니다."
     ;;
   *)
     echo "y 또는 n만 입력해주세요. 푸쉬를 중단합니다."
     exit 1
     ;;
 esac
+
+
+printf "codex 문서 생성을 실행할 까요? (y/n): "
+read answer </dev/tty
+
+
+case "$answer" in
+  y|Y)
+    echo "codex 문서 생성을 실행합니다..."
+    codex exec "해당 브랜치가 생성된 이후부터 변경된 파일들을 커밋기록을 통해 확인하고, 어떤 작업을 했는지 최대한 전부 파악하고, 요약하여 dev/log/[yymmdd]_push.md 에 작성해주세요. 이미 있다면 이어서 작성하세요"
+    echo "codex 문서 생성을 완료했습니다."
+    echo "push를 진행합니다."
+    ;;
+  n|N)
+    echo "codex 문서 생성을 건너뛰고 푸쉬를 진행합니다."
+    ;;
+  *)
+    echo "y 또는 n만 입력해주세요. 푸쉬를 중단합니다."
+    exit 1
+    ;;
+esac
+
 
 exit 0
