@@ -2,12 +2,17 @@
 import  jwt  from 'jsonwebtoken';
 import {  User } from '@prisma/client';
 import { Response, NextFunction } from 'express';
-import { AuthRequest } from '../types/middlewares/auth';
+import { AuthRequest, UserWithAccessToken } from '../types/middlewares/auth';
 import { prisma } from '../app';
-import { redisClient } from '../infra/redis/redisClient';
+import { EncryptedToken, getDecryptToken} from '../utils/encrypt';
+import userRepository from '../repository/user.repository';
+import redisRepository from '../repository/redis.repository';
 
 /**
  * JWT 토큰을 검증하여 인증된 사용자임을 확인하는 미들웨어
+ * 
+ * 실패시 401을 반환하여 실패처리 한다.
+ * 성공시 decoded_token에 userId와 githubId를 추가하여 다음 미들웨어로 넘긴다.
  * 
  * @param req 
  * @param res 
@@ -43,14 +48,28 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
 /**
  * 
  * userId와 githubId를 기반으로 데이터베이스에서 사용자를 조회하여 인증된 사용자임을 확인하는 미들웨어
- * decoded된 서버 토큰을 바탕으로 db를 조회하고, github access token을 가져오고 redis에 저장합니다.
- * 만약 redis에 캐싱되어있다면 곧바로 redis에서 가져옵니다.
+ * 
+ * 1. decoded_token이 없으면 401을 반환하여 실패처리 한다.
+ * 2. decoded_token이 있으면 redis에서 캐시된 사용자 정보를 조회하고 바로 반환한다.
+ * 3. redis에 캐시된 정보가 없다면 데이터 베이스에 저장된 사용자 정보를 조회하고 요청 객체에 추가한다.
+ * 4. 데이터베이스에 사용자 정보가 없다면 404를 반환하여 실패처리 한다.
+ * 
+ * 사용자 정보 : User 객체
+ * {
+ *      id : number,
+ *      githubId : number,
+ *      githubUsername : string,
+ *      githubAccessToken : string
+ * }
+ * 
  * 
  * @param req 
  * @param res 
  * @param next 
  * @returns 
  */
+
+// TODO: access token은 민감 정보니 반드시 암호화 하여 저장할 것. (현재는 암호화 미구현)
 export async function authUser(req : AuthRequest , res : Response, next : NextFunction){
 
     if(req.decoded_token == undefined){
@@ -60,57 +79,65 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
 
     const { userId, githubId } = req.decoded_token; //authToken 미들웨어에서 디코딩된 토큰 정보 사용
 
-    const cachedUser = await redisClient.get(`gitshboard:user:${userId}:${githubId}`);
+    const cachedUser = await redisRepository.get<{ id: number, githubId: number, githubUsername: string, encryptedToken: EncryptedToken }>(`gitshboard:user:${userId}:${githubId}`);
 
     if(cachedUser){
         console.log("Redis hit : user", cachedUser);
-        req.user = JSON.parse(cachedUser) as User;
+        if(cachedUser.encryptedToken === null){
+            return res.status(404).json({ error : '잘못된 동작입니다.' });
+        }
+
+        const { id, githubId, githubUsername, encryptedToken } = cachedUser;
+        const githubAccessToken = getDecryptToken(encryptedToken, githubId); //복호화 테스트
+
+        req.user = {
+            id,
+            githubId,
+            githubUsername,
+            githubAccessToken
+        };
+
         next();
         return;
     }
 
     try{
-        const startTime = performance.now();
         console.log("Redis miss : user not found in cache, querying database...");
-        const user : User | null = await prisma.user.findUnique({
-            where : {
-                id : userId,
-                githubId : githubId,
-            }
-        })
+        
+        const user : User | null = await userRepository.getUserById(userId);
+        const encryptionKey = await userRepository.getEncryptionKeyByUserId(userId);
+
+        const decryptToken = getDecryptToken(encryptionKey!, githubId); //복호화 테스트
+
+        if(!encryptionKey){
+            return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
+        }
+        if(!user){
+            return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
+        }
+
+        const userWithAccessToken :  UserWithAccessToken = {
+            ...user,
+            githubAccessToken : decryptToken
+        }
+
         console.log("Database query result : user", user);
 
         if(!user){
             return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
         }
         else{
-            req.user = user; //인증된 사용자 정보를 요청 객체에 추가
+            req.user = userWithAccessToken; //인증된 사용자 정보를 요청 객체에 추가
 
-            //const cipher = createCipheriv('aes-256-cbc', Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'), Buffer.from(user.githubAccessToken, 'hex'));
-            //createCipheriv 설명
-            /*
-            - 'aes-256-cbc' : AES 알고리즘을 사용하며, 256비트 키와 CBC(Cipher Block Chaining) 모드를 사용합니다.
-            - Buffer.from(process.env.ENCRYPTION_KEY!, 'hex') : 환경 변수 ENCRYPTION_KEY를 16진수 문자열로부터 버퍼로 변환합니다. 이 키는 암호화에 사용됩니다.
-            - Buffer.from(user.githubAccessToken, 'hex') : 사용자의 GitHub 액세스 토큰을 16진수 문자열로부터 버퍼로 변환합니다. 이 값은 초기화 벡터(IV)로 사용됩니다.
-            */
-            //console.log("cipher",cipher);
-
-           // const decipher = createDecipheriv('aes-256-cbc', Buffer.from(process.env.ENCRYPTION_KEY!, 'hex'), Buffer.from(user.githubAccessToken, 'hex'));
-            //createDecipheriv 설명
-            /*
-            - 'aes-256-cbc' : AES 알고리즘을 사용하며, 256비트 키와 CBC(Cipher Block Chaining) 모드를 사용합니다.
-            - Buffer.from(process.env.ENCRYPTION_KEY!, 'hex') : 환경 변수 ENCRYPTION_KEY를 16진수 문자열로부터 버퍼로 변환합니다. 이 키는 복호화에 사용됩니다.
-            - Buffer.from(user.githubAccessToken, 'hex') : 사용자의 GitHub 액세스 토큰을 16진수 문자열로부터 버퍼로 변환합니다. 이 값은 초기화 벡터(IV)로 사용됩니다.
-            */
-
-
-            await redisClient.set(`gitshboard:user:${userId}:${githubId}`, JSON.stringify(user),{
-                expiration : {type : 'EX', value : 300 }  //5분
-            });
+            const redisUser = {
+                id: user.id,
+                githubId: user.githubId,
+                githubUsername: user.githubUsername,
+                encryptedToken: encryptionKey
+            }
+            await redisRepository.set(`gitshboard:user:${userId}:${githubId}`, redisUser, 300);
             next(); //성공 시 다음 미들웨어로 넘어감
         }
-        const endTime = performance.now();
-        console.log("User authentication time:", (endTime - startTime).toFixed(2), "milliseconds");
 
     }catch(error){
         console.error("Error : User authentication error", error);
@@ -186,7 +213,6 @@ export async function checkUser(req: AuthRequest, res: Response, next: NextFunct
         const user: User | null = await prisma.user.findUnique({
             where: {
                 id: userId,
-                githubId: githubId,
             }
         })
 
@@ -195,7 +221,20 @@ export async function checkUser(req: AuthRequest, res: Response, next: NextFunct
             next();
         }
         else {
-            req.user = user; //인증된 사용자 정보를 요청 객체에 추가
+            const encryptionKey = await prisma.encryptionKey.findUnique({
+                where: {
+                    userId: userId,
+                }
+            })
+            
+            const decryptedToken = getDecryptToken(encryptionKey!, githubId); //복호화 테스트
+
+            const userWithAccessToken: UserWithAccessToken = {
+                ...user,
+                githubAccessToken: decryptedToken
+            }
+
+            req.user = userWithAccessToken; //인증된 사용자 정보를 요청 객체에 추가
             next(); //성공 시 다음 미들웨어로 넘어감
         }
 

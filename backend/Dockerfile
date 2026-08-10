@@ -24,4 +24,7 @@ RUN npm run build
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
+# migrate를 마지막에 하는 이유는 빌드가 완료된 후, run start가 거의 보장된 상태에서 반영을 시켜서 일관성을 보장시키고자 하는 것이다.
+# 만약 migrate를 먼저 하고 build를 하면 build가 터질 때 migrate는 이미 db에 반영되어서 db 스키마 구조가 변경되어버릴 수 있다.
+# 이러면 서버는 안되는데 db는 이미 변경되어버리고 꼬이는 상황이 발생할거 같아서 migrate를 마지막에 실행하는 것이다.

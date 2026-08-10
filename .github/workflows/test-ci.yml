@@ -48,6 +48,10 @@ jobs:
       run:
         working-directory: backend
 
+    env:
+      ENCRYPTION_KEY: CmRN85sOquz/ZTwfjD5ImeUMqy9qWMb9Gfm9sTVG1ZE=
+
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -67,3 +71,6 @@ jobs:
 
       - name: Build backend
         run: npm run build
+
+      - name: Run backend tests
+        run: npm run test
