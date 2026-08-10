@@ -48,6 +48,10 @@ jobs:
       run:
         working-directory: backend
 
+    env:
+      ENCRYPTION_KEY: FOR-TEST-ONLY-DO-NOT-USE-IN-PRODUCTION
+
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
