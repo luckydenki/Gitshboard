@@ -65,8 +65,8 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name : Deploy Migrate Database
-        run : npx prisma migrate deploy
-
       - name: Build backend
         run: npm run build
+
+      - name: Run backend tests
+        run: npm run test
