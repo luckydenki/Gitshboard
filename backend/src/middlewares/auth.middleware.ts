@@ -2,13 +2,16 @@
 import  jwt  from 'jsonwebtoken';
 import {  User } from '@prisma/client';
 import { Response, NextFunction } from 'express';
-import { AuthRequest } from '../types/middlewares/auth';
+import { AuthRequest, UserWithAccessToken } from '../types/middlewares/auth';
 import { prisma } from '../app';
 import { redisClient } from '../infra/redis/redisClient';
 import { getDecryptToken, getEncryptionToken } from '../utils/encrypt';
 
 /**
  * JWT 토큰을 검증하여 인증된 사용자임을 확인하는 미들웨어
+ * 
+ * 실패시 401을 반환하여 실패처리 한다.
+ * 성공시 decoded_token에 userId와 githubId를 추가하여 다음 미들웨어로 넘긴다.
  * 
  * @param req 
  * @param res 
@@ -81,7 +84,7 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
         console.log("Redis hit : user", cachedUser);
 
         const { id, githubId, githubUsername, encryptedToken } = JSON.parse(cachedUser);
-        const githubAccessToken = getDecryptToken(encryptedToken, id); //복호화 테스트
+        const githubAccessToken = getDecryptToken(encryptedToken, githubId); //복호화 테스트
 
         req.user = {
             id,
@@ -103,20 +106,41 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
                 githubId : githubId,
             }
         })
+        const encryptionKey = await prisma.encryptionKey.findUnique({
+            where : {
+                userId : userId,
+            }
+        })
+
+        getDecryptToken(encryptionKey!, githubId); //복호화 테스트
+
+        if(!encryptionKey){
+            return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
+        }
+        if(!user){
+            return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
+        }
+
+
+        const userWithAccessToken :  UserWithAccessToken = {
+            ...user,
+            githubAccessToken : getDecryptToken(encryptionKey!, githubId)
+        }
+
         console.log("Database query result : user", user);
 
         if(!user){
             return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
         }
         else{
-            req.user = user; //인증된 사용자 정보를 요청 객체에 추가
+            req.user = userWithAccessToken; //인증된 사용자 정보를 요청 객체에 추가
 
             //const startTime = performance.now();
             //user.githubAccessToken 암호화 작업
-            const encryptedToken = getEncryptionToken(user.id, user.githubAccessToken);
+            const encryptedToken = getEncryptionToken(userWithAccessToken.githubId, userWithAccessToken.githubAccessToken);
             //const endTime = performance.now();
             //console.log("Token encryption time:", (endTime - startTime).toFixed(2), "milliseconds");
-            console.log("Encrypted githubAccessToken:", encryptedToken);
+            //console.log("Encrypted githubAccessToken:", encryptedToken);
 
             //const decryptedToken = getDecryptToken(encryptedToken!, user.id); //복호화 테스트
             //console.log("Decrypted githubAccessToken:", decryptedToken);
@@ -215,7 +239,6 @@ export async function checkUser(req: AuthRequest, res: Response, next: NextFunct
         const user: User | null = await prisma.user.findUnique({
             where: {
                 id: userId,
-                githubId: githubId,
             }
         })
 
@@ -224,7 +247,20 @@ export async function checkUser(req: AuthRequest, res: Response, next: NextFunct
             next();
         }
         else {
-            req.user = user; //인증된 사용자 정보를 요청 객체에 추가
+            const encryptionKey = await prisma.encryptionKey.findUnique({
+                where: {
+                    userId: userId,
+                }
+            })
+            
+            const decryptedToken = getDecryptToken(encryptionKey!, githubId); //복호화 테스트
+
+            const userWithAccessToken: UserWithAccessToken = {
+                ...user,
+                githubAccessToken: decryptedToken
+            }
+
+            req.user = userWithAccessToken; //인증된 사용자 정보를 요청 객체에 추가
             next(); //성공 시 다음 미들웨어로 넘어감
         }
 

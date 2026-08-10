@@ -37,6 +37,10 @@ export const getEncryptionKey = (): Buffer => {
 }
 
 
+
+/*
+    userId는 id 가 increment로 증가하는 값인 특성상 넣기 귀찮아져서 githubId를 넣는 것으로 대체함.
+*/
 export const getEncryptionToken = (userId : number, plainToken : string) : EncryptedToken | null => {
         const key = getEncryptionKey();
         const iv = randomBytes(IV_LENGTH);

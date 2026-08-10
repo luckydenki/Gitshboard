@@ -20,5 +20,17 @@ model User{
     id Int @id @default(autoincrement())
     githubId Int @unique()
     githubUsername String
-    githubAccessToken String
+    
+   encryptionKey EncryptionKey?
+}
+
+model EncryptionKey{
+  userId Int @id
+
+  version Int
+  ciphertext String
+  iv String
+  authTag String
+
+  user User @relation(fields: [userId], references: [id])
 }

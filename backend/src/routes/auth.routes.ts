@@ -16,7 +16,8 @@ auth_router.get('/health', (req, res)=>{
 auth_router.get('/check', authToken, authUser, authController.checkUser);
 
 // api/auth/github
-// 깃허브 로그인 시, 깃허브에서 받은 code를 이용하여 access_token을 발급받고, 해당 access_token으로 깃허브 사용자 정보를 가져오는 api
+// 깃허브 로그인 시, 깃허브에서 받은 code를 이용하여 access_token을 발급받고, 
+// 해당 access_token으로 깃허브 사용자 정보를 가져오는 api
 auth_router.post('/github', authController.getGithubUser);
 
 
