@@ -4,7 +4,7 @@ import {  User } from '@prisma/client';
 import { Response, NextFunction } from 'express';
 import { AuthRequest, UserWithAccessToken } from '../types/middlewares/auth';
 import { prisma } from '../app';
-import { EncryptedToken, getDecryptToken, getEncryptionToken } from '../utils/encrypt';
+import { EncryptedToken, getDecryptToken} from '../utils/encrypt';
 import userRepository from '../repository/user.repository';
 import redisRepository from '../repository/redis.repository';
 
