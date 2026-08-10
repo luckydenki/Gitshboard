@@ -49,7 +49,7 @@ jobs:
         working-directory: backend
 
     env:
-      ENCRYPTION_KEY: FOR-TEST-ONLY-DO-NOT-USE-IN-PRODUCTION
+      ENCRYPTION_KEY: CmRN85sOquz/ZTwfjD5ImeUMqy9qWMb9Gfm9sTVG1ZE=
 
 
     steps:
