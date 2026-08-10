@@ -5,6 +5,7 @@ class RedisRepository{
     public  get = async <T>(key: string): Promise<T | null> => {
         try{
         const cachedData = await redisClient.get(key);
+        console.log("Redis get : key", key, "cachedData", cachedData);
         if(cachedData){
                 return JSON.parse(cachedData) as T;
             }

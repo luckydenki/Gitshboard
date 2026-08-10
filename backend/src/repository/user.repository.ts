@@ -87,6 +87,38 @@ class UserRepository {
             return null;
         }
     }
+
+
+    public getUserById = async(userId: number) : Promise<User|null>=>{
+        try{
+            const user = await prisma.user.findUnique({ 
+                where: {
+                    id : userId
+                }
+            });
+            return user;
+        }catch(error){
+            console.error("Error : Fetching user by id failed", error);
+            return null;
+        }
+    }
+
+    public getEncryptionKeyByUserId = async(userId: number) : Promise<EncryptionKey|null>=>{
+        try{
+            const encryptionKey = await prisma.encryptionKey.findUnique({
+                where: {
+                    userId : userId
+                }
+            });
+            return encryptionKey;
+        }
+        catch(error){
+            console.error("Error : Fetching encryption key by user id failed", error);
+            return null;
+        }
+    }
+
+
 }
 
 

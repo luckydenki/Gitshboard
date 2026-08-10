@@ -4,8 +4,9 @@ import {  User } from '@prisma/client';
 import { Response, NextFunction } from 'express';
 import { AuthRequest, UserWithAccessToken } from '../types/middlewares/auth';
 import { prisma } from '../app';
-import { redisClient } from '../infra/redis/redisClient';
-import { getDecryptToken, getEncryptionToken } from '../utils/encrypt';
+import { EncryptedToken, getDecryptToken, getEncryptionToken } from '../utils/encrypt';
+import userRepository from '../repository/user.repository';
+import redisRepository from '../repository/redis.repository';
 
 /**
  * JWT 토큰을 검증하여 인증된 사용자임을 확인하는 미들웨어
@@ -78,12 +79,15 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
 
     const { userId, githubId } = req.decoded_token; //authToken 미들웨어에서 디코딩된 토큰 정보 사용
 
-    const cachedUser = await redisClient.get(`gitshboard:user:${userId}:${githubId}`);
+    const cachedUser = await redisRepository.get<{ id: number, githubId: number, githubUsername: string, encryptedToken: EncryptedToken }>(`gitshboard:user:${userId}:${githubId}`);
 
     if(cachedUser){
         console.log("Redis hit : user", cachedUser);
+        if(cachedUser.encryptedToken === null){
+            return res.status(404).json({ error : '잘못된 동작입니다.' });
+        }
 
-        const { id, githubId, githubUsername, encryptedToken } = JSON.parse(cachedUser);
+        const { id, githubId, githubUsername, encryptedToken } = cachedUser;
         const githubAccessToken = getDecryptToken(encryptedToken, githubId); //복호화 테스트
 
         req.user = {
@@ -98,21 +102,12 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
     }
 
     try{
-        const startTime = performance.now();
         console.log("Redis miss : user not found in cache, querying database...");
-        const user : User | null = await prisma.user.findUnique({
-            where : {
-                id : userId,
-                githubId : githubId,
-            }
-        })
-        const encryptionKey = await prisma.encryptionKey.findUnique({
-            where : {
-                userId : userId,
-            }
-        })
+        
+        const user : User | null = await userRepository.getUserById(userId);
+        const encryptionKey = await userRepository.getEncryptionKeyByUserId(userId);
 
-        getDecryptToken(encryptionKey!, githubId); //복호화 테스트
+        const decryptToken = getDecryptToken(encryptionKey!, githubId); //복호화 테스트
 
         if(!encryptionKey){
             return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
@@ -121,10 +116,9 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
             return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
         }
 
-
         const userWithAccessToken :  UserWithAccessToken = {
             ...user,
-            githubAccessToken : getDecryptToken(encryptionKey!, githubId)
+            githubAccessToken : decryptToken
         }
 
         console.log("Database query result : user", user);
@@ -135,35 +129,15 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
         else{
             req.user = userWithAccessToken; //인증된 사용자 정보를 요청 객체에 추가
 
-            //const startTime = performance.now();
-            //user.githubAccessToken 암호화 작업
-            const encryptedToken = getEncryptionToken(userWithAccessToken.githubId, userWithAccessToken.githubAccessToken);
-            //const endTime = performance.now();
-            //console.log("Token encryption time:", (endTime - startTime).toFixed(2), "milliseconds");
-            //console.log("Encrypted githubAccessToken:", encryptedToken);
-
-            //const decryptedToken = getDecryptToken(encryptedToken!, user.id); //복호화 테스트
-            //console.log("Decrypted githubAccessToken:", decryptedToken);
-
-            const { id, githubId, githubUsername } = user;
-
-            const redisData = {
-                id,
-                githubId,
-                githubUsername,
-                encryptedToken
+            const redisUser = {
+                id: user.id,
+                githubId: user.githubId,
+                githubUsername: user.githubUsername,
+                encryptedToken: encryptionKey
             }
-
-
-            await redisClient.set(`gitshboard:user:${userId}:${githubId}`, JSON.stringify(redisData),{
-                expiration : {type : 'EX', value : 300 }  //5분
-            });
-
-
+            await redisRepository.set(`gitshboard:user:${userId}:${githubId}`, redisUser, 300);
             next(); //성공 시 다음 미들웨어로 넘어감
         }
-        const endTime = performance.now();
-        console.log("User authentication time:", (endTime - startTime).toFixed(2), "milliseconds");
 
     }catch(error){
         console.error("Error : User authentication error", error);
