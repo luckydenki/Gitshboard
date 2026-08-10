@@ -43,6 +43,8 @@ jobs:
                   value : redis://:415415asdzxc!@gitshboard-redis:6379
                 - name: JWT_SECRET
                   value: 0901zxcasd.
+                - name : ENCRYPTION_KEY
+                  value : xLTOZmL/7W9IY0NWSw4RuS9m6w2kbOV4Sb6zysc+cHo=
               args: []
             context:
               git:
