@@ -9,7 +9,8 @@ export default [
     ),
     layout("components/layout/DashboardLayout.tsx", [
         route("dashboard", "routes/dashboard.tsx"),
-        route("statpage", "routes/statpage.tsx")
+        route("statpage", "routes/statpage.tsx"),
+        route("contribute", "routes/contribute.tsx"),
     ]),
     //route("testpage", "routes/testpage.tsx"),
 

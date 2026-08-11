@@ -64,6 +64,7 @@ export default function DashboardHeader(){
         const menuList = [
             {name : "Profile", link : "/dashboard"},
             {name : "Statistics", link : "/statpage"},
+            {name : "Contribute", link : "/contribute"},
         ]
 
         return menuList.map((menu, index)=>{
