@@ -2,6 +2,7 @@ import { CommonErrorResponse, ErrorStatus } from "../types/middlewares/common";
 import { GithubGraphqlFetch } from "./repo.client"
 
 
+
 export interface CommitActivityRepositoryNode {
     name : string,
     nameWithOwner : string,
@@ -14,7 +15,7 @@ export interface CommitActivityConstributeNode {
 
 
 
-export interface CommitActivity {
+export interface CommitContributionActivity {
     user : {
         contributionsCollection: {
             totalCommitContributions: number,
@@ -55,9 +56,10 @@ class ContributionClient {
      * @returns 
      */
     public getCommitActivity = 
-    async (githubAccessToken : string, username: string, from: string, to: string): Promise<CommitActivity> => {
+    async (githubAccessToken : string, username: string, from: string, to: string): Promise<CommitContributionActivity> => {
         
         try{
+            // 날짜 기준으로 오름차순으로 가져와야함
             const query = `
                 query GetCommitActivity(
                 $username: String!,
@@ -74,7 +76,10 @@ class ContributionClient {
                         nameWithOwner
                         }
 
-                        contributions(first: 100) {
+                        contributions(
+                            first: 100
+                            orderBy : { field : OCCURRED_AT, direction: ASC }
+                        ) {
                         nodes {
                             occurredAt
                             commitCount

@@ -1,5 +1,6 @@
-import { CommitActivity } from "../client/contribution.client";
+import { CommitContributionActivity } from "../client/contribution.client";
 import contributionClient from "../client/contribution.client";
+import { GithubCommitActivity } from "../utils/contribution";
 
 
 
@@ -15,8 +16,12 @@ class ContributionService {
             if (!githubAccessToken || !githubUsername) {
                 throw new Error('인증된 사용자가 아닙니다.');
             }
-            const data: CommitActivity = await contributionClient.getCommitActivity(githubAccessToken, githubUsername, from, to);
-            return data;
+            const data: CommitContributionActivity = await contributionClient.getCommitActivity(githubAccessToken, githubUsername, from, to);
+            
+            const githubCommitActivity = GithubCommitActivity(data);
+            
+            
+            return githubCommitActivity;
 
         }
         catch (error) {

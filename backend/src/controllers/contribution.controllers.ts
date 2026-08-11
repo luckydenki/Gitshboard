@@ -1,4 +1,4 @@
-import contributionClient, { CommitActivity } from "../client/contribution.client";
+import contributionClient, { CommitContributionActivity } from "../client/contribution.client";
 import contributionService from "../services/contribution.services";
 import { AuthRequest } from "../types/middlewares/auth";
 import { CommonResponse } from "../types/middlewares/common";
@@ -18,10 +18,11 @@ class ContributionController {
             const to = req.query.to as string;
 
 
-            const data: CommitActivity = await contributionService.getCommitActivity(github_token, username, from, to);
+            const data = await contributionService.getCommitActivity(github_token, username, from, to);
 
 
-            const response: CommonResponse<CommitActivity> = {
+            //typeof data -> data의 타입이 꽤 자주 변할 수가 있기 때문에 의존성을 줄이려고 의도적으로 사용함.
+            const response: CommonResponse<typeof data> = {
                 success: true,
                 status: 200,
                 data: data
