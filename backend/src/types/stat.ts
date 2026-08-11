@@ -1,4 +1,3 @@
-
 export interface GithubLanguageNode {
     size: number,
     node: { name: string }

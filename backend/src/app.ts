@@ -12,6 +12,7 @@ import { TestSchema, root } from './graphql/test';
 import search_router from './routes/search.routes';
 import { connectRedis } from './infra/redis/redisClient';
 import { PrismaClient } from '@prisma/client';
+import contribute_router from './routes/contribute.routes';
 
 
 dotenv.config();
@@ -46,6 +47,7 @@ app.use('/api/auth', auth_router);
 app.use('/api/test', testing_router);
 app.use('/api/repos', repo_router);
 app.use('/api/search', search_router);
+app.use('/api/contribute', contribute_router);
 
 app.use((req, res, next)=>{
   const startedAt = performance.now();
