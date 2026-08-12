@@ -1,10 +1,12 @@
 import { surfaceClass } from "~/routes/contribute";
+import type { GithubCommitActivity } from "~/routes/contribute";
 
+export default function ContributionInfoSection({ data, isLoading }: { data: GithubCommitActivity | undefined, isLoading: boolean }) {
 
-
-
-export default function ContributionInfoSection({ totalCommits, repositories_count, activeDays, isLoading }: { totalCommits: number, repositories_count: number, activeDays: number, isLoading: boolean }) {
-
+    const repositories = data?.results ?? [];
+    const repositories_count = repositories.length;
+    const totalCommits = data?.total ?? 0;
+    const activeDays = data?.commitCounts.filter((count) => count > 0).length ?? 0;
 
     return(
         <section className="grid gap-5 sm:grid-cols-3">

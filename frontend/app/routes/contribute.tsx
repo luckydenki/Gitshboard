@@ -54,10 +54,6 @@ export default function ContributePage() {
         gcTime: 10 * 60 * 1000,
     });
 
-    const repositories = data?.results ?? [];
-    const totalCommits = data?.total ?? 0;
-    const activeDays = data?.commitCounts.filter((count) => count > 0).length ?? 0;
-
     return (
         <div className="min-h-screen bg-[#f4f6f1] text-gray-950 dark:bg-gray-950 dark:text-white">
             <main className="mx-auto flex max-w-360 flex-col gap-8 px-6 py-10 lg:px-8">
@@ -65,9 +61,7 @@ export default function ContributePage() {
 
 
                 <ContributionInfoSection
-                    totalCommits={totalCommits}
-                    repositories_count={repositories.length}
-                    activeDays={activeDays}
+                    data = {data}
                     isLoading={isLoading}
                 />
 
