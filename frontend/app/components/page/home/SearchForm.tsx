@@ -79,33 +79,69 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const form = useRef<HTMLFormElement>(null);
     const input = useRef<HTMLInputElement>(null);
-    const [debounce_data, setDebouceData] = useState<GithubUserSearchResponse>();
+    const [debounce_data, setDebounceData] = useState<GithubUserSearchResponse>();
 
-    let c : NodeJS.Timeout;
+    let c = useRef<NodeJS.Timeout>(null);
 
-    const debounce = (e : ChangeEvent<HTMLInputElement, HTMLInputElement> )=>{
-        clearTimeout(c);
-        //console.log("search :", e.target.value);
+
+    const start_time = useRef(0);
+
+
+    const debounce = async(e : ChangeEvent<HTMLInputElement, HTMLInputElement> )=> {
+        clearTimeout(c.current!);
+
         if(e.target.value === "" || e.target.value === undefined){
-            console.log("empty");
-            setDebouceData(undefined)
+           //console.log("empty");
+            setDebounceData(undefined)
             return;
         }
 
-        c = setTimeout(async()=>{
+        if(start_time.current === 0){
+            start_time.current = Date.now();
+        }
+
+        
+        
+        //단, debounce가 일어나는 최소 시간도 존재해야 함. 2.5초 이상 입력이 존재하면 알아서 api 실행
+        if(Date.now()-start_time.current > 2500){
+            //console.log("debounce start time : ", start_time.current);
+            //console.log("now time : ", Date.now());
+            //console.log("time difference (단위 : 초): ", (Date.now() - start_time.current) / 1000);
+
+            start_time.current = 0;
+            //clearTimeout(c);
+
+            const search = e.target.value;
+            console.log("late  debounce 실행")
+            const data = await handleSearchDebounce(search);
+            setDebounceData(data);
+            console.log("data : ", data);
+            return;
+
+        }
+
+
+        c.current = setTimeout(async()=>{
+            start_time.current = 0;
             const search = e.target.value;
             console.log("debounce 실행")
             const data = await handleSearchDebounce(search);
-            setDebouceData(data);
+            setDebounceData(data);
             console.log("data : ", data);
-        }, 1500)
+        }, 1500)    //입력 종료 후 반드시 1.5초 이후에는 debounce가 실행됩니다.
+
+
+
+        
 
         //console.log(e.currentTarget.value)
     }
 
 
     useEffect(()=>{
-        return(()=> clearTimeout(c))   
+        return(()=>{
+            clearTimeout(c.current!);
+        })
     },[])
 
     console.log("items ", debounce_data?.items);
