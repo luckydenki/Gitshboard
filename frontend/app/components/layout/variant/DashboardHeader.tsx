@@ -3,9 +3,9 @@ import { useMemo } from "react";
 import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import HeaderLayout from "~/components/layout/variant/HeaderLayout";
-//import getBackendURL from "~/utils/getBackendURL";
 import type { CommonResponse } from "~/types/common/common";
 import SearchForm from "~/components/page/home/SearchForm";
+import HeaderProfileButton from "~/components/common/HeaderProfileButton";
 
 /*
     사용 페이지
@@ -112,15 +112,7 @@ export default function DashboardHeader(){
                     `}
                 />
 
-                <button className="flex w-fit items-center gap-3 rounded-full bg-white px-3 py-2 shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:bg-gray-900">
-                    <img
-                        src={data?.avatarUrl}
-                        alt="avatar"
-                        fetchPriority="high"
-                        className="h-8 w-8 rounded-full"
-                    />
-                    <span className="overflow-hidden text-sm font-medium text-gray-700 dark:text-gray-200 not-sm:hidden">{data?.login}</span>
-                </button>
+                <HeaderProfileButton data ={data}/>
             </div>
         </HeaderLayout>
     )

@@ -8,11 +8,7 @@ import DashboardHeader from "./variant/DashboardHeader";
 export type FloatState = "1" | "2" | "3";
 
 export default function DashboardLayout(){
-   //const [resetTrigger, setResetTrigger] = useState(false);
-    //const render_time = useRenderingTimer("DashboardLayout", resetTrigger, setResetTrigger);
-    //const [floatState, setFloatState] = useState<FloatState>("1");
 
-   // const queryClient = new QueryClient(); //이렇게 두면 매번 새로 생성됨
     const [queryClient] = useState(()=>new QueryClient()); //이렇게 하면 컴포넌트가 처음 렌더링 될 때 한 번만 생성되고 이후에는 같은 인스턴스를 사용합니다.
 
 

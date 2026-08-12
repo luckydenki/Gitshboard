@@ -79,7 +79,7 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
 
     const { userId, githubId } = req.decoded_token; //authToken 미들웨어에서 디코딩된 토큰 정보 사용
 
-    const cachedUser = await redisRepository.get<{ id: number, githubId: number, githubUsername: string, encryptedToken: EncryptedToken }>(`gitshboard:user:${userId}:${githubId}`);
+    const cachedUser = await redisRepository.get<{ id: number, githubId: number, githubUsername: string, encryptedToken: EncryptedToken }>(`gitshboard:user:${userId}`);
 
     if(cachedUser){
         console.log("Redis hit : user", cachedUser);
@@ -107,7 +107,7 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
         const user : User | null = await userRepository.getUserById(userId);
         const encryptionKey = await userRepository.getEncryptionKeyByUserId(userId);
 
-        const decryptToken = getDecryptToken(encryptionKey!, githubId); //복호화 테스트
+        const decryptToken = getDecryptToken(encryptionKey!, user!.githubId); //복호화 테스트
 
         if(!encryptionKey){
             return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
@@ -135,7 +135,7 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
                 githubUsername: user.githubUsername,
                 encryptedToken: encryptionKey
             }
-            await redisRepository.set(`gitshboard:user:${userId}:${githubId}`, redisUser, 300);
+            await redisRepository.set(`gitshboard:user:${userId}`, redisUser, 300);
             next(); //성공 시 다음 미들웨어로 넘어감
         }
 

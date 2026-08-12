@@ -27,6 +27,8 @@ user_router.get('/', authToken, authUser, async (req: AuthRequest, res) => {
 
   const user = req.user!; //authUser 미들웨어에서 인증된 사용자 정보를 요청 객체에 추가했으므로 req.user는 항상 존재한다고 가정할 수 있음
 
+console.log("Authenticated user:", user);
+
   try{
         const accessToken = user.githubAccessToken;
 

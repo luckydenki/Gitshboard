@@ -20,6 +20,8 @@ auth_router.get('/check', authToken, authUser, authController.checkUser);
 // 해당 access_token으로 깃허브 사용자 정보를 가져오는 api
 auth_router.post('/github', authController.getGithubUser);
 
+auth_router.post('/logout', authToken, authUser, authController.logoutUser);
+
 
 auth_router.use((req, res) =>{
     res.status(404).json({ error: 'Not Found' });
