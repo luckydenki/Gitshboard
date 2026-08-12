@@ -1,5 +1,18 @@
 import { useQuery } from "@tanstack/react-query"
+import ReactECharts from "echarts-for-react"
 import { HTTPCredentials } from "dench-fetch"
+
+export interface GithubCommitActivity {
+    total : number,
+    results : Array<{
+        repositoryName : string,
+        occuredAt : Array<string>,
+        commitCount : Array<number>
+    }>,
+     commitOccuredAt : Array<string>,    // 모든 repository의 commit이 발생한 날짜를 합친 배열
+    commitCounts : Array<number>        // 모든 repository의 commit이 발생한 날짜를 합친 배열에 대한 commitCount
+}
+
 
 
 export default function ContributePage() {
@@ -15,7 +28,7 @@ export default function ContributePage() {
     });
 
 
-    const { data, isLoading, isError} = useQuery({
+    const { data, isLoading, isError} = useQuery<GithubCommitActivity>({
         queryKey: ["contributeData"],
         queryFn: async() =>{
             const response = await fetch(`/api/contribute/commitActivity?${params.toString()}`,{
@@ -39,6 +52,7 @@ export default function ContributePage() {
 
 
     console.log("contribute data", data);
+    //console.log("data.results2", data?.results2.get("2026-07-13"));
 
     if(isLoading){
         return (
@@ -53,15 +67,54 @@ export default function ContributePage() {
     }
 
 
+    const option = {
+    xAxis: {
+        type: "category",
+        data: data?.results[0].occuredAt
+    },
+    yAxis: {
+        type: "value",
+    },
+    series: [
+        {
+        type: "line",
+        data: data?.results[0].commitCount
+        },
+    ],
+    };
+
+
+    const option2 = {
+    xAxis: {
+        type: "category",
+        data: data?.commitOccuredAt
+    },
+    yAxis: {
+        type: "value",
+    },
+    series: [
+        {
+        type: "line",
+        data: data?.commitCounts
+        },
+    ],
+    }
+
+
+
     //커밋 활동 데이터를 그래프 형태로 보여줍니다.(기간에 대한 꺾은선 그래프)
 
     return (
-        <div>
-            <h1>Contribute Page</h1>
-            <pre>
-                {JSON.stringify(data, null, 2)}    
+        <div className= "p-8">
+            <h1 className={`flex 
+                w-full h-40 items-center justify-center
+                 bg-white text-4xl font-semibold
+                 rounded-2xl shadow-2xl`}>Contribute Page</h1>
+
+            <ReactECharts option={option} style={{ height: "400px", width: "100%" }}/>
                 
-            </pre>
+      
+            <ReactECharts option={option2} style={{ height: "400px", width: "100%" }}/>
         </div>
     )
 
