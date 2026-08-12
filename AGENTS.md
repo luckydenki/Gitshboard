@@ -17,7 +17,7 @@
 > storybook을 수정, 추가, 삭제해달라는 요청에 필요한 규칙.
 1. storybook mcp 의 이름은 `gitshboard-storybook-mcp` 임.
 2. 어떤 컴포넌트의 스토리 북을 새로 작성하라는 요청은 MCP의 `get-storybook-story-instructions`을 호출하고, 그 지침에 따라 작성할 것.
-3. 스토리의 테스트는 한글 이름으로 작성할 것...
+3. 스토리의 테스트는 한글 이름으로 작성할 것
 
 
 ---
