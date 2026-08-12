@@ -1,4 +1,3 @@
-import contributionClient, { CommitContributionActivity } from "../client/contribution.client";
 import contributionService from "../services/contribution.services";
 import { AuthRequest } from "../types/middlewares/auth";
 import { CommonResponse } from "../types/middlewares/common";
