@@ -50,7 +50,6 @@ export default function HeaderProfileButton({ data } : { data: { login: string; 
                         flex flex-col p-2 gap-2 text-center
                         [&>button]:hover:bg-gray-300
                     `}>
-                    <a href="/profile">Profile</a>
                     <button onClick={async() => {
                         alert("로그아웃 되었습니다.");
                         fetch("api/auth/logout",{

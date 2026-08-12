@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { HTTPCredentials } from "dench-fetch";
+import { useContributeData } from "~/hooks/pages/contribute-hooks";
+import { useState } from "react";
 import ContributionHeader from "~/components/page/contribution/ContributionHeader";
 import ContributionInfoSection from "~/components/page/contribution/ContributionInfoSection";
 import ContributionCommitActivityByRepo from "~/components/page/contribution/ContributionCommitActivityByRepo";
@@ -28,37 +28,36 @@ export function EmptyChart({ message }: { message: string }) {
 }
 
 export default function ContributePage() {
-    const endTime = Date.now();
-    const startTime = endTime - (60 * 24 * 60 * 60 * 1000); // 60일 전의 타임스탬프 계산
-    const params = new URLSearchParams({
-        from: new Date(startTime).toISOString(),
-        to: new Date(endTime).toISOString(),
-    });
 
-    const { data, isLoading, isError } = useQuery<GithubCommitActivity>({
-        queryKey: ["contributeData"],
-        queryFn: async () => {
-            const response = await fetch(`/api/contribute/commitActivity?${params.toString()}`, {
-                method: "GET",
-                credentials: HTTPCredentials.INCLUDE,
-            });
-            const json = await response.json();
 
-            if (!response.ok) {
-                throw new Error(json.message ?? "Unable to load commit activity");
-            }
+    let to_raw = Date.now();
+    let from_raw = to_raw - (365 * 24 * 60 * 60 * 1000); // 1년간의 타임스탬프 계산
 
-            return json.data as GithubCommitActivity;
-        },
-        staleTime: 5 * 60 * 1000,
-        gcTime: 10 * 60 * 1000,
-    });
+    const [from, setFrom] = useState(new Date(from_raw).toISOString());
+    const [to, setTo] = useState(new Date(to_raw).toISOString());
+
+    const { data, isLoading, isError } = useContributeData(from, to);
+
 
     return (
         <div className="min-h-screen bg-[#f4f6f1] text-gray-950 dark:bg-gray-950 dark:text-white">
             <main className="mx-auto flex max-w-360 flex-col gap-8 px-6 py-10 lg:px-8">
-                <ContributionHeader commitOccuredAt={data?.commitOccuredAt ?? []} />
+                <ContributionHeader startTime={from} endTime={to} />
 
+                <div className="flex gap-2 justify-end bg-white rounded-2xl p-4 [&>div]:p-1 [&>div]:border [&>div]:rounded-lg [&>div]:border-gray-300">
+                    <div><span> from :</span><input type="date" value={new Date(from).toISOString().split("T")[0]}
+                        onChange={(e) => {
+                            const newFrom = new Date(e.target.value).toISOString();
+                            setFrom(newFrom);
+                        }}
+                    /></div>
+                    <div><span> to :</span><input type="date" value={new Date(to).toISOString().split("T")[0]}
+                        onChange={(e) => {
+                            const newTo = new Date(e.target.value).toISOString();
+                            setTo(newTo);
+                        }}
+                    /></div>
+                </div>
 
                 <ContributionInfoSection
                     data = {data}

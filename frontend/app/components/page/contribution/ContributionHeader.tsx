@@ -1,9 +1,8 @@
-import { getDateRange } from "~/utils/contribute";
 
+export default function ContributionHeader({ startTime, endTime }: { startTime: string, endTime: string }) {
 
-
-
-export default function ContributionHeader({ commitOccuredAt }: { commitOccuredAt: string[] }) {
+    const startDate = new Date(startTime);
+    const endDate = new Date(endTime);
 
 
     return(
@@ -18,7 +17,7 @@ export default function ContributionHeader({ commitOccuredAt }: { commitOccuredA
                 </div>
                 <div className="w-fit rounded-3xl bg-[#eef4ff] px-6 py-5 shadow-inner dark:bg-gray-800">
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">Reporting period</p>
-                    <p className="mt-2 text-lg font-semibold">{getDateRange(commitOccuredAt)}</p>
+                    <p className="mt-2 text-lg font-semibold">{startDate.toLocaleDateString() + " - " + endDate.toLocaleDateString()}</p>
                 </div>
             </div>
         </section>

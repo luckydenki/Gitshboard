@@ -41,6 +41,15 @@ export default function ContributionCommitActivityByRepo({ data, isLoading, isEr
             splitLine: { lineStyle: { color: "#eef0eb" } },
             axisLabel: { color: "#9ca3af" },
         },
+        dataZoom : [                // 데이터 줌 기능 
+            {   
+                type : "inside",    // inside : 마우스 휠, 터치 패드로 확대/축소 가능
+            },
+            {
+                type : "slider",    // slider : 슬라이더를 통해 확대/축소 가능
+            }
+        ],
+
         series: repositories.map((repository, index) => ({
             name: repository.repositoryName,
             type: "line",
