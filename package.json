@@ -7,7 +7,7 @@
   },
   "scripts": {
     "prepare": "node .husky/install.mjs",
-    "dev": "concurrently \"npm --prefix frontend run dev\" \"npm --prefix backend run dev\" \"npm run redis\"",
+    "dev": "npm run redis && concurrently \"npm --prefix frontend run dev\" \"npm --prefix backend run dev\"",
     "build:frontend": "npm --prefix frontend run build",
     "build:backend": "npm --prefix backend run build",
     "build": "npm run build:frontend && npm run build:backend",
