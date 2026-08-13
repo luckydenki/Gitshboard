@@ -1,5 +1,5 @@
 import { useContributeData } from "~/hooks/pages/contribute-hooks";
-import { useRef, useState } from "react";
+import {  useState } from "react";
 import ContributionHeader from "~/components/page/contribution/ContributionHeader";
 import ContributionInfoSection from "~/components/page/contribution/ContributionInfoSection";
 import ContributionCommitActivityByRepo from "~/components/page/contribution/ContributionCommitActivityByRepo";

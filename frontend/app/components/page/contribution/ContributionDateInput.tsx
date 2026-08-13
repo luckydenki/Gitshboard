@@ -8,6 +8,8 @@ import { useRef } from "react";
  * 2. from 보다 to가 더 작으면 false를 반환합니다.
  * 3. 두 날짜의 차이가 1년 이상이면 false를 반환합니다.
  * 
+ * 참고로 1년의 정의는 그냥 365일이 아닌 윤년을 고려한 1년으로 정의합니다.
+ * 
  * 
  * @param date1 
  * @param date2 
@@ -40,6 +42,8 @@ export const compareDate = (from: string, to: string): boolean => {
 
 
     const oneYearLater = new Date(from_d);
+
+    console.log("oneYearLater.getFullYear() : ", oneYearLater.getFullYear());
     oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
 
     if (to_d.getTime() > oneYearLater.getTime()) {
