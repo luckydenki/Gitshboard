@@ -1,9 +1,10 @@
 import { useContributeData } from "~/hooks/pages/contribute-hooks";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ContributionHeader from "~/components/page/contribution/ContributionHeader";
 import ContributionInfoSection from "~/components/page/contribution/ContributionInfoSection";
 import ContributionCommitActivityByRepo from "~/components/page/contribution/ContributionCommitActivityByRepo";
 import ContributionCommitTotalSection from "~/components/page/contribution/ContributionCommitTotalSection";
+import ContributionDateInput from "~/components/page/contribution/ContributionDateInput";
 
 export interface GithubCommitActivity {
     total: number;
@@ -27,14 +28,19 @@ export function EmptyChart({ message }: { message: string }) {
     );
 }
 
+
+
 export default function ContributePage() {
 
 
     let to_raw = Date.now();
     let from_raw = to_raw - (365 * 24 * 60 * 60 * 1000); // 1년간의 타임스탬프 계산
 
-    const [from, setFrom] = useState(new Date(from_raw).toISOString());
-    const [to, setTo] = useState(new Date(to_raw).toISOString());
+    const to_date = new Date(to_raw).toISOString();
+    const from_date = new Date(from_raw).toISOString();
+
+    const [from, setFrom] = useState(from_date.split("T")[0]);
+    const [to, setTo] = useState(to_date.split("T")[0]);
 
     const { data, isLoading, isError } = useContributeData(from, to);
 
@@ -44,20 +50,13 @@ export default function ContributePage() {
             <main className="mx-auto flex max-w-360 flex-col gap-8 px-6 py-10 lg:px-8">
                 <ContributionHeader startTime={from} endTime={to} />
 
-                <div className="flex gap-2 justify-end bg-white rounded-2xl p-4 [&>div]:p-1 [&>div]:border [&>div]:rounded-lg [&>div]:border-gray-300">
-                    <div><span> from :</span><input type="date" value={new Date(from).toISOString().split("T")[0]}
-                        onChange={(e) => {
-                            const newFrom = new Date(e.target.value).toISOString();
-                            setFrom(newFrom);
-                        }}
-                    /></div>
-                    <div><span> to :</span><input type="date" value={new Date(to).toISOString().split("T")[0]}
-                        onChange={(e) => {
-                            const newTo = new Date(e.target.value).toISOString();
-                            setTo(newTo);
-                        }}
-                    /></div>
-                </div>
+                <ContributionDateInput 
+                    from={from}
+                    to={to}
+                    setFromState={setFrom}
+                    setToState={setTo}
+                    />
+                    
 
                 <ContributionInfoSection
                     data = {data}
