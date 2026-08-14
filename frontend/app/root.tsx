@@ -6,6 +6,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -69,8 +71,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 //Outlet은 현재 라우트의 자식 라우트를 렌더링하는 컴포넌트.
 //루트 레벨에서는 자식 라우트를 렌더링하기 위해 Outlet을 사용함.
 export default function App() {
+
+  const [queryClient] = useState(()=>new QueryClient()); //이렇게 하면 컴포넌트가 처음 렌더링 될 때 한 번만 생성되고 이후에는 같은 인스턴스를 사용합니다.
+  
   return (
-        <Outlet />
+        <QueryClientProvider client={queryClient}>
+          <Outlet />
+        </QueryClientProvider>
 
   );
 }
