@@ -40,6 +40,7 @@ export function useSearchQuery({ name, page, per_page } : { name: string; page: 
                 }
             },
             staleTime: 1 * 20 * 1000,
+            gcTime : 1 * 60 * 1000,
             enabled: !!name, // name이 존재할 때만 쿼리 실행
         }
     );
