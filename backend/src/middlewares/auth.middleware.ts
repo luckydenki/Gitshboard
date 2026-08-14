@@ -79,6 +79,8 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
 
     const { userId, githubId } = req.decoded_token; //authToken 미들웨어에서 디코딩된 토큰 정보 사용
 
+    const redisStart = performance.now();
+    //redis 에 cache된 사용자 정보가 있는지 확인합니다.
     const cachedUser = await redisRepository.get<{ id: number, githubId: number, githubUsername: string, encryptedToken: EncryptedToken }>(`gitshboard:user:${userId}`);
 
     if(cachedUser){
@@ -98,12 +100,18 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
         };
 
         next();
+        const redisEnd = performance.now();
+
+        //이것도 파란색으로 로그 찍히게...
+        console.log("\x1b[34m%s\x1b[0m", `Redis query time: ${(redisEnd - redisStart).toFixed(2)} milliseconds`);
         return;
     }
 
     try{
         console.log("Redis miss : user not found in cache, querying database...");
         
+        const start = performance.now();
+
         const user : User | null = await userRepository.getUserById(userId);
         const encryptionKey = await userRepository.getEncryptionKeyByUserId(userId);
 
@@ -138,6 +146,13 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
             await redisRepository.set(`gitshboard:user:${userId}`, redisUser, 300);
             next(); //성공 시 다음 미들웨어로 넘어감
         }
+
+        const end = performance.now();
+
+        //파란색으로 로그 찍히게...
+        console.log("\x1b[34m%s\x1b[0m", `Database query time: ${(end - start).toFixed(2)} milliseconds`);
+        //앞의 \x1b[34m%s\x1b[0m 은 파란색으로 로그를 찍기 위한 ANSI escape code입니다.
+
 
     }catch(error){
         console.error("Error : User authentication error", error);

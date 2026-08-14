@@ -87,54 +87,39 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
     const start_time = useRef(0);
 
 
+
+    const debounceExecure = async(e : ChangeEvent<HTMLInputElement, HTMLInputElement>)=>{
+            start_time.current = 0;
+            const data = await handleSearchDebounce(e.target.value);
+            setDebounceData(data);
+    }
+
+
     const debounce = async(e : ChangeEvent<HTMLInputElement, HTMLInputElement> )=> {
         clearTimeout(c.current!);
 
+        // 데이터가 비어있거나 undefined이면 return
         if(e.target.value === "" || e.target.value === undefined){
-           //console.log("empty");
             setDebounceData(undefined)
             return;
         }
 
+        // 입력이 시작된 시간을 기록합니다. 단, 이미 기록되어 있으면 기록하지 않습니다.
         if(start_time.current === 0){
             start_time.current = Date.now();
         }
 
-        
-        
         //단, debounce가 일어나는 최소 시간도 존재해야 함. 2.5초 이상 입력이 존재하면 알아서 api 실행
         if(Date.now()-start_time.current > 2500){
-            //console.log("debounce start time : ", start_time.current);
-            //console.log("now time : ", Date.now());
-            //console.log("time difference (단위 : 초): ", (Date.now() - start_time.current) / 1000);
-
-            start_time.current = 0;
-            //clearTimeout(c);
-
-            const search = e.target.value;
-            console.log("late  debounce 실행")
-            const data = await handleSearchDebounce(search);
-            setDebounceData(data);
-            console.log("data : ", data);
+            debounceExecure(e);
             return;
 
         }
 
-
         c.current = setTimeout(async()=>{
-            start_time.current = 0;
-            const search = e.target.value;
-            console.log("debounce 실행")
-            const data = await handleSearchDebounce(search);
-            setDebounceData(data);
-            console.log("data : ", data);
+            debounceExecure(e);
         }, 1500)    //입력 종료 후 반드시 1.5초 이후에는 debounce가 실행됩니다.
 
-
-
-        
-
-        //console.log(e.currentTarget.value)
     }
 
 

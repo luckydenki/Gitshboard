@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {authToken, authUser} from '../middlewares/auth.middleware';
 import authController from '../controllers/auth.controllers';
+import { AuthRequest } from '../types/middlewares/auth';
 
 
 const auth_router = Router();
@@ -9,6 +10,14 @@ const auth_router = Router();
 auth_router.get('/health', (req, res)=>{
     res.json({ message: 'Auth route is working!' });
 })
+
+// api/auth
+// 토큰 검증과 user 객체만 가져오는 api
+auth_router.get('/', authToken, authUser, (req : AuthRequest, res) =>{
+    res.status(200).json({
+        message : "성공했습니다.",
+        user: req.user });
+});
 
 
 //  api/auth/check
