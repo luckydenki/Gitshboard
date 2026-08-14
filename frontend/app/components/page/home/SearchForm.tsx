@@ -58,26 +58,64 @@ const SearchFormCss = {
 }
 
 
+
+
+/**
+ * fetchSearchData 요구사항
+ *
+ * 1. GitHub public Search API를 우선 호출한다.
+ *
+ * 2. public API가 성공하면 데이터를 반환한다.
+ *
+ * 3. public API의 rate limit이 소진되었다면
+ *    credentials: "include"로 백엔드 인증 API를 호출한다.
+ *
+ * 4. public API가 rate limit 이외의 원인으로 실패하면
+ *    백엔드를 호출하지 않고 즉시 throw한다.
+ *
+ * 5. fallback 백엔드 요청도 실패하면 throw한다.
+ * @param urlParams 
+ * @returns 
+ */
+
+export const fetchSearchData = async(urlParams: URLSearchParams)=>{
+
+        // try{
+        //     const search_res = await fetch(`https://api.github.com/search/users?${urlParams.toString()}`,
+        //             {
+        //                 method: "GET",
+        //             })
+
+
+        //         console.log([...search_res.headers.entries()]);
+
+        //         if(search_res.ok){
+        //             const data: GithubUserSearchResponse = await search_res.json();
+        //             console.log("search res :", data);
+        //         }
+                
+        //     }catch(error){
+        //         console.error("Error : Github search failed", error);
+        //     }
+
+
+
+        // const res  = await fetch(`/api/search?${urlParams.toString()}`, {
+        //     credentials : "include"
+        // }).then(async(res)=>{
+        //     return await res.json();
+        // });
+        // return res.data;
+}
+
+
+
+
 const handleSearchDebounce = async(keyword : string, queryClient : QueryClient) =>{
-
-
     const urlParams = new URLSearchParams({
-        name : keyword,
+        q : keyword,
         per_page : "8"
     })
-
-
-    /* 일반 fetch
-    const res  = await fetch(`/api/search?${urlParams.toString()}`, {
-        credentials : "include"
-    }).then(async(res)=>{
-        return await res.json();
-    })
-    console.log("debounce res ", res);
-    const data = res.data;
-    */
-
-    console.log("debounce keyword ", keyword);
 
     // tanstack query
     //이런 일반 메서드나 컴포넌트 최상위 스코프가 아닌 위치에서는 useQuery가 아니라 fetchQuery를 사용하세용
@@ -114,7 +152,7 @@ export default function SearchForm({Customform, CustomInput, CustomButton} : {Cu
     let c = useRef<NodeJS.Timeout>(null);
     const start_time = useRef(0);
 
-    console.log("재렌더");
+    //console.log("재렌더");
 
 
     const debounceExecute = async(e : ChangeEvent<HTMLInputElement, HTMLInputElement>)=>{

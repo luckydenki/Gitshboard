@@ -23,7 +23,7 @@ class SearchController {
 
     public search = async(req : AuthRequest, res : Response)=>{
     const query = req.query;
-    const name = query.name as string;
+    const name = query.q as string;
     const page = query.page as string ?? "1";
     const per_page = query.per_page as string ?? "10"; 
     const github_token = req.user?.githubAccessToken;

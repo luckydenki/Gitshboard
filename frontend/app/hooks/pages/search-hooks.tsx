@@ -8,7 +8,6 @@ import { useNavigate } from "react-router";
 
 
 
-
 export function useSearchQuery({ name, page, per_page } : { name: string; page: number; per_page: { current: number } }){
 
     const { data, isLoading, isError } = useQuery(
@@ -23,10 +22,17 @@ export function useSearchQuery({ name, page, per_page } : { name: string; page: 
                     });
 
                     Log("params", urlParams.toString());
-
+                    
                     const res = await fetch(`/api/search?${urlParams.toString()}`, {
                         credentials: "include"
                     });
+
+
+
+
+
+
+
                     if (res.ok) {
                         const data: CommonResponse<GithubUserSearchResponse> = await res.json();
                         return data.data;
