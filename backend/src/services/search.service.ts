@@ -4,18 +4,14 @@ import searchClient from "../client/search.client";
 class SearchService {
 
 
-    public search = async(state:  'success' | 'failed', name: string, page: string = "1", per_page: string = "10")=>{
+    public search = async(state:  'success' | 'failed', name: string, page: string = "1", per_page: string = "10", github_token? : string)=>{
 
             const params = new URLSearchParams({ q : name, page : page, per_page : per_page })
         
-            let github_token : string |  undefined = undefined;
-        
             if(state == 'success'){
-                github_token = state == 'success' ? github_token : undefined;
                 console.log(state == 'success' ? "이 요청은 인증 요청입니다." : "이 요청은 비인증 요청입니다.", github_token);
             }
-        
-
+            
             try{
                 if(name === ""){
                     const errorResponse = {

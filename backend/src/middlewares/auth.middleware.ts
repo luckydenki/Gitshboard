@@ -249,6 +249,8 @@ export async function checkUser(req: AuthRequest, res: Response, next: NextFunct
                 githubAccessToken: decryptedToken
             }
 
+            console.log(decryptedToken, "복호화 테스트");
+
             req.user = userWithAccessToken; //인증된 사용자 정보를 요청 객체에 추가
             next(); //성공 시 다음 미들웨어로 넘어감
         }

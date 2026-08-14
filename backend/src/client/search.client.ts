@@ -31,14 +31,21 @@ class SearchClient {
 
         try{
             const params = new URLSearchParams({ q: name, page: page.toString(), per_page: per_page.toString() });
+            
+            console.log("github_token : ", github_token);
+            
             const search_res = await fetch(`https://api.github.com/search/users?${params.toString()}`,
                 {
                     method: "GET",
                     headers: {
-                        'Authorization': `${github_token ? `token ${github_token}` : undefined}`
+                        'Authorization':`Bearer ${github_token}`,
+                        'Accept' : 'application/vnd.github+json'
                     }
                 });
 
+
+          
+            console.log([...search_res.headers.entries()]);
 
 
             if (search_res.ok) {
