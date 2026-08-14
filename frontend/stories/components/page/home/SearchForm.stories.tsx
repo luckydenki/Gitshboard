@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState, type ReactNode } from "react";
 import { MemoryRouter, useLocation } from "react-router";
 import { expect, fn, userEvent } from "storybook/test";
 
@@ -39,6 +41,28 @@ const LocationDisplay = () => {
   );
 };
 
+const SearchFormStoryProviders = ({ children }: { children: ReactNode }) => {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+          },
+        },
+      }),
+  );
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        {children}
+        <LocationDisplay />
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
+};
+
 const meta = {
   title: "Components/Page/Home/SearchForm",
   component: SearchForm,
@@ -47,10 +71,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <MemoryRouter>
+      <SearchFormStoryProviders>
         <Story />
-        <LocationDisplay />
-      </MemoryRouter>
+      </SearchFormStoryProviders>
     ),
   ],
 } satisfies Meta<typeof SearchForm>;
