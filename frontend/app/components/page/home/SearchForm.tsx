@@ -78,34 +78,55 @@ const SearchFormCss = {
  * @returns 
  */
 
-export const fetchSearchData = async(urlParams: URLSearchParams)=>{
+export const fetchSearchData = async(urlParams: URLSearchParams) : Promise<GithubUserSearchResponse> =>{
 
-        // try{
-        //     const search_res = await fetch(`https://api.github.com/search/users?${urlParams.toString()}`,
-        //             {
-        //                 method: "GET",
-        //             })
-
-
-        //         console.log([...search_res.headers.entries()]);
-
-        //         if(search_res.ok){
-        //             const data: GithubUserSearchResponse = await search_res.json();
-        //             console.log("search res :", data);
-        //         }
-                
-        //     }catch(error){
-        //         console.error("Error : Github search failed", error);
-        //     }
+         try{
+            // 1. 우선 public Search API를 호출한다.
+            const search_res = await fetch(`https://api.github.com/search/users?${urlParams.toString()}`,
+                     {
+                        method: "GET",
+                     })
 
 
+            //console.log([...search_res.headers.entries()]);
+            // 정상 응답이면 그냥 그 데이터 반환함.
+            if(search_res.ok){
+                const data = await search_res.json();
+                console.log("search res :", data);
+                return data;
+            }
 
-        // const res  = await fetch(`/api/search?${urlParams.toString()}`, {
-        //     credentials : "include"
-        // }).then(async(res)=>{
-        //     return await res.json();
-        // });
-        // return res.data;
+            // public API가 rate limit 소진 이유로 api가 실패한게 아니라면 그 즉시 에러를 반환한다.
+            else if(!search_res.ok && search_res.status !== 429 && search_res.status !== 403){
+                throw new Error("검색 api에 문제가 발생했습니다. " + search_res.status);
+            }
+
+
+            //인증 사용자도 아니면서 public API rate limit이 소진되었다면, 그대로 throw이고
+            //인증 사용자라면 그 토큰을 이용해 백엔드 Search API를 호출한다.
+            const search_auth_res  = await fetch(`/api/search?${urlParams.toString()}`, {
+                credentials : "include"
+            })
+
+            if(search_auth_res.ok){
+                const json = await search_auth_res.json();
+                console.log("search auth res :", json);
+                return json.data;
+            }
+            else if(search_auth_res.status === 429 || search_auth_res.status === 403){
+                throw new Error("모든 API rate limit 이 소진되었습니다. 1분뒤에 다시 시도해주세요.");
+            }
+            else{
+                throw new Error("백엔드 인증 API에 문제가 발생했습니다. " + search_auth_res.status);
+            }
+
+        }
+         catch(error){
+             console.error("Error : Github search failed", error);
+             throw error; // re-throw the error to propagate it to the caller
+        }
+
+
 }
 
 
@@ -122,12 +143,9 @@ const handleSearchDebounce = async(keyword : string, queryClient : QueryClient) 
         const data = await queryClient.fetchQuery<GithubUserSearchResponse>({
             queryKey : ["search", keyword],
             queryFn : async()=>{
-                const res  = await fetch(`/api/search?${urlParams.toString()}`, {
-                    credentials : "include"
-                }).then(async(res)=>{
-                    return await res.json();
-                });
-                return res.data;
+
+                const res = await fetchSearchData(urlParams);
+                return res;
             },
             staleTime : 1000 * 60 * 0.5, //30초
             gcTime : 1000 * 60 * 2, //2분

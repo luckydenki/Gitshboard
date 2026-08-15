@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import {authToken, authUser} from '../middlewares/auth.middleware';
 import authController from '../controllers/auth.controllers';
-import { AuthRequest } from '../types/middlewares/auth';
+import { AuthRequest, UserWithAccessToken } from '../types/middlewares/auth';
+import { CommonResponse } from '../types/middlewares/common';
 
 
 const auth_router = Router();
@@ -14,9 +15,14 @@ auth_router.get('/health', (req, res)=>{
 // api/auth
 // 토큰 검증과 user 객체만 가져오는 api
 auth_router.get('/', authToken, authUser, (req : AuthRequest, res) =>{
-    res.status(200).json({
-        message : "성공했습니다.",
-        user: req.user });
+    
+    const response : CommonResponse<UserWithAccessToken> = {
+        success: true,
+        status: 200,
+        data: req.user,
+    }
+
+    res.status(200).json(response);
 });
 
 

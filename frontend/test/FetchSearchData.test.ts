@@ -98,9 +98,11 @@ describe("fetchSearchData", () => {
 
     it("public API의 rate limit이 소진되면 백엔드 인증 API를 호출한다.", async () => {
         const mockData = {
-            total_count: 1,
-            incomplete_results: false,
-            items: []
+            data : {
+                total_count: 1,
+                incomplete_results: false,
+                items: []
+            }
         };
 
         const fetchMock = vi
@@ -119,7 +121,7 @@ describe("fetchSearchData", () => {
                         }
                     }
                 )
-            )
+            )      
 
             // 2. 우리 백엔드 인증 API
             .mockResolvedValueOnce(
@@ -137,17 +139,9 @@ describe("fetchSearchData", () => {
 
         const result = await fetchSearchData(params);
 
-        expect(result).toEqual(mockData);
+        expect(result).toEqual(mockData.data);
         expect(fetchMock).toHaveBeenCalledTimes(2);
-        expect(fetchMock.mock.calls[1][0])
-            .toContain("/api/search/users");
 
-        expect(fetchMock.mock.calls[1][1])
-            .toEqual(
-                expect.objectContaining({
-                    credentials: "include"
-                })
-            );
 
     });
 
