@@ -7,21 +7,26 @@ import { expect, fn, userEvent } from "storybook/test";
 import SearchForm from "../../../../app/components/page/home/SearchForm";
 
 const autocompleteResponse = {
-  data: {
-    items: [
-      {
-        login: "octocat",
-        avatar_url:
-          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
-      },
-    ],
-  },
+  total_count: 1,
+  incomplete_results: false,
+  items: [
+    {
+      login: "octocat",
+      id: 1,
+      avatar_url:
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
+      html_url: "https://github.com/octocat",
+      type: "User",
+    },
+  ],
 };
 
 const mockAutocompleteRequest = () => {
   const originalFetch = globalThis.fetch;
 
   globalThis.fetch = fn(async () => ({
+    ok: true,
+    status: 200,
     json: async () => autocompleteResponse,
   })) as unknown as typeof fetch;
 
