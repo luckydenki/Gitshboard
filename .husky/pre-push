@@ -34,18 +34,41 @@ read answer </dev/tty
 case "$answer" in
   y|Y)
     echo "codex 문서 생성을 실행합니다..."
-    codex exec "해당 브랜치가 생성된 이후부터 변경된 파일들을 커밋기록을 통해 확인하고, 어떤 작업을 했는지 최대한 전부 파악하고, 요약하여 dev/log/[yymmdd]_push.md 에 작성해주세요. 이미 있다면 이어서 작성하세요"
+    codex exec "해당 브랜치가 생성된 이후부터 변경된 파일들을 커밋기록을 통해 확인하고, 어떤 작업을 했는지 자세히 파악하여 dev/log/[yymmdd]_push.md 에 요약해 작성해주세요. 이미 있다면 이어서 작성하세요"
     echo "codex 문서 생성을 완료했습니다."
     echo "push를 진행합니다."
     ;;
   n|N)
-    echo "codex 문서 생성을 건너뛰고 푸쉬를 진행합니다."
+    echo "codex 문서 생성을 건너뜁니다."
     ;;
   *)
     echo "y 또는 n만 입력해주세요. 푸쉬를 중단합니다."
     exit 1
     ;;
 esac
+
+
+# pr 곧바로 생성할 생각이 있는지 확인
+
+printf "pr 문서 생성을 실행할까요? (y/n): "
+read answer </dev/tty
+
+case "$answer" in
+  y|Y)
+    echo "pr 문서 생성을 실행합니다."
+    codex exec "해당 브랜치에서 수행한 내용을 확인하여 pr 문서를 작성하세요. pr 문서는 .github/workflows/pr-body.md에 작성하세요. 이미 있다면 무시하고 바로 종료하세요."
+    git commit -m "pr 문서 작성" --no-verify
+    echo "pr 문서 생성을 완료했습니다. push를 진행합니다."
+    ;;
+  n|N)
+    echo "pr 생성을 건너뛰고 푸쉬합니다."
+    ;;
+  *)
+    echo "y 또는 n만 입력해주세요. 푸쉬를 중단합니다."
+    exit 1
+    ;;
+esac
+
 
 
 exit 0
