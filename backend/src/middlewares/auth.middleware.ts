@@ -7,6 +7,7 @@ import { prisma } from '../app';
 import { EncryptedToken, getDecryptToken} from '../utils/encrypt';
 import userRepository from '../repository/user.repository';
 import redisRepository from '../repository/redis.repository';
+import { CommonErrorResponse } from '../types/middlewares/common';
 
 /**
  * JWT 토큰을 검증하여 인증된 사용자임을 확인하는 미들웨어
@@ -21,12 +22,18 @@ import redisRepository from '../repository/redis.repository';
  */
 export function authToken(req : AuthRequest , res : Response, next : NextFunction){
     const token = req.cookies.app_token;
-    
-    if(!token){
-        return res.status(401).json({ error : '인증 토큰이 없습니다.' });
-    }
+    try {
+        if(!token){
+            const errorResponse: CommonErrorResponse = {
+                status: 401,
+                type: 'Unauthorized',
+                title: 'Unauthorized',
+                detail: '인증 토큰이 없습니다.'
+            }
 
-    try{
+            throw errorResponse;
+        }
+
         const startTime = performance.now();
         const decoded_token = jwt.verify(token, process.env.JWT_SECRET!);
         const { userId, githubId } = decoded_token as { userId : number, githubId : number };        
@@ -36,9 +43,23 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
 
         next();
     }
-    catch(error){
+    catch(error : any){
         console.error("Error : Token verification error", error);
-        return res.status(401).json({ error : '유효하지 않은 토큰입니다.' });
+
+        if(error instanceof Error){
+            const errorResponse: CommonErrorResponse = {
+                status: 401,
+                title: 'Unauthorized',
+                type: 'https://httpstatuses.com/401',
+                detail: '토큰이 만료되었거나 유효하지 않습니다. 다시 로그인 해주세요.'
+            }
+            return res.status(401).json(errorResponse);
+        }
+
+
+        if('status' in error){
+            return res.status(error.status).json(error);
+        }
     }
 
 }
@@ -117,11 +138,14 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
 
         const decryptToken = getDecryptToken(encryptionKey!, user!.githubId); //복호화 테스트
 
-        if(!encryptionKey){
-            return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
-        }
-        if(!user){
-            return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
+        if(!encryptionKey || !user){
+            const errorResponse : CommonErrorResponse = {
+                status : 404,
+                type : 'user not found',
+                title : 'user not found',
+                detail : '사용자를 찾는 중 오류가 발생했습니다. 사용자를 찾을 수 없습니다.'
+            }
+            throw errorResponse;
         }
 
         const userWithAccessToken :  UserWithAccessToken = {
@@ -132,7 +156,13 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
         console.log("Database query result : user", user);
 
         if(!user){
-            return res.status(404).json({ error : '사용자를 찾을 수 없습니다.' });
+            const errorResponse: CommonErrorResponse = {
+                status: 404,
+                type: 'user not found',
+                title: 'user not found',
+                detail: '사용자를 찾는 중 오류가 발생했습니다. 사용자를 찾을 수 없습니다.'
+            }
+            throw errorResponse;
         }
         else{
             req.user = userWithAccessToken; //인증된 사용자 정보를 요청 객체에 추가
@@ -154,9 +184,22 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
         //앞의 \x1b[34m%s\x1b[0m 은 파란색으로 로그를 찍기 위한 ANSI escape code입니다.
 
 
-    }catch(error){
+    }catch(error : CommonErrorResponse | any){
         console.error("Error : User authentication error", error);
-        return res.status(500).json({ error : '사용자 인증 중 오류가 발생했습니다.' });
+
+        if('status' in error){
+            return res.status(error.status).json(error);
+        }
+        else if(error instanceof Error){
+            const errorResponse : CommonErrorResponse = {
+                status : 500,
+                type : 'User authentication error',
+                title : 'User authentication error',
+                detail : error.message,
+            }
+            return res.status(500).json(errorResponse);
+
+        }
     }    
 
 }

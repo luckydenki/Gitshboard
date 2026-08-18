@@ -9,10 +9,14 @@ import { redisClient } from '../infra/redis/redisClient';
 class AuthController {
 
         public checkUser = async(req: AuthRequest, res: Response)=>{
-            res.json({ 
+            const response : CommonResponse<string> ={
                 success : true,
-                message : '인증된 사용자입니다.',
-            });
+                status : 200,
+                data : '인증된 사용자입니다.',
+
+            }
+
+            res.status(200).json(response);
         }
 
         
