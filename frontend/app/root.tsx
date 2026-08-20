@@ -12,7 +12,6 @@ import { useRef, useState } from "react";
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import type { CommonErrorResponse } from "./types/common/common";
 
 
 /**
@@ -86,7 +85,7 @@ export default function App() {
           //401 에러이면서 현재 위치가 home 화면만 아니면 됨
             if( error.status  === 401 && window.location.pathname !== "/" && !handle_401_Ref.current){
               handle_401_Ref.current = true;
-              alert("인증이 만료되었습니다. 다시 로그인 해주세요.");
+              alert("로그인 해주세요.");
               navigate("/", { replace : true });
             }
         }
