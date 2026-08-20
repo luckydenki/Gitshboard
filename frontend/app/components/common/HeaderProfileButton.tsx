@@ -1,14 +1,15 @@
-import { useRef } from "react";
-import { useNavigate } from "react-router";
-
-
+import { useQueryClient } from "@tanstack/react-query";
+import { useContext, useRef } from "react";
+import { DashboardContext } from "~/stores/dashboardContext";
 
 
 
 export default function HeaderProfileButton({ data } : { data: { login: string; avatarUrl: string } | undefined }) {
 
     const dialog  = useRef<HTMLDialogElement>(null);
-    const navigation = useNavigate();
+    const dashboardContext = useContext(DashboardContext);
+    const queryClient = useQueryClient();
+
 
     return(
         <div className="relative">
@@ -50,13 +51,22 @@ export default function HeaderProfileButton({ data } : { data: { login: string; 
                         flex flex-col p-2 gap-2 text-center
                         [&>button]:hover:bg-gray-300
                     `}>
-                    <button onClick={async() => {
-                        alert("로그아웃 되었습니다.");
-                        fetch("api/auth/logout",{
-                            method: "POST",
-                            credentials: "include"
-                        });
-                        navigation("/");
+                    <button onClick={async () => {
+
+                        try {
+                            await fetch("/api/auth/logout", {
+                                method: "POST",
+                                credentials: "include",
+                            });
+
+                            dashboardContext?.setReRender(prev => !prev);
+                            queryClient.clear();
+                            alert("로그아웃 되었습니다.");
+                            dialog.current?.close();
+
+                        } catch (error) {
+                        console.error("logout error", error);
+                        }
                     }}>Logout</button>
                 </menu>
             </dialog>
