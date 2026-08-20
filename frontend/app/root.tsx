@@ -5,12 +5,14 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigate,
 } from "react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState } from "react";
+import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import type { CommonErrorResponse } from "./types/common/common";
 
 
 /**
@@ -71,9 +73,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
 //Outlet은 현재 라우트의 자식 라우트를 렌더링하는 컴포넌트.
 //루트 레벨에서는 자식 라우트를 렌더링하기 위해 Outlet을 사용함.
 export default function App() {
+  const navigate = useNavigate();
+  const handle_401_Ref = useRef(false);
 
-  const [queryClient] = useState(()=>new QueryClient()); //이렇게 하면 컴포넌트가 처음 렌더링 될 때 한 번만 생성되고 이후에는 같은 인스턴스를 사용합니다.
+
+  const [queryClient] = useState(()=>new QueryClient({
+    queryCache : new QueryCache({
+
+      onError : (error : any)=>{
+        if('status' in error){
+
+          //401 에러이면서 현재 위치가 home 화면만 아니면 됨
+            if( error.status  === 401 && window.location.pathname !== "/" && !handle_401_Ref.current){
+              handle_401_Ref.current = true;
+              alert("인증이 만료되었습니다. 다시 로그인 해주세요.");
+              navigate("/", { replace : true });
+            }
+        }
+      }
+
+    })
+
+  })); //이렇게 하면 컴포넌트가 처음 렌더링 될 때 한 번만 생성되고 이후에는 같은 인스턴스를 사용합니다.
   
+
+
+
   return (
         <QueryClientProvider client={queryClient}>
           <Outlet />
@@ -98,7 +123,8 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       error.status === 404
         ? "The requested page could not be found."
         : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
+  } 
+  else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;
   }
