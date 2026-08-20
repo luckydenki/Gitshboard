@@ -16,7 +16,12 @@ const isAuthenticated = async (route: Route) =>
 
 async function mockDashboardApis(page: Page) {
   const unauthorized = (route: Route) =>
-    fulfillJson(route, 401, { error: "Unauthorized" });
+    fulfillJson(route, 401, {
+      status: 401,
+      type: "Unauthorized",
+      title: "Unauthorized",
+      detail: "Authentication cookie is missing.",
+    });
   const user = {
     id: 1,
     login: "e2e-user",
