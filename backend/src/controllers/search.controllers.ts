@@ -23,14 +23,15 @@ class SearchController {
 
     public search = async(req : AuthRequest, res : Response)=>{
     const query = req.query;
-    const name = query.name as string;
+    const name = query.q as string;
     const page = query.page as string ?? "1";
     const per_page = query.per_page as string ?? "10"; 
-
+    const github_token = req.user?.githubAccessToken;
+    console.log("searchController search() called with params : ", {name, page, per_page});
 
     try {
 
-        const search_res = await searchService.search(req.state!, name, page, per_page)
+        const search_res = await searchService.search(req.state!, name, page, per_page, github_token);
 
         if(name === ""){
             throw {

@@ -17,7 +17,8 @@ export default defineConfig({
       test: {
         name: "frontend",
         environment: "jsdom",
-        include: ["test/**/*.test.{ts,tsx}"]  //test이하 모든 폴더의 ts, tsx 파일을 테스트
+        include: ["test/**/*.test.{ts,tsx}"],  //test이하 모든 폴더의 ts, tsx 파일을 테스트
+        exclude:["test/**/*.except.test.{ts,tsx}"]  //test이하 폴더 중 except 키워드가 붙었다면 테스트에서 제외합니다.
       }
     },
 

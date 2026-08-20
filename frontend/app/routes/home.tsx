@@ -1,12 +1,10 @@
-import { useEffect} from "react";
-import { useNavigate } from "react-router";
+import { Navigate } from "react-router";
 import type { Route } from "./+types/home";
-
-import { isLocal} from '~/utils/log_system/log';
 import TitleLogo from "~/components/design/TitleLogo";
 import useAuthCheck from "~/hooks/useAuthCheck";
 import SearchForm from "~/components/page/home/SearchForm";
 import LoginButton from "~/components/page/home/LoginButton";
+
 
 
 export function meta({}: Route.MetaArgs) {
@@ -21,29 +19,17 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const ID =  import.meta.env.VITE_GITHUB_CLIENT_ID;
   const URL = import.meta.env.VITE_GITHUB_CALLBACK_URL;
-  const navigate = useNavigate();
   
-  const { loginCheckState } = useAuthCheck();
+  const { data, isError } = useAuthCheck("home");
 
-  console.log("isLocal:", isLocal(), "login check", loginCheckState);
-
-  useEffect(()=>{
-    if(loginCheckState){
-      navigate("/dashboard");
-    }
-  },[loginCheckState, navigate])
- 
+  //console.log("home auth check" , data, isLoading, isError, error);
   // console.log("Login Check State:", loginCheckState);
 
-  if(loginCheckState === null){
-    console.log("locing check")
-    return null;
-  }
+  if(!isError && data && data.success){
 
-  if(loginCheckState === true){
-    return(
-        <div className="w-screen h-screen bg-gray-300"></div>
-    )
+    return <Navigate to="/dashboard" replace={true} />
+    // navigate()는 컴포넌트가 렌더링된 후에만 호출되므로, 
+    // 조건부 렌더링을 통해 리다이렉션을 처리하는 것이 더 안전합니다。
   }
 
   return (
@@ -56,7 +42,7 @@ export default function Home() {
 
         <section className="flex w-full flex-col items-center gap-4 text-center">
           <SearchForm/>
-          {loginCheckState === false || loginCheckState === null ? (
+          {(!data || data.success == false) ? (
             <LoginButton ID={ID} URL={URL} />
           ): 
             <div className="h-32 w-32 rounded-full bg-white/80 p-6 shadow-[0_22px_60px_rgba(15,23,42,0.10)] dark:bg-white/10">

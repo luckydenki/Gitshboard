@@ -12,19 +12,25 @@ export default function ProfileButton(){
 
     const { data, error, isLoading, isError} = useQuery(
         {
-            queryKey: ["headerUserData"], 
+            queryKey: ["userheader"], 
             queryFn: async() =>{
-                
-                const res = await fetch("/api/users/userheader",{
-                    credentials : "include",
-                })
-                
-                if(res.ok){
-                     const res_data = await res.json() as CommonResponse<UserDataState>;
-                     return  res_data.data;
-                }
+                try {
+                    const res = await fetch("/api/users/userheader",{
+                        credentials : "include",
+                    });
 
-                throw new Error()
+                    if(res.ok){
+                         const res_data = await res.json() as CommonResponse<UserDataState>;
+                         return  res_data.data;
+                    }
+                    else{
+                        throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                    }
+                    
+                } catch (error) {
+                    console.error("ProfileButton queryFn error:", error);
+                    throw error;
+                }
             },
             staleTime : 5 * 60 * 1000, //5분,
             retry : (failureCount, error)=>{

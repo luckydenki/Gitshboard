@@ -19,7 +19,12 @@ const success = <T>(data: T) => ({ success: true, status: 200, data });
 
 async function mockStatPageApis(page: Page) {
   const unauthorized = (route: Route) =>
-    fulfillJson(route, 401, { error: "Unauthorized" });
+    fulfillJson(route, 401, {
+      status: 401,
+      type: "Unauthorized",
+      title: "Unauthorized",
+      detail: "Authentication cookie is missing.",
+    });
   const protectedRoute = (body: unknown) => async (route: Route) => {
     if (!(await isAuthenticated(route))) {
       return unauthorized(route);
@@ -87,10 +92,6 @@ test.describe("/statpage 직접 접근", () => {
   });
 
   test("인증 쿠키가 없으면 홈으로 이동한다", async ({ page }) => {
-    test.fail(
-      true,
-      "StatPage currently remains on /statpage after protected API requests return 401.",
-    );
     await mockStatPageApis(page);
 
     await page.goto("/");

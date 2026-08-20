@@ -1,25 +1,32 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState, type ReactNode } from "react";
 import { MemoryRouter, useLocation } from "react-router";
 import { expect, fn, userEvent } from "storybook/test";
 
 import SearchForm from "../../../../app/components/page/home/SearchForm";
 
 const autocompleteResponse = {
-  data: {
-    items: [
-      {
-        login: "octocat",
-        avatar_url:
-          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
-      },
-    ],
-  },
+  total_count: 1,
+  incomplete_results: false,
+  items: [
+    {
+      login: "octocat",
+      id: 1,
+      avatar_url:
+        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
+      html_url: "https://github.com/octocat",
+      type: "User",
+    },
+  ],
 };
 
 const mockAutocompleteRequest = () => {
   const originalFetch = globalThis.fetch;
 
   globalThis.fetch = fn(async () => ({
+    ok: true,
+    status: 200,
     json: async () => autocompleteResponse,
   })) as unknown as typeof fetch;
 
@@ -39,6 +46,28 @@ const LocationDisplay = () => {
   );
 };
 
+const SearchFormStoryProviders = ({ children }: { children: ReactNode }) => {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+          },
+        },
+      }),
+  );
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        {children}
+        <LocationDisplay />
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
+};
+
 const meta = {
   title: "Components/Page/Home/SearchForm",
   component: SearchForm,
@@ -47,10 +76,9 @@ const meta = {
   },
   decorators: [
     (Story) => (
-      <MemoryRouter>
+      <SearchFormStoryProviders>
         <Story />
-        <LocationDisplay />
-      </MemoryRouter>
+      </SearchFormStoryProviders>
     ),
   ],
 } satisfies Meta<typeof SearchForm>;

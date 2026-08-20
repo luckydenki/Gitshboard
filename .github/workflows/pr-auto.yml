@@ -1,0 +1,45 @@
+name : PR-auto
+
+on:
+    push:
+        branches:
+            - feat-*
+            - fix-*
+            - refactor-*
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+    create-pr:
+        runs-on: ubuntu-latest
+        steps:
+            # 저장소 파일과 Git 정보를 러너에 내려받습니다.
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Create Pull Request
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GH_REPO: ${{ github.repository }}
+                HEAD_BRANCH: ${{ github.ref_name }}
+              run: |
+                PR_COUNT=$(gh pr list \
+                  --repo "$GH_REPO" \
+                  --head "$HEAD_BRANCH" \
+                  --base master \
+                  --state open \
+                  --json number \
+                  --jq 'length')
+
+                if [ "$PR_COUNT" -eq 0 ]; then
+                  gh pr create \
+                    --repo "$GH_REPO" \
+                    --base master \
+                    --head "$HEAD_BRANCH" \
+                    --title "[$HEAD_BRANCH] 자동 PR 생성" \
+                    --body-file ".github/workflows/pr-body.md"
+                else
+                  echo "PR already exists."
+                fi

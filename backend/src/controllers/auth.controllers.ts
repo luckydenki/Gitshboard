@@ -4,18 +4,23 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../types/middlewares/auth';
 import authService from '../services/auth.services';
 import { CommonErrorResponse, CommonResponse } from '../types/middlewares/common';
+import { redisClient } from '../infra/redis/redisClient';
 
 class AuthController {
 
         public checkUser = async(req: AuthRequest, res: Response)=>{
-            res.json({ 
+            const response : CommonResponse<string> ={
                 success : true,
-                message : '인증된 사용자입니다.',
-            });
+                status : 200,
+                data : '인증된 사용자입니다.',
+
+            }
+
+            res.status(200).json(response);
         }
 
         
-        public getGithubUser = async(req: Request, res: Response)=>{
+        public getGithubUser = async(req: Request, res: Response) => {
         //Express는 응답을 한번만 보낼 수 있음. 조심하셈
             const { code }  = req.body;
             try{
@@ -26,17 +31,6 @@ class AuthController {
                     }
 
                     const { githubUserData, user } = userData;
-                    
-
-                    //console.log("Success : Update and Insert user data To DB", user);
-            
-                    // model User{
-                    //     id Int @id @default(autoincrement())
-                    //     githubId Int @unique()
-                    //     githubUsername String
-                    //     githubAccessToken String
-                    // }
-        
                     const jwtToken = process.env.JWT_SECRET;
                     const appToken = jwt.sign(
                         {                           //payload
@@ -80,6 +74,36 @@ class AuthController {
                     detail : (error as Error).message,
                 }
 
+                res.status(500).json(errorResponse);
+            }
+        }
+
+
+        public logoutUser = async(req: AuthRequest, res: Response)=>{
+            try{
+                res.clearCookie('app_token');
+                console.log("userid ", req.user?.id);
+
+                const del = await redisClient.del(`gitshboard:user:${req.user?.id}`); // Redis에서 사용자 세션 삭제
+
+ 
+                console.log("Redis del result : ", del);
+
+                const response : CommonResponse<null> ={
+                    success : true,
+                    status : 200,
+                    data : null,
+                }
+                res.json(response);
+
+            }catch(error){
+                console.error("Error : Logout failed", error);
+                const errorResponse : CommonErrorResponse ={
+                    status : 500,
+                    type : 'Logout failed',
+                    title : 'Logout failed',
+                    detail : (error as Error).message,
+                }
                 res.status(500).json(errorResponse);
             }
         }

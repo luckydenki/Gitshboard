@@ -1,7 +1,7 @@
 import { GithubLanguageRepositoryNode, GithubRepoCommonResponse, GithubCommitTimeRepositoryNode, GithubProjectTopicsNode, ProjectLiveRateNode } from "../types/stat";
 
 
-const GithubGraphqlFetch = async(githubAccessToken: string, query: string, variables: any) =>{
+export const GithubGraphqlFetch = async(githubAccessToken: string, query: string, variables: any) =>{
 
     const github_response = await fetch('https://api.github.com/graphql', {
         method: 'POST',

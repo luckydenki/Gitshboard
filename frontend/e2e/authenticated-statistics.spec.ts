@@ -36,7 +36,12 @@ async function mockAuthenticatedApis(page: Page) {
     route.fulfill({
       status: 401,
       contentType: "application/json",
-      body: JSON.stringify({ error: "Unauthorized" }),
+      body: JSON.stringify({
+        status: 401,
+        type: "Unauthorized",
+        title: "Unauthorized",
+        detail: "Authentication cookie is missing.",
+      }),
     }),
   );
 

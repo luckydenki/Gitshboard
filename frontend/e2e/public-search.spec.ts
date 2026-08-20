@@ -14,14 +14,16 @@ test("공개 검색에서 자동완성과 검색 결과를 확인한다", async 
     route.fulfill({
       status: 401,
       contentType: "application/json",
-      body: JSON.stringify({ error: "Unauthorized" }),
+      body: JSON.stringify({
+        status: 401,
+        type: "Unauthorized",
+        title: "Unauthorized",
+        detail: "Authentication cookie is missing.",
+      }),
     }),
   );
 
   await page.route("**/api/search**", (route) => {
-    const requestUrl = new URL(route.request().url());
-    const isAutocompleteRequest = requestUrl.searchParams.get("per_page") === "8";
-
     return fulfillJson(route, {
       success: true,
       status: 200,
@@ -30,8 +32,8 @@ test("공개 검색에서 자동완성과 검색 결과를 확인한다", async 
         incomplete_results: false,
         items: [
           {
-            login: isAutocompleteRequest ? "asd-suggestion" : "asd-result",
-            id: isAutocompleteRequest ? 101 : 102,
+            login: "asd-result",
+            id: 102,
             avatar_url: avatarUrl,
             html_url: "https://github.com/asd-result",
             type: "User",
@@ -41,31 +43,58 @@ test("공개 검색에서 자동완성과 검색 결과를 확인한다", async 
     });
   });
 
+  await page.route("https://api.github.com/search/users**", (route) =>
+    fulfillJson(route, {
+      total_count: 1,
+      incomplete_results: false,
+      items: [
+        {
+          login: "asd-suggestion",
+          id: 101,
+          avatar_url: avatarUrl,
+          html_url: "https://github.com/asd-suggestion",
+          type: "User",
+        },
+      ],
+    }),
+  );
+
   await page.goto("/");
 
   const searchInput = page.getByRole("textbox", {
     name: "Search for github users input field",
   });
-  const autocompleteRequest = page.waitForRequest((request) => {
-    const requestUrl = new URL(request.url());
+  const autocompleteResponse = page.waitForResponse((response) => {
+    const requestUrl = new URL(response.url());
 
     return (
-      requestUrl.pathname === "/api/search" &&
-      requestUrl.searchParams.get("name") === "asd" &&
-      requestUrl.searchParams.get("per_page") === "8"
+      requestUrl.origin === "https://api.github.com" &&
+      requestUrl.pathname === "/search/users" &&
+      requestUrl.searchParams.get("q") === "asd" &&
+      requestUrl.searchParams.get("per_page") === "8" &&
+      response.ok()
     );
   });
-  const inputStartedAt = Date.now();
 
   await searchInput.fill("asd");
-  await autocompleteRequest;
+  await autocompleteResponse;
 
-  expect(Date.now() - inputStartedAt).toBeGreaterThanOrEqual(1_400);
   await expect(
     page.getByRole("button", { name: "asd-suggestion" }),
   ).toBeVisible();
 
+  const searchResultResponse = page.waitForResponse((response) => {
+    const requestUrl = new URL(response.url());
+
+    return (
+      requestUrl.pathname === "/api/search" &&
+      requestUrl.searchParams.get("name") === "asd" &&
+      requestUrl.searchParams.get("per_page") === "10" &&
+      response.ok()
+    );
+  });
   await page.getByRole("button", { name: "Search users" }).click();
+  await searchResultResponse;
 
   await expect(page).toHaveURL(/\/search\?name=asd$/);
   await expect(

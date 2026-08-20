@@ -1,40 +1,46 @@
-import {useEffect, useState }  from "react";
-type CommonResponse = { success: boolean; } | { error: string; }
+import { useQuery } from "@tanstack/react-query";
+import type { CommonErrorResponse, CommonResponse } from "~/types/common/common";
 
-export default function useAuthCheck(){
-    
-    const [loginCheckState, setLoginCheckState] = useState<boolean | null>(null);
 
-    
-      useEffect(()=>{
-        const checkLogin = async ()=>{
-          try{
-             const res = await fetch(`/api/auth/check`,{
-                method : 'GET',
-                credentials : 'include'
-             })
-    
-             if(res.ok){
-                const data : CommonResponse = await res.json();
-                if('success' in data && data.success){
-                  setLoginCheckState(true);
-                }
-             }
-             else{
-                  throw new Error("Unauthorized");
-             }
+
+
+/**
+ * 인증 상태인지 확인하는 훅입니다.
+ * 
+ * 
+ * @returns { data: CommonResponse<string> | undefined, isLoading: boolean, isError: boolean }
+ */
+export default function useAuthCheck(keyword?: string){
+
+    const { data, isLoading, isError, error} = useQuery<CommonResponse<string>, CommonErrorResponse>({
+      queryKey : ['auth_check', keyword],
+      queryFn : async()=>{
+        try{
+          const res = await fetch(`/api/auth/check`,{
+            method : 'GET',
+            credentials : 'include'
+          })
+
+          if(res.ok){
+            const data : CommonResponse<string> = await res.json();
+            return data;
           }
-          catch(error : unknown){
-            console.error("Error : Token verification error", error);
-            setLoginCheckState(false);
+          else{
+            const errorData : CommonErrorResponse = await res.json();
+            console.log("errorData", errorData);
+            throw errorData;
           }
-        } 
+        }
+        catch(error : CommonErrorResponse | unknown){
+          throw error;
+        }
+      },
+      staleTime : 1000 * 10, // 10초
+      retry : 1,
+    })
+
+
+    return { data, isLoading, isError, error};
     
-        checkLogin();
     
-      }, [])
-    
-      return{
-        loginCheckState,
-      }
 }
