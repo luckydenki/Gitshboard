@@ -1,0 +1,39 @@
+name: PR-auto
+
+on:
+    push:
+        branches:
+            - feat-*
+            - fix-*
+            - refactor-*
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+    create-pr:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Create Pull Request
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                PR_COUNT=$(gh pr list \
+                    --head "${{ github.ref_name }}" \
+                    --base master \
+                    --json number \
+                    --jq 'length')
+
+                if [ "$PR_COUNT" -eq 0 ]; then
+                  gh pr create \
+                      --base master \
+                      --head "${{ github.ref_name }}" \
+                      --title "[${{ github.ref_name }}] 자동 PR 생성" \
+                      --body-file ".github/workflows/pr-body.md"
+                else
+                  echo "PR already exists."
+                fi
