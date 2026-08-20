@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { HTTPCredentials } from "dench-fetch";
 import type { GithubCommitActivity } from "~/routes/contribute";
+import type { CommonErrorResponse } from "~/types/common/common";
 
 
 
@@ -15,7 +16,7 @@ export function useContributeData(from : string, to : string) {
 
 
 
-    const { data, isLoading, isError } = useQuery<GithubCommitActivity>({
+    const { data, isLoading, isError, error } = useQuery<GithubCommitActivity, CommonErrorResponse>({
         queryKey: ["contributeData", from, to],
         queryFn: async () => {
             const response = await fetch(`/api/contribute/commitActivity?${params.toString()}`, {
@@ -25,7 +26,7 @@ export function useContributeData(from : string, to : string) {
             const json = await response.json();
 
             if (!response.ok) {
-                throw new Error(json.message ?? "Unable to load commit activity");
+                throw json; // CommonErrorResponse 타입으로 내려옴
             }
 
             return json.data as GithubCommitActivity;
@@ -34,7 +35,7 @@ export function useContributeData(from : string, to : string) {
         gcTime: 10 * 60 * 1000,
     });
     
-    return { data, isLoading, isError };
+    return { data, isLoading, isError, error };
 
 
 

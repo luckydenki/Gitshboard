@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Log, ErrorLog } from "~/utils/log_system/log";
+import { Log } from "~/utils/log_system/log";
 import { useMemo, type JSX } from "react";
 import type { CommonResponse, CommonErrorResponse } from "~/types/common/common";
 import type { GithubUserSearchResponse } from "~/types/common/search";
@@ -27,22 +27,16 @@ export function useSearchQuery({ name, page, per_page } : { name: string; page: 
                         credentials: "include"
                     });
 
-
-
-
-
-
-
                     if (res.ok) {
                         const data: CommonResponse<GithubUserSearchResponse> = await res.json();
                         return data.data;
                     }
                     else {
                         const errorData: CommonErrorResponse = await res.json();
-                        throw new Error(`Error ${errorData.status}: ${errorData.title} - ${errorData.detail}`);
+                        throw errorData;
                     }
                 } catch (error) {
-                    ErrorLog("Failed to fetch search results:", error);
+                    throw error;
                 }
             },
             staleTime: 1 * 20 * 1000,
