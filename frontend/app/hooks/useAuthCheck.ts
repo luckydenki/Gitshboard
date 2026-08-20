@@ -10,10 +10,10 @@ import type { CommonErrorResponse, CommonResponse } from "~/types/common/common"
  * 
  * @returns { data: CommonResponse<string> | undefined, isLoading: boolean, isError: boolean }
  */
-export default function useAuthCheck(refetch : boolean =false){
+export default function useAuthCheck(keyword?: string){
 
     const { data, isLoading, isError, error} = useQuery<CommonResponse<string>, CommonErrorResponse>({
-      queryKey : ['auth_check'],
+      queryKey : ['auth_check', keyword],
       queryFn : async()=>{
         try{
           const res = await fetch(`/api/auth/check`,{
@@ -35,7 +35,7 @@ export default function useAuthCheck(refetch : boolean =false){
           throw error;
         }
       },
-      staleTime : 1000 * 60 * 5, // 5분
+      staleTime : 1000 * 10, // 10초
       retry : 1,
     })
 
