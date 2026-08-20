@@ -1,28 +1,20 @@
+import  {  useState } from "react";
 import { Outlet } from "react-router";
 import DashboardHeader from "./variant/DashboardHeader";
+import { DashboardContext } from "~/stores/dashboardContext";
 
-
-
-export type FloatState = "1" | "2" | "3";
 
 export default function DashboardLayout(){
+    const [reRender, setReRender] = useState(false);
 
-
+    
 
     return(
         <>
-            <DashboardHeader/>
-            <Outlet/>
-            {/* <NavFloatButton 
-                onFetchClick={(e)=>{ 
-                    const value : FloatState= e.currentTarget.value as FloatState;
-                    console.log("Fetch Button Clicked with value:", value);
-                    setFloatState(value);
-                    setResetTrigger(true); // Toggle resetTrigger to reset the timer
-                }}
-                render_time={render_time}
-                /> */}
-
+            <DashboardContext.Provider value={{ reRender, setReRender }}>
+                <DashboardHeader/>
+                <Outlet/>
+            </DashboardContext.Provider>
         </>
     )
 }
