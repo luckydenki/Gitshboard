@@ -1,7 +1,8 @@
 import Router from 'express';
 import { AuthRequest } from '../types/middlewares/auth';
 import { authToken, authUser } from '../middlewares/auth.middleware';
-import { GithubCommonResponse } from '../types/middlewares/common';
+import { CommonErrorResponse, CommonResponse, ErrorStatus, GithubCommonResponse } from '../types/middlewares/common';
+import { GithubUser } from '../client/user.client';
 
 const user_router = Router();
 
@@ -41,25 +42,41 @@ console.log("Authenticated user:", user);
         if(github_response.ok){
             const github_user = await github_response.json();
             
-            res.status(200).json({
+            const response : CommonResponse<typeof github_user> = {
+                success : true,
+                status : 200,
                 data : github_user
-            })
+            }
+            res.status(200).json(response);
         }
         else{
-            throw { status : github_response.status, message : 'GitHub API 요청 실패' };
+            const errorResponse : CommonErrorResponse = {
+                status : github_response.status as ErrorStatus,
+                title : 'GitHub API 요청 실패',
+                type : 'GitHub API Error',
+                detail : `GitHub API 요청 중 오류가 발생했습니다. 상태 코드: ${github_response.status}`,
+                instance : '/api/users'
+            }
+
+            throw errorResponse;
         }
     }
     catch(err : unknown){
-        //에러가 "객체" 형식임을 알려줘야 in 구문을 통해 속성이 존재하는 지를 확인하는 narrowing 이 가능함
-        //추가로 null은 typeof를 찍어보면 object로 나오는... 자스의 이상한 버그 때문에 체크 해줘야 함
-        if(typeof err === 'object' && err !== null && 'status' in err && 'message' in err){
-            const { status, message } = err as { status : number, message : string };
-            res.status(status).json({ error : message });
-            return;
+        let errorResponse : CommonErrorResponse;
+
+        if(err instanceof Error){
+            errorResponse = {
+                status : 500,
+                title : 'Internal Server Error',
+                type : 'Server Error',
+                detail : err.message,
+                instance : '/api/users'
+            }
         }
-        else{
-            res.status(401).json({ error : '유효하지 않은 토큰입니다.' });
-        }
+        else errorResponse = err as CommonErrorResponse;
+
+        res.status(errorResponse?.status || 500).json(errorResponse);
+
     }
 
 });
@@ -84,8 +101,8 @@ user_router.get('/userheader', authToken, authUser, async(req : AuthRequest, res
             }
         }
     `
-
-    const github_response = await fetch('https://api.github.com/graphql',{
+    try{
+        const github_response = await fetch('https://api.github.com/graphql',{
         method : 'POST',
         headers :{
             'Authorization' : `Bearer ${user.githubAccessToken}`,
@@ -99,18 +116,39 @@ user_router.get('/userheader', authToken, authUser, async(req : AuthRequest, res
         })
     })
 
-    const data  = await github_response.json();
+        const data  = await github_response.json();
 
-    const userData = ChangeResponseType<GithubCommonResponse<GithubUserResponse>>(data).data.user;
-    console.log("GitHub GraphQL API response:", data);
+        const userData = ChangeResponseType<GithubCommonResponse<GithubUserResponse>>(data).data.user;
+        console.log("GitHub GraphQL API response:", data);
 
-    if(github_response.ok){
-        res.status(200).json({
-            data : userData
-        });
-    }
-    else{
-        res.status(500).json({ error : 'GitHub API 요청 실패' });
+        if(github_response.ok){
+
+            const response : CommonResponse<typeof userData> = {
+                status : 200,
+                success : true,
+                data : userData
+            }
+
+            res.status(200).json(response);
+        }
+        else{
+
+            console.error("GitHub GraphQL API error:", github_response.status);
+
+            const errorResponse : CommonErrorResponse ={
+                status : github_response.status as ErrorStatus,
+                type : 'GitHub API Error',
+                title : 'GitHub API 요청 실패',
+                detail : data.errors?.[0]?.message || 'GitHub API 요청 중 오류가 발생했습니다.',
+                instance : '/api/users/userheader'
+            }
+
+            res.status(github_response.status).json(errorResponse);
+        }
+        }
+    catch(error){
+        console.error("Error fetching GitHub user header:", error);
+        res.status(500).json({ error: '서버 에러' });
     }
 
 })
