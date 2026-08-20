@@ -11,17 +11,20 @@ import type { CommonResponse } from "~/types/common/common";
 
 const languagesQueryFn = async()=>
         {
+            try{
             const res = await fetch(`/api/repos/languages`, {
                 credentials: 'include',
                 }).then(async(res)=>{
                 if(!res.ok){
-                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                    throw await res.json();
                 }
                 return res.json() as Promise<CommonResponse<LanguageStat[]>>;
-            })
-            console.log("languagesQueryFn res:", res.data);
-         
+            });
             return res.data;
+            } catch (error) {
+                console.error("languagesQueryFn error:", error);
+                throw error;
+            }
         }
 
 
@@ -31,7 +34,7 @@ const commitTimeQueryFn = async()=>
                 credentials: 'include',
                 }).then(async(res)=>{
                 if(!res.ok){
-                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                    throw await res.json();
                 }
                 return res.json() as Promise<CommonResponse<CommitStats>>;
             })
@@ -47,7 +50,7 @@ const projectTopicsQueryFn = async()=>
                 credentials: 'include',
                 }).then(async(res)=>{
                 if(!res.ok){
-                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                    throw await res.json();
                 }
                 return res.json() as Promise<CommonResponse<CategoryStat[]>>;
             })
@@ -60,7 +63,7 @@ const developStatsQueryFn = async()=>
                 credentials: 'include',
                 }).then(async(res)=>{
                 if(!res.ok){
-                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                    throw await res.json();
                 }
                 return res.json() as Promise<CommonResponse<DeveloperProfileStats>>;
             })
@@ -75,7 +78,7 @@ const projectLiveRateQueryFn = async()=>
                 credentials: 'include',
                 }).then(async(res)=>{
                 if(!res.ok){
-                    throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+                    throw await res.json();
                 }
                 return res.json() as Promise<CommonResponse<ProjectHealthStats>>;
             })
@@ -129,16 +132,19 @@ export function useDevelopStatsQuery(){
 export function useProjectLiveRateQuery(){
     return useQuery({
         queryKey: ["projectLiveRateData"],
-        queryFn: async () => { return await projectLiveRateQueryFn(); },
+        queryFn: async () => { 
+            try{
+                return await projectLiveRateQueryFn(); 
+            }
+            catch(error){
+                throw error;
+            }
+        },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
         retry : 1,
     });
 }   
-
-
-
-
 
 
 
@@ -153,8 +159,13 @@ export function useStatQuery(){
     const developStatsQuery = useDevelopStatsQuery();
     const projectLiveRateQuery = useProjectLiveRateQuery();
 
+
+
     const isLoading = languagesQuery.isLoading || commitTimeQuery.isLoading || projectTopicsQuery.isLoading || developStatsQuery.isLoading || projectLiveRateQuery.isLoading;
     const isError = languagesQuery.isError || commitTimeQuery.isError || projectTopicsQuery.isError || developStatsQuery.isError || projectLiveRateQuery.isError;
+
+
+
 
 
     return {

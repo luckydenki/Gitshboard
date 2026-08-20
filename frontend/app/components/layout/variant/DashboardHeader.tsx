@@ -1,11 +1,12 @@
 import { HTTPCredentials } from "dench-fetch";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import HeaderLayout from "~/components/layout/variant/HeaderLayout";
 import type { CommonResponse } from "~/types/common/common";
 import SearchForm from "~/components/page/home/SearchForm";
 import HeaderProfileButton from "~/components/common/HeaderProfileButton";
+import { DashboardContext } from "~/stores/dashboardContext";
 
 /*
     사용 페이지
@@ -35,29 +36,55 @@ function DashboardMenu({name, href, onClick} : {name: string, href:string, onCli
 
 export default function DashboardHeader(){
 
-    const { data} = useQuery(
+    const { data, isLoading, isError} = useQuery(
         {
-            queryKey: ["headerUserData"], 
+            queryKey: ["userheader"], 
             queryFn: async() =>{
-                const json = await fetch(`/api/users/userheader`,{
-                    method : 'GET',
-                    credentials : HTTPCredentials.INCLUDE,
-                }).then(async(res)=>{
-                    return await res.json() as CommonResponse<UserDataState>
-                })
-                return json.data;
+                try {
+                    const json = await fetch(`/api/users/userheader`,{
+                        method : 'GET',
+                        credentials : HTTPCredentials.INCLUDE,
+                    }).then(async(res)=>{   
+                        console.log("response", res)
+                        return await res.json() as CommonResponse<UserDataState>
+                    })
+
+                    if(json.status !== 200){
+                        console.log("not 200", json)
+                        throw json;
+                    }
+                    console.log("header ",json)
+                    return json.data;
+                } catch (error) {
+                    console.error("DashboardHeader queryFn error:", error);
+                    throw error;
+                }
             },
             staleTime : 5 * 60 * 1000, //5분,
-            retry : (failureCount, error)=>{
-                if(error.message.includes("401")){
-                    // Handle unauthorized error
-                    return false;
+            retry : (failureCount, error) => {
+
+                if('status'  in error ) {
+                    const status = error.status;
+                    if(status === 401){
+                        return false; // 401 Unauthorized는 재시도하지 않음
+                    }
                 }
 
-                return failureCount < 3;
+
+                console.log(`Retry attempt ${failureCount} due to error:`, error);
+                return failureCount < 3; // Retry up to 3 times
             }
         }
     );
+
+    const dashboardContext = useContext(DashboardContext);
+
+
+    if (!dashboardContext) {
+    throw new Error(
+        "DashboardContext must be used inside DashboardContext.Provider"
+    );
+    }
 
     
     const menus = useMemo(()=> {
@@ -73,6 +100,11 @@ export default function DashboardHeader(){
                 href={menu.link} />  )
         })
     }, []);
+
+    if(isLoading || isError){
+        return <div>Loading...</div>;
+    }
+
 
     return(
         <HeaderLayout href="/dashboard">
