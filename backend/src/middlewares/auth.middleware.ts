@@ -319,8 +319,15 @@ export async function checkUser(req: AuthRequest, res: Response, next: NextFunct
         }
 
     } catch (error) {
+        const errorResponse: CommonErrorResponse = {
+            status: 500,
+            title: 'Internal Server Error',
+            type: 'https://httpstatuses.com/500',
+            detail: '사용자 인증 중 오류가 발생했습니다 :' + JSON.stringify(error)
+        }
+
         console.error("Error : User authentication error", error);
-        return res.status(500).json({ error: '사용자 인증 중 오류가 발생했습니다.' });
+        return res.status(500).json(errorResponse);
     }
 
 }
