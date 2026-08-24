@@ -7,6 +7,7 @@ import type { CommonResponse } from "~/types/common/common";
 import SearchForm from "~/components/page/home/SearchForm";
 import HeaderProfileButton from "~/components/common/HeaderProfileButton";
 import { DashboardContext } from "~/stores/dashboardContext";
+import { commonRetry } from "~/utils/tanstackUtil";
 
 /*
     사용 페이지
@@ -60,20 +61,7 @@ export default function DashboardHeader(){
                     throw error;
                 }
             },
-            staleTime : 5 * 60 * 1000, //5분,
-            retry : (failureCount, error) => {
-
-                if('status'  in error ) {
-                    const status = error.status;
-                    if(status === 401){
-                        return false; // 401 Unauthorized는 재시도하지 않음
-                    }
-                }
-
-
-                console.log(`Retry attempt ${failureCount} due to error:`, error);
-                return failureCount < 3; // Retry up to 3 times
-            }
+            retry : commonRetry
         }
     );
 
