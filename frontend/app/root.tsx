@@ -5,14 +5,11 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useNavigate,
 } from "react-router";
-import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import {  QueryClientProvider } from "@tanstack/react-query";
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { commonRetry } from "./utils/tanstackUtil";
 import useProjectQueryClient from "./hooks/useProjectQueryClient";
 
 
