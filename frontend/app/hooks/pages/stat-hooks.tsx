@@ -7,6 +7,7 @@ import {
     type ProjectHealthStats,
 } from "~/types/page/statpage";
 import type { CommonResponse } from "~/types/common/common";
+import { commonRetry } from "~/utils/tanstackUtil";
 
 
 const languagesQueryFn = async()=>
@@ -16,7 +17,7 @@ const languagesQueryFn = async()=>
                 credentials: 'include',
                 }).then(async(res)=>{
                 if(!res.ok){
-                    throw await res.json();
+                    throw res.json();
                 }
                 return res.json() as Promise<CommonResponse<LanguageStat[]>>;
             });
@@ -34,7 +35,7 @@ const commitTimeQueryFn = async()=>
                 credentials: 'include',
                 }).then(async(res)=>{
                 if(!res.ok){
-                    throw await res.json();
+                    throw res.json();
                 }
                 return res.json() as Promise<CommonResponse<CommitStats>>;
             })
@@ -50,7 +51,7 @@ const projectTopicsQueryFn = async()=>
                 credentials: 'include',
                 }).then(async(res)=>{
                 if(!res.ok){
-                    throw await res.json();
+                    throw res.json();
                 }
                 return res.json() as Promise<CommonResponse<CategoryStat[]>>;
             })
@@ -63,7 +64,7 @@ const developStatsQueryFn = async()=>
                 credentials: 'include',
                 }).then(async(res)=>{
                 if(!res.ok){
-                    throw await res.json();
+                    throw res.json();
                 }
                 return res.json() as Promise<CommonResponse<DeveloperProfileStats>>;
             })
@@ -78,7 +79,7 @@ const projectLiveRateQueryFn = async()=>
                 credentials: 'include',
                 }).then(async(res)=>{
                 if(!res.ok){
-                    throw await res.json();
+                    throw res.json();
                 }
                 return res.json() as Promise<CommonResponse<ProjectHealthStats>>;
             })
@@ -93,17 +94,17 @@ export function useLanguagesQuery(){
         queryFn: async() => await languagesQueryFn(),
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : 1,
+        retry : commonRetry,
     });
 }
 
 export function useCommitTimeQuery(){
     return useQuery({
         queryKey: ["commitTimeData"],
-        queryFn: async () => { return await commitTimeQueryFn() },
+        queryFn: async () => await commitTimeQueryFn() ,
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : 1,
+        retry : commonRetry,
     });
 }
 
@@ -111,10 +112,10 @@ export function useCommitTimeQuery(){
 export function useProjectTopicsQuery(){
     return useQuery({
         queryKey: ["projectTopicsData"],
-        queryFn: async () => { return await projectTopicsQueryFn(); },
+        queryFn: async () => await projectTopicsQueryFn(),
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : 1,
+        retry : commonRetry,
     });
 }
 
@@ -122,27 +123,21 @@ export function useProjectTopicsQuery(){
 export function useDevelopStatsQuery(){
     return useQuery({
         queryKey: ["developStatsData"], 
-        queryFn: async () => { return await developStatsQueryFn(); },
+        queryFn: async () => await developStatsQueryFn(),
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : 1,
+        retry : commonRetry,
     });
 }
 
 export function useProjectLiveRateQuery(){
     return useQuery({
         queryKey: ["projectLiveRateData"],
-        queryFn: async () => { 
-            try{
-                return await projectLiveRateQueryFn(); 
-            }
-            catch(error){
-                throw error;
-            }
-        },
+        queryFn: async () => await projectLiveRateQueryFn(),
+
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : 1,
+        retry : commonRetry,
     });
 }   
 
