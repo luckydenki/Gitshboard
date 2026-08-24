@@ -30,9 +30,7 @@ export function useContributeData(from : string, to : string) {
 
             return json.data as GithubCommitActivity;
         },
-        staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : commonRetry
     });
     
     return { data, isLoading, isError, error };

@@ -92,9 +92,7 @@ export function useLanguagesQuery(){
     return useQuery({
         queryKey: ["languagesData"],
         queryFn: async() => await languagesQueryFn(),
-        staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : commonRetry,
     });
 }
 
@@ -102,9 +100,7 @@ export function useCommitTimeQuery(){
     return useQuery({
         queryKey: ["commitTimeData"],
         queryFn: async () => await commitTimeQueryFn() ,
-        staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : commonRetry,
     });
 }
 
@@ -113,9 +109,7 @@ export function useProjectTopicsQuery(){
     return useQuery({
         queryKey: ["projectTopicsData"],
         queryFn: async () => await projectTopicsQueryFn(),
-        staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : commonRetry,
     });
 }
 
@@ -124,9 +118,7 @@ export function useDevelopStatsQuery(){
     return useQuery({
         queryKey: ["developStatsData"], 
         queryFn: async () => await developStatsQueryFn(),
-        staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : commonRetry,
     });
 }
 
@@ -134,10 +126,7 @@ export function useProjectLiveRateQuery(){
     return useQuery({
         queryKey: ["projectLiveRateData"],
         queryFn: async () => await projectLiveRateQueryFn(),
-
-        staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : commonRetry,
     });
 }   
 

@@ -4,7 +4,6 @@ import { useMemo, type JSX } from "react";
 import type { CommonResponse, CommonErrorResponse } from "~/types/common/common";
 import type { GithubUserSearchResponse } from "~/types/common/search";
 import { useNavigate } from "react-router";
-import { commonRetry } from "~/utils/tanstackUtil";
 
 
 
@@ -40,9 +39,8 @@ export function useSearchQuery({ name, page, per_page } : { name: string; page: 
                     throw error;
                 }
             },
-            staleTime: 1 * 20 * 1000,
+            staleTime: 1 * 20 * 1000,   //  20초
             gcTime : 1 * 60 * 1000,
-            retry : commonRetry,
             enabled: !!name, // name이 존재할 때만 쿼리 실행
         }
     );
