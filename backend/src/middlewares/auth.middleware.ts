@@ -55,10 +55,17 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
             }
             return res.status(401).json(errorResponse);
         }
-
-
-        if('status' in error){
+        else if('status' in error){
             return res.status(error.status).json(error);
+        }
+        else{
+            const errorResponse: CommonErrorResponse = {
+                status: 500,
+                title: 'Internal Server Error',
+                type: 'https://httpstatuses.com/500',
+                detail: '서버 내부 오류가 발생했습니다 :' + JSON.stringify(error)
+            }
+            return res.status(500).json(errorResponse);
         }
     }
 
@@ -94,7 +101,13 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
 export async function authUser(req : AuthRequest , res : Response, next : NextFunction){
 
     if(req.decoded_token == undefined){
-        return res.status(401).json({ error : '인증 토큰이 없습니다.' });
+        const errorResponse: CommonErrorResponse = {
+            status: 401,
+            title: 'Unauthorized',
+            type: 'https://httpstatuses.com/401',
+            detail: '인증 토큰이 없습니다.'
+        }
+        return res.status(401).json(errorResponse);
     }
 
 
@@ -107,7 +120,14 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
     if(cachedUser){
         console.log("Redis hit : user", cachedUser);
         if(cachedUser.encryptedToken === null){
-            return res.status(404).json({ error : '잘못된 동작입니다.' });
+
+            const errorResponse : CommonErrorResponse = {
+                status : 404,
+                type : 'user not found',
+                title : 'user not found',
+                detail : '사용자를 찾는 중 오류가 발생했습니다. 사용자를 찾을 수 없습니다.'
+            }
+            return res.status(404).json(errorResponse);
         }
 
         const { id, githubId, githubUsername, encryptedToken } = cachedUser;
@@ -173,7 +193,7 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
                 githubUsername: user.githubUsername,
                 encryptedToken: encryptionKey
             }
-            await redisRepository.set(`gitshboard:user:${userId}`, redisUser, 300);
+            await redisRepository.set(`gitshboard:user:${userId}`, redisUser, 200);
             next(); //성공 시 다음 미들웨어로 넘어감
         }
 
