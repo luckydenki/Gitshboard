@@ -1,4 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useContext, useRef } from "react";
 import { DashboardContext } from "~/stores/dashboardContext";
 
@@ -9,6 +9,35 @@ export default function HeaderProfileButton({ data } : { data: { login: string; 
     const dialog  = useRef<HTMLDialogElement>(null);
     const dashboardContext = useContext(DashboardContext);
     const queryClient = useQueryClient();
+    const logoutMutation = useMutation({
+        mutationFn : async () => {
+            const res = await fetch("/api/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
+            const data = await res.json();
+
+            if(!res.ok) throw data;
+            return data;
+        },
+        
+        onSuccess : ()=>{
+                dashboardContext?.setReRender(prev => !prev);
+                queryClient.clear();    
+                // clear는 queryClient.invalidateQueries()와 달리 
+                // 캐시를 완전히 제거합니다. 따라서 로그아웃 후에 
+                // 캐시된 데이터를 다시 가져오게 됩니다.
+
+                alert("로그아웃 되었습니다.");
+                dialog.current?.close();
+        },
+
+        onError : (error)=>{
+            throw error;
+        }
+
+    })
 
 
     return(
@@ -51,23 +80,7 @@ export default function HeaderProfileButton({ data } : { data: { login: string; 
                         flex flex-col p-2 gap-2 text-center
                         [&>button]:hover:bg-gray-300
                     `}>
-                    <button onClick={async () => {
-
-                        try {
-                            await fetch("/api/auth/logout", {
-                                method: "POST",
-                                credentials: "include",
-                            });
-
-                            dashboardContext?.setReRender(prev => !prev);
-                            queryClient.clear();
-                            alert("로그아웃 되었습니다.");
-                            dialog.current?.close();
-
-                        } catch (error) {
-                        console.error("logout error", error);
-                        }
-                    }}>Logout</button>
+                    <button onClick={() => logoutMutation.mutate()}>Logout</button>
                 </menu>
             </dialog>
 
