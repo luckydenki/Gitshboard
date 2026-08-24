@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { commonRetry } from "../app/utils/tanstackConfig";
+import { commonRetry } from "../app/utils/tanstackUtil";
+
 
 describe("commonRetry",()=>{
 
