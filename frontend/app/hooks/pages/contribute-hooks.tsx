@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { HTTPCredentials } from "dench-fetch";
 import type { GithubCommitActivity } from "~/routes/contribute";
 import type { CommonErrorResponse } from "~/types/common/common";
+import { commonRetry } from "~/utils/tanstackUtil";
 
 
 
@@ -13,8 +14,6 @@ export function useContributeData(from : string, to : string) {
         from: new Date(from).toISOString(),
         to: new Date(to).toISOString(),
     });
-
-
 
     const { data, isLoading, isError, error } = useQuery<GithubCommitActivity, CommonErrorResponse>({
         queryKey: ["contributeData", from, to],
@@ -33,6 +32,7 @@ export function useContributeData(from : string, to : string) {
         },
         staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
+        retry : commonRetry
     });
     
     return { data, isLoading, isError, error };
