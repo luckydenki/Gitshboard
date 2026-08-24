@@ -1,24 +1,14 @@
-import { HTTPCredentials } from "dench-fetch";
 import { useContext, useMemo } from "react";
 import { Link } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 import HeaderLayout from "~/components/layout/variant/HeaderLayout";
-import type { CommonResponse } from "~/types/common/common";
+
 import SearchForm from "~/components/page/home/SearchForm";
 import HeaderProfileButton from "~/components/common/HeaderProfileButton";
 import { DashboardContext } from "~/stores/dashboardContext";
-import { commonRetry } from "~/utils/tanstackUtil";
+import useUserHeader from "~/hooks/useUserHeader";
 
-/*
-    사용 페이지
-    dashboard.tsx
-    statpage.tsx
-*/
 
-interface UserDataState{
-    login : string,
-    avatarUrl : string
-}
+
 
 function DashboardMenu({name, href, onClick} : {name: string, href:string, onClick?: ()=>void}){
 
@@ -37,40 +27,15 @@ function DashboardMenu({name, href, onClick} : {name: string, href:string, onCli
 
 export default function DashboardHeader(){
 
-    const { data, isLoading, isError} = useQuery(
-        {
-            queryKey: ["userheader"], 
-            queryFn: async() =>{
-                try {
-                    const json = await fetch(`/api/users/userheader`,{
-                        method : 'GET',
-                        credentials : HTTPCredentials.INCLUDE,
-                    }).then(async(res)=>{   
-                        console.log("response", res)
-                        return await res.json() as CommonResponse<UserDataState>
-                    })
-
-                    if(json.status !== 200){
-                        console.log("not 200", json)
-                        throw json;
-                    }
-                    console.log("header ",json)
-                    return json.data;
-                } catch (error) {
-                    console.error("DashboardHeader queryFn error:", error);
-                    throw error;
-                }
-            },
-        }
-    );
+    const { data, isLoading, isError} = useUserHeader();
 
     const dashboardContext = useContext(DashboardContext);
 
 
     if (!dashboardContext) {
-    throw new Error(
-        "DashboardContext must be used inside DashboardContext.Provider"
-    );
+        throw new Error(
+            "DashboardContext must be used inside DashboardContext.Provider"
+        );
     }
 
     
@@ -88,10 +53,13 @@ export default function DashboardHeader(){
         })
     }, []);
 
-    if(isLoading || isError){
+    if(isLoading){
         return <div>Loading...</div>;
     }
 
+    else if(isError || !data){
+        return <div>Error loading user data</div>;
+    }
 
     return(
         <HeaderLayout href="/dashboard">
