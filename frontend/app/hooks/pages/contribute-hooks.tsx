@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { HTTPCredentials } from "dench-fetch";
 import type { GithubCommitActivity } from "~/routes/contribute";
 import type { CommonErrorResponse } from "~/types/common/common";
-import { commonRetry } from "~/utils/tanstackUtil";
 
 
 

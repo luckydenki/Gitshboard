@@ -18,8 +18,8 @@ export function useDashboardData(){
                 throw json;
             }
 
-            console.log("dashboard data : ", json);
-            return json;
+            console.log("dashboard data : ", json.data);
+            return json.data;
         },
     });
 

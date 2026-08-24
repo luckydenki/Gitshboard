@@ -173,33 +173,66 @@ user_router.get('/repos', authToken, authUser, async(req : AuthRequest, res)=>{
         });
 
         console.log("GitHub API response status:", github_response.status);
-
+        
         if(github_response.ok){
             const github_repos = await github_response.json();
-            res.status(200).json({ repos : github_repos });
+            const response_data = {
+                repos : github_repos
+            }
+
+            const response : CommonResponse<typeof github_repos> = {
+                success : true,
+                status : 200,
+                data : response_data
+            }
+
+            res.status(200).json(response);
         }
         else{
-            throw { status : github_response.status, message : 'GitHub API 요청 실패' };
+            const errorResponse : CommonErrorResponse = {
+                status : github_response.status as ErrorStatus,
+                title : 'GitHub API 요청 실패',
+                type : 'GitHub API Error',
+                detail : `GitHub API 요청 중 오류가 발생했습니다. 상태 코드: ${github_response.status}`,
+                instance : '/api/users/repos'
+            }
+            throw errorResponse;
         }
     }
 
-    catch(error){
+    catch(error : any){
         //어떤 이유에 의한 에러인게 구체적으로 들어오면 항상 {status, message} 형태로 error가 옵니다.
-        if(typeof error === 'object' && error !== null && 'status' in error && 'message' in error){
-            const { status, message } = error as { status : number, message : string };
-            res.status(status).json({ error : message });
-            return;
+        if('status' in error){
+            res.status(error.status).json(error);
         }
-        else
-            res.status(500).json({ error : '서버 에러' });
+        else{
+            const errorResponse : CommonErrorResponse = {
+                status : 500,
+                title : 'Internal Server Error',
+                type : 'Server Error',
+                detail : error.message || '서버 에러',
+                instance : '/api/users/repos'
+            }
+            res.status(500).json(errorResponse);
+
+        }
+       
     }
 
 })
 
 
-
+// api/users/* (catch-all route for undefined routes)
 user_router.use((req, res) => {
-    res.status(404).json({ error: 'Not Found' });
+    const errorResponse : CommonErrorResponse = {
+        status : 404,
+        title : 'Not Found',
+        type : 'Route Not Found',
+        detail : `The requested route ${req.originalUrl} was not found on this server.`,
+        instance : req.originalUrl
+    }
+
+    res.status(404).json(errorResponse);
 });
 
 export default user_router;
