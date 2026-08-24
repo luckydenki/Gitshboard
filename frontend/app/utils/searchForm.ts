@@ -29,13 +29,18 @@ export const handleSearchDebounce = async (keyword: string, queryClient: QueryCl
         queryFn: async () => {
             const res = await fetch(`/api/search?${urlParams.toString()}`, {
                 credentials: "include"
-            }).then(async (res) => {
-                return await res.json();
             });
-            return res.data;
+
+            const json = await res.json();
+            if(!res.ok){
+                throw json;
+            }
+
+            return json.data;
         },
         staleTime: 1000 * 60 * 0.5, //30초
         gcTime: 1000 * 60 * 2, //2분
+        retry : 1
     });
     console.log("debounce res ", data);
 

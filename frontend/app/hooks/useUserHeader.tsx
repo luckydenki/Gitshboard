@@ -12,7 +12,7 @@ export interface UserDataState{
 
 export default function useUserHeader() {
 
-    const { data, isLoading, isError} = useQuery<UserDataState>({
+    const { data, isLoading, isError, error } = useQuery<UserDataState>({
         queryKey: ["userheader"], 
         queryFn: async() =>{
                 try {
@@ -39,7 +39,8 @@ export default function useUserHeader() {
     return {
         data,
         isLoading,
-        isError
+        isError,
+        error
     }
 
 
