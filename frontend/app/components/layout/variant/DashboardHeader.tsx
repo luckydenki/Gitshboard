@@ -61,7 +61,6 @@ export default function DashboardHeader(){
                     throw error;
                 }
             },
-            retry : commonRetry
         }
     );
 
