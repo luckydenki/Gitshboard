@@ -1,5 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import type { CommonErrorResponse, CommonResponse } from "~/types/common/common";
+import { commonRetry } from "~/utils/tanstackUtil";
+
+
 
 
 
@@ -36,7 +39,7 @@ export default function useAuthCheck(keyword?: string){
         }
       },
       staleTime : 1000 * 10, // 10초
-      retry : 1,
+      retry : commonRetry,
     })
 
 
