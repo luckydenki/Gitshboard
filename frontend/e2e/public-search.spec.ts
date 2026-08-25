@@ -11,15 +11,10 @@ const fulfillJson = (route: Route, body: unknown) =>
 
 test("공개 검색에서 자동완성과 검색 결과를 확인한다", async ({ page }) => {
   await page.route("**/api/auth/check", (route) =>
-    route.fulfill({
-      status: 401,
-      contentType: "application/json",
-      body: JSON.stringify({
-        status: 401,
-        type: "Unauthorized",
-        title: "Unauthorized",
-        detail: "Authentication cookie is missing.",
-      }),
+    fulfillJson(route, {
+      success: false,
+      status: 200,
+      data: null,
     }),
   );
 

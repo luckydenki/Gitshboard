@@ -37,10 +37,17 @@ async function mockStatPageApis(page: Page) {
   };
   await page.route(
     "**/api/auth/check",
-    protectedRoute({ 
-      success: true 
-    }),
+    async (route) => {
+      if (!(await isAuthenticated(route))) {
+        return fulfillJson(route, 200, {
+          success: false,
+          status : 200,
+          data : null,
+        });
+      }
+    }
   );
+
   await page.route(
     "**/api/users/userheader",
     protectedRoute(
