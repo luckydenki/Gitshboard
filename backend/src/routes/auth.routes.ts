@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import {authToken, authUser} from '../middlewares/auth.middleware';
+import {authToken, authUser, checkToken} from '../middlewares/auth.middleware';
 import authController from '../controllers/auth.controllers';
 import { AuthRequest, UserWithAccessToken } from '../types/middlewares/auth';
 import { CommonResponse } from '../types/middlewares/common';
@@ -28,7 +28,7 @@ auth_router.get('/', authToken, authUser, (req : AuthRequest, res) =>{
 
 //  api/auth/check
 // 로그인 된 사용자인지 단순 체크하는 api
-auth_router.get('/check', authToken, authUser, authController.checkUser);
+auth_router.get('/check', checkToken, authController.check);
 
 // api/auth/github
 // 깃허브 로그인 시, 깃허브에서 받은 code를 이용하여 access_token을 발급받고, 
