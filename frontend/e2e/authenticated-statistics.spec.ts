@@ -32,15 +32,18 @@ async function mockAuthenticatedApis(page: Page) {
     following: 8,
   };
 
+
+  //이제 check 계약은 토큰이 유효한지만 확인하는 api이기 때문에
+  //실패하든 성공하든 200으로 오며, success 만으로 구분지어야 합니다.
   await page.route("**/api/auth/check", (route) =>
-    route.fulfill({
-      status: 401,
+    route.fulfill({     //route.fulfill은 요청을 가로채서
+                        //응답을 직접 만들어서 반환하는 역할을 한다.
+      status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        status: 401,
-        type: "Unauthorized",
-        title: "Unauthorized",
-        detail: "Authentication cookie is missing.",
+        success: false,
+        status : 200,
+        data : null,
       }),
     }),
   );
@@ -72,22 +75,25 @@ async function mockAuthenticatedApis(page: Page) {
   );
 
   await page.route("**/api/users/repos", (route) =>
-    fulfillJson(route, {
-      repos: [
-        {
-          id: 101,
-          name: "e2e-dashboard",
-          full_name: "e2e-user/e2e-dashboard",
-          private: false,
-          html_url: "https://github.com/e2e-user/e2e-dashboard",
-          description: "Repository used by the E2E test",
-          fork: false,
-          url: "https://api.github.com/repos/e2e-user/e2e-dashboard",
-          language: "TypeScript",
-          watchers: 3,
-        },
-      ],
-    }),
+    fulfillJson(
+      route,
+      success({
+        repos: [
+          {
+            id: 101,
+            name: "e2e-dashboard",
+            full_name: "e2e-user/e2e-dashboard",
+            private: false,
+            html_url: "https://github.com/e2e-user/e2e-dashboard",
+            description: "Repository used by the E2E test",
+            fork: false,
+            url: "https://api.github.com/repos/e2e-user/e2e-dashboard",
+            language: "TypeScript",
+            watchers: 3,
+          },
+        ],
+      }),
+    ),
   );
 
   await page.route("**/api/users", (route) => fulfillJson(route, success(user)));
@@ -119,7 +125,7 @@ test("GitHub OAuth 로그인 후 대시보드와 통계 화면을 확인한다",
   await page.goto("/");
   await page.getByRole("button", { name: "Login with GitHub" }).click();
 
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(/\/dashboard$/); //
   await expect(
     page.getByRole("heading", { name: "E2E User's workspace" }),
   ).toBeVisible();

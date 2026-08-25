@@ -38,8 +38,12 @@ async function mockDashboardApis(page: Page) {
   };
 
   await page.route("**/api/auth/check", async (route) => {
-    if (!(await isAuthenticated(route))) {
-      return unauthorized(route);
+    if (!(await isAuthenticated(route))) {  // 인증 쿠키가 없는 케이스, check는 200으로 오지만 success가 false가 됨
+      return {
+        status : 200,
+        success : false,
+        data : null
+      }
     }
 
     return fulfillJson(route, 200, { success: true });
@@ -63,20 +67,24 @@ async function mockDashboardApis(page: Page) {
     }
 
     return fulfillJson(route, 200, {
-      repos: [
-        {
-          id: 101,
-          name: "e2e-dashboard",
-          full_name: "e2e-user/e2e-dashboard",
-          private: false,
-          html_url: "https://github.com/e2e-user/e2e-dashboard",
-          description: "Repository used by the E2E test",
-          fork: false,
-          url: "https://api.github.com/repos/e2e-user/e2e-dashboard",
-          language: "TypeScript",
-          watchers: 3,
-        },
-      ],
+      success: true,
+      status: 200,
+      data: {
+        repos: [
+          {
+            id: 101,
+            name: "e2e-dashboard",
+            full_name: "e2e-user/e2e-dashboard",
+            private: false,
+            html_url: "https://github.com/e2e-user/e2e-dashboard",
+            description: "Repository used by the E2E test",
+            fork: false,
+            url: "https://api.github.com/repos/e2e-user/e2e-dashboard",
+            language: "TypeScript",
+            watchers: 3,
+          },
+        ],
+      },
     });
   });
 

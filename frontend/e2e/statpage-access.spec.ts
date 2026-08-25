@@ -25,6 +25,9 @@ async function mockStatPageApis(page: Page) {
       title: "Unauthorized",
       detail: "Authentication cookie is missing.",
     });
+
+    //projectedRoute는 인증 여부를 확인하고,
+    // 인증이 되어있으면 정상 응답을, 인증이 안되어있으면 401을 반환하는 함수입니다.
   const protectedRoute = (body: unknown) => async (route: Route) => {
     if (!(await isAuthenticated(route))) {
       return unauthorized(route);
@@ -34,7 +37,9 @@ async function mockStatPageApis(page: Page) {
   };
   await page.route(
     "**/api/auth/check",
-    protectedRoute({ success: true }),
+    protectedRoute({ 
+      success: true 
+    }),
   );
   await page.route(
     "**/api/users/userheader",
