@@ -24,21 +24,15 @@ export default function useAuthCheck(keyword?: string){
             credentials : 'include'
           })
 
-          if(res.ok){
-            const data : CommonResponse<string> = await res.json();
-            return data;
-          }
-          else{
-            const errorData : CommonErrorResponse = await res.json();
-            console.log("errorData", errorData);
-            throw errorData;
-          }
+          const data : CommonResponse<string> = await res.json();
+          return data;
+          
         }
         catch(error : CommonErrorResponse | unknown){
           throw error;
         }
       },
-      staleTime : 1000 * 10, // 10초
+      staleTime : 1,
       retry : commonRetry,
     })
 

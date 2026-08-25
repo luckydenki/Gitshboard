@@ -9,7 +9,7 @@ export default function SearchHeader(){
     const ID =  import.meta.env.VITE_GITHUB_CLIENT_ID;
     const URL = import.meta.env.VITE_GITHUB_CALLBACK_URL;
     const { data, isLoading, isError, error } = useAuthCheck("dashboard");
-
+    
     return(
         <HeaderLayout href="/">
             {data && data.success ? (
