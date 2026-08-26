@@ -6,16 +6,14 @@ import ProfileButton from "./ProfileButton";
 
 
 export default function SearchHeader(){
-    const ID =  import.meta.env.VITE_GITHUB_CLIENT_ID;
-    const URL = import.meta.env.VITE_GITHUB_CALLBACK_URL;
-    const { data, isLoading, isError, error } = useAuthCheck("dashboard");
+    const { isSuccess} = useAuthCheck("dashboard");
     
     return(
         <HeaderLayout href="/">
-            {data && data.success ? (
+            {isSuccess ? (
                 <ProfileButton/>
                 ):(
-                <LoginButton ID={ID} URL={URL} mode={"Tiny"}/>
+                <LoginButton mode={"Tiny"}/>
                 )
             }
         </HeaderLayout>
