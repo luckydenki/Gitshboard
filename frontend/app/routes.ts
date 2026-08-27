@@ -7,11 +7,14 @@ export default [
             route("search","routes/search.tsx"),
     ]
     ),
-    layout("components/layout/DashboardLayout.tsx", [
-        route("dashboard", "routes/dashboard.tsx"),
-        route("statpage", "routes/statpage.tsx"),
-        route("contribute", "routes/contribute.tsx"),
+    layout("components/layout/RouteGuardLayout.tsx", [
+        layout("components/layout/DashboardLayout.tsx", [
+            route("dashboard", "routes/dashboard.tsx"),
+            route("statpage", "routes/statpage.tsx"),
+            route("contribute", "routes/contribute.tsx"),
+        ]),
     ]),
+   
     //route("testpage", "routes/testpage.tsx"),
 
     route("auth/github/callback", "routes/auth/callback.tsx"),

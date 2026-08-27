@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useContext, useRef } from "react";
-import { DashboardContext } from "~/stores/dashboardContext";
+import { useRef } from "react";
+import { useOutletContext } from "react-router";
 
 
 
 export default function HeaderProfileButton({ data } : { data: { login: string; avatarUrl: string } | undefined }) {
 
     const dialog  = useRef<HTMLDialogElement>(null);
-    const dashboardContext = useContext(DashboardContext);
+    const auth_refetch = useOutletContext<()=>void>();
     const queryClient = useQueryClient();
     const logoutMutation = useMutation({
         mutationFn : async () => {
@@ -23,7 +23,7 @@ export default function HeaderProfileButton({ data } : { data: { login: string; 
         },
         
         onSuccess : ()=>{
-                dashboardContext?.setReRender(prev => !prev);
+                auth_refetch();
                 queryClient.clear();    
                 // clear는 queryClient.invalidateQueries()와 달리 
                 // 캐시를 완전히 제거합니다. 따라서 로그아웃 후에 
@@ -59,12 +59,17 @@ export default function HeaderProfileButton({ data } : { data: { login: string; 
                     }
                 }}
             >
+                {data ? (
                     <img
-                        src={data?.avatarUrl}
+                        src={data.avatarUrl}
                         alt="avatar"
                         fetchPriority="high"
                         className="h-8 w-8 rounded-full"
                     />
+                ) : 
+                    <div className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
+                }
+
                     <span className="overflow-hidden text-sm font-medium text-gray-700 dark:text-gray-200 not-sm:hidden">{data?.login}</span>
             </button>
 
@@ -72,8 +77,6 @@ export default function HeaderProfileButton({ data } : { data: { login: string; 
                 className={`absolute left-0 top-full mt-2 w-32 
                 rounded-lg bg-white shadow-lg dark:bg-gray-900`} 
                 ref={dialog}
-     
-                
                 >
 
                 <menu className={`

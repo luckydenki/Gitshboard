@@ -1,10 +1,9 @@
-import { useContext, useMemo } from "react";
+import {  useMemo } from "react";
 import { Link } from "react-router";
 import HeaderLayout from "~/components/layout/variant/HeaderLayout";
 
 import SearchForm from "~/components/page/home/SearchForm";
 import HeaderProfileButton from "~/components/common/HeaderProfileButton";
-import { DashboardContext } from "~/stores/dashboardContext";
 import useUserHeader from "~/hooks/useUserHeader";
 
 
@@ -29,16 +28,6 @@ export default function DashboardHeader(){
 
     const { data, isLoading, isError} = useUserHeader();
 
-    const dashboardContext = useContext(DashboardContext);
-
-
-    if (!dashboardContext) {
-        throw new Error(
-            "DashboardContext must be used inside DashboardContext.Provider"
-        );
-    }
-
-    
     const menus = useMemo(()=> {
         const menuList = [
             {name : "Profile", link : "/dashboard"},
@@ -52,14 +41,6 @@ export default function DashboardHeader(){
                 href={menu.link} />  )
         })
     }, []);
-
-    if(isLoading){
-        return <div>Loading...</div>;
-    }
-
-    else if(isError || !data){
-        return <div>Error loading user data</div>;
-    }
 
     return(
         <HeaderLayout href="/dashboard">
