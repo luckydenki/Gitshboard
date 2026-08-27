@@ -17,7 +17,7 @@ export function meta({}: Route.MetaArgs) {
 
 
 export default function Home() {
-  const { isSuccess } = useAuthCheck("home");
+  const { isSuccess } = useAuthCheck();
 
 
   if(isSuccess){
