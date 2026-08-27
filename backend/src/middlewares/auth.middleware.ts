@@ -108,34 +108,34 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
 // TODO: access token은 민감 정보니 반드시 암호화 하여 저장할 것. (현재는 암호화 미구현)
 export async function authUser(req : AuthRequest , res : Response, next : NextFunction){
 
-    if(req.decoded_token == undefined){
-        const errorResponse: CommonErrorResponse = {
-            status: 401,
-            title: 'Unauthorized',
-            type: 'https://httpstatuses.com/401',
-            detail: '인증 토큰이 없습니다.'
+    try {
+        if(req.decoded_token == undefined){
+            const errorResponse: CommonErrorResponse = {
+                status: 401,
+                title: 'Unauthorized',
+                type: 'https://httpstatuses.com/401',
+                detail: '인증 토큰이 없습니다.'
+            }
+            throw new CommonError(errorResponse);
         }
-        return res.status(401).json(errorResponse);
-    }
 
 
     const { userId, githubId } = req.decoded_token; //authToken 미들웨어에서 디코딩된 토큰 정보 사용
 
-    const redisStart = performance.now();
+    //const redisStart = performance.now();
     //redis 에 cache된 사용자 정보가 있는지 확인합니다.
     const cachedUser = await redisRepository.get<{ id: number, githubId: number, githubUsername: string, encryptedToken: EncryptedToken }>(`gitshboard:user:${userId}`);
 
     if(cachedUser){
         console.log("Redis hit : user", cachedUser);
         if(cachedUser.encryptedToken === null){
-
             const errorResponse : CommonErrorResponse = {
                 status : 404,
                 type : 'user not found',
                 title : 'user not found',
                 detail : '사용자를 찾는 중 오류가 발생했습니다. 사용자를 찾을 수 없습니다.'
             }
-            return res.status(404).json(errorResponse);
+            throw new CommonError(errorResponse);
         }
 
         const { id, githubId, githubUsername, encryptedToken } = cachedUser;
@@ -149,21 +149,20 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
         };
 
         next();
-        const redisEnd = performance.now();
+        //const redisEnd = performance.now();
 
         //이것도 파란색으로 로그 찍히게...
-        console.log("\x1b[34m%s\x1b[0m", `Redis query time: ${(redisEnd - redisStart).toFixed(2)} milliseconds`);
+        //console.log("\x1b[34m%s\x1b[0m", `Redis query time: ${(redisEnd - redisStart).toFixed(2)} milliseconds`);
         return;
     }
 
-    try{
+
         console.log("Redis miss : user not found in cache, querying database...");
         
-        const start = performance.now();
+        //const start = performance.now();
 
         const user : User | null = await userRepository.getUserById(userId);
         const encryptionKey = await userRepository.getEncryptionKeyByUserId(userId);
-
         const decryptToken = getDecryptToken(encryptionKey!, user!.githubId); //복호화 테스트
 
         if(!encryptionKey || !user){
@@ -173,7 +172,7 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
                 title : 'user not found',
                 detail : '사용자를 찾는 중 오류가 발생했습니다. 사용자를 찾을 수 없습니다.'
             }
-            throw errorResponse;
+            throw new CommonError(errorResponse);
         }
 
         const userWithAccessToken :  UserWithAccessToken = {
@@ -190,7 +189,7 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
                 title: 'user not found',
                 detail: '사용자를 찾는 중 오류가 발생했습니다. 사용자를 찾을 수 없습니다.'
             }
-            throw errorResponse;
+            throw new CommonError(errorResponse);
         }
         else{
             req.user = userWithAccessToken; //인증된 사용자 정보를 요청 객체에 추가
@@ -205,28 +204,33 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
             next(); //성공 시 다음 미들웨어로 넘어감
         }
 
-        const end = performance.now();
-
+        //const end = performance.now();
         //파란색으로 로그 찍히게...
-        console.log("\x1b[34m%s\x1b[0m", `Database query time: ${(end - start).toFixed(2)} milliseconds`);
+        //console.log("\x1b[34m%s\x1b[0m", `Database query time: ${(end - start).toFixed(2)} milliseconds`);
         //앞의 \x1b[34m%s\x1b[0m 은 파란색으로 로그를 찍기 위한 ANSI escape code입니다.
-
-
-    }catch(error : CommonErrorResponse | any){
+    }catch(error : unknown){
         console.error("Error : User authentication error", error);
 
-        if('status' in error){
+        if(error instanceof CommonError){
             return res.status(error.status).json(error);
+        }
+        else if (error instanceof jwt.TokenExpiredError){
+            const errorResponse : CommonErrorResponse = {
+                status : 401,
+                title : 'Unauthorized',
+                type : 'https://httpstatuses.com/401',
+                detail: '토큰이 만료되었습니다. 다시 로그인 해주세요.'
+            }
+            return res.status(401).json(errorResponse);
         }
         else if(error instanceof Error){
             const errorResponse : CommonErrorResponse = {
                 status : 500,
-                type : 'User authentication error',
-                title : 'User authentication error',
+                type : 'https://httpstatuses.com/500',
+                title : '서버 오류',
                 detail : error.message,
             }
             return res.status(500).json(errorResponse);
-
         }
     }    
 
@@ -237,7 +241,6 @@ export async function authUser(req : AuthRequest , res : Response, next : NextFu
  * JWT 토큰을 검증하여 인증된 사용자임을 확인하는 미들웨어
  * 
  * 해당 미들웨어는 authToken과 다르게 없어도 state만 failed로 넘어갑니다.
- * 
  * 이 미들웨어는 토큰이 있거나 없을 때 모두 동작할 수 있거나 책임을 다음 미들웨어나 라우트 로직에 이관시키고 싶을 때 사용합니다.
  * 
  * @param req 
