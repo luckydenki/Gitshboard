@@ -8,12 +8,14 @@ import { EncryptedToken, getDecryptToken} from '../utils/encrypt';
 import userRepository from '../repository/user.repository';
 import redisRepository from '../repository/redis.repository';
 import { CommonErrorResponse } from '../types/middlewares/common';
+import CommonError from '../utils/common-error';
 
 /**
  * JWT 토큰을 검증하여 인증된 사용자임을 확인하는 미들웨어
+ * 성공시 Request객체에 decoded_token에 userId와 githubId를 추가하여 다음 미들웨어로 넘긴다.
  * 
  * 실패시 401을 반환하여 실패처리 한다.
- * 성공시 decoded_token에 userId와 githubId를 추가하여 다음 미들웨어로 넘긴다.
+ * 
  * 
  * @param req 
  * @param res 
@@ -30,40 +32,46 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
                 title: 'Unauthorized',
                 detail: '인증 토큰이 없습니다.'
             }
-
-            throw errorResponse;
+            throw new CommonError(errorResponse);
         }
 
-        //const startTime = performance.now();
         const decoded_token = jwt.verify(token, process.env.JWT_SECRET!);
         const { userId, githubId } = decoded_token as { userId : number, githubId : number };        
         req.decoded_token = { userId, githubId }; //디코딩된 토큰 정보를 요청 객체에 추가
-        //const endTime = performance.now();
-        //console.log("Token verification time:", (endTime - startTime).toFixed(2), "milliseconds");
+        
 
         next();
     }
-    catch(error : any){
+    catch(error){
         console.error("Error : Token verification error", error);
 
-        if(error instanceof Error){
+        if(error instanceof CommonError){
+            return res.status(error.status).json(error);
+        }
+        else if(error instanceof jwt.TokenExpiredError){
+            const errorResponse : CommonErrorResponse = {
+                status : 401,
+                title : 'Unauthorized',
+                type : 'https://httpstatuses.com/401',
+                detail: '토큰이 만료되었습니다. 다시 로그인 해주세요.'
+            }
+            return res.status(401).json(errorResponse);
+       }
+       else if(error instanceof jwt.JsonWebTokenError){
             const errorResponse: CommonErrorResponse = {
                 status: 401,
                 title: 'Unauthorized',
                 type: 'https://httpstatuses.com/401',
-                detail: '토큰이 만료되었거나 유효하지 않습니다. 다시 로그인 해주세요.'
+                detail: '토큰이 유효하지 않습니다. 다시 로그인 해주세요.'
             }
             return res.status(401).json(errorResponse);
-        }
-        else if('status' in error){
-            return res.status(error.status).json(error);
         }
         else{
             const errorResponse: CommonErrorResponse = {
                 status: 500,
                 title: 'Internal Server Error',
                 type: 'https://httpstatuses.com/500',
-                detail: '서버 내부 오류가 발생했습니다 :' + JSON.stringify(error)
+                detail: '서버 오류가 발생했습니다 :' + JSON.stringify(error)
             }
             return res.status(500).json(errorResponse);
         }
