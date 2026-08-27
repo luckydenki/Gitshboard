@@ -4,14 +4,16 @@ class CommonError extends Error implements CommonErrorResponse {
     status: ErrorStatus;
     title: string;
     type: string;
-    detail: string;
+    detail?: string;
+    instance? : string;
 
-    constructor(status: ErrorStatus, title: string, type: string, detail: string) {
+    constructor({ status, title, type, detail, instance }: CommonErrorResponse) {
         super(detail);
         this.status = status;
         this.title = title;
         this.type = type;
         this.detail = detail;
+        this.instance = instance;
     }
 }
 
