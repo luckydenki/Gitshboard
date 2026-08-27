@@ -10,7 +10,10 @@ export interface UserDataState{
 
 
 
-
+/** 
+ * 사용자 헤더 정보를 가져오는 훅입니다.
+ * 
+*/
 export default function useUserHeader() {
 
     const { data, isLoading, isError, error } = useQuery<UserDataState, CommonErrorResponse>({
