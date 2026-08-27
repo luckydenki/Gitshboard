@@ -34,12 +34,12 @@ export function authToken(req : AuthRequest , res : Response, next : NextFunctio
             throw errorResponse;
         }
 
-        const startTime = performance.now();
+        //const startTime = performance.now();
         const decoded_token = jwt.verify(token, process.env.JWT_SECRET!);
         const { userId, githubId } = decoded_token as { userId : number, githubId : number };        
         req.decoded_token = { userId, githubId }; //디코딩된 토큰 정보를 요청 객체에 추가
-        const endTime = performance.now();
-        console.log("Token verification time:", (endTime - startTime).toFixed(2), "milliseconds");
+        //const endTime = performance.now();
+        //console.log("Token verification time:", (endTime - startTime).toFixed(2), "milliseconds");
 
         next();
     }
