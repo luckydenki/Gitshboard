@@ -11,7 +11,7 @@ export default function RouteGuardLayout() {
 
     const {  isSuccess, isLoading, refetch }= useAuthCheck();
 
-    console.log("RouteGuardLayout isSuccess : ", isSuccess);
+    //console.log("RouteGuardLayout isSuccess : ", isSuccess);
 
     if(isLoading){
         return(

@@ -9,7 +9,7 @@ export default function Callback() {
 
     // Github OAuth가 리다이렉트 될 때는 URL "code"쿼리 파라미터로 인증 코드가 전달됨
     const code = searchParams.get('code');
-    Log("Received code:", code);
+    //Log("Received code:", code);
 
     useEffect(()=>{
         if(didRun.current) return;

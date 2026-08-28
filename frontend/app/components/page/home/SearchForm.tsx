@@ -92,7 +92,7 @@ export const fetchSearchData = async(urlParams: URLSearchParams) : Promise<Githu
             //console.log([...search_res.headers.entries()]);
             // 정상 응답이면 그냥 그 데이터 반환함.
             if(search_res.ok){
-                console.log("search res :", json);
+                //console.log("search res :", json);
                 return json;
             }
 
@@ -112,7 +112,7 @@ export const fetchSearchData = async(urlParams: URLSearchParams) : Promise<Githu
             json = await search_auth_res.json();
 
             if(search_auth_res.ok){
-                console.log("search auth res :", json);
+                //console.log("search auth res :", json);
                 return json.data;
             }
             else{   
@@ -149,7 +149,7 @@ const handleSearchDebounce = async(keyword : string, queryClient : QueryClient) 
             staleTime : 1000 * 60 * 0.5, //30초
             gcTime : 1000 * 60 * 2, //2분
         });
-        console.log("debounce res ", data);
+        //console.log("debounce res ", data);
 
 
         return data;
