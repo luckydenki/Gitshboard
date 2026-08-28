@@ -87,18 +87,19 @@ export const fetchSearchData = async(urlParams: URLSearchParams) : Promise<Githu
                         method: "GET",
                      })
 
+            let json = await search_res.json();
 
             //console.log([...search_res.headers.entries()]);
             // 정상 응답이면 그냥 그 데이터 반환함.
             if(search_res.ok){
-                const data = await search_res.json();
-                console.log("search res :", data);
-                return data;
+                //console.log("search res :", json);
+                return json;
             }
+
 
             // public API가 rate limit 소진 이유로 api가 실패한게 아니라면 그 즉시 에러를 반환한다.
             else if(!search_res.ok && search_res.status !== 429 && search_res.status !== 403){
-                throw new Error("검색 api에 문제가 발생했습니다. " + search_res.status);
+                throw json;
             }
 
 
@@ -108,16 +109,14 @@ export const fetchSearchData = async(urlParams: URLSearchParams) : Promise<Githu
                 credentials : "include"
             })
 
+            json = await search_auth_res.json();
+
             if(search_auth_res.ok){
-                const json = await search_auth_res.json();
-                console.log("search auth res :", json);
+                //console.log("search auth res :", json);
                 return json.data;
             }
-            else if(search_auth_res.status === 429 || search_auth_res.status === 403){
-                throw new Error("모든 API rate limit 이 소진되었습니다. 1분뒤에 다시 시도해주세요.");
-            }
-            else{
-                throw new Error("백엔드 인증 API에 문제가 발생했습니다. " + search_auth_res.status);
+            else{   
+                throw json;
             }
 
         }
@@ -150,7 +149,7 @@ const handleSearchDebounce = async(keyword : string, queryClient : QueryClient) 
             staleTime : 1000 * 60 * 0.5, //30초
             gcTime : 1000 * 60 * 2, //2분
         });
-        console.log("debounce res ", data);
+        //console.log("debounce res ", data);
 
 
         return data;

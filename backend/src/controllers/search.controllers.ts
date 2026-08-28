@@ -50,25 +50,34 @@ class SearchController {
         res.status(200).json(response);
         
 
-    }catch(error){
-        let errorResponse : CommonErrorResponse | undefined = undefined;
+    }catch(error : any){
 
         if(error instanceof Error){
             console.log("에러메세지 :" ,error.message);
-            errorResponse = {
+            const errorResponse: CommonErrorResponse = {
                 type : "",
                 title : error.name,
                 status : 500,
                 detail : error.message
             }
+            return res.status(500).json(errorResponse);
         }
-
-        res.status(500).json(
-            errorResponse
-        )
+        else if('status' in error){
+            return res.status(error.status).json(error);
+        }
+        else{
+            const errorResponse: CommonErrorResponse = {
+                type : "",
+                title : "Unknown Error",
+                status : 500,
+                detail : "An unknown error occurred. :"+ JSON.stringify(error)
+            }
+            return res.status(500).json(errorResponse);
+        }
+        }
     }
 }
-}
+
 
 
 

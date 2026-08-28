@@ -32,27 +32,34 @@ async function mockAuthenticatedApis(page: Page) {
     following: 8,
   };
 
+
+  let isAuthenticated = false;
+
+  //이제 check 계약은 토큰이 유효한지만 확인하는 api이기 때문에
+  //실패하든 성공하든 200으로 오며, success 만으로 구분지어야 합니다.
   await page.route("**/api/auth/check", (route) =>
-    route.fulfill({
-      status: 401,
-      contentType: "application/json",
-      body: JSON.stringify({
-        status: 401,
-        type: "Unauthorized",
-        title: "Unauthorized",
-        detail: "Authentication cookie is missing.",
-      }),
-    }),
+    fulfillJson(
+      route,
+      {
+        success: isAuthenticated,
+        status: 200,
+        data: isAuthenticated ? "인증된 사용자입니다." : null,
+      }
+    )
   );
 
-  await page.route("https://github.com/login/oauth/authorize**", (route) =>
+
+  await page.route("https://github.com/login/oauth/authorize**", (route) => {
     route.fulfill({
       status: 302,
       headers: {
         location: "http://127.0.0.1:5173/auth/github/callback?code=e2e-code",
       },
-    }),
-  );
+    });
+    isAuthenticated = true;
+  });
+
+
 
   await page.route("**/api/auth/github", async (route) => {
     expect(route.request().method()).toBe("POST");
@@ -72,22 +79,29 @@ async function mockAuthenticatedApis(page: Page) {
   );
 
   await page.route("**/api/users/repos", (route) =>
-    fulfillJson(route, {
-      repos: [
-        {
-          id: 101,
-          name: "e2e-dashboard",
-          full_name: "e2e-user/e2e-dashboard",
-          private: false,
-          html_url: "https://github.com/e2e-user/e2e-dashboard",
-          description: "Repository used by the E2E test",
-          fork: false,
-          url: "https://api.github.com/repos/e2e-user/e2e-dashboard",
-          language: "TypeScript",
-          watchers: 3,
-        },
-      ],
-    }),
+    fulfillJson(
+      route,
+      success({ 
+        //현재 repos 계약은 data : { repos : GithubRepository[] } 형태로 되어있습니다.
+        //근데 사실 모든 success 응답은 succes, status, data로 통일되어있음
+
+        repos: [
+          {
+            id: 101,
+            name: "e2e-dashboard",
+            full_name: "e2e-user/e2e-dashboard",
+            private: false,
+            html_url: "https://github.com/e2e-user/e2e-dashboard",
+            description: "Repository used by the E2E test",
+            fork: false,
+            url: "https://api.github.com/repos/e2e-user/e2e-dashboard",
+            language: "TypeScript",
+            watchers: 3,
+          },
+        ],
+      
+      }),
+    ),
   );
 
   await page.route("**/api/users", (route) => fulfillJson(route, success(user)));
@@ -119,7 +133,7 @@ test("GitHub OAuth 로그인 후 대시보드와 통계 화면을 확인한다",
   await page.goto("/");
   await page.getByRole("button", { name: "Login with GitHub" }).click();
 
-  await expect(page).toHaveURL(/\/dashboard$/);
+  await expect(page).toHaveURL(/\/dashboard$/); //
   await expect(
     page.getByRole("heading", { name: "E2E User's workspace" }),
   ).toBeVisible();

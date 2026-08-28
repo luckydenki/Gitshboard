@@ -6,143 +6,56 @@ import {
     type LanguageStat,
     type ProjectHealthStats,
 } from "~/types/page/statpage";
-import type { CommonResponse } from "~/types/common/common";
+import type { CommonErrorResponse, CommonResponse } from "~/types/common/common";
+import { statQueryFn } from "~/utils/statpage";
 
 
-const languagesQueryFn = async()=>
-        {
-            try{
-            const res = await fetch(`/api/repos/languages`, {
-                credentials: 'include',
-                }).then(async(res)=>{
-                if(!res.ok){
-                    throw await res.json();
-                }
-                return res.json() as Promise<CommonResponse<LanguageStat[]>>;
-            });
-            return res.data;
-            } catch (error) {
-                console.error("languagesQueryFn error:", error);
-                throw error;
-            }
-        }
-
-
-const commitTimeQueryFn = async()=>
-        {
-            const res = await fetch(`/api/repos/commitTime`, {
-                credentials: 'include',
-                }).then(async(res)=>{
-                if(!res.ok){
-                    throw await res.json();
-                }
-                return res.json() as Promise<CommonResponse<CommitStats>>;
-            })
-
-
-            return res.data;
-        }
-
-
-const projectTopicsQueryFn = async()=>
-        {   
-            const res = await fetch(`/api/repos/projectTopics`, {
-                credentials: 'include',
-                }).then(async(res)=>{
-                if(!res.ok){
-                    throw await res.json();
-                }
-                return res.json() as Promise<CommonResponse<CategoryStat[]>>;
-            })
-            return res.data;
-        }
-
-const developStatsQueryFn = async()=>
-        {
-            const res = await fetch(`/api/repos/developStats`, {
-                credentials: 'include',
-                }).then(async(res)=>{
-                if(!res.ok){
-                    throw await res.json();
-                }
-                return res.json() as Promise<CommonResponse<DeveloperProfileStats>>;
-            })
-
-            return res.data;
-        }
-
-
-const projectLiveRateQueryFn = async()=>
-        {
-            const res = await fetch(`/api/repos/projectLiveRate`, {
-                credentials: 'include',
-                }).then(async(res)=>{
-                if(!res.ok){
-                    throw await res.json();
-                }
-                return res.json() as Promise<CommonResponse<ProjectHealthStats>>;
-            })
-
-            return res.data;
-        }
+const languagesQueryFn = async() => await statQueryFn(`/api/repos/languages`);
+const commitTimeQueryFn = async()=> await statQueryFn(`/api/repos/commitTime`);
+const projectTopicsQueryFn = async()=> await statQueryFn(`/api/repos/projectTopics`);
+const developStatsQueryFn = async()=> await statQueryFn(`/api/repos/developStats`);
+const projectLiveRateQueryFn = async()=> await statQueryFn(`/api/repos/projectLiveRate`);
 
 
 export function useLanguagesQuery(){
-    return useQuery({
+    return useQuery<CommonResponse<LanguageStat[]>, CommonErrorResponse>({
         queryKey: ["languagesData"],
         queryFn: async() => await languagesQueryFn(),
-        staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
-        retry : 1,
     });
 }
 
 export function useCommitTimeQuery(){
-    return useQuery({
+    return useQuery<CommonResponse<CommitStats>, CommonErrorResponse>({
         queryKey: ["commitTimeData"],
-        queryFn: async () => { return await commitTimeQueryFn() },
-        staleTime: 5 * 60 * 1000,
+        queryFn: async () => await commitTimeQueryFn() ,
         gcTime: 10 * 60 * 1000,
-        retry : 1,
     });
 }
 
 
 export function useProjectTopicsQuery(){
-    return useQuery({
+    return useQuery<CommonResponse<CategoryStat[]>, CommonErrorResponse>({
         queryKey: ["projectTopicsData"],
-        queryFn: async () => { return await projectTopicsQueryFn(); },
-        staleTime: 5 * 60 * 1000,
+        queryFn: async () => await projectTopicsQueryFn(),
         gcTime: 10 * 60 * 1000,
-        retry : 1,
     });
 }
 
 
 export function useDevelopStatsQuery(){
-    return useQuery({
+    return useQuery<CommonResponse<DeveloperProfileStats>, CommonErrorResponse  >({
         queryKey: ["developStatsData"], 
-        queryFn: async () => { return await developStatsQueryFn(); },
-        staleTime: 5 * 60 * 1000,
+        queryFn: async () => await developStatsQueryFn(),
         gcTime: 10 * 60 * 1000,
-        retry : 1,
     });
 }
 
 export function useProjectLiveRateQuery(){
-    return useQuery({
+    return useQuery<CommonResponse<ProjectHealthStats>, CommonErrorResponse>({
         queryKey: ["projectLiveRateData"],
-        queryFn: async () => { 
-            try{
-                return await projectLiveRateQueryFn(); 
-            }
-            catch(error){
-                throw error;
-            }
-        },
-        staleTime: 5 * 60 * 1000,
+        queryFn: async () => await projectLiveRateQueryFn(),
         gcTime: 10 * 60 * 1000,
-        retry : 1,
     });
 }   
 

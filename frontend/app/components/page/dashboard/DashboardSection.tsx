@@ -1,11 +1,11 @@
-import type { GithubRepositoryResponse, GithubUser } from "~/types/GithubInfo"
+import type { GithubUser } from "~/types/GithubInfo"
 import RepositoryList from "./RepositoryList"
 import SideProfile from "./SideProfile"
 import StatCard from "./StatCard"
-import useFetchAll from "~/hooks/useFetchAll"
 import { Loading } from "../../design/Loading"
 import { useNavigate } from "react-router"
 import useErrorCallback from "~/hooks/useErrorCallback"
+import { useDashboardData } from "~/hooks/pages/dashboard-hooks"
 
 export interface DashboardSectionProps { 
     userDataState : GithubUser,
@@ -17,11 +17,7 @@ export default function DashboardSection({ userDataState }: DashboardSectionProp
 
     const navigate = useNavigate();
 
-    const { dataState, isLoading, isError} = useFetchAll<[GithubRepositoryResponse]>({
-        method :'GET',
-        credentials : 'include'
-    }
-    , 5 * 60 * 1000, "api/users/repos")
+    const { data, isLoading, isError} = useDashboardData();
     
 
      useErrorCallback(isError, ()=>{
@@ -34,8 +30,15 @@ export default function DashboardSection({ userDataState }: DashboardSectionProp
             <Loading/>
         );
     }
+    else if(isError || data === undefined){
+        return (
+            <div className="flex h-full w-full items-center justify-center">
+                <p className="text-lg font-semibold text-gray-950 dark:text-white">Error loading data. Please try again later.</p>
+            </div>
+        )
+    }
 
-    const reposDataState = dataState![0];
+    const reposDataState = data;
 
     
     return(

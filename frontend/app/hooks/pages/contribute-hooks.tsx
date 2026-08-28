@@ -14,8 +14,6 @@ export function useContributeData(from : string, to : string) {
         to: new Date(to).toISOString(),
     });
 
-
-
     const { data, isLoading, isError, error } = useQuery<GithubCommitActivity, CommonErrorResponse>({
         queryKey: ["contributeData", from, to],
         queryFn: async () => {
@@ -31,7 +29,6 @@ export function useContributeData(from : string, to : string) {
 
             return json.data as GithubCommitActivity;
         },
-        staleTime: 5 * 60 * 1000,
         gcTime: 10 * 60 * 1000,
     });
     

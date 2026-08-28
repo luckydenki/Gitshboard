@@ -57,7 +57,7 @@ case "$answer" in
   y|Y)
     echo "pr 문서 생성을 실행합니다."
     codex exec "해당 브랜치에서 수행한 내용을 확인하여 pr 문서를 작성하세요. pr 문서는 .github/workflows/pr-body.md에 작성하세요. 이미 있다면 무시하고 바로 종료하세요."
-    git add .github/workflows/pr-body.md --no-verify
+    git add .
     git commit -m "pr 문서 작성" --no-verify
     echo "pr 문서 생성을 완료했습니다. push를 진행합니다."
     ;;

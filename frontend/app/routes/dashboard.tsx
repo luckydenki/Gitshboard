@@ -26,15 +26,7 @@ export default function Dashboard(){
                 throw error;
             }
         },
-        staleTime : 1 * 60 * 1000, //1분
         gcTime : 5 * 60 * 1000, //5분
-        retry : (failureCount, error)=>{        //retry
-            if("status" in error && error.status === 401){
-                // Handle unauthorized error
-                return false;
-            }
-            return failureCount < 3;
-        }
     })
 
     

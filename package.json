@@ -1,7 +1,6 @@
 {
   "name": "React-Github",
   "devDependencies": {
-    "@playwright/test": "^1.61.1",
     "concurrently": "^10.0.4",
     "husky": "^9.1.7"
   },

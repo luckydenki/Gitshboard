@@ -31,7 +31,7 @@ class ContributionController {
             res.status(200).json(response);
 
         }
-        catch (error) {
+        catch (error : any) {
             console.error("Error in /commitActivity route:", error);
 
             if (error instanceof Error) {
@@ -44,8 +44,21 @@ class ContributionController {
                 }
                 return res.status(500).json(errorResponse);
             }
+            else if('status' in error){
+                return res.status(error.status).json(error);
+            }
 
-            return res.status(500).json(error);
+            else{
+                const errorResponse = {
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    title: "GitHub API Error",
+                    status: 500,
+                    detail: "알 수 없는 오류가 발생했습니다.",
+                    instance: "/graphql"
+                }
+                return res.status(500).json(errorResponse);
+            }
+  
         }
 
     }

@@ -11,7 +11,13 @@ class RepoController {
     public languages = async (req : AuthRequest, res : Response) => {
 
         if(!req.user){
-            return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
+            const errorResponse : CommonErrorResponse = {
+                type : "https://developer.github.com/v4",
+                title : "Unauthorized",
+                status : 401,
+                detail : "인증된 사용자 정보가 없습니다.",
+            }
+            return res.status(401).json(errorResponse);
         }
 
         const data = await repoService.getLanguages(req.user.githubId, req.user.githubUsername, req.user.githubAccessToken);
@@ -40,7 +46,13 @@ class RepoController {
     public commitTime = async (req: AuthRequest, res : Response) => {
 
         if (!req.user) {
-            return res.status(401).json({ error: '인증된 사용자 정보가 없습니다.' });
+            const errorResponse : CommonErrorResponse = {
+                type : "https://developer.github.com/v4",
+                title : "Unauthorized",
+                status : 401,
+                detail : "인증된 사용자 정보가 없습니다.",
+            }
+            return res.status(401).json(errorResponse);
         }
 
         const commitTimeData = await repoService.getCommitTime(req.user.githubId, req.user.githubUsername, req.user.githubAccessToken);
@@ -67,7 +79,13 @@ class RepoController {
 
     public projectTopics = async (req: AuthRequest, res: Response) => {
         if (!req.user) {
-            return res.status(401).json({ error: '인증된 사용자 정보가 없습니다.' });
+            const errorResponse : CommonErrorResponse = {
+                type : "https://developer.github.com/v4",
+                title : "Unauthorized",
+                status : 401,
+                detail : "인증된 사용자 정보가 없습니다.",
+            }
+            return res.status(401).json(errorResponse);
         }
 
         const projectTopicsData = await repoService.getProjectTopics(req.user.githubId, req.user.githubUsername, req.user.githubAccessToken);
@@ -95,7 +113,13 @@ class RepoController {
 
     public developStats =  async(req: AuthRequest, res : Response)=>{
         if(!req.user){
-            return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
+            const errorResponse : CommonErrorResponse = {
+                type : "https://developer.github.com/v4",
+                title : "Unauthorized",
+                status : 401,
+                detail : "인증된 사용자 정보가 없습니다.",
+            }
+            return res.status(401).json(errorResponse);
         }
         
         const developStatsData = await repoService.getDevelopStats(req.user.githubId, req.user.githubUsername, req.user.githubAccessToken);
@@ -124,7 +148,14 @@ class RepoController {
     public projectLiveRate = async(req: AuthRequest, res :  Response)=>{
 
         if(!req.user){
-            return res.status(401).json({ error : '인증된 사용자 정보가 없습니다.' });
+            const errorResponse : CommonErrorResponse = {
+                type : "https://developer.github.com/v4",
+                title : "Unauthorized",
+                status : 401,
+                detail : "인증된 사용자 정보가 없습니다.",
+            }
+
+            return res.status(401).json(errorResponse);
         }
 
         const projectLiveRateData = await repoService.getProjectLiveRate(req.user.githubId, req.user.githubUsername, req.user.githubAccessToken);

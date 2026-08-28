@@ -5,9 +5,9 @@ import type { StrictGithubOAuthParams } from "~/types/GithubOAuth";
 type LoginButtonMode = "Tiny" | "Normal"
 
 interface LoginButtonProps{
-    ID: string;
-    URL: string;
+    // ID and URL are now obtained from environment variables, so they are no longer needed as props.
     mode? : LoginButtonMode
+    disabled?: boolean;
 }
 
 
@@ -32,8 +32,9 @@ const handleOAuthLogin = (ID: string, URL: string) => {
 
 
 
-export default function LoginButton({ ID, URL, mode = "Normal" }: LoginButtonProps) {
-
+export default function LoginButton({ mode = "Normal", disabled = false }: LoginButtonProps) {
+    const ID =  import.meta.env.VITE_GITHUB_CLIENT_ID;
+    const URL = import.meta.env.VITE_GITHUB_CALLBACK_URL;
     let icon_size : number = 0;
 
     switch(mode){
@@ -53,19 +54,23 @@ export default function LoginButton({ ID, URL, mode = "Normal" }: LoginButtonPro
            <button
             type="button"
             aria-label="Login with GitHub"
+            disabled = {disabled}
+            title={ disabled ? "Service Unavailable" :"Login with GitHub"}
             className={`
                 ${mode==="Normal" ? "h-16 p-6 hover:ring-2" : "hover:ring-1 hover:ring-github-light" }
                 flex gap-3 items-center justify-center rounded-full
-                bg-white 
+                bg-white shadow-md shadow-github-light/20
                 not-sm:bg-none not-sm:p-0 not-sm:h-auto
                 hover:-translate-y-0.5 
-                active:ring-github-light 
+                active:ring-github-light
+                disabled:opacity-50 disabled:cursor-not-allowed
                 dark:bg-white
                 transition-all duration-200 
                 `}
             onClick={()=>{
             handleOAuthLogin(ID, URL);
             }}
+            
         > 
             { 
                 mode === "Normal" && (

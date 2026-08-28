@@ -1,7 +1,6 @@
 import {  useSearchParams } from "react-router"
 import "../routes/search.css";
 import { useRef, useState } from "react";
-import {Log } from "~/utils/log_system/log";
 import SearchForm from "~/components/page/home/SearchForm";
 import SearchTitle from "~/components/page/search/SearchTitle";
 import SearchCategorySelect from "~/components/page/search/SearchCategorySelect";
@@ -47,7 +46,7 @@ export default function Search() {
 
     const { PaginationButton } = useSearchPagination({data, page, per_page, name, PageButton});
 
-    Log("frontend data" ,data);
+    //Log("frontend data" ,data);
 
     if(isLoading){
         return <div>Loading...</div>
