@@ -9,8 +9,7 @@ import CommonError from "./common-error";
  * @param error 
  * @returns boolean - whether to retry the request or not
  */
-export const commonRetry = (failureCount: number, error: any) => {
-
+export const commonRetry = (failureCount: number, error : unknown) => {
     if(error instanceof CommonError && error.status >= 500 && failureCount < 3){
         return true;
     }

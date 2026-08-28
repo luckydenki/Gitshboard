@@ -1,4 +1,4 @@
-import type { GithubRepositoryResponse, GithubUser } from "~/types/GithubInfo"
+import type { GithubUser } from "~/types/GithubInfo"
 import RepositoryList from "./RepositoryList"
 import SideProfile from "./SideProfile"
 import StatCard from "./StatCard"
