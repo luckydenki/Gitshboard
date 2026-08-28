@@ -6,11 +6,11 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-import {  QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import useProjectQueryClient from "./hooks/useProjectQueryClient";
+import useManagedQueryClient from "./hooks/useManagedQueryClient";
 
 
 /**
@@ -72,7 +72,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 //루트 레벨에서는 자식 라우트를 렌더링하기 위해 Outlet을 사용함.
 export default function App() {
 
-  const queryClient = useProjectQueryClient();
+  const { queryClient } = useManagedQueryClient();
 
   return (
         <QueryClientProvider client={queryClient}>

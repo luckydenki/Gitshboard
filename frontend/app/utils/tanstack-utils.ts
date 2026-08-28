@@ -1,4 +1,25 @@
+import { QueryClient } from "@tanstack/react-query";
 import CommonError from "./common-error";
+import type { QueryKeys } from "~/types/query-key-enum";
+
+
+export class ManagedQueryClient extends QueryClient {
+
+    manageInvalidateQueries(queryKey : readonly [QueryKeys, ...unknown[]] | QueryKeys[]){
+        this.invalidateQueries({queryKey});
+    }
+
+    manageRefetchQueries(queryKey : readonly [QueryKeys, ...unknown[]] | QueryKeys[]){
+        this.refetchQueries({queryKey});
+    }
+
+    
+
+
+}
+
+
+
 
 /**
  * Tanstack query에서 공통적으로 사용하는 retry 함수입니다

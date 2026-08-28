@@ -26,7 +26,7 @@ function DashboardMenu({name, href, onClick} : {name: string, href:string, onCli
 
 export default function DashboardHeader(){
 
-    const { data, isLoading, isError} = useUserHeader();
+    const { data} = useUserHeader();
 
     const menus = useMemo(()=> {
         const menuList = [

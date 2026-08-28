@@ -1,10 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import type { CommonErrorResponse, CommonResponse } from "~/types/common/common";
+import type { CommonResponse } from "~/types/common/common";
 import CommonError from "~/utils/common-error";
 import { commonRetry } from "~/utils/tanstack-utils";
 import { useState } from "react";
 import { QueryKeys } from "~/types/query-key-enum";
-import useManageKeyQuery from "./useManageKeyQuery";
+import useManagedKeyQuery from "./useManagedKeyQuery";
 
 
 
@@ -25,7 +24,7 @@ export default function useAuthCheck(){
 
     const [_, setTrigger] = useState(false);  
 
-    const { data, isLoading, isFetching, isError, error } = useManageKeyQuery([QueryKeys.AUTH_CHECK],{
+    const { data, isLoading, isFetching, isError, error } = useManagedKeyQuery([QueryKeys.AUTH_CHECK],{
       queryFn : async()=>{
               try{
                 const res = await fetch(`/api/auth/check`,{

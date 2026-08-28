@@ -8,7 +8,11 @@ export default function HeaderProfileButton({ data } : { data: { login: string; 
 
     const dialog  = useRef<HTMLDialogElement>(null);
     const auth_refetch = useOutletContext<()=>void>();
+
     const queryClient = useQueryClient();
+    // === 은 두 객체가 동일한 인스턴스를 참조하는지 확인합니다.
+    // == 은 두 객체가 동일한 값을 가지는지 확인합니다. (참조가 다르더라도 값이 같으면 true를 반환)
+
     const logoutMutation = useMutation({
         mutationFn : async () => {
             const res = await fetch("/api/auth/logout", {
