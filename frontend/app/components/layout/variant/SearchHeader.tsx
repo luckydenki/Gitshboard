@@ -6,7 +6,7 @@ import ProfileButton from "./ProfileButton";
 
 
 export default function SearchHeader(){
-    const { isSuccess} = useAuthCheck("dashboard");
+    const { isSuccess} = useAuthCheck();
     
     return(
         <HeaderLayout href="/">
