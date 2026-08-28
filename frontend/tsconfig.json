@@ -7,6 +7,10 @@
     "**/.client/**/*",
     ".react-router/types/**/*",
     "playwright.config.ts",
+    "e2e/**/*.ts",
+    "e2e/**/*.tsx",
+    "test/**/*.ts",
+    "test/**/*.tsx"
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
