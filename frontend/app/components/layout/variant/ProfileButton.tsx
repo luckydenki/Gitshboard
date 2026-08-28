@@ -5,7 +5,7 @@ import useUserHeader from "~/hooks/useUserHeader";
 export default function ProfileButton(){
     
 
-    const { data, error, isLoading, isError} = useUserHeader();
+    const { data, isLoading, isError} = useUserHeader();
 
     if(isLoading || isError){
         return (

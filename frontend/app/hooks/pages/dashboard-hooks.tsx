@@ -6,7 +6,7 @@ import CommonError from "~/utils/common-error";
 
 export function useDashboardData(){
 
-    const { data, isLoading, isError} = useManagedKeyQuery<GithubRepositoryResponse>([QueryKeys.USER_REPOS],{
+    const { data, isLoading, isError} = useManagedKeyQuery<GithubRepositoryResponse>([QueryKeys.USERS_REPOS],{
           queryFn : async()=>{
             const response = await fetch("/api/users/repos", {
                 method :'GET',
