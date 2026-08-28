@@ -45,6 +45,11 @@ async function mockStatPageApis(page: Page) {
           data : null,
         });
       }
+      return fulfillJson(route, 200, {
+        success: true,
+        status : 200,
+        data : '인증된 사용자입니다.',
+      });
     }
   );
 

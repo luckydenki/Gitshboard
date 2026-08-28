@@ -33,29 +33,33 @@ async function mockAuthenticatedApis(page: Page) {
   };
 
 
+  let isAuthenticated = false;
+
   //이제 check 계약은 토큰이 유효한지만 확인하는 api이기 때문에
   //실패하든 성공하든 200으로 오며, success 만으로 구분지어야 합니다.
   await page.route("**/api/auth/check", (route) =>
-    route.fulfill({     //route.fulfill은 요청을 가로채서
-                        //응답을 직접 만들어서 반환하는 역할을 한다.
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        success: false,
-        status : 200,
-        data : null,
-      }),
-    }),
+    fulfillJson(
+      route,
+      {
+        success: isAuthenticated,
+        status: 200,
+        data: isAuthenticated ? "인증된 사용자입니다." : null,
+      }
+    )
   );
 
-  await page.route("https://github.com/login/oauth/authorize**", (route) =>
+
+  await page.route("https://github.com/login/oauth/authorize**", (route) => {
     route.fulfill({
       status: 302,
       headers: {
         location: "http://127.0.0.1:5173/auth/github/callback?code=e2e-code",
       },
-    }),
-  );
+    });
+    isAuthenticated = true;
+  });
+
+
 
   await page.route("**/api/auth/github", async (route) => {
     expect(route.request().method()).toBe("POST");
@@ -77,7 +81,10 @@ async function mockAuthenticatedApis(page: Page) {
   await page.route("**/api/users/repos", (route) =>
     fulfillJson(
       route,
-      success({
+      success({ 
+        //현재 repos 계약은 data : { repos : GithubRepository[] } 형태로 되어있습니다.
+        //근데 사실 모든 success 응답은 succes, status, data로 통일되어있음
+
         repos: [
           {
             id: 101,
@@ -92,6 +99,7 @@ async function mockAuthenticatedApis(page: Page) {
             watchers: 3,
           },
         ],
+      
       }),
     ),
   );

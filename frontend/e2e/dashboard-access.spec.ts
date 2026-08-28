@@ -14,6 +14,7 @@ const fulfillJson = (route: Route, status: number, body: unknown) =>
 const isAuthenticated = async (route: Route) =>
   (await route.request().headerValue("cookie"))?.includes(sessionCookie) ?? false;
 
+
 async function mockDashboardApis(page: Page) {
   const unauthorized = (route: Route) =>
     fulfillJson(route, 401, {
@@ -22,6 +23,7 @@ async function mockDashboardApis(page: Page) {
       title: "Unauthorized",
       detail: "Authentication cookie is missing.",
     });
+
   const user = {
     id: 1,
     login: "e2e-user",
@@ -39,11 +41,11 @@ async function mockDashboardApis(page: Page) {
 
   await page.route("**/api/auth/check", async (route) => {
     if (!(await isAuthenticated(route))) {  // 인증 쿠키가 없는 케이스, check는 200으로 오지만 success가 false가 됨
-      return {
-        status : 200,
-        success : false,
-        data : null
-      }
+      return fulfillJson(route, 200, {
+        status: 200,
+        success: false,
+        data: null,
+      });
     }
 
     return fulfillJson(route, 200, { success: true });
