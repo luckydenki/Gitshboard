@@ -56,7 +56,7 @@ class ContributionClient {
      * @returns 
      */
     public getCommitActivity = 
-    async (githubAccessToken : string, username: string, from: string, to: string): Promise<CommitContributionActivity> => {
+    async (githubAccessToken : string | undefined, username: string, from: string, to: string): Promise<CommitContributionActivity> => {
         
         try{
             // 날짜 기준으로 오름차순으로 가져와야함
@@ -101,13 +101,14 @@ class ContributionClient {
                 from,
                 to
             }
+            console.log(`Fetching commit activity for user: ${username}, from: ${from}, to: ${to}`);
 
             const response = await GithubGraphqlFetch(githubAccessToken, query, variables);
 
 
             if(response.ok){
                 const data = await response.json();
-
+                console.log("GitHub API response data:", data);
                 const commitActivity = data.data;
 
                 return commitActivity;
