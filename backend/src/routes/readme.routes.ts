@@ -38,16 +38,30 @@ readme_router.get('/commit-activity.svg', async (req, res)=>{
             throw error;
         }
 
+        
+        const width = Math.max(Math.min(Number(req.query.width ?? 900), 1500), 200);
+        const height = Math.max(Math.min(Number(req.query.height ?? 430), 1500), 100);
 
-        const width = Number(req.query.width ?? 900);
-        const height = Number(req.query.height ?? 430);
+        
 
         //to가 없는 경우 오늘 날짜로 지정하며, 시간은 정확히 23:59:59로 설정 (YYYY-MM-DD)
         //(YYYY-MM-DD)
         const to: string = String(req.query.to ?? new Date(new Date().setHours(23, 59, 59, 999)).toISOString());
         //from이 없는 경우 30일 전 날짜로 지정하며, 시간은 정확히 00:00:00로 설정 (YYYY-MM-DD)
         const from: string = String(req.query.from ?? new Date(new Date().setDate(new Date().getDate() - 30)).toISOString());
+        //console.log("fromto :", from, to);
 
+        //그런데 만약 to와 from의 차이가 1년이라면 github api가 허용을 안해주기 때문에 400 throw 해줌
+        if(new Date(to).getTime() - new Date(from).getTime() > 365 * 24 * 60 * 60 * 1000){
+            const error = new CommonError({
+                status: 400,
+                title: "Bad Request",
+                type: "https://docs.github.com/en/graphql/overview/explorer",
+                detail: "조회 기간은 1년 이내로 설정해 주세요",
+                instance: "/api/readme/commit-activity.svg"
+            });
+            throw error;
+        }
 
 
         //redis 캐시키의 from to는 yyyymmdd만 사용한다.
@@ -63,7 +77,7 @@ readme_router.get('/commit-activity.svg', async (req, res)=>{
 
         
         const commitActivity = await contributionService.getCommitActivity(undefined, username, from, to);
-        const svg = RenderCommitActivitySVG(commitActivity, width, height);
+        const svg = RenderCommitActivitySVG(commitActivity,from, to, width, height);
         
         redisClient.setEx(`commitActivity:${username}:svg:${redisFrom}${redisTo}:${width}x${height}`, 60 * 60, svg); // 캐시 만료 시간: 1시간
 
