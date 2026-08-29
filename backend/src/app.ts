@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import user_router from './routes/user.routes';
 import auth_router from './routes/auth.routes';
+import readme_router from './routes/readme.routes';
 import testing_router from './routes/testing.routes';
 import repo_router from './routes/repo.routes';
 import { TestSchema, root } from './graphql/test';
@@ -48,6 +49,7 @@ app.use('/api/test', testing_router);
 app.use('/api/repos', repo_router);
 app.use('/api/search', search_router);
 app.use('/api/contribute', contribute_router);
+app.use('/api/readme', readme_router);   
 
 app.use((req, res, next)=>{
   const startedAt = performance.now();
