@@ -17,5 +17,6 @@ export interface GithubCommitActivity {
         commitCount : Array<number>
     }>,
     commitOccuredAt : Array<string>,    // 모든 repository의 commit이 발생한 날짜를 합친 배열
-    commitCounts : Array<number>        // 모든 repository의 commit이 발생한 날짜를 합친 배열에 대한 commitCount
+    commitCounts : Array<number>,        // 모든 repository의 commit이 발생한 날짜를 합친 배열에 대한 commitCount
+
 }

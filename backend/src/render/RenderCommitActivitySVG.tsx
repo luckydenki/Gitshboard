@@ -45,9 +45,11 @@ const metricCard = (left: number, label: string, value: string) => ({
     ],
 });
 
-export function RenderCommitActivitySVG(commitActivity: GithubCommitActivity, width: number, height: number): string {
+export function RenderCommitActivitySVG(commitActivity: GithubCommitActivity, from: string, to: string, width: number, height: number): string {
     // Keep the x-axis and series aligned even if an upstream response is incomplete.
     
+
+
     const dataLength = Math.min(
         commitActivity.commitOccuredAt.length,
         commitActivity.commitCounts.length,
@@ -63,9 +65,13 @@ export function RenderCommitActivitySVG(commitActivity: GithubCommitActivity, wi
     );
     const maxCommitCount = peak.count;
     const maxCommitDay = peak.index >= 0 ? dates[peak.index] : undefined;
-    const dateRange = dates.length > 0
-        ? `${formatDate(dates[0])} — ${formatDate(dates[dates.length - 1])}`
-        : "No contribution activity available";
+    //console.log("maxCommitCount:", maxCommitCount, "maxCommitDay:", maxCommitDay);
+    const dateRange = `${from.split("T")[0]} - ${to.split("T")[0]}`
+
+    //console.log("dateRange:", dateRange, "dates : ", dates);
+
+        // ? `${formatDate(dates[0])} — ${formatDate(dates[dates.length - 1])}`
+        // : "No contribution activity available";
     const xAxisInterval = Math.max(0, Math.ceil(dates.length / 6) - 1);
 
     const chart = echarts.init(null, null, {
