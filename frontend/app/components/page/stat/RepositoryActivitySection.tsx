@@ -55,8 +55,6 @@ function RepositoryActivitySection(){
 
         const { data : health, isLoading, isError } = useProjectLiveRateQuery();
 
-
-
         if(isLoading){
             const skeletons  : ReturnType<typeof Skeleton>[] = [];
             for(let i=0; i<8; ++i){
@@ -96,7 +94,8 @@ function RepositoryActivitySection(){
                 </div>
             </div>
             <div className="mt-8 grid gap-3">
-                {health!.projects.slice(0, 8).map((project) => (
+         
+                {health && health.projects.slice(0, 8).map((project) => (
                     <div key={project.name} className="grid gap-4 rounded-3xl bg-gray-100 px-5 py-4 sm:grid-cols-[1fr_110px_140px_90px] sm:items-center dark:bg-gray-800">
                         <p className="truncate font-semibold">{project.name}</p>
                         <span className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(project.status)}`}>
@@ -106,7 +105,7 @@ function RepositoryActivitySection(){
                         <p className="text-sm text-gray-400">{project.isFork ? "Fork" : "Original"}</p>
                     </div>
                 ))}
-                {!isLoading && health!.projects.length === 0 && <EmptyState text="No project activity data available" />}
+                {health && health.projects.length === 0 && <EmptyState text="No project activity data available" />}
             </div>
         </section>
 
