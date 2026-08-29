@@ -35,7 +35,7 @@ export const GithubGraphqlFetch = async(githubAccessToken: string | undefined, q
 
 class GithubRepoAPIClient{
 
-    public  getLanguages = async( githubUsername : string, githubAccessToken : string) => {
+    public  getLanguages = async( githubUsername : string, githubAccessToken : string | undefined) => {
 
     const query = `
             query GetRepoLanguages($login : String!){
@@ -80,7 +80,7 @@ class GithubRepoAPIClient{
     }
 };
 
-    public getCommitTime = async(githubUsername : string, githubAccessToken : string) => {
+    public getCommitTime = async(githubUsername : string, githubAccessToken : string | undefined) => {
 
         const query = `
             query GetCommitTimes($login : String!){
@@ -126,7 +126,7 @@ class GithubRepoAPIClient{
     };
 
 
-    public getProjectTopics = async(githubUsername : string, githubAccessToken : string) => {
+    public getProjectTopics = async(githubUsername : string, githubAccessToken : string | undefined) => {
           //graphql query에서 String! 이라 되어있는건 String 만 가능하다는 것
                 //!를 제거하면 String | null 이므로 null 도 허용된다
                 const query = `
@@ -151,8 +151,8 @@ class GithubRepoAPIClient{
                 const variables = {
                     login: githubUsername
                 }
-        try{
-                const github_response = await fetch("https://api.github.com/graphql", {
+        try {
+            const github_response = await fetch("https://api.github.com/graphql", {
                     method: 'POST',
                     headers: {
                         'Authorization': `token ${githubAccessToken}`,
@@ -181,7 +181,7 @@ class GithubRepoAPIClient{
 
 
 
-    public getDevelopStats = async(githubUsername : string, githubAccessToken : string) => {
+    public getDevelopStats = async(githubUsername : string, githubAccessToken : string | undefined) => {
 
         const query = `
             query GetDevelopTime($login : String!){
@@ -251,7 +251,7 @@ class GithubRepoAPIClient{
     }
 
 
-    public getProjectLiveRate = async(githubUsername : string, githubAccessToken : string) => {
+    public getProjectLiveRate = async(githubUsername : string, githubAccessToken : string | undefined) => {
 
         const query = `
                 query getProjectLiveRate($login : String!){
