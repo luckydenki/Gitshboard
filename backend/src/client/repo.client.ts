@@ -1,12 +1,25 @@
 import { GithubLanguageRepositoryNode, GithubRepoCommonResponse, GithubCommitTimeRepositoryNode, GithubProjectTopicsNode, ProjectLiveRateNode } from "../types/stat";
+import dotenv from "dotenv";
+dotenv.config();
 
 
-export const GithubGraphqlFetch = async(githubAccessToken: string, query: string, variables: any) =>{
+export const GithubGraphqlFetch = async(githubAccessToken: string | undefined, query: string, variables: any) =>{
+    
+    let authorization = "";
+    //graphql api는 최소한 PAT 권한은 필요로 하기 때문에 사용함...
+    if(!githubAccessToken){
+       // console.log("githubAccessToken is undefined, using public api token ", process.env.GITHUB_PUBLIC_API_TOKEN);
+        authorization = `Bearer ${process.env.GITHUB_PUBLIC_API_TOKEN}`;
+    }
+    else{
+        authorization = `token ${githubAccessToken}`;
+    }
+    
 
     const github_response = await fetch('https://api.github.com/graphql', {
         method: 'POST',
         headers: {
-            'Authorization': `token ${githubAccessToken}`,
+            'Authorization': authorization,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
