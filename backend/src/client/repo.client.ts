@@ -9,7 +9,7 @@ export const GithubGraphqlFetch = async(githubAccessToken: string | undefined, q
     //graphql api는 최소한 PAT 권한은 필요로 하기 때문에 사용함...
     if(!githubAccessToken){
        // console.log("githubAccessToken is undefined, using public api token ", process.env.GITHUB_PUBLIC_API_TOKEN);
-        authorization = `Bearer ${process.env.GITHUB_PUBLIC_API_TOKEN}`;
+        authorization = `Bearer ${process.env.PUBLIC_API_TOKEN}`;
     }
     else{
         authorization = `token ${githubAccessToken}`;
