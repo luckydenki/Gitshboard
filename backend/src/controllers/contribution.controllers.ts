@@ -26,7 +26,7 @@ class ContributionController {
                 data: data
             }
 
-            console.log("contribute data", data);
+           // console.log("contribute data", data);
             res.status(200).json(response);
 
         }
