@@ -26,7 +26,10 @@ class ContributionService {
                 )
             }
 
-            const cachedData = await redisClient.get(`commitActivity:${githubUsername}:${from}-${to}`);
+            //redis의 fromto는 yyyymmdd만 사용한다.
+            const redisFrom = from.split("T")[0].replace(/-/g, '');
+            const redisTo = to.split("T")[0].replace(/-/g, '');
+            const cachedData = await redisClient.get(`commitActivity:${githubUsername}:${redisFrom}${redisTo}`);
             if (cachedData) {
                 console.log("Serving cached commit activity data");
                 return JSON.parse(cachedData);
@@ -45,9 +48,6 @@ class ContributionService {
             const data: CommitContributionActivity = await contributionClient.getCommitActivity(githubAccessToken, githubUsername, from, to);
             const githubCommitActivity = getGithubCommitActivity(data);
 
-            //redis의 fromto는 yyyymmdd만 사용한다.
-            const redisFrom = from.split("T")[0].replace(/-/g, '');
-            const redisTo = to.split("T")[0].replace(/-/g, '');
             redisClient.setEx(`commitActivity:${githubUsername}:${redisFrom}${redisTo}`, 60 * 60, JSON.stringify(githubCommitActivity)); // 캐시 만료 시간: 1시간
 
             return githubCommitActivity;
