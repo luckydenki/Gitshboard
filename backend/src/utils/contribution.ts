@@ -1,17 +1,5 @@
 import { CommitContributionActivity } from "../client/contribution.client";
-
-
-
-export interface GithubCommitActivity {
-    total : number,
-    results : Array<{
-        repositoryName : string,
-        occuredAt : Array<string>,
-        commitCount : Array<number>
-    }>,
-    commitOccuredAt : Array<string>,    // 모든 repository의 commit이 발생한 날짜를 합친 배열
-    commitCounts : Array<number>        // 모든 repository의 commit이 발생한 날짜를 합친 배열에 대한 commitCount
-}
+import type { GithubCommitActivity } from "../types/contribution";
 
 /** 
  *  날짜를 연결시켜주는 함수 
@@ -54,7 +42,7 @@ export const OccuredDateYYMMDD = ( occuredAtArray : Array<string> ) => {
 
 
 
-export const GithubCommitActivity = (data : CommitContributionActivity) : GithubCommitActivity => {
+export const getGithubCommitActivity = (data : CommitContributionActivity) : GithubCommitActivity => {
 
     const total = data.user.contributionsCollection.totalCommitContributions;
     const contributionsByRepository = data.user.contributionsCollection.commitContributionsByRepository;
