@@ -2,76 +2,81 @@ import * as echarts from "echarts";
 import type { GithubCommitActivity } from "../types/contribution";
 
 const colors = {
-    background: "#0d1117",
-    border: "#30363d",
-    text: "#f0f6fc",
-    mutedText: "#8b949e",
-    grid: "#21262d",
-    accentLight: "#58a6ff",
+    page: "#f4f6f1",
+    surface: "#ffffff",
+    text: "#111827",
+    mutedText: "#9ca3af",
+    axis: "#d1d5db",
+    grid: "#eef0eb",
+    accent: "#4183c4",
 };
 
-const formatDate = (date?: string) => date ? date.replace(/-/g, ".") : "No activity";
+const formatDate = (value?: string) => {
+    if (!value) return "–";
 
-const metricCard = (left: number, label: string, value: string) => ({
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+
+    return new Intl.DateTimeFormat("en", {
+        month: "short",
+        day: "numeric",
+        timeZone: "UTC",
+    }).format(date);
+};
+
+const metric = (left: number, label: string, value: string) => ({
     type: "group" as const,
     left,
-    top: 24,
+    top: 58,
     children: [
         {
-            type: "rect" as const,
-            shape: { width: 108, height: 62, r: 8 },
-            style: { fill: "#161b22", stroke: colors.border, lineWidth: 1 },
-        },
-        {
             type: "text" as const,
-            left: 12,
-            top: 11,
             style: {
                 text: label,
                 fill: colors.mutedText,
-                font: "500 11px Arial, sans-serif",
+                font: "600 10px Arial, sans-serif",
             },
         },
         {
             type: "text" as const,
-            left: 12,
-            top: 30,
+            top: 18,
             style: {
                 text: value,
                 fill: colors.text,
-                font: "600 17px Arial, sans-serif",
+                font: "600 16px Arial, sans-serif",
             },
         },
     ],
 });
 
-export function RenderCommitActivitySVG(commitActivity: GithubCommitActivity, from: string, to: string, width: number, height: number): string {
-    // Keep the x-axis and series aligned even if an upstream response is incomplete.
-    
-
-
+export function RenderCommitActivitySVG(
+    commitActivity: GithubCommitActivity,
+    from: string,
+    to: string,
+    width: number,
+    height: number,
+): string {
+    // Keep the category axis and bar data aligned when an upstream response is incomplete.
     const dataLength = Math.min(
         commitActivity.commitOccuredAt.length,
         commitActivity.commitCounts.length,
     );
     const dates = commitActivity.commitOccuredAt.slice(0, dataLength);
     const commitCounts = commitActivity.commitCounts.slice(0, dataLength);
-
     const peak = commitCounts.reduce(
         (currentPeak, count, index) => count > currentPeak.count
             ? { count, index }
             : currentPeak,
         { count: 0, index: -1 },
     );
-    const maxCommitCount = peak.count;
-    const maxCommitDay = peak.index >= 0 ? dates[peak.index] : undefined;
-    //console.log("maxCommitCount:", maxCommitCount, "maxCommitDay:", maxCommitDay);
-    const dateRange = `${from.split("T")[0]} - ${to.split("T")[0]}`
-
-    //console.log("dateRange:", dateRange, "dates : ", dates);
-
-        // ? `${formatDate(dates[0])} — ${formatDate(dates[dates.length - 1])}`
-        // : "No contribution activity available";
+    const peakDay = peak.index >= 0 ? dates[peak.index] : undefined;
+    const dateRange = `${formatDate(from)} — ${formatDate(to)}`;
+    const cardInset = Math.min(24, Math.max(10, Math.round(Math.min(width, height) * 0.055)));
+    const cardWidth = Math.max(0, width - (cardInset * 2));
+    const cardHeight = Math.max(0, height - (cardInset * 2));
+    const headerLeft = cardInset + 30;
+    const metricWidth = 104;
+    const metricsLeft = Math.max(headerLeft + 260, width - cardInset - (metricWidth * 3) - 30);
     const xAxisInterval = Math.max(0, Math.ceil(dates.length / 6) - 1);
 
     const chart = echarts.init(null, null, {
@@ -82,51 +87,77 @@ export function RenderCommitActivitySVG(commitActivity: GithubCommitActivity, fr
     });
 
     chart.setOption({
-        animation: true,
-        backgroundColor: colors.background,
+        animation: false,
+        backgroundColor: colors.page,
         graphic: [
             {
+                type: "rect",
+                shape: { x: cardInset, y: cardInset, width: cardWidth, height: cardHeight, r: 28 },
+                style: { fill: colors.surface },
+            },
+            {
                 type: "text",
-                left: 32,
-                top: 25,
+                left: headerLeft,
+                top: 54,
                 style: {
-                    text: "Commit activity",
-                    fill: colors.text,
-                    font: "600 22px Arial, sans-serif",
+                    text: "DAILY VOLUME",
+                    fill: colors.mutedText,
+                    font: "600 11px Arial, sans-serif",
                 },
             },
             {
                 type: "text",
-                left: 32,
-                top: 57,
+                left: headerLeft,
+                top: 76,
                 style: {
-                    text: dateRange,
-                    fill: colors.mutedText,
-                    font: "400 13px Arial, sans-serif",
+                    text: "All commits by date",
+                    fill: colors.text,
+                    font: "600 21px Arial, sans-serif",
                 },
             },
-            metricCard(546, "TOTAL COMMITS", String(commitActivity.total)),
-            metricCard(664, "PEAK COMMITS", String(maxCommitCount)),
-            metricCard(782, "PEAK DAY", formatDate(maxCommitDay)),
+            {
+                type: "text",
+                left: headerLeft,
+                top: 108,
+                style: {
+                    text: "A complete daily count combined from every tracked repository.",
+                    fill: "#6b7280",
+                    font: "400 12px Arial, sans-serif",
+                },
+            },
+            {
+                type: "text",
+                left: headerLeft,
+                top: 135,
+                style: {
+                    text: `PERIOD  ${dateRange}`,
+                    fill: colors.mutedText,
+                    font: "600 10px Arial, sans-serif",
+                },
+            },
+            metric(metricsLeft, "TOTAL COMMITS", String(commitActivity.total)),
+            metric(metricsLeft + metricWidth, "PEAK COMMITS", String(peak.count)),
+            metric(metricsLeft + (metricWidth * 2), "PEAK DAY", formatDate(peakDay)),
         ],
         grid: {
-            left: 58,
-            right: 32,
-            top: 122,
-            bottom: 50,
+            top: 184,
+            right: cardInset + 30,
+            bottom: cardInset + 34,
+            left: cardInset + 36,
+            containLabel: true,
         },
         xAxis: {
             type: "category",
-            boundaryGap: false,
             data: dates,
-            axisLine: { lineStyle: { color: colors.border } },
+            axisLine: { lineStyle: { color: colors.axis } },
             axisTick: { show: false },
             axisLabel: {
                 color: colors.mutedText,
                 fontSize: 11,
-                margin: 14,
+                margin: 13,
                 interval: xAxisInterval,
-                formatter: (value: string) => value.slice(5).replace("-", "."),
+                hideOverlap: true,
+                formatter: formatDate,
             },
         },
         yAxis: {
@@ -136,44 +167,20 @@ export function RenderCommitActivitySVG(commitActivity: GithubCommitActivity, fr
             splitNumber: 4,
             axisLine: { show: false },
             axisTick: { show: false },
-            axisLabel: {
-                color: colors.mutedText,
-                fontSize: 11,
-                margin: 12,
-            },
-            splitLine: { lineStyle: { color: colors.grid, type: "dashed" } },
+            axisLabel: { color: colors.mutedText, fontSize: 11 },
+            splitLine: { lineStyle: { color: colors.grid } },
         },
-        series: [
-            {
-                name: "Commits",
-                type: "line",
-                data: commitCounts,
-                smooth: true,
-                showSymbol: false,
-                lineStyle: { color: colors.accentLight, width: 3 },
-                areaStyle: {
-                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                        { offset: 0, color: "rgba(47, 129, 247, 0.42)" },
-                        { offset: 1, color: "rgba(47, 129, 247, 0.02)" },
-                    ]),
-                },
-                emphasis: { disabled: true },
-                markPoint: maxCommitDay ? {
-                    symbol: "circle",
-                    symbolSize: 10,
-                    itemStyle: { color: colors.accentLight, borderColor: colors.background, borderWidth: 3 },
-                    label: {
-                        show: true,
-                        position: "top",
-                        color: colors.text,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        formatter: `${maxCommitCount} commits`,
-                    },
-                    data: [{ coord: [peak.index, maxCommitCount], value: maxCommitCount }],
-                } : undefined,
+        series: [{
+            name: "Commits",
+            type: "bar",
+            barMaxWidth: 26,
+            data: commitCounts,
+            itemStyle: {
+                color: colors.accent,
+                borderRadius: [7, 7, 0, 0],
             },
-        ],
+            emphasis: { disabled: true },
+        }],
     });
 
     const svg = chart.renderToSVGString();
