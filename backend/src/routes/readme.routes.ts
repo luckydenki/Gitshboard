@@ -86,12 +86,9 @@ readme_router.get('/commit-activity.svg', async (req, res)=>{
     catch(err){
         let commonError;
 
-
         if (err instanceof CommonError) {
             commonError = err;
-
             ErrorSVG(commonError, 900, 430); // 기본 크기 사용
-            
             return res.status(commonError.status).type('image/svg+xml').send(ErrorSVG(commonError, 900, 430));
         }
         else if(err instanceof Error){
