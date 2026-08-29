@@ -1,17 +1,5 @@
 import { CommitContributionActivity } from "../client/contribution.client";
-
-
-
-export interface GithubCommitActivity {
-    total : number,
-    results : Array<{
-        repositoryName : string,
-        occuredAt : Array<string>,
-        commitCount : Array<number>
-    }>,
-    commitOccuredAt : Array<string>,    // 모든 repository의 commit이 발생한 날짜를 합친 배열
-    commitCounts : Array<number>        // 모든 repository의 commit이 발생한 날짜를 합친 배열에 대한 commitCount
-}
+import type { GithubCommitActivity } from "../types/contribution";
 
 /** 
  *  날짜를 연결시켜주는 함수 
@@ -46,7 +34,8 @@ export const ContinuousDate = ( occuredAtArray : Array<string>, commitCountArray
     }
 }
 
-export const OccuredDateYYMMDD = ( occuredAtArray : Array<string> ) => {
+export const OccuredDateYYMMDD = ( occuredAtArray : Array<string>) => {
+
     return occuredAtArray.map(date => {
         return date.split("T")[0];
     });
@@ -54,7 +43,7 @@ export const OccuredDateYYMMDD = ( occuredAtArray : Array<string> ) => {
 
 
 
-export const GithubCommitActivity = (data : CommitContributionActivity) : GithubCommitActivity => {
+export const getGithubCommitActivity = (data : CommitContributionActivity) : GithubCommitActivity => {
 
     const total = data.user.contributionsCollection.totalCommitContributions;
     const contributionsByRepository = data.user.contributionsCollection.commitContributionsByRepository;
@@ -79,6 +68,8 @@ export const GithubCommitActivity = (data : CommitContributionActivity) : Github
             occuredAtArray.push(occuredAt);
             commitCountArray.push(commitCount);
 
+            // map은 occuredAt를 key로, commitCount를 value로 저장한다. 
+            // (같은 날짜가 여러번 나올 수 있으므로, 같은 날짜가 나오면 commitCount를 더해준다.)
             if(map.has(occuredAt)){
                 map.set(occuredAt, map.get(occuredAt)! + commitCount);
             } else {
@@ -86,9 +77,33 @@ export const GithubCommitActivity = (data : CommitContributionActivity) : Github
             }
         })
 
+        //console.log("occuredAtArray", occuredAtArray);
         ContinuousDate(occuredAtArray, commitCountArray);
         occuredAtArray = OccuredDateYYMMDD(occuredAtArray);
-        const arrCommitOccuredAt = OccuredDateYYMMDD(Array.from(map.keys()));
+
+
+        //map.keys는 정렬을 보장하지 않으므로, 정렬된 배열을 만들어야 한다.
+        const allOccuredArrayKeys = Array.from(map.keys());
+        const allOccuredArrayValues = Array.from(map.values());
+        const allResults : { commitOccuredAt: string, commitCount: number }[] = [];
+        
+        for(let i=0; i<allOccuredArrayKeys.length; i++){
+            allResults.push({
+                commitOccuredAt: allOccuredArrayKeys[i],
+                commitCount: allOccuredArrayValues[i]
+            });
+        }
+
+
+        allResults.sort((a, b) => {
+            const dateA = new Date(a.commitOccuredAt);
+            const dateB = new Date(b.commitOccuredAt);
+            return dateA.getTime() - dateB.getTime();
+        });
+
+        const allOccuredAtArraySorted = allResults.map(item => item.commitOccuredAt);
+        const allCommitCountArraySorted = allResults.map(item => item.commitCount);
+        const allCommitOccuredAt = OccuredDateYYMMDD(allOccuredAtArraySorted);
 
         arr.results.push({
             repositoryName : name,
@@ -97,8 +112,12 @@ export const GithubCommitActivity = (data : CommitContributionActivity) : Github
         })
 
         //console.log(`arr.results2`, Array.from(map.entries()));
-        arr.commitOccuredAt = arrCommitOccuredAt;
-        arr.commitCounts = Array.from(map.values());
+        //결국 commitOccuredAt와 commitCounts는 
+        // 모든 repository의 commit이 발생한 날짜를 합친 배열이 된다.
+
+        //console.log("allCommitOccuredAt", allCommitOccuredAt);
+        arr.commitOccuredAt = allCommitOccuredAt;
+        arr.commitCounts = allCommitCountArraySorted;
 
     })
 

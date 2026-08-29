@@ -18,8 +18,7 @@ class ContributionController {
 
 
             const data = await contributionService.getCommitActivity(github_token, username, from, to);
-
-
+            
             //typeof data -> data의 타입이 꽤 자주 변할 수가 있기 때문에 의존성을 줄이려고 의도적으로 사용함.
             const response: CommonResponse<typeof data> = {
                 success: true,
@@ -27,7 +26,7 @@ class ContributionController {
                 data: data
             }
 
-            console.log("contribute data", data);
+           // console.log("contribute data", data);
             res.status(200).json(response);
 
         }
