@@ -1,9 +1,9 @@
 import * as echarts from "echarts";
-import type { LanguageStat } from "../utils/stat";
-import { chart } from "./echart/TechnologyDistributionEchart";
+import type { CommitStats } from "../utils/stat";
+import { chart } from "./echart/PreferredCommitTimeEchart";
 
-export default function RenderTechnologyDistributionSVG(
-    languageStats: LanguageStat[],
+export default function RenderPreferredCommitTimeSVG(
+    commitStats: CommitStats,
     width: number,
     height: number,
 ): string {
@@ -14,7 +14,7 @@ export default function RenderTechnologyDistributionSVG(
         height,
     });
 
-    echart.setOption(chart(languageStats, width, height));
+    echart.setOption(chart(commitStats, width, height));
 
     const svg = echart.renderToSVGString();
     echart.dispose();
