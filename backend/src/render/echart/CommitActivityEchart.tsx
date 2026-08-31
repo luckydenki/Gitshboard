@@ -1,5 +1,7 @@
 import type { EChartsOption } from "echarts";
 import type { GithubCommitActivity } from "../../types/contribution";
+import { locale } from "../locale/CommitActivityLocale";
+import { intlLocale, type RenderLocale } from "../locale/RenderLocale";
 
 const colors = {
     page: "#f4f6f1",
@@ -11,13 +13,13 @@ const colors = {
     accent: "#4183c4",
 };
 
-const formatDate = (value?: string) => {
+const formatDate = (value: string | undefined, renderLocale: RenderLocale) => {
     if (!value) return "-";
 
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return value;
 
-    return new Intl.DateTimeFormat("en", {
+    return new Intl.DateTimeFormat(intlLocale[renderLocale], {
         month: "short",
         day: "numeric",
         timeZone: "UTC",
@@ -55,7 +57,9 @@ export const chart = (
     to: string,
     width: number,
     height: number,
+    renderLocale: RenderLocale,
 ): EChartsOption => {
+    const copy = locale[renderLocale];
     const dataLength = Math.min(
         commitActivity.commitOccuredAt.length,
         commitActivity.commitCounts.length,
@@ -69,7 +73,7 @@ export const chart = (
         { count: 0, index: -1 },
     );
     const peakDay = peak.index >= 0 ? dates[peak.index] : undefined;
-    const dateRange = `${formatDate(from)} - ${formatDate(to)}`;
+    const dateRange = `${formatDate(from, renderLocale)} - ${formatDate(to, renderLocale)}`;
     const cardInset = Math.min(24, Math.max(10, Math.round(Math.min(width, height) * 0.055)));
     const cardWidth = Math.max(0, width - (cardInset * 2));
     const cardHeight = Math.max(0, height - (cardInset * 2));
@@ -91,20 +95,20 @@ export const chart = (
                 type: "text",
                 left: headerLeft,
                 top: 54,
-                style: { text: "DAILY VOLUME", fill: colors.mutedText, font: "600 11px Arial, sans-serif" },
+                style: { text: copy.eyebrow, fill: colors.mutedText, font: "600 11px Arial, sans-serif" },
             },
             {
                 type: "text",
                 left: headerLeft,
                 top: 76,
-                style: { text: "All commits by date", fill: colors.text, font: "600 21px Arial, sans-serif" },
+                style: { text: copy.title, fill: colors.text, font: "600 21px Arial, sans-serif" },
             },
             {
                 type: "text",
                 left: headerLeft,
                 top: 108,
                 style: {
-                    text: "A complete daily count combined from every tracked repository.",
+                    text: copy.detail,
                     fill: "#6b7280",
                     font: "400 12px Arial, sans-serif",
                 },
@@ -113,11 +117,11 @@ export const chart = (
                 type: "text",
                 left: headerLeft,
                 top: 135,
-                style: { text: `PERIOD  ${dateRange}`, fill: colors.mutedText, font: "600 10px Arial, sans-serif" },
+                style: { text: `${copy.period}  ${dateRange}`, fill: colors.mutedText, font: "600 10px Arial, sans-serif" },
             },
-            metric(metricsLeft, "TOTAL COMMITS", String(commitActivity.total)),
-            metric(metricsLeft + metricWidth, "PEAK COMMITS", String(peak.count)),
-            metric(metricsLeft + (metricWidth * 2), "PEAK DAY", formatDate(peakDay)),
+            metric(metricsLeft, copy.totalCommits, String(commitActivity.total)),
+            metric(metricsLeft + metricWidth, copy.peakCommits, String(peak.count)),
+            metric(metricsLeft + (metricWidth * 2), copy.peakDay, formatDate(peakDay, renderLocale)),
         ],
         grid: {
             top: 184,
@@ -137,7 +141,7 @@ export const chart = (
                 margin: 13,
                 interval: xAxisInterval,
                 hideOverlap: true,
-                formatter: formatDate,
+                formatter: (value: string) => formatDate(value, renderLocale),
             },
         },
         yAxis: {

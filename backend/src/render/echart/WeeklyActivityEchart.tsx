@@ -1,7 +1,10 @@
 import type { EChartsOption } from "echarts";
 import type { CommitStats } from "../../utils/stat";
+import { locale } from "../locale/WeeklyActivityLocale";
+import type { RenderLocale } from "../locale/RenderLocale";
 
-export const chart = (commitStats: CommitStats, width: number, height: number): EChartsOption => {
+export const chart = (commitStats: CommitStats, width: number, height: number, renderLocale: RenderLocale): EChartsOption => {
+    const copy = locale[renderLocale];
     const cardInset = Math.min(24, Math.max(10, Math.round(Math.min(width, height) * 0.055)));
     const cardWidth = Math.max(0, width - (cardInset * 2));
     const cardHeight = Math.max(0, height - (cardInset * 2));
@@ -22,21 +25,21 @@ export const chart = (commitStats: CommitStats, width: number, height: number): 
                 z: 10,
                 left: contentLeft,
                 top: 54,
-                style: { text: "COMMIT RHYTHM", fill: "#9ca3af", font: "600 11px Arial, sans-serif" },
+                style: { text: copy.eyebrow, fill: "#9ca3af", font: "600 11px Arial, sans-serif" },
             },
             {
                 type: "text",
                 z: 10,
                 left: contentLeft,
                 top: 76,
-                style: { text: "Weekly activity", fill: "#111827", font: "600 21px Arial, sans-serif" },
+                style: { text: copy.title, fill: "#111827", font: "600 21px Arial, sans-serif" },
             },
             {
                 type: "text",
                 z: 10,
                 left: contentLeft,
                 top: 108,
-                style: { text: "Default branch commit frequency", fill: "#6b7280", font: "400 12px Arial, sans-serif" },
+                style: { text: copy.detail, fill: "#6b7280", font: "400 12px Arial, sans-serif" },
             },
             ...(commitStats.total === 0 ? [{
                 type: "text" as const,
@@ -44,7 +47,7 @@ export const chart = (commitStats: CommitStats, width: number, height: number): 
                 left: "center" as const,
                 top: "59%" as const,
                 style: {
-                    text: "No commit history available",
+                    text: copy.empty,
                     fill: "#6b7280",
                     font: "400 14px Arial, sans-serif",
                     align: "center" as const,
@@ -60,7 +63,7 @@ export const chart = (commitStats: CommitStats, width: number, height: number): 
         },
         xAxis: {
             type: "category",
-            data: commitStats.weekdays.map(({ label }) => label),
+            data: commitStats.weekdays.map(({ label }) => copy.weekday[label] ?? label),
             axisTick: { show: false },
             axisLine: { lineStyle: { color: "#e5e7eb" } },
             axisLabel: { color: "#9ca3af", fontSize: 11, fontWeight: 500, margin: 13 },

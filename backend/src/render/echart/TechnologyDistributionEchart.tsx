@@ -1,5 +1,7 @@
 import type { EChartsOption } from "echarts";
 import type { LanguageStat } from "../../utils/stat";
+import { locale } from "../locale/TechnologyDistributionLocale";
+import type { RenderLocale } from "../locale/RenderLocale";
 
 const chartColorByClass: Record<string, string> = {
     "bg-[#3178c6]": "#3178c6",
@@ -17,7 +19,8 @@ const chartColorByClass: Record<string, string> = {
 
 const getChartColor = (color: string) => chartColorByClass[color] ?? "#4183c4";
 
-export const chart = (languageStats: LanguageStat[], width: number, height: number): EChartsOption => {
+export const chart = (languageStats: LanguageStat[], width: number, height: number, renderLocale: RenderLocale): EChartsOption => {
+    const copy = locale[renderLocale];
     const cardInset = Math.min(24, Math.max(10, Math.round(Math.min(width, height) * 0.055)));
     const cardWidth = Math.max(0, width - (cardInset * 2));
     const cardHeight = Math.max(0, height - (cardInset * 2));
@@ -40,21 +43,21 @@ export const chart = (languageStats: LanguageStat[], width: number, height: numb
                 z: 10,
                 left: contentLeft,
                 top: 54,
-                style: { text: "LANGUAGES", fill: "#9ca3af", font: "600 11px Arial, sans-serif" },
+                style: { text: copy.eyebrow, fill: "#9ca3af", font: "600 11px Arial, sans-serif" },
             },
             {
                 type: "text",
                 z: 10,
                 left: contentLeft,
                 top: 76,
-                style: { text: "Technology distribution", fill: "#111827", font: "600 21px Arial, sans-serif" },
+                style: { text: copy.title, fill: "#111827", font: "600 21px Arial, sans-serif" },
             },
             {
                 type: "text",
                 z: 10,
                 left: contentLeft,
                 top: 108,
-                style: { text: "Code volume across repositories", fill: "#6b7280", font: "400 12px Arial, sans-serif" },
+                style: { text: copy.detail, fill: "#6b7280", font: "400 12px Arial, sans-serif" },
             },
             ...(!languages.length ? [{
                 type: "text" as const,
@@ -62,7 +65,7 @@ export const chart = (languageStats: LanguageStat[], width: number, height: numb
                 left: "center" as const,
                 top: "55%" as const,
                 style: {
-                    text: "No language data available",
+                    text: copy.empty,
                     fill: "#6b7280",
                     font: "400 14px Arial, sans-serif",
                     align: "center" as const,
