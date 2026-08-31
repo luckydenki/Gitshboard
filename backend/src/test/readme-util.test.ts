@@ -89,9 +89,9 @@ describe("Readme initParamsDate", ()=>{
     })
 
     it("Error case : YYYYMMDD 형식이 아니면 에러 발생" , ()=>{
-        expect(()=>initParamsDate("2023-01-01", "20230131")).toThrow("initFrom과 initTo는 YYYYMMDD 형식이어야 합니다.");
-        expect(()=>initParamsDate("20230101", "2023-01-31")).toThrow("initFrom과 initTo는 YYYYMMDD 형식이어야 합니다.");
-        expect(()=>initParamsDate("2023-01-01", "2023-01-31")).toThrow("initFrom과 initTo는 YYYYMMDD 형식이어야 합니다.");
+        expect(()=>initParamsDate("2023-01-01", "20230131")).toThrow("from과 to는 YYYYMMDD 형식이어야 합니다.");
+        expect(()=>initParamsDate("20230101", "2023-01-31")).toThrow("from과 to는 YYYYMMDD 형식이어야 합니다.");
+        expect(()=>initParamsDate("2023-01-01", "2023-01-31")).toThrow("from과 to는 YYYYMMDD 형식이어야 합니다.");
     })
 
 })

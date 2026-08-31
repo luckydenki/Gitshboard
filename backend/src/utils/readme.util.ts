@@ -81,6 +81,11 @@ export const isValidDateRange = (from: string , to : string) : boolean =>{
  */
 export const initParamsDate = (paramsFrom : string | undefined, paramsTo : string | undefined) => {
 
+    if ((paramsFrom && !isYYYYMMDD(paramsFrom)) || (paramsTo && !isYYYYMMDD(paramsTo))) {
+        throw Error("from과 to는 YYYYMMDD 형식이어야 합니다.");
+    }
+
+
     const initIsoFrom = paramsFrom ? 
     new Date(paramsFrom.substring(0, 4) + "-" + paramsFrom.substring(4, 6) + "-" + paramsFrom.substring(6, 8)).toISOString() :
     new Date(new Date().setDate(new Date().getDate() - 30)).toISOString();
@@ -90,14 +95,14 @@ export const initParamsDate = (paramsFrom : string | undefined, paramsTo : strin
     new Date().toISOString();
 
     if(Number.isNaN(new Date(initIsoFrom).getTime()) || Number.isNaN(new Date(initIsoTo).getTime())){
-        throw Error("initFrom과 initTo는 유효한 날짜여야 합니다.");
+        throw Error("from과 to는 유효한 날짜여야 합니다.");
     }
 
     const initFrom = initIsoFrom.split("T")[0].replace(/-/g, '');
     const initTo = initIsoTo.split("T")[0].replace(/-/g, '');
 
     if(!isYYYYMMDD(initFrom) || !isYYYYMMDD(initTo)){
-        throw Error("initFrom과 initTo는 YYYYMMDD 형식이어야 합니다.");
+        throw Error("from과 to는 YYYYMMDD 형식이어야 합니다.");
     }
     
     return { initFrom, initTo };
