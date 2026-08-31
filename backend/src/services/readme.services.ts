@@ -1,83 +1,39 @@
 import { redisClient } from "../infra/redis/redisClient";
 import { RenderCommitActivitySVG } from "../render/RenderCommitActivitySVG";
 import CommonError from "../utils/common-error";
-import { parseYYMMDD } from "../utils/parseYYMMDD";
 import contributionService from "./contribution.services";
-
+import { getUISize, getISOFromTo, getDisplayFromTo, initParamsDate, isValidDateRange } from "../utils/readme.util";
+import { createRedisKey } from "../utils/redis.util";
 
 
 
 class ReadmeService {
 
-        public setUISize(width: number, height: number) {
-            const newWidth = Math.max(Math.min(width, 1500), 200);
-            const newHeight = Math.max(Math.min(height, 1500), 100);
-            return { width: newWidth, height: newHeight };
-        }
-    
-    
-        public setFromTo(reqFrom : string | undefined, reqTo : string | undefined) {
-            const displayFrom = reqFrom ? parseYYMMDD(String(reqFrom)) : new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
-            const displayTo = reqTo ? parseYYMMDD(String(reqTo)) : new Date().toISOString().split('T')[0];
-            const from = new Date(new Date(displayFrom).setHours(0, 0, 0, 0)).toISOString();
-            const to = new Date(new Date(displayTo).setHours(23, 59, 59, 999)).toISOString();
-            const redisFrom = displayFrom.replace(/-/g, '');
-            const redisTo = displayTo.replace(/-/g, '');
-            console.log("displayFrom :", displayFrom, " displayTo :", displayTo);
-            console.log("from :", from, " to :", to);
-            return { displayFrom, displayTo, from, to, redisFrom, redisTo };
-        }
-    
 
-        public isValidDate(from : string, to : string): boolean {
-            const fromDate = new Date(from);
-            const toDate = new Date(to);
-    
-            if (fromDate.getTime() > toDate.getTime()) {
-                throw new CommonError({
-                    status: 400,
-                    title: "Bad Request",
-                    type: "https://docs.github.com/en/graphql/overview/explorer",
-                    detail: "The 'from' date must be earlier than the 'to' date.",
-                    instance: "/graphql"
-                });
-            }
-    
-            else if(toDate.getTime() - fromDate.getTime() > 365 * 24 * 60 * 60 * 1000){
-                throw new CommonError({
-                    status: 400,
-                    title: "Bad Request",
-                    type: "https://docs.github.com/en/graphql/overview/explorer",
-                    detail: "조회 기간은 1년 이내로 설정해 주세요",
-                    instance: "/graphql"
-                });
-            }
-    
-            return !isNaN(fromDate.getTime()) && !isNaN(toDate.getTime());
-        }
-
-
-
-        public commitActivity =  async (githubUsername: string, reqWidth : number, reqHeight : number, reqFrom : string | undefined, reqTo : string | undefined) => {
+        public commitActivity =  async (githubUsername: string, reqWidth : number, reqHeight : number, paramsFrom : string | undefined, paramsTo : string | undefined) => {
         
             try {
-                const { width, height } = this.setUISize(reqWidth, reqHeight);
-                const { displayFrom, displayTo, from, to, redisFrom, redisTo } = this.setFromTo(reqFrom, reqTo);
+                const { width, height } = getUISize(reqWidth, reqHeight);
+                const { initFrom, initTo } =initParamsDate(paramsFrom, paramsTo);
+                const { displayFrom, displayTo } = getDisplayFromTo(initFrom, initTo);
+                const { isoFrom, isoTo } = getISOFromTo(initFrom, initTo, { fromHour: 0, toHour: 23 });
 
-
-                if (!this.isValidDate(from, to)) {
-                    throw new CommonError({
-                        status: 400,
-                        title: "Bad Request",
-                        type: "https://docs.github.com/en/graphql/overview/explorer",
-                        detail: "Invalid date range.",
-                        instance: "/api/readme/commit-activity.svg"
-                    });
+            
+                if (!isValidDateRange(initFrom, initTo)) {
+                    throw CommonError.create400Error("Invalid date", "/api/readme/commit-activity.svg");
                 }
 
+                const redisKey = createRedisKey(githubUsername, "commitActivity", {
+                    additionalKey : "svg",
+                    from : initFrom,
+                    to : initTo,
+                    lastKey : `${width}x${height}`
+                });
 
-                //redis 캐시키의 from to는 yyyymmdd만 사용한다.
-                const cachedData = await redisClient.get(`commitActivity:${githubUsername}:svg:${redisFrom}${redisTo}:${width}x${height}`);
+                console.log(`Redis Key: ${redisKey}`);
+
+                //어차피 initFrom과 initTo는 YYYYMMDD 형식으로 들어옴
+                const cachedData = await redisClient.get(redisKey);
                 if (cachedData) {
                     const svg = cachedData;
                     console.log("Serving cached SVG for commit activity chart");
@@ -85,10 +41,13 @@ class ReadmeService {
                 }
 
 
-                const commitActivity = await contributionService.getCommitActivity(undefined, githubUsername, from, to);
+                const commitActivity = await contributionService.getCommitActivity(undefined, githubUsername, isoFrom, isoTo);
                 const svg = RenderCommitActivitySVG(commitActivity, displayFrom, displayTo, width, height);
 
-                redisClient.setEx(`commitActivity:${githubUsername}:svg:${redisFrom}${redisTo}:${width}x${height}`, 60 * 60, svg); // 캐시 만료 시간: 1시간
+
+
+                console.log(`Set Redis Key: ${redisKey}`);
+                await redisClient.setEx(redisKey, 60 * 60, svg); // 캐시 만료 시간: 1시간
                 return svg;
 
             }catch(error){
@@ -124,3 +83,4 @@ class ReadmeService {
 
 const readmeService = new ReadmeService();
 export default readmeService;
+
