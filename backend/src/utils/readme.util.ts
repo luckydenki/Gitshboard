@@ -1,4 +1,39 @@
+import ErrorSVG from "../render/ErrorSVG";
+import CommonError from "./common-error";
 import { isYYYYMMDD, isDateKebabCase, parseDateToKebabCase } from "./parseDate";
+import { Response } from 'express';
+
+export const readmeErrorResponseHandler =  (error:unknown, response:Response)=>{
+
+    if(error instanceof CommonError){
+        response.status(error.status).type('image/svg+xml').send(ErrorSVG(error, 900, 430));
+    }
+    else if(error instanceof Error){
+        const commonError = CommonError.create500Error(error.message, "/api/readme/commit-activity.svg");
+        response.status(commonError.status).type('image/svg+xml').send(ErrorSVG(commonError, 900, 430));
+    }
+    else{
+        const commonError = CommonError.create500Error("Unknown error", "/api/readme/commit-activity.svg");
+        response.status(commonError.status).type('image/svg+xml').send(ErrorSVG(commonError, 900, 430));
+    }
+   
+
+}
+
+
+export const readmeErrorHandler = (error: unknown) => {
+    if (error instanceof CommonError) {
+        throw error;
+    }
+    else if (error instanceof Error) {
+        throw CommonError.create500Error(error.message, "/api/readme/commit-activity.svg");
+    }
+    else {
+        throw CommonError.create500Error("Unknown error", "/api/readme/commit-activity.svg");
+    }
+}
+
+
 
 
 /**
