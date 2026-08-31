@@ -2,28 +2,39 @@ import { CommitContributionActivity } from "../client/contribution.client";
 import contributionClient from "../client/contribution.client";
 import { redisClient } from "../infra/redis/redisClient";
 import CommonError from "../utils/common-error";
-import { getGithubCommitActivity } from "../utils/contribution";
+import { getGithubCommitActivity } from "../utils/contribution.util";
+
+
+const errorHandler = (error: unknown) => {
+    if(error instanceof CommonError){
+        throw error;
+    }
+    else if (error instanceof Error) {
+        throw new CommonError({
+            type: "https://docs.github.com/en/graphql/overview/explorer",
+            title: "GitHub API Error",
+            status: 500,
+            detail: error.message,
+            instance: "/graphql"
+        });
+    }
+    else{
+        throw error;
+    }
+}
 
 
 
 
 class ContributionService {
 
-
-
     public getCommitActivity = async (githubAccessToken: string | undefined, githubUsername: string | undefined, from: string, to: string) => {
 
         try {
             if(from > to){
-                throw new CommonError (
-                    {
-                        status : 400,
-                        title : "Bad Request",
-                        type : "https://docs.github.com/en/graphql/overview/explorer",
-                        detail : "The 'from' date must be earlier than the 'to' date.",
-                        instance: "/graphql"
-                    }
-                )
+                throw CommonError.create400Error(
+                    "The 'from' date must be earlier than the 'to' date.", 
+                    "/graphql");
             }
 
             //redis의 fromto는 yyyymmdd만 사용한다.
@@ -37,13 +48,7 @@ class ContributionService {
 
             if (!githubUsername) {
                 console.error("Missing required query parameter: username");
-                throw new CommonError({
-                    status: 400,
-                    title: "Bad Request",
-                    type: "https://docs.github.com/en/graphql/overview/explorer",
-                    detail: "Missing required query parameter: username",
-                    instance: "/graphql"
-                });
+                throw CommonError.create400Error("Missing required query parameter: username", "/graphql");
             }
             const data: CommitContributionActivity = await contributionClient.getCommitActivity(githubAccessToken, githubUsername, from, to);
             const githubCommitActivity = getGithubCommitActivity(data);
@@ -54,31 +59,8 @@ class ContributionService {
 
         }
         catch (error) {
-            console.error("Error in /commitActivity route:", error);
-
-            if(error instanceof CommonError){
-                throw error;
-            }
-            else if (error instanceof Error) {
-                throw new CommonError({
-                    type: "https://docs.github.com/en/graphql/overview/explorer",
-                    title: "GitHub API Error",
-                    status: 500,
-                    detail: error.message,
-                    instance: "/graphql"
-                });
-            }
-            else{
-                throw new CommonError({
-                    type: "https://docs.github.com/en/graphql/overview/explorer",
-                    title: "GitHub API Error",
-                    status: 500,
-                    detail: "An unexpected error occurred",
-                    instance: "/graphql"
-                });
-            }
+            errorHandler(error);
         }
-
     }
 }
 
