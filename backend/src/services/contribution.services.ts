@@ -1,6 +1,7 @@
 import { CommitContributionActivity } from "../client/contribution.client";
 import contributionClient from "../client/contribution.client";
 import { redisClient } from "../infra/redis/redisClient";
+import { GithubCommitActivity } from "../types/contribution";
 import CommonError from "../utils/common-error";
 import { getGithubCommitActivity } from "../utils/contribution.util";
 
@@ -43,7 +44,7 @@ class ContributionService {
             const cachedData = await redisClient.get(`commitActivity:${githubUsername}:${redisFrom}${redisTo}`);
             if (cachedData) {
                 console.log("Serving cached commit activity data");
-                return JSON.parse(cachedData);
+                return JSON.parse(cachedData) as GithubCommitActivity;
             }
 
             if (!githubUsername) {
