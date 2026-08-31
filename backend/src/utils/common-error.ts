@@ -16,6 +16,12 @@ class CommonError extends Error implements CommonErrorResponse {
     detail?: string;
     instance? : string;
 
+
+    // The following line is a typo and should be removed
+    contructor() : void{}
+
+
+
     constructor({ status, title, type, detail, instance }: CommonErrorResponse) {
         super(detail);
         this.status = status;
@@ -24,6 +30,42 @@ class CommonError extends Error implements CommonErrorResponse {
         this.detail = detail;
         this.instance = instance;
     }
+
+    public static create400Error(detail?: string, instance?: string): CommonError {
+        return new CommonError({
+            status: 400,
+            title: "Bad Request",
+            type: "https://docs.github.com/en/graphql/overview/explorer",
+            detail: detail,
+            instance: instance
+        });
+    }
+
+    public static create404Error(detail?: string, instance?: string): CommonError {
+        return new CommonError({
+            status: 404,
+            title: "Not Found",
+            type: "https://docs.github.com/en/graphql/overview/explorer",
+            detail: detail,
+            instance: instance
+        });
+    }
+
+
+    public static create500Error(detail?: string, instance?: string): CommonError {
+        return new CommonError({
+            status: 500,
+            title: "Internal Server Error",
+            type: "https://docs.github.com/en/graphql/overview/explorer",
+            detail: detail,
+            instance: instance
+        });
+    }
+
+
+
+
+
 }
 
 export default CommonError;
