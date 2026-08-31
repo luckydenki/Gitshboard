@@ -2,6 +2,7 @@ import redisRepository from "../repository/redis.repository";
 import githubRepoAPIClient from "../client/repo.client";
 import { GithubLanguageRepositoryNode, GithubRepoCommonResponse, GithubCommitTimeRepositoryNode, GithubProjectTopicsNode, ProjectLiveRateNode } from "../types/stat";
 import { calculateLanguageStats, CommitStats, LanguageStat, calculateCommitStats, ProjectCategoryStat, calculateProjectCategories, calculateDeveloperProfile, DeveloperProfileStats, calculateProjectHealth, ProjectHealthStats } from "../utils/stat";
+import CommonError from "../utils/common-error";
 
 
 const REDIS_DATA_EXPIRATION = 300; // 5분 동안 유지
@@ -26,7 +27,8 @@ class RepoService {
         try{
             const userData : GithubRepoCommonResponse<GithubLanguageRepositoryNode> | null = await githubRepoAPIClient.getLanguages(githubUsername, githubAccessToken);
             if(!userData){
-                throw new Error("Failed to fetch languages from GitHub API");
+                throw CommonError.create404Error("Github API 호출에 실패했습니다.", 
+                    `/api/repo/${githubUsername}/languages`);
             }
 
             const languageStats = calculateLanguageStats(userData);
