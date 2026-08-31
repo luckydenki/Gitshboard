@@ -4,7 +4,6 @@ import ErrorSVG from '../render/ErrorSVG';
 import readmeService from '../services/readme.services';
 import { readmeErrorResponseHandler } from '../utils/readme.util';
 
-
 class ReadmeController {
 
     public commitActivity = async (req: Request, res: Response) => {
@@ -14,11 +13,16 @@ class ReadmeController {
             const reqTo = req.query.to as string | undefined;
             const reqWidth = Number(req.query.width ?? 900);
             const reqHeight = Number(req.query.height ?? 430);
+            const locale = String(req.query.locale ?? "en");
 
+
+            if(locale !== "ko" && locale !== "en" && locale !== "jp"){
+                throw CommonError.create400Error("locale 쿼리 파라미터는 'ko', 'en', 'jp' 중 하나여야 합니다.", "/api/readme/commit-activity.svg");   
+            }
             if (!username || username.trim() === "") {
                 throw CommonError.create400Error("Github에서 사용하는 유저 이름을 username 쿼리 파라미터로 전달해 주세요", "/api/readme/commit-activity.svg");
             }
-            const svg = await readmeService.commitActivity(username, reqWidth, reqHeight, reqFrom, reqTo);
+            const svg = await readmeService.commitActivity(username, reqWidth, reqHeight, reqFrom, reqTo, locale);
             res.status(200).type('image/svg+xml').send(svg);
         }
         catch (err) {
@@ -32,12 +36,17 @@ class ReadmeController {
             const username: string = String(req.query.username ?? "");
             const reqWidth = Number(req.query.width ?? 900);
             const reqHeight = Number(req.query.height ?? 430);
+            const locale = String(req.query.locale ?? "en"); 
 
+            if(locale !== "ko" && locale !== "en" && locale !== "jp"){
+                throw CommonError.create400Error("locale 쿼리 파라미터는 'ko', 'en', 'jp' 중 하나여야 합니다.", "/api/readme/tech-distribution.svg");   
+            }
             if (!username || username.trim() === "") {
                 throw CommonError.create400Error("Github에서 사용하는 유저 이름을 username 쿼리 파라미터로 전달해 주세요", "/api/readme/tech-distribution.svg");
             }
 
-            const svg = await readmeService.techDistribution(username, reqWidth, reqHeight);
+
+            const svg = await readmeService.techDistribution(username, reqWidth, reqHeight, locale);
             res.status(200).type('image/svg+xml').send(svg);
 
         } catch (error) {
@@ -51,12 +60,18 @@ class ReadmeController {
             const username: string = String(req.query.username ?? "");
             const reqWidth = Number(req.query.width ?? 900);
             const reqHeight = Number(req.query.height ?? 430);
+            const locale = String(req.query.locale ?? "en");
+
+
+            if(locale !== "ko" && locale !== "en" && locale !== "jp"){
+                throw CommonError.create400Error("locale 쿼리 파라미터는 'ko', 'en', 'jp' 중 하나여야 합니다.", "/api/readme/preferred-commit-time.svg");
+            }
 
             if (!username || username.trim() === "") {
                 throw CommonError.create400Error("Github에서 사용하는 유저 이름을 username 쿼리 파라미터로 전달해 주세요", "/api/readme/preferred-commit-time.svg");
             }
 
-            const svg = await readmeService.preferredCommitTime(username, reqWidth, reqHeight);
+            const svg = await readmeService.preferredCommitTime(username, reqWidth, reqHeight, locale);
             res.status(200).type('image/svg+xml').send(svg);
 
         } catch (error) {
@@ -69,13 +84,17 @@ class ReadmeController {
             const username: string = String(req.query.username ?? "");
             const reqWidth = Number(req.query.width ?? 900);
             const reqHeight = Number(req.query.height ?? 430);
+            const locale = String(req.query.locale ?? "en");
 
+            if(locale !== "ko" && locale !== "en" && locale !== "jp"){
+                throw CommonError.create400Error("locale 쿼리 파라미터는 'ko', 'en', 'jp' 중 하나여야 합니다.", "/api/readme/weekly-commit-activity.svg");
+            }
             if (!username || username.trim() === "") {
                 throw CommonError.create400Error("Github에서 사용하는 유저 이름을 username 쿼리 파라미터로 전달해 주세요", "/api/readme/weekly-commit-activity.svg");
             }
 
             
-            const svg = await readmeService.weeklyCommitActivity(username, reqWidth, reqHeight);
+            const svg = await readmeService.weeklyCommitActivity(username, reqWidth, reqHeight, locale);
 
             res.status(200).type('image/svg+xml').send(svg);
         }

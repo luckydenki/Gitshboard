@@ -8,13 +8,14 @@ import RenderTechnologyDistributionSVG from "../render/RenderTechnologyDistribut
 import RenderPreferredCommitTimeSVG from "../render/RenderPreferredCommitTimeSVG";
 import RenderWeeklyActivitySVG from "../render/RenderWeeklyActivitySVG";
 import redisRepository from "../repository/redis.repository";
+import { RenderLocale } from "../render/locale/RenderLocale";
 
 
 //TODO : 테스트 시 참고 사항 - 서비스 종속성 : contributionService, repoService
 
 class ReadmeService {
 
-        public commitActivity =  async (githubUsername: string, reqWidth : number, reqHeight : number, paramsFrom : string | undefined, paramsTo : string | undefined) => {
+        public commitActivity =  async (githubUsername: string, reqWidth : number, reqHeight : number, paramsFrom : string | undefined, paramsTo : string | undefined, locale: RenderLocale) => {
         
             try {
                 const { width, height } = getUISize(reqWidth, reqHeight);
@@ -27,7 +28,7 @@ class ReadmeService {
                 }
 
                 const redisKey = redisRepository.createRedisKey(githubUsername, "commitActivity", {
-                    additionalKey : "svg",
+                    additionalKey : ["svg", locale],
                     from : initFrom,
                     to : initTo,
                     lastKey : `${width}x${height}`
@@ -44,7 +45,7 @@ class ReadmeService {
                     throw CommonError.create500Error("커밋 활동 정보를 가져오는 데 실패했습니다.", "/api/readme/commit-activity.svg");
                 }
                 
-                const svg = RenderCommitActivitySVG(commitActivity, displayFrom, displayTo, width, height);
+                const svg = RenderCommitActivitySVG(commitActivity, displayFrom, displayTo, width, height, locale);
                 await redisRepository.setEx(redisKey, 60 * 60, svg); // 캐시 만료 시간: 1시간
                 return svg;
 
@@ -53,10 +54,10 @@ class ReadmeService {
             }
         }
 
-        public techDistribution = async (githubUsername: string, reqWidth : number, reqHeight : number) => {
+        public techDistribution = async (githubUsername: string, reqWidth : number, reqHeight : number, locale: RenderLocale) => {
             
             const redisKey = redisRepository.createRedisKey(githubUsername, "techDistribution", {
-                additionalKey : "svg",
+                additionalKey : ["svg", locale],
                 lastKey : `${reqWidth}x${reqHeight}`
             });
 
@@ -71,15 +72,15 @@ class ReadmeService {
                 throw CommonError.create500Error("레포지토리 언어 사용량 정보를 가져오는 데 실패했습니다.", "/api/readme/tech-distribution.svg");
             }
 
-            const svg = RenderTechnologyDistributionSVG(languageStats, reqWidth, reqHeight);
+            const svg = RenderTechnologyDistributionSVG(languageStats, reqWidth, reqHeight, locale);
             await redisRepository.set<string>(redisKey, svg);
             return svg;
         }
 
         
-        public preferredCommitTime = async (githubUsername: string, reqWidth : number, reqHeight : number) => {
+        public preferredCommitTime = async (githubUsername: string, reqWidth : number, reqHeight : number, locale: RenderLocale) => {
             const redisKey = redisRepository.createRedisKey(githubUsername, "preferredCommitTime", {
-                additionalKey : "svg",
+                additionalKey : ["svg", locale],
                 lastKey : `${reqWidth}x${reqHeight}`
             });
             
@@ -94,16 +95,16 @@ class ReadmeService {
                 throw CommonError.create500Error("커밋 시간 정보를 가져오는 데 실패했습니다.", "/api/readme/preferred-commit-time.svg");
             }
 
-            const svg = RenderPreferredCommitTimeSVG(commitStats, reqWidth, reqHeight);
+            const svg = RenderPreferredCommitTimeSVG(commitStats, reqWidth, reqHeight, locale);
             await redisRepository.set<string>(redisKey, svg);
             return svg;
 
         }
 
 
-        public weeklyCommitActivity = async (githubUsername: string, reqWidth : number, reqHeight : number) => {
+        public weeklyCommitActivity = async (githubUsername: string, reqWidth : number, reqHeight : number, locale: RenderLocale) => {
             const redisKey = redisRepository.createRedisKey(githubUsername, "weeklyCommitActivity", {
-                additionalKey : "svg",
+                additionalKey : ["svg", locale], 
                 lastKey : `${reqWidth}x${reqHeight}`
             });
             const cachedData = await redisRepository.get<string>(redisKey);
@@ -118,7 +119,7 @@ class ReadmeService {
                 throw CommonError.create500Error("주간 커밋 활동 정보를 가져오는 데 실패했습니다.", "/api/readme/weekly-commit-activity.svg");
             }
 
-            const svg = RenderWeeklyActivitySVG(commitStats, reqWidth, reqHeight);
+            const svg = RenderWeeklyActivitySVG(commitStats, reqWidth, reqHeight, locale);
             await redisRepository.set<string>(redisKey, svg);
             return svg;
         }
