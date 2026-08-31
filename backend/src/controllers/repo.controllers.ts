@@ -20,7 +20,7 @@ class RepoController {
             return res.status(401).json(errorResponse);
         }
 
-        const data = await repoService.getLanguages(req.user.githubId, req.user.githubUsername, req.user.githubAccessToken);
+        const data = await repoService.getLanguages(req.user.githubUsername, req.user.githubAccessToken);
 
         if(data){
             const responseData : CommonResponse<LanguageStat[]> = {
@@ -55,7 +55,7 @@ class RepoController {
             return res.status(401).json(errorResponse);
         }
 
-        const commitTimeData = await repoService.getCommitTime(req.user.githubId, req.user.githubUsername, req.user.githubAccessToken);
+        const commitTimeData = await repoService.getCommitTime(req.user.githubUsername, req.user.githubAccessToken);
 
         if(commitTimeData){
             const responseData: CommonResponse<CommitStats> = {
@@ -88,7 +88,7 @@ class RepoController {
             return res.status(401).json(errorResponse);
         }
 
-        const projectTopicsData = await repoService.getProjectTopics(req.user.githubId, req.user.githubUsername, req.user.githubAccessToken);
+        const projectTopicsData = await repoService.getProjectTopics(req.user.githubUsername, req.user.githubAccessToken);
 
         if(projectTopicsData){
             const responseData: CommonResponse<ProjectCategoryStat[]> = {
@@ -122,7 +122,7 @@ class RepoController {
             return res.status(401).json(errorResponse);
         }
         
-        const developStatsData = await repoService.getDevelopStats(req.user.githubId, req.user.githubUsername, req.user.githubAccessToken);
+        const developStatsData = await repoService.getDevelopStats(req.user.githubUsername, req.user.githubAccessToken);
 
         if(developStatsData){
             const responseData : CommonResponse<DeveloperProfileStats> = {
@@ -158,7 +158,7 @@ class RepoController {
             return res.status(401).json(errorResponse);
         }
 
-        const projectLiveRateData = await repoService.getProjectLiveRate(req.user.githubId, req.user.githubUsername, req.user.githubAccessToken);
+        const projectLiveRateData = await repoService.getProjectLiveRate(req.user.githubUsername, req.user.githubAccessToken);
 
         if(projectLiveRateData){
             const responseData : CommonResponse<ProjectHealthStats> = {

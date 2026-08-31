@@ -1,7 +1,7 @@
 import { AuthRequest } from '../types/middlewares/auth';
 import { Response } from 'express';
 import { CommonErrorResponse, CommonResponse } from '../types/middlewares/common';
-import searchService from '../services/search.service';
+import searchService from '../services/search.services';
 
 interface GithubUserSearchItem {
     login: string,

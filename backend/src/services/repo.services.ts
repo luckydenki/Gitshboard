@@ -2,21 +2,22 @@ import redisRepository from "../repository/redis.repository";
 import githubRepoAPIClient from "../client/repo.client";
 import { GithubLanguageRepositoryNode, GithubRepoCommonResponse, GithubCommitTimeRepositoryNode, GithubProjectTopicsNode, ProjectLiveRateNode } from "../types/stat";
 import { calculateLanguageStats, CommitStats, LanguageStat, calculateCommitStats, ProjectCategoryStat, calculateProjectCategories, calculateDeveloperProfile, DeveloperProfileStats, calculateProjectHealth, ProjectHealthStats } from "../utils/stat";
+import CommonError from "../utils/common-error";
 
 
 const REDIS_DATA_EXPIRATION = 300; // 5분 동안 유지
 
-const createRedisKey = (githubId: number, dataType: string) => {
-    return `gitshboard:stats:${githubId}:${dataType}`;
+const createRedisKey = (githubUsername: string, dataType: string) => {
+    return `gitshboard:stats:${githubUsername}:${dataType}`;
 };
 
 class RepoService {
 
 
 
-    public getLanguages = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
+    public getLanguages = async( githubUsername : string, githubAccessToken : string | undefined) => {
     
-        const cachedData = await redisRepository.get<LanguageStat[]>(createRedisKey(githubId, "languages"));
+        const cachedData = await redisRepository.get<LanguageStat[]>(createRedisKey(githubUsername, "languages"));
         
         if(cachedData){
             console.log("Redis hit : languages");
@@ -26,11 +27,12 @@ class RepoService {
         try{
             const userData : GithubRepoCommonResponse<GithubLanguageRepositoryNode> | null = await githubRepoAPIClient.getLanguages(githubUsername, githubAccessToken);
             if(!userData){
-                throw new Error("Failed to fetch languages from GitHub API");
+                throw CommonError.create404Error("Github API 호출에 실패했습니다.", 
+                    `/api/repo/${githubUsername}/languages`);
             }
 
             const languageStats = calculateLanguageStats(userData);
-            const success = await redisRepository.set(createRedisKey(githubId, "languages"), languageStats, REDIS_DATA_EXPIRATION);
+            const success = await redisRepository.set(createRedisKey(githubUsername, "languages"), languageStats, REDIS_DATA_EXPIRATION);
 
             if(!success){
                 console.error("Failed to set cache for languages");
@@ -45,9 +47,9 @@ class RepoService {
     };
 
 
-    public getCommitTime = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
+    public getCommitTime = async(githubUsername : string, githubAccessToken : string | undefined) => {
 
-        const cachedData = await redisRepository.get<CommitStats>(createRedisKey(githubId, "commitTime"));
+        const cachedData = await redisRepository.get<CommitStats>(createRedisKey(githubUsername, "commitTime"));
 
         //없을 경우 cachedData는 null임.
         if (cachedData) {
@@ -63,7 +65,7 @@ class RepoService {
             }
 
             const commitStats: CommitStats = calculateCommitStats(userData);
-            const success = await redisRepository.set(createRedisKey(githubId, "commitTime"), commitStats, REDIS_DATA_EXPIRATION);
+            const success = await redisRepository.set(createRedisKey(githubUsername, "commitTime"), commitStats, REDIS_DATA_EXPIRATION);
             if(!success){
                 console.error("Failed to set cache for commit time");
                 //redis 가 실패해도 통계 데이터는 반환합니다.
@@ -79,9 +81,9 @@ class RepoService {
     };
 
 
-    public getProjectTopics = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
+    public getProjectTopics = async(    githubUsername : string, githubAccessToken : string | undefined) => {
 
-        const cachedData = await redisRepository.get<ProjectCategoryStat[]>(createRedisKey(githubId, "projectTopics"));
+        const cachedData = await redisRepository.get<ProjectCategoryStat[]>(createRedisKey(githubUsername, "projectTopics"));
 
         //없을 경우 cachedData는 null임.
         if (cachedData) {
@@ -96,7 +98,7 @@ class RepoService {
                 throw new Error("Failed to fetch project topics from GitHub API");
             }
             const projectTopics: ProjectCategoryStat[] = calculateProjectCategories(userData);
-            const success = await redisRepository.set(createRedisKey(githubId, "projectTopics"), projectTopics, REDIS_DATA_EXPIRATION);
+            const success = await redisRepository.set(createRedisKey(githubUsername, "projectTopics"), projectTopics, REDIS_DATA_EXPIRATION);
             if(!success){
                 throw new Error("Failed to set cache for project topics");
             }
@@ -109,11 +111,11 @@ class RepoService {
         }
     };
 
-    public getDevelopStats = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
+    public getDevelopStats = async(githubUsername : string, githubAccessToken : string | undefined) => {
 
 
         //304 Not Modified 요청에 대한 대비
-        const cachedData = await redisRepository.get<DeveloperProfileStats>(createRedisKey(githubId, "developStats"));
+        const cachedData = await redisRepository.get<DeveloperProfileStats>(createRedisKey(githubUsername, "developStats"));
 
         //없을 경우 cachedData는 null임.
         if (cachedData) {
@@ -129,7 +131,7 @@ class RepoService {
                 throw new Error("Failed to fetch develop stats from GitHub API");
             }
             const developerProfileStats: DeveloperProfileStats = calculateDeveloperProfile(userData);
-            const success = await redisRepository.set(createRedisKey(githubId, "developStats"), developerProfileStats, REDIS_DATA_EXPIRATION);
+            const success = await redisRepository.set(createRedisKey(githubUsername, "developStats"), developerProfileStats, REDIS_DATA_EXPIRATION);
 
             if(!success){
                 console.error("Failed to set cache for develop stats");
@@ -147,9 +149,9 @@ class RepoService {
 
 
 
-    public getProjectLiveRate = async(githubId : number, githubUsername : string, githubAccessToken : string) => {
+    public getProjectLiveRate = async(githubUsername : string, githubAccessToken : string | undefined   ) => {
       //304 Not Modified 요청에 대한 대비
-            const cachedData = await redisRepository.get<ProjectHealthStats>(createRedisKey(githubId, "projectLiveRate"));
+            const cachedData = await redisRepository.get<ProjectHealthStats>(createRedisKey(githubUsername, "projectLiveRate"));
 
             //없을 경우 cachedData는 null임.
             if (cachedData) {
@@ -164,7 +166,7 @@ class RepoService {
                 }
 
                 const projectHealthStats = calculateProjectHealth(userData);
-                const success = await redisRepository.set(createRedisKey(githubId, "projectLiveRate"), projectHealthStats, REDIS_DATA_EXPIRATION);
+                const success = await redisRepository.set(createRedisKey(githubUsername , "projectLiveRate"), projectHealthStats, REDIS_DATA_EXPIRATION);
                 if(!success){
                     console.error("Failed to set cache for project live rate");
                     //redis 가 실패해도 통계 데이터는 반환합니다.

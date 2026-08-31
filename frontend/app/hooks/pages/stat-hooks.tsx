@@ -6,7 +6,7 @@ import {
     type LanguageStat,
     type ProjectHealthStats,
 } from "~/types/page/statpage";
-import type { CommonErrorResponse, CommonResponse } from "~/types/common/common";
+import type { CommonErrorResponse } from "~/types/common/common";
 import { statQueryFn } from "~/utils/statpage";
 
 
@@ -18,7 +18,7 @@ const projectLiveRateQueryFn = async()=> await statQueryFn(`/api/repos/projectLi
 
 
 export function useLanguagesQuery(){
-    return useQuery<CommonResponse<LanguageStat[]>, CommonErrorResponse>({
+    return useQuery<LanguageStat[], CommonErrorResponse>({
         queryKey: ["languagesData"],
         queryFn: async() => await languagesQueryFn(),
         gcTime: 10 * 60 * 1000,
@@ -26,7 +26,7 @@ export function useLanguagesQuery(){
 }
 
 export function useCommitTimeQuery(){
-    return useQuery<CommonResponse<CommitStats>, CommonErrorResponse>({
+    return useQuery<CommitStats, CommonErrorResponse>({
         queryKey: ["commitTimeData"],
         queryFn: async () => await commitTimeQueryFn() ,
         gcTime: 10 * 60 * 1000,
@@ -35,7 +35,7 @@ export function useCommitTimeQuery(){
 
 
 export function useProjectTopicsQuery(){
-    return useQuery<CommonResponse<CategoryStat[]>, CommonErrorResponse>({
+    return useQuery<CategoryStat[], CommonErrorResponse>({
         queryKey: ["projectTopicsData"],
         queryFn: async () => await projectTopicsQueryFn(),
         gcTime: 10 * 60 * 1000,
@@ -44,7 +44,7 @@ export function useProjectTopicsQuery(){
 
 
 export function useDevelopStatsQuery(){
-    return useQuery<CommonResponse<DeveloperProfileStats>, CommonErrorResponse  >({
+    return useQuery<DeveloperProfileStats, CommonErrorResponse  >({
         queryKey: ["developStatsData"], 
         queryFn: async () => await developStatsQueryFn(),
         gcTime: 10 * 60 * 1000,
@@ -52,7 +52,7 @@ export function useDevelopStatsQuery(){
 }
 
 export function useProjectLiveRateQuery(){
-    return useQuery<CommonResponse<ProjectHealthStats>, CommonErrorResponse>({
+    return useQuery<ProjectHealthStats, CommonErrorResponse>({
         queryKey: ["projectLiveRateData"],
         queryFn: async () => await projectLiveRateQueryFn(),
         gcTime: 10 * 60 * 1000,

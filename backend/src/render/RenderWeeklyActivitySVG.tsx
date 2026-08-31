@@ -1,12 +1,10 @@
 import * as echarts from "echarts";
-import type { GithubCommitActivity } from "../types/contribution";
-import { chart } from "./echart/CommitActivityEchart";
+import type { CommitStats } from "../utils/stat";
+import { chart } from "./echart/WeeklyActivityEchart";
 import type { RenderLocale } from "./locale/RenderLocale";
 
-export function RenderCommitActivitySVG(
-    commitActivity: GithubCommitActivity,
-    from: string,
-    to: string,
+export default function RenderWeeklyActivitySVG(
+    commitStats: CommitStats,
     width: number,
     height: number,
     locale: RenderLocale = "en",
@@ -18,7 +16,7 @@ export function RenderCommitActivitySVG(
         height,
     });
 
-    echart.setOption(chart(commitActivity, from, to, width, height, locale));
+    echart.setOption(chart(commitStats, width, height, locale));
 
     const svg = echart.renderToSVGString();
     echart.dispose();

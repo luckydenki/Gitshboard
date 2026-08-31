@@ -1,10 +1,8 @@
 import { Router } from 'express';
+import readmeController from '../controllers/readme.controllers';
 import CommonError from '../utils/common-error';
-import contributionService from '../services/contribution.services';
-
-import { RenderCommitActivitySVG } from '../render/RenderCommitActivitySVG';
-import { redisClient } from '../infra/redis/redisClient';
 import ErrorSVG from '../render/ErrorSVG';
+
 
 
 
@@ -16,104 +14,25 @@ readme_router.get('/health', (req, res)=>{
 })
 
 
-readme_router.get('/', (req, res)=>{
-    res.json({ message: 'Readme route is working!' });
-});
+// GET /api/readme/contribution.svg?username={username}&from={from}&to={to}&width={width}&height={height}
+readme_router.get('/commit-activity.svg', readmeController.commitActivity);
+//해당 svg가 보여주는 정보는 특정 기간 동안의 커밋 활동입니다. (커밋 수, 커밋 시간대 등)
+
+// GET /api/readme/tech-distribution.svg
+readme_router.get('/tech-distribution.svg',readmeController.techDistribution);
+//해당 svg가 보여주는 정보는 기술 스택 분포입니다. 주로 사용되는 언어와 그 비율을 시각적으로 보여줍니다.
+
+// GET /api/readme/preferred-commit-time.svg
+readme_router.get('/preferred-commit-time.svg',readmeController.preferredCommitTime);
+//해당 svg가 보여주는 정보는 선호 커밋 시간대입니다. 주로 활동하는 시간대와 비활동 시간대를 시각적으로 보여줍니다.
+
+// GET /api/readme/weekly-commit-activity.svg
+readme_router.get('/weekly-commit-activity.svg', readmeController.weeklyCommitActivity);
+// 해당 svg가 보여주는 정보는 딱 한 주간의 커밋 활동입니다. 주간 커밋 수와 시간대별 활동을 시각적으로 보여줍니다.
 
 
-
-// GET /api/readme/contribution.svg
-readme_router.get('/commit-activity.svg', async (req, res)=>{
-    try{
-        const username: string = String(req.query.username ?? "");
-
-        if(username === undefined || username.trim() === ""){
-            const error = new CommonError({
-                status: 400,
-                title: "Bad Request",
-                type: "https://docs.github.com/en/graphql/overview/explorer",
-                detail: "Github에서 사용하는 유저 이름을 username 쿼리 파라미터로 전달해 주세요",
-                instance: "/api/readme/commit-activity.svg"
-            });
-            throw error;
-        }
-
-        
-        const width = Math.max(Math.min(Number(req.query.width ?? 900), 1500), 200);
-        const height = Math.max(Math.min(Number(req.query.height ?? 430), 1500), 100);
-
-        
-
-        //to가 없는 경우 오늘 날짜로 지정하며, 시간은 정확히 23:59:59로 설정 (YYYY-MM-DD)
-        //(YYYY-MM-DD)
-        const to: string = String(req.query.to ?? new Date(new Date().setHours(23, 59, 59, 999)).toISOString());
-        //from이 없는 경우 30일 전 날짜로 지정하며, 시간은 정확히 00:00:00로 설정 (YYYY-MM-DD)
-        const from: string = String(req.query.from ?? new Date(new Date().setDate(new Date().getDate() - 30)).toISOString());
-        //console.log("fromto :", from, to);
-
-        //그런데 만약 to와 from의 차이가 1년이라면 github api가 허용을 안해주기 때문에 400 throw 해줌
-        if(new Date(to).getTime() - new Date(from).getTime() > 365 * 24 * 60 * 60 * 1000){
-            const error = new CommonError({
-                status: 400,
-                title: "Bad Request",
-                type: "https://docs.github.com/en/graphql/overview/explorer",
-                detail: "조회 기간은 1년 이내로 설정해 주세요",
-                instance: "/api/readme/commit-activity.svg"
-            });
-            throw error;
-        }
-
-
-        //redis 캐시키의 from to는 yyyymmdd만 사용한다.
-        const redisFrom = from.split("T")[0].replace(/-/g, '');
-        const redisTo = to.split("T")[0].replace(/-/g, '');
-
-        const cachedData = await redisClient.get(`commitActivity:${username}:svg:${redisFrom}${redisTo}:${width}x${height}`);
-        if (cachedData) {
-            const svg = cachedData;
-            console.log("Serving cached SVG for commit activity chart");
-            return res.status(200).type('image/svg+xml').send(svg);
-        }
-
-        
-        const commitActivity = await contributionService.getCommitActivity(undefined, username, from, to);
-        const svg = RenderCommitActivitySVG(commitActivity,from, to, width, height);
-        
-        redisClient.setEx(`commitActivity:${username}:svg:${redisFrom}${redisTo}:${width}x${height}`, 60 * 60, svg); // 캐시 만료 시간: 1시간
-
-        res.status(200).type('image/svg+xml').send(svg);
-    }
-    catch(err){
-        let commonError;
-
-        if (err instanceof CommonError) {
-            commonError = err;
-            ErrorSVG(commonError, 900, 430); // 기본 크기 사용
-            return res.status(commonError.status).type('image/svg+xml').send(ErrorSVG(commonError, 900, 430));
-        }
-        else if(err instanceof Error){
-            commonError = new CommonError({
-                status: 500,
-                title: "Internal Server Error",
-                type: "https://docs.github.com/en/graphql/overview/explorer",
-                detail: err.message,
-                instance: "/api/readme/commit-activity.svg"
-            });
-        }
-        else{
-            commonError = new CommonError({
-                status: 500,
-                title: "Internal Server Error",
-                type: "https://docs.github.com/en/graphql/overview/explorer",
-                detail: "An unexpected error occurred",
-                instance: "/api/readme/commit-activity.svg"
-            });
-        }
-
-        res.status(commonError.status).json(commonError);
-    }
-})
-
+// 공통 에러처리 훅
+readme_router.use(readmeController.notFound);
 
 
 export default readme_router;
