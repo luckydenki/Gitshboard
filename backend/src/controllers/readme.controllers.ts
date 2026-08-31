@@ -1,60 +1,14 @@
-import { parseYYMMDD } from '../utils/parseYYMMDD';
 import { Request, Response } from 'express';
 import CommonError from '../utils/common-error';
 import ErrorSVG from '../render/ErrorSVG';
 import readmeService from '../services/readme.services';
+import repoService from '../services/repo.services';
+import RenderTechnologyDistributionSVG from '../render/RenderTechnologyDistributionSVG';
+import RenderPreferredCommitTimeSVG from '../render/RenderPreferredCommitTimeSVG';
+import RenderWeeklyActivitySVG from '../render/RenderWeeklyActivitySVG';
 
 
 class ReadmeController {
-
-
-    setUISize(width: number, height: number) {
-        const newWidth = Math.max(Math.min(width, 1500), 200);
-        const newHeight = Math.max(Math.min(height, 1500), 100);
-        return { width: newWidth, height: newHeight };
-    }
-
-
-    setFromTo(reqFrom : string | undefined, reqTo : string | undefined) {
-        const displayFrom = reqFrom ? parseYYMMDD(String(reqFrom)) : new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0];
-        const displayTo = reqTo ? parseYYMMDD(String(reqTo)) : new Date().toISOString().split('T')[0];
-        const from = new Date(new Date(displayFrom).setHours(0, 0, 0, 0)).toISOString();
-        const to = new Date(new Date(displayTo).setHours(23, 59, 59, 999)).toISOString();
-        const redisFrom = displayFrom.replace(/-/g, '');
-        const redisTo = displayTo.replace(/-/g, '');
-        console.log("displayFrom :", displayFrom, " displayTo :", displayTo);
-        console.log("from :", from, " to :", to);
-        return { displayFrom, displayTo, from, to, redisFrom, redisTo };
-    }
-
-
-    isValidDate(from : string, to : string): boolean {
-        const fromDate = new Date(from);
-        const toDate = new Date(to);
-
-        if (fromDate.getTime() > toDate.getTime()) {
-            throw new CommonError({
-                status: 400,
-                title: "Bad Request",
-                type: "https://docs.github.com/en/graphql/overview/explorer",
-                detail: "The 'from' date must be earlier than the 'to' date.",
-                instance: "/graphql"
-            });
-        }
-
-        else if(toDate.getTime() - fromDate.getTime() > 365 * 24 * 60 * 60 * 1000){
-            throw new CommonError({
-                status: 400,
-                title: "Bad Request",
-                type: "https://docs.github.com/en/graphql/overview/explorer",
-                detail: "조회 기간은 1년 이내로 설정해 주세요",
-                instance: "/graphql"
-            });
-        }
-
-        return !isNaN(fromDate.getTime()) && !isNaN(toDate.getTime());
-    }
-
 
     public commitActivity = async (req: Request, res: Response) => {
         try {
@@ -106,6 +60,204 @@ class ReadmeController {
             res.status(commonError.status).type('image/svg+xml').send(ErrorSVG(commonError, 900, 430));
         }
     }
+
+
+    public techDistribution = async (req : Request, res : Response) => {
+        try {
+
+            const username: string = String(req.query.username ?? "");
+            const reqWidth = Number(req.query.width ?? 900);
+            const reqHeight = Number(req.query.height ?? 430);
+
+            const languageStats = await repoService.getLanguages(username, undefined);
+
+            if (!languageStats) {
+                throw new CommonError({
+                    status: 500,
+                    title: "GitHub API Error",
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    detail: "레포지토리 언어 사용량 정보를 가져오는 데 실패했습니다.",
+                });
+            }
+
+            const svg = RenderTechnologyDistributionSVG(languageStats, reqWidth, reqHeight);
+            res.type('image/svg+xml').send(svg);
+        } catch (error) {
+            if (error instanceof CommonError) {
+                res.status(error.status).type('image/svg+xml').send(ErrorSVG(error, 900, 430));
+            }
+            else if (error instanceof Error) {
+                const commonError = new CommonError({
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    title: error.name,
+                    status: 500,
+                    detail: error.message
+                });
+                res.status(500).type('image/svg+xml').send(ErrorSVG(commonError, 900, 430));
+            }
+            else {
+                const error = new CommonError({
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    title: "Unknown Error",
+                    status: 500,
+                    detail: "An unknown error occurred."
+                });
+
+                res.status(500).type('image/svg+xml').send(ErrorSVG(error, 900, 430));
+            }
+        }
+    }
+
+    public preferredCommitTime = async (req: Request, res: Response) => {
+        try {
+            const username: string = String(req.query.username ?? "");
+            const reqWidth = Number(req.query.width ?? 900);
+            const reqHeight = Number(req.query.height ?? 430);
+
+            const data = await repoService.getCommitTime(username, undefined);
+
+            if (!data) {
+                throw new CommonError({
+                    status: 500,
+                    title: "GitHub API Error",
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    detail: "커밋 시간 정보를 가져오는 데 실패했습니다.",
+                });
+            }
+
+            const svg = RenderPreferredCommitTimeSVG(data, reqWidth, reqHeight);
+            res.type('image/svg+xml').send(svg);
+
+        } catch (error) {
+            if (error instanceof CommonError) {
+                res.status(error.status).type('image/svg+xml').send(ErrorSVG(error, 900, 430));
+            }
+            else if (error instanceof Error) {
+                const commonError = new CommonError({
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    title: error.name,
+                    status: 500,
+                    detail: error.message
+                });
+                res.status(500).type('image/svg+xml').send(ErrorSVG(commonError, 900, 430));
+            }
+            else {
+                const error = new CommonError({
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    title: "Unknown Error",
+                    status: 500,
+                    detail: "An unknown error occurred."
+                });
+                res.status(500).type('image/svg+xml').send(ErrorSVG(error, 900, 430));
+            }
+        }
+    }
+
+    public weeklyActivity = async (req : Request, res : Response) => {
+        try {
+            const username: string = String(req.query.username ?? "");
+            const reqWidth = Number(req.query.width ?? 900);
+            const reqHeight = Number(req.query.height ?? 430);
+
+            const data = await repoService.getCommitTime(username, undefined);
+
+            if (!data) {
+                throw new CommonError({
+                    status: 500,
+                    title: "GitHub API Error",
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    detail: "주간 커밋 활동 정보를 가져오는 데 실패했습니다.",
+                });
+            }
+
+            const svg = RenderWeeklyActivitySVG(data, reqWidth, reqHeight);
+            res.type('image/svg+xml').send(svg);
+
+        }
+        catch (error) {
+            if (error instanceof CommonError) {
+                res.status(error.status).type('image/svg+xml').send(ErrorSVG(error, 900, 430));
+            }
+            else if (error instanceof Error) {
+                const commonError = new CommonError({
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    title: error.name,
+                    status: 500,
+                    detail: error.message
+                });
+                res.status(500).type('image/svg+xml').send(ErrorSVG(commonError, 900, 430));
+            }
+            else {
+                const error = new CommonError({
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    title: "Unknown Error",
+                    status: 500,
+                    detail: "An unknown error occurred."
+                });
+                res.status(500).type('image/svg+xml').send(ErrorSVG(error, 900, 430));
+            }
+        }
+    }
+
+
+    public weeklyCommitActivity = async (req: Request, res: Response) => {
+        try {
+            const username: string = String(req.query.username ?? "");
+            const reqWidth = Number(req.query.width ?? 900);
+            const reqHeight = Number(req.query.height ?? 430);
+
+            const data = await repoService.getCommitTime(username, undefined);
+
+            if (!data) {
+                throw new CommonError({
+                    status: 500,
+                    title: "GitHub API Error",
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    detail: "주간 커밋 활동 정보를 가져오는 데 실패했습니다.",
+                });
+            }
+
+            const svg = RenderWeeklyActivitySVG(data, reqWidth, reqHeight);
+            res.type('image/svg+xml').send(svg);
+
+        }
+        catch (error) {
+            if (error instanceof CommonError) {
+                res.status(error.status).type('image/svg+xml').send(ErrorSVG(error, 900, 430));
+            }
+            else if (error instanceof Error) {
+                const commonError = new CommonError({
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    title: error.name,
+                    status: 500,
+                    detail: error.message
+                });
+                res.status(500).type('image/svg+xml').send(ErrorSVG(commonError, 900, 430));
+            }
+            else {
+                const error = new CommonError({
+                    type: "https://docs.github.com/en/graphql/overview/explorer",
+                    title: "Unknown Error",
+                    status: 500,
+                    detail: "An unknown error occurred."
+                });
+                res.status(500).type('image/svg+xml').send(ErrorSVG(error, 900, 430));
+            }
+        }
+    }
+
+
+    public notFound = (req: Request, res: Response) => {
+        const error = new CommonError({
+            status: 404,
+            title: "Not Found",
+            type: "https://docs.github.com/en/graphql/overview/explorer",
+            detail: "요청하신 API를 찾을 수 없습니다.",
+        });
+        res.status(404).type('image/svg+xml').send(ErrorSVG(error, 900, 430));
+    }
+            
+
 }
 
 
