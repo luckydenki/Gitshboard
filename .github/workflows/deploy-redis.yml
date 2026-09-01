@@ -1,0 +1,43 @@
+name: Deploy to cloudtype redis
+on:
+  push:
+    branches:
+      - main
+
+  schedule:   
+    # 매일 한국 시간 오전 6시
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Connect deploy key
+        uses: cloudtype-github-actions/connect@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+          ghtoken: ${{ secrets.GHP_TOKEN }}
+      - name: Deploy
+        uses: cloudtype-github-actions/deploy@v1
+        with:
+          token: ${{ secrets.CLOUDTYPE_TOKEN }}
+          project: etanolfly98/gitshboard
+          stage: main
+          yaml: |
+            name: gitshboard-redis
+            app: redis@7
+            options:
+              auth: true
+              password: 415415asdzxc!
+              disable_flushdb: false
+              disable_flushall: false
+              disable_config: false
+              aof: false
+            context:
+              preset: redis
+              git:
+                url: git@github.com:${{ github.repository }}.git
+                ref: ${{ github.ref }}
