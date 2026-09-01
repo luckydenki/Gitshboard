@@ -2,7 +2,7 @@ name: Deploy to cloudtype redis
 on:
   push:
     branches:
-      - main
+      - master
 
   schedule:   
     # 매일 한국 시간 오전 6시
