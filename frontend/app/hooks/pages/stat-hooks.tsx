@@ -9,32 +9,29 @@ import {
 import type { CommonErrorResponse } from "~/types/common/common";
 import { statQueryFn } from "~/utils/statpage";
 
+const languagesQueryFn = async () => await statQueryFn(`/api/repos/languages`);
+const commitTimeQueryFn = async () => await statQueryFn(`/api/repos/commitTime`);
+const projectTopicsQueryFn = async () => await statQueryFn(`/api/repos/projectTopics`);
+const developStatsQueryFn = async () => await statQueryFn(`/api/repos/developStats`);
+const projectLiveRateQueryFn = async () => await statQueryFn(`/api/repos/projectLiveRate`);
 
-const languagesQueryFn = async() => await statQueryFn(`/api/repos/languages`);
-const commitTimeQueryFn = async()=> await statQueryFn(`/api/repos/commitTime`);
-const projectTopicsQueryFn = async()=> await statQueryFn(`/api/repos/projectTopics`);
-const developStatsQueryFn = async()=> await statQueryFn(`/api/repos/developStats`);
-const projectLiveRateQueryFn = async()=> await statQueryFn(`/api/repos/projectLiveRate`);
-
-
-export function useLanguagesQuery(){
+export function useLanguagesQuery() {
     return useQuery<LanguageStat[], CommonErrorResponse>({
         queryKey: ["languagesData"],
-        queryFn: async() => await languagesQueryFn(),
+        queryFn: async () => await languagesQueryFn(),
         gcTime: 10 * 60 * 1000,
     });
 }
 
-export function useCommitTimeQuery(){
+export function useCommitTimeQuery() {
     return useQuery<CommitStats, CommonErrorResponse>({
         queryKey: ["commitTimeData"],
-        queryFn: async () => await commitTimeQueryFn() ,
+        queryFn: async () => await commitTimeQueryFn(),
         gcTime: 10 * 60 * 1000,
     });
 }
 
-
-export function useProjectTopicsQuery(){
+export function useProjectTopicsQuery() {
     return useQuery<CategoryStat[], CommonErrorResponse>({
         queryKey: ["projectTopicsData"],
         queryFn: async () => await projectTopicsQueryFn(),
@@ -42,44 +39,41 @@ export function useProjectTopicsQuery(){
     });
 }
 
-
-export function useDevelopStatsQuery(){
-    return useQuery<DeveloperProfileStats, CommonErrorResponse  >({
-        queryKey: ["developStatsData"], 
+export function useDevelopStatsQuery() {
+    return useQuery<DeveloperProfileStats, CommonErrorResponse>({
+        queryKey: ["developStatsData"],
         queryFn: async () => await developStatsQueryFn(),
         gcTime: 10 * 60 * 1000,
     });
 }
 
-export function useProjectLiveRateQuery(){
+export function useProjectLiveRateQuery() {
     return useQuery<ProjectHealthStats, CommonErrorResponse>({
         queryKey: ["projectLiveRateData"],
         queryFn: async () => await projectLiveRateQueryFn(),
         gcTime: 10 * 60 * 1000,
     });
-}   
+}
 
-
-
-
-
-
-export function useStatQuery(){
-
+export function useStatQuery() {
     const languagesQuery = useLanguagesQuery();
     const commitTimeQuery = useCommitTimeQuery();
     const projectTopicsQuery = useProjectTopicsQuery();
     const developStatsQuery = useDevelopStatsQuery();
     const projectLiveRateQuery = useProjectLiveRateQuery();
 
-
-
-    const isLoading = languagesQuery.isLoading || commitTimeQuery.isLoading || projectTopicsQuery.isLoading || developStatsQuery.isLoading || projectLiveRateQuery.isLoading;
-    const isError = languagesQuery.isError || commitTimeQuery.isError || projectTopicsQuery.isError || developStatsQuery.isError || projectLiveRateQuery.isError;
-
-
-
-
+    const isLoading =
+        languagesQuery.isLoading ||
+        commitTimeQuery.isLoading ||
+        projectTopicsQuery.isLoading ||
+        developStatsQuery.isLoading ||
+        projectLiveRateQuery.isLoading;
+    const isError =
+        languagesQuery.isError ||
+        commitTimeQuery.isError ||
+        projectTopicsQuery.isError ||
+        developStatsQuery.isError ||
+        projectLiveRateQuery.isError;
 
     return {
         languagesQuery,
@@ -89,7 +83,5 @@ export function useStatQuery(){
         projectLiveRateQuery,
         isLoading,
         isError,
-
-    };  
-
+    };
 }

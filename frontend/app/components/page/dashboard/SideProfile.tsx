@@ -1,31 +1,28 @@
-
-export interface SideProfileComponentProps{
-    userDataState : {
-        avatar_url : string,
-        login : string,
-        name: string | null,
-        bio: string | null,
-        html_url: string,
-        followers: number,
-        following: number,
-        company: string | null,
-        location: string | null,
-        email: string | null,
-        blog: string | null
-    }
+export interface SideProfileComponentProps {
+    userDataState: {
+        avatar_url: string;
+        login: string;
+        name: string | null;
+        bio: string | null;
+        html_url: string;
+        followers: number;
+        following: number;
+        company: string | null;
+        location: string | null;
+        email: string | null;
+        blog: string | null;
+    };
 }
 
-
-
-export default function SideProfile({ userDataState }: SideProfileComponentProps){
+export default function SideProfile({ userDataState }: SideProfileComponentProps) {
     const profileDetails = [
         { label: "Company", value: userDataState.company },
         { label: "Location", value: userDataState.location },
         { label: "Email", value: userDataState.email },
     ].filter((item) => item.value);
 
-    return(
-        <aside className="flex  min-h-135 flex-col rounded-4xl bg-gray-950 p-7 text-white shadow-[0_30px_80px_rgba(15,23,42,0.22)] lg:sticky lg:top-28">
+    return (
+        <aside className="flex min-h-135 flex-col rounded-4xl bg-gray-950 p-7 text-white shadow-[0_30px_80px_rgba(15,23,42,0.22)] lg:sticky lg:top-28">
             <div className="flex flex-col gap-7">
                 <div className="flex items-center gap-5 lg:flex-col lg:items-start">
                     <img
@@ -35,10 +32,10 @@ export default function SideProfile({ userDataState }: SideProfileComponentProps
                     />
 
                     <div>
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-gray-400">
+                        <p className="mb-2 text-xs font-semibold tracking-[0.22em] text-gray-400 uppercase">
                             Profile
                         </p>
-                        <h1 className="text-3xl font-semibold leading-tight tracking-tight">
+                        <h1 className="text-3xl leading-tight font-semibold tracking-tight">
                             {userDataState.name ?? userDataState.login}
                         </h1>
                         <p className="mt-2 text-base text-gray-400">@{userDataState.login}</p>
@@ -52,11 +49,15 @@ export default function SideProfile({ userDataState }: SideProfileComponentProps
                 <div className="grid grid-cols-2 gap-3 not-sm:grid-cols-1">
                     <div className="rounded-3xl bg-white/8 p-4">
                         <p className="text-2xl font-semibold">{userDataState.followers}</p>
-                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-gray-400">Followers</p>
+                        <p className="mt-1 text-xs tracking-[0.18em] text-gray-400 uppercase">
+                            Followers
+                        </p>
                     </div>
                     <div className="rounded-3xl bg-white/8 p-4">
                         <p className="text-2xl font-semibold">{userDataState.following}</p>
-                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-gray-400">Following</p>
+                        <p className="mt-1 text-xs tracking-[0.18em] text-gray-400 uppercase">
+                            Following
+                        </p>
                     </div>
                 </div>
             </div>
@@ -66,19 +67,22 @@ export default function SideProfile({ userDataState }: SideProfileComponentProps
                     <div className="space-y-4 rounded-3xl bg-white/6 p-5">
                         {profileDetails.map((item) => (
                             <div key={item.label}>
-                                <p className="text-xs uppercase tracking-[0.18em] text-gray-500">{item.label}</p>
+                                <p className="text-xs tracking-[0.18em] text-gray-500 uppercase">
+                                    {item.label}
+                                </p>
                                 <p className="mt-1 truncate text-sm text-gray-200">{item.value}</p>
                             </div>
                         ))}
                         {userDataState.blog && (
                             <div>
-                                <p className="text-xs uppercase tracking-[0.18em] text-gray-500">Blog</p>
+                                <p className="text-xs tracking-[0.18em] text-gray-500 uppercase">
+                                    Blog
+                                </p>
                                 <a
                                     href={userDataState.blog}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="mt-1 block truncate text-sm text-sky-300 transition-colors hover:text-sky-200"
-                                >
+                                    className="mt-1 block truncate text-sm text-sky-300 transition-colors hover:text-sky-200">
                                     {userDataState.blog}
                                 </a>
                             </div>
@@ -90,12 +94,10 @@ export default function SideProfile({ userDataState }: SideProfileComponentProps
                     href={userDataState.html_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-gray-950 shadow-xl shadow-black/20 transition-transform hover:-translate-y-0.5"
-                >
+                    className="rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-gray-950 shadow-xl shadow-black/20 transition-transform hover:-translate-y-0.5">
                     View GitHub Profile
                 </a>
             </div>
         </aside>
-
-    )
+    );
 }
