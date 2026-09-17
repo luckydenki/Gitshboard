@@ -16,7 +16,9 @@
     "docker-down": "docker compose down",
     "docker-list": "docker compose ps",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@react-router/node": "7.18.2",
