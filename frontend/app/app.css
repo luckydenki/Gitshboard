@@ -1,19 +1,40 @@
 @import "tailwindcss";
+@import "./font.css";
+@import "./routes/new/home.css";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* 폰트는 --font */
+  --font-sans: "Pretendard", "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   
-  --color-github-light : #4183c4;
+  /* 색상 계열 값 추가는 --color*/
+  --color-primary : #076BFF;
+  --color-secondary : #08B1E8; 
+  --color-third : #09C5B6;
+  --color-panel : #FFFFFF;
+  --color-back : #f0f2f5;
+  --color-github-black : #24292F;
+
+
+  /* 폰트 weight 는 --font-weight */
+
+
+  /* 크기는 --spacing */
+
+  /* 반응형 크기는 --breakpoint */
+
+  
 }
+
 
 html,
 body {
-  @apply bg-[#f8f9f6] dark:bg-gray-950;
+  @apply bg-[var(--color-back)] dark:bg-gray-950;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
+
   margin: 0;
   min-height: 100%;
 }
@@ -26,9 +47,6 @@ h2 {
   }
 
 }
-
-
-
 
 
 /*
