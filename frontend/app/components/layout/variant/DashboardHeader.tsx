@@ -1,4 +1,4 @@
-import {  useMemo } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router";
 import HeaderLayout from "~/components/layout/variant/HeaderLayout";
 
@@ -6,52 +6,53 @@ import SearchForm from "~/components/page/home/SearchForm";
 import HeaderProfileButton from "~/components/common/HeaderProfileButton";
 import useUserHeader from "~/hooks/useUserHeader";
 
-
-
-
-function DashboardMenu({name, href, onClick} : {name: string, href:string, onClick?: ()=>void}){
-
-    return(
+function DashboardMenu({
+    name,
+    href,
+    onClick,
+}: {
+    name: string;
+    href: string;
+    onClick?: () => void;
+}) {
+    return (
         <>
-          <Link 
-            className="hover:text-gray-400 dark:hover:text-gray-300"
-            to={href}
-            onClick={onClick}>{name}</Link>
+            <Link
+                className="hover:text-gray-400 dark:hover:text-gray-300"
+                to={href}
+                onClick={onClick}>
+                {name}
+            </Link>
         </>
-    )
-
+    );
 }
 
+export default function DashboardHeader() {
+    const { data } = useUserHeader();
 
-
-export default function DashboardHeader(){
-
-    const { data} = useUserHeader();
-
-    const menus = useMemo(()=> {
+    const menus = useMemo(() => {
         const menuList = [
-            {name : "Profile", link : "/dashboard"},
-            {name : "Statistics", link : "/statpage"},
-            {name : "Contribute", link : "/contribute"},
-        ]
+            { name: "Profile", link: "/dashboard" },
+            { name: "Statistics", link: "/statpage" },
+            { name: "Contribute", link: "/contribute" },
+        ];
 
-        return menuList.map((menu, index)=>{
-            return (<DashboardMenu key={index} 
-                name={menu.name} 
-                href={menu.link} />  )
-        })
+        return menuList.map((menu, index) => {
+            return (
+                <DashboardMenu
+                    key={index}
+                    name={menu.name}
+                    href={menu.link}
+                />
+            );
+        });
     }, []);
 
-    return(
+    return (
         <HeaderLayout href="/dashboard">
             <div className="flex flex-row gap-3">
-                <nav className={`flex flex-row gap-6 items-center
-                    font-medium text-md 
-                    not-sm:font-light 
-                    not-sm:text-sm
-                    tracking-[0.12em] 
-                    text-gray-800
-                     dark:text-gray-200`}>
+                <nav
+                    className={`text-md flex flex-row items-center gap-6 font-medium tracking-[0.12em] text-gray-800 not-sm:text-sm not-sm:font-light dark:text-gray-200`}>
                     {menus}
                 </nav>
 
@@ -62,15 +63,13 @@ export default function DashboardHeader(){
                         items-center
                         
                     `}
-                    CustomInput={
-                        `
+                    CustomInput={`
                         max-w-10
                         hover:max-w-80
                         focus:max-w-80
                         transition-all duration-300
                         
-                        `
-                    }
+                        `}
                     CustomButton={`
                         flex items-center justify-center
                         rounded-full bg-github-light size-8
@@ -80,9 +79,8 @@ export default function DashboardHeader(){
                     `}
                 />
 
-                <HeaderProfileButton data ={data}/>
+                <HeaderProfileButton data={data} />
             </div>
         </HeaderLayout>
-    )
+    );
 }
-

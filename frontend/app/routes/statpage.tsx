@@ -6,52 +6,52 @@ import StatTitleSection from "~/components/page/stat/StatTitleSection";
 import TechnologyDistributionArticle from "~/components/page/stat/TechnologyDistributionArticle";
 import WeekActivityArticle from "~/components/page/stat/WeekActivityArticle";
 import WorkingStyleArticle from "~/components/page/stat/WorkingStyleArticle";
-import {  useStatQuery } from "~/hooks/pages/stat-hooks";
-
+import { useStatQuery } from "~/hooks/pages/stat-hooks";
 
 /**
  * 페이지 컴포넌트 규칙
- * 
+ *
  * 1. 페이지 렌더링을 바꾸는 상태 (useState)는 페이지에서 관리함
  * 2. 그 외 useQuery, useMemo, useEffect 등은 "되도록" hooks에서 관리함 (너무 간단한 컴포넌트면 굳이 그럴 필요 없음)
  * 3. 의사 결정 로직, 선언적 로직들을 제외한 보여져야 할 UI는 components에서 관리함
  * ex) { isloading ? <LoadingSkeleton /> : <DataComponent data={data} /> }
  * 이런 isloading, isError 같은 ui 상태를 제어하는 것들은 페이지 내에서 관리하고 따로 컴포넌트화 시키지 말것.
- * 
- * 
+ *
+ *
  */
-export const surfaceClass = "rounded-[1.75rem] bg-white shadow-[0_22px_65px_rgba(15,23,42,0.08)] dark:bg-gray-900";
+export const surfaceClass =
+    "rounded-[1.75rem] bg-white shadow-[0_22px_65px_rgba(15,23,42,0.08)] dark:bg-gray-900";
 
-
-export default function StatPage(){
-
+export default function StatPage() {
     const { isLoading, isError } = useStatQuery();
 
-    if(isError){
-        
+    if (isError) {
         console.log("Error occurred while fetching data for StatPage");
     }
 
-
-    return(
+    return (
         <div className="min-h-screen bg-[#f4f6f1] text-gray-950 dark:bg-gray-950 dark:text-white">
             <main className="mx-auto flex max-w-360 flex-col gap-8 px-6 py-10 lg:px-8">
-                <StatTitleSection title="Development statistics" isLoading={isLoading} isError={isError} />
+                <StatTitleSection
+                    title="Development statistics"
+                    isLoading={isLoading}
+                    isError={isError}
+                />
                 <OverviewSection />
 
                 <section className="grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
-                    <TechnologyDistributionArticle  />
+                    <TechnologyDistributionArticle />
                     <WeekActivityArticle />
                 </section>
 
                 <section className="grid gap-8 lg:grid-cols-2 xl:grid-cols-3">
                     <PreferredCommitTimeArticle />
-                    <WorkingStyleArticle  />
+                    <WorkingStyleArticle />
                     <RepositoryCategoriesArticle />
                 </section>
 
                 <RepositoryActivitySection />
             </main>
         </div>
-    )
+    );
 }

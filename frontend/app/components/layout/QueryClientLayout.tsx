@@ -1,17 +1,11 @@
 import { Outlet } from "react-router";
 import SearchHeader from "./variant/SearchHeader";
 
-
-
-
-
 export default function QueryClientLayout() {
-
-    return(
+    return (
         <>
-            <SearchHeader/>
-            <Outlet/>
+            <SearchHeader />
+            <Outlet />
         </>
-
-    )
+    );
 }

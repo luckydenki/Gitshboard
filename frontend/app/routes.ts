@@ -15,8 +15,9 @@ export default [
         ]),
     ]),
    
-    //route("testpage", "routes/testpage.tsx"),
-
+    layout("routes/new/CommonLayout.tsx", [
+    route("test/home", "routes/new/home.tsx"),
+    ]),
     route("auth/github/callback", "routes/auth/callback.tsx"),
 
 ] satisfies RouteConfig;
