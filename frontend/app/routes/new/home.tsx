@@ -2,7 +2,7 @@ import { Navigate } from "react-router";
 import useAuthCheck from "~/hooks/useAuthCheck";
 import type { Route } from "../../+types/root";
 import MainLogo from "./home/MainLogo";
-import HomeSearchBar from "./home/HomeSearchBar";
+import HomeSearchBar from "./home/SearchBar";
 import HomeBoardList from "./home/HomeBoardList";
 
 export function meta({}: Route.MetaArgs) {

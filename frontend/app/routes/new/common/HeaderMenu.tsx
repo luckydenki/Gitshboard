@@ -87,7 +87,7 @@ export default function HeaderMenu({ logoRedirect }: HeaderMenuProps) {
         },
         {
             name: "검색",
-            href: "#",
+            href: "/test/search",
         },
         {
             name: "커뮤니티",
