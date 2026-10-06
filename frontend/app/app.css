@@ -20,6 +20,9 @@
 
 
   /* 크기는 --spacing */
+  --spacing-main-side : 4rem;
+      /* 4rem = 64px */
+    ;
 
   /* 반응형 크기는 --breakpoint */
 
