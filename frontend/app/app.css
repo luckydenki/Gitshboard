@@ -15,18 +15,33 @@
   --color-back : #f0f2f5;
   --color-github-black : #24292F;
 
+  --color-border-light : var(--color-gray-200);
+  --color-border-normal : var(--color-gray-300);
+  --color-border-bold : var(--color-gray-500);
 
   /* 폰트 weight 는 --font-weight */
 
 
   /* 크기는 --spacing */
-  --spacing-main-side : 4rem;
+  --spacing-main-x-side : 180px;
       /* 4rem = 64px */
     ;
-
+  --spacing-main-y-side : 8rem; 
   /* 반응형 크기는 --breakpoint */
 
+
   
+
+  
+
+  
+}
+
+
+main {
+
+  padding-inline : var(--spacing-main-x-side);
+
 }
 
 
