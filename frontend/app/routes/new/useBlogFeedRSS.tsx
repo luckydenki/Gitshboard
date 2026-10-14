@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
-const DC_NAMESPACE = "http://purl.org/dc/elements/1.1/";
-const CONTENT_NAMESPACE = "http://purl.org/rss/1.0/modules/content/";
+const DC_NAMESPACE = "http://purl.org/dc/elements/1.1/"; //태그가 dc: 인 네임스페이스
+const CONTENT_NAMESPACE = "http://purl.org/rss/1.0/modules/content/"; //태그가 content: 인 네임스페이스
 
 interface GitHubBlogPost {
     id: string;
@@ -13,6 +13,12 @@ interface GitHubBlogPost {
     url: string;
 }
 
+/**
+ * RSS에서 Github Blog Feed를 가져오는 훅
+ *
+ * latest 옵션에 따라 일반적인 피드 내용을 가져올 수도 있고, latest feed의 내용을 가져올 수도 있습니다.
+ *
+ */
 export default function useBlogFeedRSS(latest?: boolean) {
     const url = latest ? "https://github.blog/latest/feed/" : "https://github.blog/feed/";
 
