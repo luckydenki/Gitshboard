@@ -14,7 +14,7 @@ interface DashboardActivitySectionProps {
 
 export default function DashboardActivitySection({ commits }: DashboardActivitySectionProps) {
     return (
-        <section className="grid min-w-24 grid-cols-[1fr_minmax(320px,2fr)] gap-4 not-lg:grid-cols-1">
+        <section className="grid min-w-24 grid-cols-[1fr_minmax(320px,2fr)] gap-8 not-lg:grid-cols-1">
             <DashboardActivityArticle />
             <DashboardRecentCommitsSection commits={commits} />
         </section>

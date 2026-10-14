@@ -62,7 +62,7 @@ export default function GitHubBlogBanner() {
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 {visiblePosts.map((post) => (
                     <li key={post.id}>
-                        <article className="bg-panel flex h-full flex-col overflow-hidden rounded-lg border border-gray-200">
+                        <article className="bg-panel hover:outline-primary flex h-full flex-col overflow-hidden rounded-lg border border-gray-200 hover:outline-2">
                             <figure className="flex aspect-video items-center justify-center bg-gray-100">
                                 {post.thumbnailUrl ? (
                                     <img
