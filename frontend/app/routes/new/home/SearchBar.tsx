@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { BsFilterCircle, BsFilterCircleFill } from "react-icons/bs";
+import { tv, type VariantProps } from "tailwind-variants";
 import useDebounce from "~/hooks/useDebounce";
 import type { ErrorStatus } from "~/types/common/common";
 import CommonError from "~/utils/common-error";
-
-export interface SearchBarProps {
-    enableFilter?: boolean;
-}
 
 interface ISearchFilterCategory {
     value: "users" | "repos";
@@ -37,7 +34,28 @@ const searchAutoComplete = async (
     }
 };
 
-export default function SearchBar({ enableFilter }: SearchBarProps = { enableFilter: false }) {
+const searchBarTv = tv({
+    base: "flex w-full flex-col gap-4",
+    variants: {
+        wsize: {
+            sm: "max-w-3xl",
+            md: "max-w-4xl",
+            lg: "max-w-5xl",
+            xl: "max-w-6xl",
+            full: "",
+        },
+    },
+    defaultVariants: {
+        wsize: "md",
+    },
+});
+
+export interface SearchBarProps {
+    enableFilter?: boolean;
+    variant?: VariantProps<typeof searchBarTv>;
+}
+
+export default function SearchBar({ enableFilter, variant }: SearchBarProps) {
     const [category, setCategory] = useState<ISearchFilterCategory>({
         value: "users",
         name: "사용자",
@@ -49,8 +67,8 @@ export default function SearchBar({ enableFilter }: SearchBarProps = { enableFil
     return (
         <form
             method="GET"
-            className="flex w-full flex-col gap-4">
-            <div className="bg-panel text-md flex h-12 w-[80%] gap-4 self-center rounded-full shadow-md not-sm:h-16 not-lg:w-full">
+            className={searchBarTv(variant)}>
+            <div className="bg-panel text-md flex h-12 w-full gap-4 self-center rounded-full shadow-md not-sm:h-16 not-lg:w-full">
                 <button
                     type="button"
                     className="hover:bg-panel-hover relative z-1 rounded-l-full pl-4 text-left hover:cursor-pointer hover:bg-gray-300"
@@ -124,7 +142,7 @@ export default function SearchBar({ enableFilter }: SearchBarProps = { enableFil
             </div>
 
             {enableFilter && (
-                <div className="relative w-[80%] self-center not-lg:w-full">
+                <div className="relative w-full self-center">
                     <button
                         type="button"
                         className="flex gap-2"
