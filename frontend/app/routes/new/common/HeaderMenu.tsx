@@ -96,7 +96,7 @@ export default function HeaderMenu({ logoRedirect }: HeaderMenuProps) {
     ];
 
     return (
-        <nav className="flex h-full sm:gap-12">
+        <nav className="flex sm:gap-12">
             <SideTitleLogo href={logoRedirect ?? "test/home"} />
             <MenuList
                 menuData={menuData}
