@@ -1,4 +1,3 @@
-import type { EChartsOption } from "echarts";
 import DashboardContributionCalendarArticle from "./DashboardContributionCalendarArticle";
 import DashboardProfileArticle from "./DashboardProfileArticle";
 
@@ -20,7 +19,7 @@ export default function DashboardProfileSection({
     followers,
 }: DashboardProfileSectionProps) {
     return (
-        <section className="bg-panel px-4 pt-8">
+        <section className="bg-panel px-8 pt-8">
             <DashboardProfileArticle
                 name={name}
                 bio={bio}

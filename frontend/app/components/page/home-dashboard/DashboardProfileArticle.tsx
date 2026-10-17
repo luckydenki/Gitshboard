@@ -22,24 +22,25 @@ export default function DashboardProfileArticle({
             <div className="flex gap-4">
                 <img
                     className="aspect-square size-24 rounded-full outline outline-gray-300"
-
                     alt="profile"
                 />
                 <div className="flex flex-col gap-2">
                     <h1 className="text-4xl font-semibold"> {name}</h1>
-                    <div>
+                    <div className="text-gray-500">
                         {bio ? (
                             bio
                         ) : (
                             <div className="min-h-16 text-gray-500">소개가 없습니다.</div>
                         )}{" "}
                     </div>
-                    <div className="">지역 | {location ? location : "Gyeungi Hwasung"} </div>
-
-                    <div className="flex gap-2">
-                        <div> 링크 |</div>
-                        <a href={link[0]}>Instagram</a>
-                        <a href={link[1]}>Notion</a>
+                    <div>
+                        <div className="">지역 {location ? location : "Gyeungi Hwasung"} </div>
+                        <div className="flex gap-2">
+                            <div>링크 </div>
+                            {link.map((v) => {
+                                return <a href={v}>Instagram</a>;
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>
