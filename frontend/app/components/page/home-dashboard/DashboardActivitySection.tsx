@@ -1,22 +1,16 @@
+import type { Commit, Issue, PullRequest } from "~/routes/new/home-dashboard";
 import DashboardActivityArticle from "./DashboardActivityArticle";
-import DashboardRecentCommitsSection from "./DashboardRecentCommitsSection";
+import DashboardRecentActivitySection from "./DashboardRecentActivitySection";
 
 interface DashboardActivitySectionProps {
-    commits: Array<{
-        sha: string;
-        repository: string;
-        message: string;
-        date: string;
-        type: string;
-        url: string;
-    }>;
+    data: Array<Commit | Issue | PullRequest>;
 }
 
-export default function DashboardActivitySection({ commits }: DashboardActivitySectionProps) {
+export default function DashboardActivitySection({ data }: DashboardActivitySectionProps) {
     return (
-        <section className="grid min-w-24 grid-cols-[1fr_minmax(320px,2fr)] gap-8 not-lg:grid-cols-1">
+        <section className="grid min-w-sm grid-cols-[1fr_minmax(320px,2fr)] gap-8 not-lg:grid-cols-1">
             <DashboardActivityArticle />
-            <DashboardRecentCommitsSection commits={commits} />
+            <DashboardRecentActivitySection data={data} />
         </section>
     );
 }
