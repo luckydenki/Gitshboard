@@ -18,7 +18,7 @@ const handleOAuthLogin = () => {
     window.location.href = `${baseURL}?${params.toString()}`;
 };
 
-export default function HeaderLoginButton() {
+export default function LoginButton() {
     return (
         <button
             className={`hover:ring-primary bg-github-black flex gap-2 rounded-full px-4 py-2 text-white not-lg:p-1 hover:cursor-pointer hover:ring-2`}
