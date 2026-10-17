@@ -26,7 +26,7 @@ export default function DashboardProfileArticle({
                 />
                 <div className="flex flex-col gap-2">
                     <h1 className="text-4xl font-semibold"> {name}</h1>
-                    <div className="text-gray-500">
+                    <div className="max-w-lg text-gray-500">
                         {bio ? (
                             bio
                         ) : (
