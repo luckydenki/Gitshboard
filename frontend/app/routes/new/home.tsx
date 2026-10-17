@@ -5,9 +5,7 @@ import MainLogo from "./home/MainLogo";
 import HomeSearchBar from "./home/SearchBar";
 import HomeBoardList from "./home/HomeBoardList";
 import useChangeLogRSS from "./useChangeLogRSS";
-import useBlogFeedRSS from "./useBlogFeedRSS";
 import GitHubBlogBanner from "~/components/page/home-dashboard/GitHubBlogBanner";
-import useBlogFeedThumbnail from "./useBlogFeedThumbnail";
 
 export function meta({}: Route.MetaArgs) {
     return [
