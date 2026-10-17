@@ -1,4 +1,3 @@
-import { BsGithub } from "react-icons/bs";
 import HomeSearchBar from "./home/SearchBar";
 
 /** GitHub REST API `GET /search/users`의 검색 결과 항목입니다. */
@@ -41,8 +40,6 @@ type GitHubSearchUserCardResponse = Omit<GitHubSearchUsersResponse, "items"> & {
 };
 
 export default function Search() {
-    const isSearch = false;
-
     const searchResponse: GitHubSearchUserCardResponse = {
         total_count: 7,
         incomplete_results: false,
@@ -172,7 +169,7 @@ export default function Search() {
                                             </div>
                                         </div>
                                     </a>
-                                    <button className="cursor-pointer rounded-r-lg px-2 outline outline-gray-300 hover:outline">
+                                    <button className="hover:outline-primary w-32 cursor-pointer rounded-r-lg px-2 outline outline-gray-300 hover:outline-2">
                                         깃 허브
                                     </button>
                                 </article>
