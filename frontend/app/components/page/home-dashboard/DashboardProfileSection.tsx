@@ -19,7 +19,7 @@ export default function DashboardProfileSection({
     followers,
 }: DashboardProfileSectionProps) {
     return (
-        <section className="bg-panel px-8 pt-8">
+        <section className="bg-panel min-w-sm px-8 pt-8">
             <DashboardProfileArticle
                 name={name}
                 bio={bio}
