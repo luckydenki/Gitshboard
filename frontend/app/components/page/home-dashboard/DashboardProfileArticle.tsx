@@ -21,14 +21,13 @@ export default function DashboardProfileArticle({
         <article className="flex justify-between gap-4 not-lg:flex-col">
             <div className="flex gap-4">
                 <img
-                    className="rounded-xl border border-gray-300"
-                    width={100}
-                    height={100}
+                    className="aspect-square size-24 rounded-full outline outline-gray-300"
+
+                    alt="profile"
                 />
                 <div className="flex flex-col gap-2">
                     <h1 className="text-4xl font-semibold"> {name}</h1>
                     <div>
-                        {" "}
                         {bio ? (
                             bio
                         ) : (
