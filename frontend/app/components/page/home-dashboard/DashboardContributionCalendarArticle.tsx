@@ -1,12 +1,6 @@
 import type { EChartsOption } from "echarts";
 import EChartsReact from "echarts-for-react";
 
-const ThemeColors = {
-    green: {
-        heatMapRange: ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"],
-    },
-};
-
 export default function DashboardContributionCalendarArticle() {
     const ThemeColors = {
         green: {
