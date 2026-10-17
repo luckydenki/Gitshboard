@@ -38,7 +38,7 @@ export default function Home() {
     if (isLoading) return;
 
     return (
-        <main className="flex flex-col items-center gap-4 py-32 [grid-area:main] [&>section]:max-w-7xl [&>section]:items-center">
+        <main className="flex flex-col items-center gap-4 py-32 [grid-area:main] [&>section]:items-center">
             <section className="relative flex w-full flex-col pb-12">
                 <MainLogo />
                 <HomeSearchBar />
