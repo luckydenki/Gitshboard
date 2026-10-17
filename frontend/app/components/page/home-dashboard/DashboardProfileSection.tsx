@@ -3,7 +3,6 @@ import DashboardContributionCalendarArticle from "./DashboardContributionCalenda
 import DashboardProfileArticle from "./DashboardProfileArticle";
 
 interface DashboardProfileSectionProps {
-    option: EChartsOption;
     name: string;
     bio: string;
     location: string;
@@ -13,7 +12,6 @@ interface DashboardProfileSectionProps {
 }
 
 export default function DashboardProfileSection({
-    option,
     name,
     bio,
     location,
@@ -31,7 +29,7 @@ export default function DashboardProfileSection({
                 following={following}
                 followers={followers}
             />
-            <DashboardContributionCalendarArticle option={option} />
+            <DashboardContributionCalendarArticle />
         </section>
     );
 }
