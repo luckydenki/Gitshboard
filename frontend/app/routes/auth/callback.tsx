@@ -1,57 +1,7 @@
-import { useEffect, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router";
-import { Log } from "~/utils/log_system/log";
+import useGithubOauthCallback from "~/hooks/useGithubOauthCallback";
 
 export default function Callback() {
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
-    const didRun = useRef(false);
-
-    // Github OAuth가 리다이렉트 될 때는 URL "code"쿼리 파라미터로 인증 코드가 전달됨
-    const code = searchParams.get("code");
-    //Log("Received code:", code);
-
-    useEffect(() => {
-        if (didRun.current) return;
-        didRun.current = true;
-
-        const authenticate = async () => {
-            // error
-            if (!code) {
-                console.error("code가 URL에 없음");
-                navigate("/");
-                return;
-            }
-
-            try {
-                //console.log("Using backend URL:", backend_url);
-                // 백엔드에 인증 코드 보내서 서버 액세스 토큰 받아오기
-
-                const response = await fetch(`/api/auth/github`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ code }),
-                    credentials: "include",
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log("인증 성공", data);
-                    navigate("/dashboard", { replace: true });
-                } else {
-                    throw await response.json();
-                }
-            } catch (error) {
-                console.error("인증 실패", error);
-                alert("로그인에 실패했습니다 :" + JSON.stringify(error));
-                navigate("/");
-            }
-        };
-
-        authenticate();
-    }, []);
+    useGithubOauthCallback("/test/myhome", "/test/home");
 
     return (
         <div className="flex h-screen items-center justify-center">
