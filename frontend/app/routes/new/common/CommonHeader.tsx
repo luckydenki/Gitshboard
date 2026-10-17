@@ -1,5 +1,5 @@
 import HeaderDarkModeButton from "./HeaderDarkModeButton";
-import HeaderLoginButton from "./HeaderLoginButton";
+import HeaderLoginButton from "./LoginButton";
 
 import HeaderMenu from "./HeaderMenu";
 
