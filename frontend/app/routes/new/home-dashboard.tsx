@@ -1,5 +1,4 @@
 import { useState } from "react";
-import type { MetaArgs } from "react-router";
 
 import DashboardActivitySection from "~/components/page/home-dashboard/DashboardActivitySection";
 import DashboardDevelopStyleSection from "~/components/page/home-dashboard/DashboardDevelopStyleSection";
@@ -21,11 +20,11 @@ export interface Issue {}
 
 export interface PullRequest {}
 
-const ThemeColors = {
-    green: {
-        heatMapRange: ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"],
-    },
-};
+// const ThemeColors = {
+//     green: {
+//         heatMapRange: ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"],
+//     },
+// };
 
 //js의 enum은 양방향 매핑이 가능하다는 장점이 있음
 export enum EHomeDashboardMenu {
@@ -33,13 +32,6 @@ export enum EHomeDashboardMenu {
     "개발 성향" = 1,
     레포지토리 = 2,
     관심사 = 3,
-}
-
-export function meta({}: MetaArgs) {
-    return [
-        { title: "flyetanol - 최근 활동" },
-        { name: "description", content: "GitHub Dashboard login" },
-    ];
 }
 
 export default function HomeDashboard() {
@@ -102,35 +94,44 @@ export default function HomeDashboard() {
     }
 
     return (
-        <main className="px-main-side flex w-full min-w-0 flex-col gap-8 pt-8 pb-8">
-            <DashboardProfileSection
-                name={name}
-                bio={bio}
-                location={location}
-                link={link}
-                following={following}
-                followers={followers}
-            />
-            <DashboardNavigationSection
-                menus={menus}
-                menuState={menuState}
+        <>
+            {/* React 19버전 이후부터 가능한 meta 주입 방식입니다. */}
+            <title>{name + " - " + EHomeDashboardMenu[menuState]}</title>
+            <meta
+                name="description"
+                content={`${EHomeDashboardMenu[menuState]} 페이지`}
             />
 
-            {menuState == 0 ? (
-                <DashboardActivitySection data={commits} />
-            ) : menuState == 1 ? (
-                <DashboardDevelopStyleSection />
-            ) : menuState == 2 ? (
-                <DashboardRepositorySection repos={repos} />
-            ) : menuState == 3 ? (
-                <section className="grid min-h-[50vh] grid-cols-[300px_200px_1fr]">
-                    최근 조회한 사용자 및 레포지토리
-                </section>
-            ) : (
-                <section className="min-h-screen">
-                    <ul></ul>
-                </section>
-            )}
-        </main>
+            <main className="px-main-side flex w-full min-w-0 flex-col gap-8 pt-8 pb-8">
+                <DashboardProfileSection
+                    name={name}
+                    bio={bio}
+                    location={location}
+                    link={link}
+                    following={following}
+                    followers={followers}
+                />
+                <DashboardNavigationSection
+                    menus={menus}
+                    menuState={menuState}
+                />
+
+                {menuState == 0 ? (
+                    <DashboardActivitySection data={commits} />
+                ) : menuState == 1 ? (
+                    <DashboardDevelopStyleSection />
+                ) : menuState == 2 ? (
+                    <DashboardRepositorySection repos={repos} />
+                ) : menuState == 3 ? (
+                    <section className="grid min-h-[50vh] grid-cols-[300px_200px_1fr]">
+                        최근 조회한 사용자 및 레포지토리
+                    </section>
+                ) : (
+                    <section className="min-h-screen">
+                        <ul></ul>
+                    </section>
+                )}
+            </main>
+        </>
     );
 }
