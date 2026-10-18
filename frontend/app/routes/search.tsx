@@ -1,5 +1,4 @@
 import { useSearchParams } from "react-router";
-import "../routes/search.css";
 import { useRef, useState } from "react";
 import SearchForm from "~/components/page/home/SearchForm";
 import SearchTitle from "~/components/page/search/SearchTitle";
@@ -40,8 +39,6 @@ export default function Search() {
         page: Number(page),
         per_page: per_page,
     });
-
-    const a = { asdasd: "asd", asd: "vqe" };
 
     const { filter_items } = useFilteringItems({ category, data, isLoading });
 
