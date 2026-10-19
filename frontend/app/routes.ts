@@ -17,6 +17,7 @@ export default [
    
     layout("routes/new/CommonLayout.tsx", [
         route("test/home", "routes/new/home.tsx"),
+        route("test/trend", "routes/new/trend.tsx"),
         route("test/search", "routes/new/search.tsx"),
         route("test/myhome", "routes/new/home-dashboard.tsx")
     ]),
