@@ -1,4 +1,4 @@
-    const recommendedRepositoriesMock = [
+export  const recommendedRepositoriesMock = [
         {
             name: "recharts/recharts",
             description: "React로 차트를 만들 수 있는 시각화 라이브러리",
