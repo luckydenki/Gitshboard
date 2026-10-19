@@ -1,3 +1,4 @@
+import { FiExternalLink } from "react-icons/fi";
 import HomeSearchBar from "./home/SearchBar";
 
 /** GitHub REST API `GET /search/users`의 검색 결과 항목입니다. */
@@ -139,39 +140,46 @@ export default function Search() {
 
             <section className="flex min-h-screen w-full flex-col gap-4 justify-self-center pb-12">
                 <header>
-                    <h3 className="text-">검색 결과 : {total_count}건</h3>
+                    <h3 className="text-lg font-semibold">검색 결과 : {total_count}건</h3>
                 </header>
                 {total_count > 0 ? (
-                    <section className="grid grid-cols-1 gap-4 not-lg:grid-cols-2">
+                    <section className="flex flex-col gap-3">
                         {data.map((e) => {
                             return (
-                                <article className="bg-panel hover:outline-primary flex w-full justify-between rounded-lg hover:outline">
+                                <article
+                                    key={e.id}
+                                    className="bg-panel hover:border-primary flex w-full items-center gap-4 rounded-lg border border-gray-300 p-4 not-sm:flex-wrap not-sm:items-start">
+                                    <img
+                                        src={e.avatar_url}
+                                        alt={`${e.login} 프로필 사진`}
+                                        className="aspect-square size-16 shrink-0 rounded-lg border border-gray-300"
+                                    />
+                                    <div className="flex min-w-0 flex-1 flex-col gap-3">
+                                        <div className="flex flex-wrap gap-2">
+                                            <h4 className="line-clamp-1 max-w-sm text-lg font-bold">
+                                                {e.name ?? e.login}
+                                                asdasd
+                                            </h4>
+                                            <span className="bg-primary/10 text-primary rounded-lg p-2 text-xs font-medium">
+                                                {e.type}
+                                            </span>
+                                        </div>
+
+                                        <span className="text-sm text-gray-500">
+                                            {e.location ?? ""}
+                                        </span>
+                                        <p className="line-clamp-2 text-sm leading-6 text-gray-500">
+                                            {e.bio ?? "소개가 없습니다"}
+                                        </p>
+                                    </div>
                                     <a
                                         href={e.html_url}
-                                        className="flex w-full gap-4 px-2 py-4 not-lg:flex-col not-lg:px-4">
-                                        <img
-                                            src={e.avatar_url}
-                                            alt={`${e.login} 프로필 사진`}
-                                            className="aspect-square size-12 self-center rounded-lg"
-                                        />
-                                        <div className="flex flex-col gap-2">
-                                            <div>
-                                                <div className="flex gap-2 text-lg font-semibold">
-                                                    {e.name ?? e.login}
-                                                    <span className="self-end text-sm text-gray-500">
-                                                        {e.location ?? ""}
-                                                    </span>
-                                                </div>
-                                                <div className="text-sm">{e.type}</div>
-                                            </div>
-                                            <div className="line-clamp-2 text-sm text-wrap">
-                                                {e.bio ?? "소개가 없습니다"}
-                                            </div>
-                                        </div>
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-primary flex shrink-0 items-center justify-center gap-1 p-2 text-sm font-medium not-sm:ml-20">
+                                        GitHub에서 보기
+                                        <FiExternalLink aria-hidden="true" />
                                     </a>
-                                    <button className="hover:outline-primary w-32 cursor-pointer rounded-r-lg px-2 outline outline-gray-300 hover:outline-2">
-                                        깃 허브
-                                    </button>
                                 </article>
                             );
                         })}
