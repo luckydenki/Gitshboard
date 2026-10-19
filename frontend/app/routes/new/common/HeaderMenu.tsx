@@ -83,7 +83,7 @@ export default function HeaderMenu({ logoRedirect }: HeaderMenuProps) {
         },
         {
             name: "트렌드",
-            href: "#",
+            href: "/test/trend",
         },
         {
             name: "검색",
