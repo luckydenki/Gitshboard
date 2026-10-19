@@ -19,6 +19,7 @@ export default [
         route("test/home", "routes/new/home.tsx"),
         route("test/trend", "routes/new/trend.tsx"),
         route("test/search", "routes/new/search.tsx"),
+        route("test/community", "routes/new/community.tsx"),
         route("test/myhome", "routes/new/home-dashboard.tsx")
     ]),
     route("auth/github/callback", "routes/auth/callback.tsx"),
