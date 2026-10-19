@@ -1,5 +1,6 @@
 import { FiExternalLink } from "react-icons/fi";
 import HomeSearchBar from "./home/SearchBar";
+import { searchResponseMock } from "~/mock/search/search-response";
 
 /** GitHub REST API `GET /search/users`의 검색 결과 항목입니다. */
 interface GitHubSearchUser {
@@ -33,97 +34,58 @@ interface GitHubUserProfile {
  * // derived: 검색 응답의 각 `login`으로 `GET /users/{username}`을 요청한 뒤
  * `GitHubSearchUser`와 `GitHubUserProfile`을 `login` 기준으로 결합해 만듭니다.
  */
-type GitHubSearchUserCard = GitHubSearchUser & GitHubUserProfile;
+export type GitHubSearchUserCard = GitHubSearchUser & GitHubUserProfile;
 
 /** // derived: 기본 검색 응답의 `items`에 사용자 상세 조회 필드를 결합한 화면용 응답입니다. */
-type GitHubSearchUserCardResponse = Omit<GitHubSearchUsersResponse, "items"> & {
+export type GitHubSearchUserCardResponse = Omit<GitHubSearchUsersResponse, "items"> & {
     items: GitHubSearchUserCard[];
 };
 
+export const SearchItem = ({ item }: { item: GitHubSearchUserCard }) => {
+    return (
+        <article
+            key={item.id}
+            className="bg-panel hover:border-primary flex w-full items-center gap-4 rounded-lg border border-gray-300 p-4 not-sm:flex-wrap not-sm:items-start">
+            <img
+                src={item.avatar_url}
+                alt={`${item.login} 프로필 사진`}
+                className="aspect-square size-16 shrink-0 rounded-lg border border-gray-300"
+            />
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                    <h4 className="line-clamp-1 max-w-sm text-lg font-bold">
+                        {item.name ?? item.login}
+                    </h4>
+                    <span className="text-primary rounded-lg text-xs font-medium">{item.type}</span>
+                </div>
+
+                <span className="text-sm text-gray-500">{item.location ?? ""}</span>
+                <p className="line-clamp-2 text-sm leading-6 text-gray-500">
+                    {item.bio ?? "소개가 없습니다"}
+                </p>
+            </div>
+            <a
+                href={item.html_url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-primary flex shrink-0 items-center justify-center gap-1 p-2 text-sm font-medium not-sm:ml-20">
+                GitHub에서 보기
+                <FiExternalLink aria-hidden="true" />
+            </a>
+        </article>
+    );
+};
+
+export const SearchResultHeader = ({ total_count }: { total_count: number }) => {
+    return (
+        <header>
+            <h3 className="text-lg font-semibold">검색 결과 : {total_count}건</h3>
+        </header>
+    );
+};
+
 export default function Search() {
-    const searchResponse: GitHubSearchUserCardResponse = {
-        total_count: 7,
-        incomplete_results: false,
-        items: [
-            {
-                id: 1,
-                login: "taeseung",
-                avatar_url: "https://avatars.githubusercontent.com/u/1?v=4",
-                html_url: "https://github.com/taeseung",
-                type: "User",
-                score: 1,
-                name: "정태승",
-                bio: "천재 개발자 정태승입니다.",
-                location: "Korea, Seoul",
-            },
-            {
-                id: 2,
-                login: "taeseung-dev",
-                avatar_url: "https://avatars.githubusercontent.com/u/2?v=4",
-                html_url: "https://github.com/taeseung-dev",
-                type: "User",
-                score: 1,
-                name: "정태승",
-                bio: "천재 개발자 정태승입니다. 진짜 까불지 마시길 바랍니다. 천재 개발자 정태승입니다. 진짜 까불지 마시길 바랍니다.",
-                location: "Korea, Seoul",
-            },
-            {
-                id: 3,
-                login: "taeseung-git",
-                avatar_url: "https://avatars.githubusercontent.com/u/3?v=4",
-                html_url: "https://github.com/taeseung-git",
-                type: "User",
-                score: 1,
-                name: "정태승",
-                bio: "천재 개발자 정태승입니다.",
-                location: "Korea, Seoul",
-            },
-            {
-                id: 4,
-                login: "taeseung-4",
-                avatar_url: "https://avatars.githubusercontent.com/u/4?v=4",
-                html_url: "https://github.com/taeseung-4",
-                type: "User",
-                score: 1,
-                name: "정태승",
-                bio: null,
-                location: "Korea, Seoul",
-            },
-            {
-                id: 5,
-                login: "taeseung-5",
-                avatar_url: "https://avatars.githubusercontent.com/u/5?v=4",
-                html_url: "https://github.com/taeseung-5",
-                type: "User",
-                score: 1,
-                name: "정태승",
-                bio: null,
-                location: "Korea, Seoul",
-            },
-            {
-                id: 6,
-                login: "taeseung-6",
-                avatar_url: "https://avatars.githubusercontent.com/u/6?v=4",
-                html_url: "https://github.com/taeseung-6",
-                type: "User",
-                score: 1,
-                name: "정태승",
-                bio: null,
-                location: "Korea, Seoul",
-            },
-            {
-                id: 7,
-                login: "taeseung-7",
-                avatar_url: "https://avatars.githubusercontent.com/u/7?v=4",
-                html_url: "https://github.com/taeseung-7",
-                type: "User",
-                score: 1,
-                name: "정태승",
-                bio: null,
-                location: "Korea, Seoul",
-            },
-        ],
-    };
+    const searchResponse: GitHubSearchUserCardResponse = searchResponseMock;
 
     const { items: data, total_count } = searchResponse;
 
@@ -139,49 +101,11 @@ export default function Search() {
             </section>
 
             <section className="flex min-h-screen w-full flex-col gap-4 justify-self-center pb-12">
-                <header>
-                    <h3 className="text-lg font-semibold">검색 결과 : {total_count}건</h3>
-                </header>
+                <SearchResultHeader total_count={total_count} />
                 {total_count > 0 ? (
                     <section className="flex flex-col gap-3">
                         {data.map((e) => {
-                            return (
-                                <article
-                                    key={e.id}
-                                    className="bg-panel hover:border-primary flex w-full items-center gap-4 rounded-lg border border-gray-300 p-4 not-sm:flex-wrap not-sm:items-start">
-                                    <img
-                                        src={e.avatar_url}
-                                        alt={`${e.login} 프로필 사진`}
-                                        className="aspect-square size-16 shrink-0 rounded-lg border border-gray-300"
-                                    />
-                                    <div className="flex min-w-0 flex-1 flex-col gap-3">
-                                        <div className="flex flex-wrap gap-2">
-                                            <h4 className="line-clamp-1 max-w-sm text-lg font-bold">
-                                                {e.name ?? e.login}
-                                                asdasd
-                                            </h4>
-                                            <span className="bg-primary/10 text-primary rounded-lg p-2 text-xs font-medium">
-                                                {e.type}
-                                            </span>
-                                        </div>
-
-                                        <span className="text-sm text-gray-500">
-                                            {e.location ?? ""}
-                                        </span>
-                                        <p className="line-clamp-2 text-sm leading-6 text-gray-500">
-                                            {e.bio ?? "소개가 없습니다"}
-                                        </p>
-                                    </div>
-                                    <a
-                                        href={e.html_url}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-primary flex shrink-0 items-center justify-center gap-1 p-2 text-sm font-medium not-sm:ml-20">
-                                        GitHub에서 보기
-                                        <FiExternalLink aria-hidden="true" />
-                                    </a>
-                                </article>
-                            );
+                            return <SearchItem item={e} />;
                         })}
                     </section>
                 ) : (
