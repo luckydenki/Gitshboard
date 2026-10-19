@@ -79,7 +79,7 @@ export default function HeaderMenu({ logoRedirect }: HeaderMenuProps) {
     const menuData = [
         {
             name: "홈",
-            href: "#",
+            href: "/test/home",
         },
         {
             name: "트렌드",
@@ -91,13 +91,13 @@ export default function HeaderMenu({ logoRedirect }: HeaderMenuProps) {
         },
         {
             name: "커뮤니티",
-            href: "#",
+            href: "/test/community",
         },
     ];
 
     return (
         <nav className="flex sm:gap-12">
-            <SideTitleLogo href={logoRedirect ?? "test/home"} />
+            <SideTitleLogo href={logoRedirect ?? "/test/home"} />
             <MenuList
                 menuData={menuData}
                 menuItemType={{
