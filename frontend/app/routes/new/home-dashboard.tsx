@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import DashboardActivitySection from "~/components/page/home-dashboard/DashboardActivitySection";
 import DashboardDevelopStyleSection from "~/components/page/home-dashboard/DashboardDevelopStyleSection";
 import DashboardNavigationSection from "~/components/page/home-dashboard/DashboardNavigationSection";
@@ -10,19 +9,8 @@ import { recommendedRepositoriesMock } from "~/mock/home-dashboard/dashboard-rec
 import { reposMock } from "~/mock/home-dashboard/dashboard-repos";
 import { viewedRepositoriesMock, viewedUsersMock } from "~/mock/home-dashboard/dashboard-viewed";
 import "~/routes/new/home-dashboard.css";
-
-export interface Commit {
-    sha: string;
-    repository: string;
-    message: string;
-    date: string;
-    type: string;
-    url: string;
-}
-
-export interface Issue {}
-
-export interface PullRequest {}
+import type { Commit } from "./types/commit";
+import type { Profile } from "./types/profile";
 
 // const ThemeColors = {
 //     green: {
@@ -39,6 +27,22 @@ export enum EHomeDashboardMenu {
 }
 
 export default function HomeDashboard() {
+    const profile: Profile = {
+        name: "flyetanol",
+        company: "우리회사",
+        createdAt: "2017.12.14",
+        followers: { totalCount: 3 },
+        following: { totalCount: 4 },
+        login: "니똥꼬",
+        url: "",
+        websiteUrl: "",
+        socialAccounts: { nodes: [{ url: "a" }, { url: "b" }] },
+        contributionsCollection: { contributionCalendar: { totalContributions: 3 } },
+        location: "Korea, Seoul",
+        avatarUrl: "",
+        bio: "우하하adasdasdasd우하하adasdasdasd",
+    };
+
     const location: string = "Korea, Seoul";
     const bio =
         "우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하ada";
@@ -51,10 +55,8 @@ export default function HomeDashboard() {
 
     // 관심사 화면의 구성과 추천 방식을 보여주기 위한 예시 데이터입니다.
     const interestTopics = interestTopicsMock;
-
     const viewedRepositories = viewedRepositoriesMock;
     const viewedUsers = viewedUsersMock;
-
     const recommendedRepositories = recommendedRepositoriesMock;
 
     const repos = reposMock;
@@ -89,12 +91,13 @@ export default function HomeDashboard() {
     const commits: Commit[] = [];
     for (let i = 0; i < 12; ++i) {
         commits.push({
-            date: "2017-09-01",
-            message: "feat : 새로운 커밋",
-            repository: "Gitshboard",
-            sha: "59671a",
-            type: "타입",
-            url: "www.naver.com",
+            nameWithOwner: "flyetanol/Gitshboard",
+            oid: "59671a2b4c8d9e0f1234567890abcdef12345678",
+            abbreviatedOid: "59671a2",
+            messageHeadline: "feat: 새로운 커밋",
+            committedDate: "2017-09-01T00:00:00Z",
+            committedViaWeb: false,
+            url: "https://github.com/flyetanol/Gitshboard/commit/59671a2b4c8d9e0f1234567890abcdef12345678",
         });
     }
 
