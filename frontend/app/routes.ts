@@ -20,7 +20,13 @@ export default [
         route("test/trend", "routes/new/trend.tsx"),
         route("test/search", "routes/new/search.tsx"),
         route("test/community", "routes/new/community.tsx"),
-        route("test/myhome", "routes/new/home-dashboard.tsx")
+        route("test/user/:user", "routes/new/home-dashboard.tsx",[
+            index("./components/page/home-dashboard/DashboardActivitySection.tsx"),
+            route("activity", "./components/page/home-dashboard/DashboardActivitySection.tsx"),
+            route("devStyle", "./components/page/home-dashboard/DashboardDevelopStyleSection.tsx"),
+            route("repos", "./components/page/home-dashboard/DashboardRepositorySection.tsx"),
+            route("interests", "./components/page/home-dashboard/DashboardInterestsSection.tsx")
+        ]),
     ]),
     route("auth/github/callback", "routes/auth/callback.tsx"),
 

@@ -1,20 +1,13 @@
+import { Link } from "react-router";
 import { EHomeDashboardMenu } from "~/routes/new/home-dashboard";
 
-const NavigationItems = ({
-    menu,
-    callback,
-    checked,
-}: {
-    menu: string;
-    callback: () => void;
-    checked: boolean;
-}) => {
+const NavigationItems = ({ menu, link }: { menu: string; link: string }) => {
     return (
-        <button
-            className="h-8 w-24 cursor-pointer rounded-lg hover:bg-gray-200"
-            onClick={callback}>
+        <Link
+            to={link}
+            className="flex h-8 w-24 cursor-pointer items-center justify-center rounded-lg hover:bg-gray-200">
             {menu}
-        </button>
+        </Link>
     );
 };
 
@@ -24,22 +17,19 @@ const NavigationItems = ({
  */
 export default function DashboardNavigationSection({
     menus,
-    menuState,
 }: {
     menus: Array<{
         menu: string;
-        callback: () => void;
+        link: string;
     }>;
-    menuState: EHomeDashboardMenu;
 }) {
     return (
         <section className="border-lg bg-panel flex min-w-sm gap-4 px-4 py-2">
             {menus.map((e) => {
                 return (
                     <NavigationItems
-                        callback={e.callback}
+                        link={e.link}
                         menu={e.menu}
-                        checked={EHomeDashboardMenu[menuState] == e.menu}
                         key={e.menu}
                     />
                 );

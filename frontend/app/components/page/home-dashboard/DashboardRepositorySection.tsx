@@ -1,4 +1,5 @@
 import { BiStar } from "react-icons/bi";
+import { reposMock } from "~/mock/home-dashboard/dashboard-repos";
 
 /**
  * GitHub GraphQL 저장소 목록의 항목 타입입니다.
@@ -45,11 +46,9 @@ export interface RepositoryItems {
     updatedAt: string; // 저장소가 마지막으로 업데이트된 시각
 }
 
-export interface DashboardRepositorySectionProps {
-    repos: Array<RepositoryItems>;
-}
+export default function DashboardRepositorySection() {
+    const repos: Array<RepositoryItems> = reposMock;
 
-export default function DashboardRepositorySection({ repos }: DashboardRepositorySectionProps) {
     return (
         <section className="min-h-[50vh]">
             <div className="grid grid-cols-3 gap-4 pb-8">

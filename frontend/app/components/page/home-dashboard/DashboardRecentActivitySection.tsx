@@ -1,10 +1,9 @@
-import type { Commit } from "~/routes/new/types/commit";
 import DashboardCommitArticle from "./DashboardCommitArticle";
-import type { Issue } from "~/routes/new/types/issue";
-import type { PullRequest } from "~/routes/new/types/pr";
+
+import type { ActivityItems } from "./DashboardActivitySection";
 
 interface DashboardRecentCommitsSectionProps {
-    data: Array<Commit | Issue | PullRequest>;
+    data: ActivityItems;
 }
 
 export default function DashboardRecentActivitySection({
