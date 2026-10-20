@@ -1,7 +1,7 @@
 import useGithubOauthCallback from "~/hooks/useGithubOauthCallback";
 
 export default function Callback() {
-    useGithubOauthCallback("/test/myhome", "/test/home");
+    useGithubOauthCallback("/user", "/error");
 
     return (
         <div className="flex h-screen items-center justify-center">

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BiMenu } from "react-icons/bi";
 import SideTitleLogo from "~/components/design/SideTitleLogo";
 import { tv, type VariantProps } from "tailwind-variants";
+import { RouteURL } from "~/routes";
 
 interface MenuListProps {
     menuData: Array<{
@@ -79,25 +80,25 @@ export default function HeaderMenu({ logoRedirect }: HeaderMenuProps) {
     const menuData = [
         {
             name: "홈",
-            href: "/test/home",
+            href: "",
         },
         {
             name: "트렌드",
-            href: "/test/trend",
+            href: RouteURL.trend,
         },
         {
             name: "검색",
-            href: "/test/search",
+            href: RouteURL.search,
         },
         {
             name: "커뮤니티",
-            href: "/test/community",
+            href: RouteURL.community,
         },
     ];
 
     return (
         <nav className="flex sm:gap-12">
-            <SideTitleLogo href={logoRedirect ?? "/test/home"} />
+            <SideTitleLogo href={logoRedirect ?? "/"} />
             <MenuList
                 menuData={menuData}
                 menuItemType={{
