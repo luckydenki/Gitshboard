@@ -1,38 +1,16 @@
 import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
-import { BsFilterCircle, BsFilterCircleFill } from "react-icons/bs";
 import { tv, type VariantProps } from "tailwind-variants";
 import useDebounce from "~/hooks/useDebounce";
-import type { ErrorStatus } from "~/types/common/common";
-import CommonError from "~/utils/common-error";
+import SearchFilter from "../search/SearchFilter";
 
-interface ISearchFilterCategory {
+import SearchCategoryOpenButton from "../search/SearchCategoryOpenButton";
+import { searchAutoComplete } from "../utils/search/autoComplete";
+
+export interface ISearchFilterCategory {
     value: "users" | "repos";
     name: "사용자" | "저장소";
 }
-
-const searchAutoComplete = async (
-    target: EventTarget & HTMLInputElement,
-    category: ISearchFilterCategory,
-) => {
-    console.log("디바운스 호출", target.value, "카테고리 ", category.value);
-    try {
-        const res = await fetch("", {});
-
-        if (res.ok) {
-            console.log("success");
-        } else {
-            throw new CommonError({
-                status: res.status as ErrorStatus,
-                title: "니얼굴",
-                type: "검색 에러",
-                detail: "검색창에서 진짜 심각한 에러가 터졌습니다",
-            });
-        }
-    } catch (e) {
-        console.log("error ", e);
-    }
-};
 
 const searchBarTv = tv({
     base: "flex w-full flex-col gap-4",
@@ -50,6 +28,14 @@ const searchBarTv = tv({
     },
 });
 
+export interface SearchChoiceOptions {
+    type?: "user" | "org";
+    languages?: string;
+    location?: string;
+}
+
+export type SearchChoiceOptionsKeyType = keyof SearchChoiceOptions;
+
 export interface SearchBarProps {
     enableFilter?: boolean;
     variant?: VariantProps<typeof searchBarTv>;
@@ -60,48 +46,28 @@ export default function SearchBar({ enableFilter, variant }: SearchBarProps) {
         value: "users",
         name: "사용자",
     });
-    const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [choice, setChoice] = useState<SearchChoiceOptions>({});
     const debounce = useDebounce(searchAutoComplete, 500);
+
+    const choiceHandler = (
+        key: SearchChoiceOptionsKeyType,
+        value: (typeof choice)[SearchChoiceOptionsKeyType],
+    ) => {
+        choice[key] = value as "user" | "org";
+        setChoice({
+            ...choice,
+        });
+    };
 
     return (
         <form
             method="GET"
             className={searchBarTv(variant)}>
             <div className="bg-panel text-md flex h-12 w-full gap-4 self-center rounded-full shadow-md not-sm:h-16 not-lg:w-full">
-                <button
-                    type="button"
-                    className="hover:bg-panel-hover relative z-1 rounded-l-full pl-4 text-left hover:cursor-pointer hover:bg-gray-300"
-                    onBlur={() => setIsCategoryOpen(false)}
-                    onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                    aria-label="검색 카테고리 선택 버튼">
-                    <div className="w-20">{category.name}</div>
-
-                    {isCategoryOpen && (
-                        <ul className="bg-panel [&>li]:hover:bg-back [&>li]:text-md absolute top-full left-0 mt-2 w-full items-center justify-center rounded-lg border border-gray-300 text-center shadow-lg [&>li]:h-10">
-                            <li
-                                className="flex items-center justify-center"
-                                onClick={() =>
-                                    setCategory({
-                                        value: "users",
-                                        name: "사용자",
-                                    })
-                                }>
-                                사용자
-                            </li>
-                            <li
-                                className="flex items-center justify-center"
-                                onClick={() =>
-                                    setCategory({
-                                        value: "repos",
-                                        name: "저장소",
-                                    })
-                                }>
-                                저장소
-                            </li>
-                        </ul>
-                    )}
-                </button>
+                <SearchCategoryOpenButton
+                    category={category}
+                    setCategory={setCategory}
+                />
                 <input
                     type="hidden"
                     name="category"
@@ -142,104 +108,10 @@ export default function SearchBar({ enableFilter, variant }: SearchBarProps) {
             </div>
 
             {enableFilter && (
-                <div className="relative w-full self-center">
-                    <button
-                        type="button"
-                        className="flex gap-2"
-                        onClick={() => {
-                            setIsFilterOpen((e) => !e);
-                        }}>
-                        검색 필터
-                        {!isFilterOpen ? (
-                            <BsFilterCircle
-                                size={24}
-                                aria-label="필터링 ui"
-                            />
-                        ) : (
-                            <BsFilterCircleFill
-                                size={24}
-                                aria-label="필터링 on UI"
-                            />
-                        )}
-                    </button>
-
-                    <div
-                        className={
-                            isFilterOpen
-                                ? `bg-panel/30 absolute flex w-full flex-col gap-3 rounded-lg px-3 py-4 backdrop-blur-sm`
-                                : `hidden`
-                        }>
-                        <fieldset className="flex gap-4 **:appearance-none">
-                            <legend className="mb-2 font-semibold">타입</legend>
-                            <label className="border-primary group has-checked:bg-primary rounded-full border px-4 py-1 has-checked:text-white">
-                                전체
-                                <input
-                                    type="radio"
-                                    name="type"
-                                    value="all"
-                                    defaultChecked
-                                />
-                            </label>
-                            <label className="border-primary group has-checked:bg-primary rounded-full border px-4 py-1 has-checked:text-white">
-                                개인
-                                <input
-                                    type="radio"
-                                    name="type"
-                                    value="user"
-                                />
-                            </label>
-
-                            <label className="border-primary group has-checked:bg-primary rounded-full border px-4 py-1 has-checked:text-white">
-                                레포지토리
-                                <input
-                                    type="radio"
-                                    name="type"
-                                    value="org"
-                                />
-                            </label>
-                        </fieldset>
-
-                        <div className="flex flex-col">
-                            <label
-                                className="mb-2 font-semibold"
-                                htmlFor="combobox-languages">
-                                언어
-                            </label>
-                            <input
-                                placeholder="검색할 언어를 입력하세요 (기본값 : 전체)"
-                                id="combobox-languages"
-                                name="languages"
-                                list="languages"
-                                className="focus:outline-primary outline-primary w-sm appearance-none rounded-lg px-2 py-1 outline-1 focus:outline-2"
-                                defaultValue={"전체"}
-                            />
-
-                            <datalist
-                                id="languages"
-                                className="appearance-none">
-                                <option value="전체" />
-                                <option value="JavaScript" />
-                                <option value="TypeScript" />
-                                <option value="Python" />
-                                <option value="Java" />
-                            </datalist>
-                        </div>
-
-                        <div className="flex flex-col">
-                            <label
-                                className="mb-2 font-semibold"
-                                htmlFor="combobox-languages">
-                                지역
-                            </label>
-                            <input
-                                placeholder="지역을 입력하세요"
-                                id="locations"
-                                name="locations"
-                                className="outline-primary h-8 w-sm rounded-lg px-2 py-1 outline-1 focus:outline-2"
-                            />
-                        </div>
-                    </div>
-                </div>
+                <SearchFilter
+                    choice={choice}
+                    choiceHandler={choiceHandler}
+                />
             )}
             {/* 오답 노트 : ??는 undefined 또는 null일 시에만 작동되는 코드
                 &&은 falsy값이 아니면 (truthy값) 작동되는 코드
