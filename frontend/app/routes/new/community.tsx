@@ -11,9 +11,7 @@ export default function Community() {
     const [selectedCategory, setSelectedCategory] = useState<CommunityCategory>("공지사항");
     const [currentPage, setCurrentPage] = useState(1);
 
-    const filteredPosts = communityPostsMock.filter(
-        (post) => post.category === selectedCategory,
-    );
+    const filteredPosts = communityPostsMock.filter((post) => post.category === selectedCategory);
     const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
     const visiblePosts = filteredPosts.slice(
         (currentPage - 1) * POSTS_PER_PAGE,
@@ -41,8 +39,8 @@ export default function Community() {
                     </p>
                 </header>
 
-                <div className="flex min-w-0 items-start gap-6 not-lg:flex-col">
-                    <aside className="sticky top-20 w-48 shrink-0 rounded-lg border-1 border-gray-300 bg-panel p-3 not-lg:top-16 not-lg:w-full">
+                <div className="flex min-h-screen min-w-0 items-start gap-4 not-lg:flex-col">
+                    <aside className="bg-panel sticky top-20 w-48 shrink-0 rounded-lg border-1 border-gray-300 p-3 not-lg:top-16 not-lg:w-full">
                         <nav aria-label="커뮤니티 게시판">
                             <ul className="flex flex-col gap-1 not-lg:flex-row not-lg:overflow-x-auto">
                                 {communityCategories.map((category) => {
@@ -72,14 +70,14 @@ export default function Community() {
 
                     <section
                         aria-labelledby="community-list-title"
-                        className="min-w-0 flex-1 rounded-lg border-1 border-gray-300 bg-panel p-6 not-lg:w-full">
+                        className="bg-panel min-w-0 flex-1 border-gray-300 p-6 not-lg:w-full">
                         <div className="flex flex-wrap items-end justify-between gap-3 pb-5">
                             <div className="flex flex-col gap-1">
-                                <h2
+                                <h3
                                     id="community-list-title"
                                     className="text-xl font-bold sm:text-2xl">
                                     {selectedCategory}
-                                </h2>
+                                </h3>
                                 <p className="text-sm text-gray-500">
                                     전체 {filteredPosts.length}개의 글
                                 </p>
@@ -95,13 +93,13 @@ export default function Community() {
                                     key={post.id}
                                     className="flex min-w-0 items-center gap-4 py-4 first:pt-0 last:pb-0">
                                     <div className="flex min-w-0 flex-1 flex-col gap-3">
-                                        <h3 className="min-w-0 text-base font-semibold leading-6">
+                                        <h3 className="min-w-0 text-base leading-6 font-semibold">
                                             <a
                                                 href="#"
-                                                className="break-words hover:text-primary">
+                                                className="hover:text-primary break-words">
                                                 {post.title}
                                             </a>{" "}
-                                            <span className="whitespace-nowrap text-sm font-semibold text-primary">
+                                            <span className="text-primary text-sm font-semibold whitespace-nowrap">
                                                 [{post.commentCount}]
                                             </span>
                                         </h3>
@@ -126,7 +124,7 @@ export default function Community() {
                             <button
                                 type="button"
                                 disabled={currentPage === 1}
-                                className="cursor-pointer rounded-lg border-1 border-gray-300 bg-panel p-2 text-sm disabled:cursor-default disabled:text-gray-500"
+                                className="bg-panel cursor-pointer rounded-lg border-1 border-gray-300 p-2 text-sm disabled:cursor-default disabled:text-gray-500"
                                 onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}>
                                 이전
                             </button>
@@ -139,7 +137,7 @@ export default function Community() {
                                         className={`size-9 cursor-pointer rounded-lg border-1 p-2 text-sm font-medium ${
                                             currentPage === page
                                                 ? "border-primary bg-primary text-white"
-                                                : "border-gray-300 bg-panel hover:border-primary"
+                                                : "bg-panel hover:border-primary border-gray-300"
                                         }`}
                                         onClick={() => setCurrentPage(page)}>
                                         {page}
@@ -149,7 +147,7 @@ export default function Community() {
                             <button
                                 type="button"
                                 disabled={currentPage === totalPages}
-                                className="cursor-pointer rounded-lg border-1 border-gray-300 bg-panel p-2 text-sm disabled:cursor-default disabled:text-gray-500"
+                                className="bg-panel cursor-pointer rounded-lg border-1 border-gray-300 p-2 text-sm disabled:cursor-default disabled:text-gray-500"
                                 onClick={() =>
                                     setCurrentPage((page) => Math.min(totalPages, page + 1))
                                 }>
