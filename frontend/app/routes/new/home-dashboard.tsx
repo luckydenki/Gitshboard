@@ -1,9 +1,6 @@
 import { useState } from "react";
 import DashboardNavigationSection from "~/components/page/home-dashboard/DashboardNavigationSection";
 import DashboardProfileSection from "~/components/page/home-dashboard/DashboardProfileSection";
-
-import { reposMock } from "~/mock/home-dashboard/dashboard-repos";
-
 import "~/routes/new/home-dashboard.css";
 import type { Profile } from "./types/profile";
 import { Outlet } from "react-router";
