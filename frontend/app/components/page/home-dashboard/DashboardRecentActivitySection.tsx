@@ -1,5 +1,7 @@
-import type { Commit, Issue, PullRequest } from "~/routes/new/home-dashboard";
+import type { Commit } from "~/routes/new/types/commit";
 import DashboardCommitArticle from "./DashboardCommitArticle";
+import type { Issue } from "~/routes/new/types/issue";
+import type { PullRequest } from "~/routes/new/types/pr";
 
 interface DashboardRecentCommitsSectionProps {
     data: Array<Commit | Issue | PullRequest>;
@@ -27,10 +29,10 @@ export default function DashboardRecentActivitySection({
 
             <ul className="divide-y divide-gray-200">
                 {data.map((e) => {
-                    if ("repository" in e) {
+                    if ("nameWithOwner" in e) {
                         return (
                             <DashboardCommitArticle
-                                key={`${e.repository}-${e.sha}`}
+                                key={`${e.nameWithOwner}-${e.oid}`}
                                 commit={e}
                             />
                         );

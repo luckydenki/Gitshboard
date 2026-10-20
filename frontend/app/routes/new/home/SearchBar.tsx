@@ -5,7 +5,7 @@ import useDebounce from "~/hooks/useDebounce";
 import SearchFilter from "../search/SearchFilter";
 
 import SearchCategoryOpenButton from "../search/SearchCategoryOpenButton";
-import { searchAutoComplete } from "../utils/search/autoComplete";
+import { searchAutoComplete } from "../utils/search/AutoComplete";
 
 export interface ISearchFilterCategory {
     value: "users" | "repos";

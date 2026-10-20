@@ -1,14 +1,8 @@
 import { FiGitCommit } from "react-icons/fi";
+import type { Commit } from "~/routes/new/types/commit";
 
 interface DashboardCommitArticleProps {
-    commit: {
-        sha: string;
-        repository: string;
-        message: string;
-        date: string;
-        type: string;
-        url: string;
-    };
+    commit: Commit;
 }
 
 export default function DashboardCommitArticle({ commit }: DashboardCommitArticleProps) {
@@ -22,7 +16,7 @@ export default function DashboardCommitArticle({ commit }: DashboardCommitArticl
                             className="shrink-0 text-gray-500"
                             aria-hidden="true"
                         />
-                        <span className="text-md truncate font-medium">{commit.repository}</span>
+                        <span className="text-md truncate font-medium">{commit.nameWithOwner}</span>
                     </div>
 
                     <a
@@ -30,24 +24,24 @@ export default function DashboardCommitArticle({ commit }: DashboardCommitArticl
                         target="_blank"
                         rel="noopener noreferrer"
                         className="shrink-0 font-mono text-xs text-gray-500 hover:underline"
-                        aria-label={`View commit ${commit.sha.slice(0, 7)}`}>
-                        {commit.sha.slice(0, 7)}
+                        aria-label={`View commit ${commit.abbreviatedOid}`}>
+                        {commit.abbreviatedOid}
                     </a>
                 </div>
 
                 <p className="text-sm font-medium wrap-break-word text-gray-900">
-                    {commit.message.split("\n")[0]}
+                    {commit.messageHeadline}
                 </p>
 
                 <div className="flex items-center justify-between gap-2">
                     <time
-                        dateTime={commit.date}
+                        dateTime={commit.committedDate}
                         className="text-xs text-gray-500">
-                        {new Date(commit.date).toLocaleString()}
+                        {new Date(commit.committedDate).toLocaleString()}
                     </time>
 
                     <span className="rounded-md border border-gray-300 px-2 py-0.5 text-xs text-gray-600">
-                        {commit.type}
+                        {commit.committedViaWeb ? "Web" : "Git"}
                     </span>
                 </div>
             </article>
