@@ -1,7 +1,7 @@
 import type { Profile } from "~/routes/new/types/profile";
 import DashboardContributionCalendarArticle from "./DashboardContributionCalendarArticle";
 import DashboardProfileArticle from "./DashboardProfileArticle";
-import { DashboardProfileSectionLayout } from "./DashboardProfileSeectionLayout";
+import { DashboardProfileSectionLayout } from "./DashboardProfileSectionLayout";
 
 interface DashboardProfileSectionProps {
     profile: Profile;
