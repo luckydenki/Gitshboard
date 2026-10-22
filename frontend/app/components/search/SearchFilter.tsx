@@ -1,6 +1,6 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { BsFilterCircle, BsFilterCircleFill } from "react-icons/bs";
-import type { SearchChoiceOptions, SearchChoiceOptionsKeyType } from "../home/SearchBar";
+import type { SearchChoiceOptions, SearchChoiceOptionsKeyType } from "../page/home/SearchBar";
 
 const typeFilterOptions = [
     { label: "전체", value: "all", name: "type", defaultChecked: true },

@@ -2,10 +2,10 @@ import { useState } from "react";
 import { BiSearch } from "react-icons/bi";
 import { tv, type VariantProps } from "tailwind-variants";
 import useDebounce from "~/hooks/useDebounce";
-import SearchFilter from "../search/SearchFilter";
+import SearchFilter from "../../search/SearchFilter";
 
-import SearchCategoryOpenButton from "../search/SearchCategoryOpenButton";
-import { searchAutoComplete } from "../../utils/search/AutoComplete";
+import SearchCategoryOpenButton from "../../search/SearchCategoryOpenButton";
+import { searchAutoComplete } from "../../../utils/search/AutoComplete";
 
 export interface ISearchFilterCategory {
     value: "users" | "repos";
