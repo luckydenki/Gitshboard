@@ -44,6 +44,10 @@ main {
 
 }
 
+.dashboard-main {
+  --spacing-main-x-side: clamp(1rem, calc(25vw - 12rem), 15rem);
+}
+
 
 html,
 body {
