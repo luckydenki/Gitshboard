@@ -36,7 +36,7 @@ export default [
             route("prissue", "./components/page/new/dashboard/RepoDashboardPullRequestIssueSection.tsx"),
             route("communication", "./components/page/new/dashboard/RepoDashboardCommunicationSection.tsx"),
         ]),
-        route("user/:user", "routes/new/home-dashboard.tsx",[
+        route("user/:user", "routes/new/user-dashboard.tsx",[
             index("./components/page/home-dashboard/DashboardActivitySection.tsx"),
             route("devStyle", "./components/page/home-dashboard/DashboardDevelopStyleSection.tsx"),
             route("repos", "./components/page/home-dashboard/DashboardRepositorySection.tsx"),
