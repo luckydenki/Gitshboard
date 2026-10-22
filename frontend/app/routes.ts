@@ -28,6 +28,7 @@ export default [
         route(RouteURL.trend, "routes/new/trend.tsx"),
         route(RouteURL.search, "routes/new/search.tsx"),
         route(RouteURL.community, "routes/new/community.tsx"),
+        route("repo", "routes/new/repo-dashboard.tsx"),
         route("user/:user", "routes/new/home-dashboard.tsx",[
             index("./components/page/home-dashboard/DashboardActivitySection.tsx"),
             route("devStyle", "./components/page/home-dashboard/DashboardDevelopStyleSection.tsx"),
