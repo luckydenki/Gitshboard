@@ -1,44 +1,50 @@
 import { Navigate } from "react-router";
-import type { Route } from "./+types/home";
-import TitleLogo from "~/components/design/TitleLogo";
 import useAuthCheck from "~/hooks/useAuthCheck";
-import SearchForm from "~/components/page/home/SearchForm";
-import LoginButton from "~/components/page/home/LoginButton";
-
-
+import type { Route } from "../+types/root";
+import MainLogo from "../components/home/MainLogo";
+import HomeSearchBar from "../components/home/SearchBar";
+import HomeBoardList from "../components/home/HomeBoardList";
+import useChangeLogRSS from "../hooks/useChangeLogRSS";
+import GitHubBlogBanner from "~/components/page/home-dashboard/GitHubBlogBanner";
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "GitHub Dashboard" },
-    { name: "description", content: "GitHub Dashboard login" },
-  ];
+    return [
+        { title: "GitHub Dashboard" },
+        { name: "description", content: "GitHub Dashboard login" },
+    ];
 }
 
-
-
+/**
+ * 홈 화면
+ *
+ *
+ * @returns
+ */
 export default function Home() {
-  const { isSuccess } = useAuthCheck();
+    const { data, isLoading } = useChangeLogRSS();
 
+    if (isLoading) return;
 
-  if(isSuccess){
-    return <Navigate to="/dashboard" replace={true} />
-    // navigate()는 컴포넌트가 렌더링된 후에만 호출되므로, 
-    // 조건부 렌더링을 통해 리다이렉션을 처리하는 것이 더 안전합니다。
-  }
+    return (
+        <main className="flex flex-col items-center gap-4 py-32 [grid-area:main] [&>section]:items-center">
+            <section className="relative flex w-full flex-col pb-12">
+                <MainLogo />
+                <HomeSearchBar />
+            </section>
+            <section className="flex flex-col gap-12">
+                <GitHubBlogBanner />
 
-  return (
-      <main className="home-ambient flex flex-col gap-8 min-h-screen items-center justify-center overflow-hidden px-6 text-gray-950 dark:text-white">
-        
-        <header>
-            <TitleLogo/>
-        </header>
-
-        <section className="flex w-full flex-col items-center gap-4 text-center">
-            <SearchForm/>
-            <LoginButton disabled={isSuccess} />
-        </section>
-
-      </main>
-
-  );
+                <section className={"grid gap-8 [grid-area:section] lg:grid-cols-2"}>
+                    <HomeBoardList
+                        boardTitle="깃허브 ChangeLog"
+                        data={data ?? []}
+                    />
+                    <HomeBoardList
+                        boardTitle="Gitshboard 패치노트"
+                        data={[]}
+                    />
+                </section>
+            </section>
+        </main>
+    );
 }

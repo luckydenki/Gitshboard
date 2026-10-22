@@ -1,0 +1,27 @@
+/**
+ *
+ *  그냥 modal이 켜질때 스피너가 돌아가는 효과가 담긴 컴포넌트입니다.
+ *
+ */
+export default function SpinFloatEffect({ isModalOpen }: { isModalOpen: boolean }) {
+    return (
+        <div
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${isModalOpen ? "rotate-0" : "rotate-90"} transition-all duration-350 ease-in-out`}>
+            <div className={`flex flex-row ${isModalOpen ? "gap-0" : "gap-1.5"} `}>
+                <div
+                    className={` ${
+                        isModalOpen
+                            ? "h-1.5 w-8 translate-x-1.5 translate-y-1 rotate-45"
+                            : "h-2 w-2 translate-x-0 translate-y-0 rotate-0"
+                    } bg-github-light rounded-full transition-all duration-200 ease-in-out`}
+                />
+                <div
+                    className={`bg-github-light h-2 w-2 rounded-full ${isModalOpen ? "absolute scale-0" : "scale-100"} transition-all duration-200 ease-in-out`}
+                />
+                <div
+                    className={` ${isModalOpen ? "h-1.5 w-8 -translate-x-1.5 translate-y-1 -rotate-45" : "h-2 w-2 translate-x-0 translate-y-0 rotate-0"} bg-github-light rounded-full transition-all duration-200 ease-in-out`}
+                />
+            </div>
+        </div>
+    );
+}
