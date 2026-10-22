@@ -1,27 +1,27 @@
 import { type RouteConfig, index, layout, route } from "@react-router/dev/routes";
 
 export const RouteURL = {
-    trend : "trend",
-    search : "search",
-    community : "community"
+    trend : "/trend",
+    search : "/search",
+    community : "/community"
 }
 
 
 
 export default [
     //index는 기본 라우트("/")로 사용될 컴포넌트를 지정할 때 사용
-    route("old/home","routes/home.tsx"),
-    layout("components/layout/QueryClientLayout.tsx", [
-            route("old/search","routes/search.tsx"),
-    ]
-    ),
-    layout("components/layout/RouteGuardLayout.tsx", [
-        layout("components/layout/DashboardLayout.tsx", [
-            route("old/dashboard", "routes/dashboard.tsx"),
-            route("old/statpage", "routes/statpage.tsx"),
-            route("old/contribute", "routes/contribute.tsx"),
-        ]),
-    ]),
+    // index("old/home","routes/old/home.tsx"),
+    // layout("components/layout/QueryClientLayout.tsx", [
+    //         route("old/search","routes/old/search.tsx"),
+    // ]
+    // ),
+    // layout("components/layout/RouteGuardLayout.tsx", [
+    //     layout("components/layout/DashboardLayout.tsx", [
+    //         route("old/dashboard", "routes/old/dashboard.tsx"),
+    //         route("old/statpage", "routes/old/statpage.tsx"),
+    //         route("old/contribute", "routes/old/contribute.tsx"),
+    //     ]),
+    // ]),
    
     layout("routes/new/CommonLayout.tsx", [
         index("routes/new/home.tsx"),
