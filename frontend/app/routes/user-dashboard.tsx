@@ -2,7 +2,7 @@ import { useState } from "react";
 import DashboardNavigationSection from "~/components/page/home-dashboard/DashboardNavigationSection";
 import DashboardProfileSection from "~/components/page/home-dashboard/DashboardProfileSection";
 import "~/routes/new/home-dashboard.css";
-import type { Profile } from "../types/new/profile";
+import type { Profile } from "../types/profile";
 import { Outlet } from "react-router";
 import { DashboardLayout } from "~/components/page/home-dashboard/DashboardLayout";
 

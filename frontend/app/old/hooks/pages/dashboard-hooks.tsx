@@ -1,7 +1,7 @@
 import type { GithubRepositoryResponse } from "~/types/GithubInfo";
 import useManagedKeyQuery from "../useManagedKeyQuery";
 import { QueryKeys } from "~/types/query-key-enum";
-import CommonError from "~/utils/old/common-error";
+import CommonError from "~/utils/common/common-error";
 
 export function useDashboardData() {
     const { data, isLoading, isError } = useManagedKeyQuery<GithubRepositoryResponse>(

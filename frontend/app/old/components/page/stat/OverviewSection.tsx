@@ -1,5 +1,5 @@
 import { useStatQuery } from "~/hooks/pages/stat-hooks";
-import { surfaceClass } from "~/routes/old/statpage";
+import { surfaceClass } from "~/old/routes/statpage";
 
 export default function OverviewSection() {
     const { languagesQuery, commitTimeQuery, projectLiveRateQuery, isLoading, isError } =

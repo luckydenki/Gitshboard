@@ -1,4 +1,4 @@
-import { surfaceClass } from "~/routes/old/statpage";
+import { surfaceClass } from "~/old/routes/statpage";
 import { useProjectLiveRateQuery } from "~/hooks/pages/stat-hooks";
 import EmptyState from "./EmptyState";
 import SectionHeading from "./SectionHeading";

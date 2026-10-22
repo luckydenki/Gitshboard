@@ -1,4 +1,4 @@
-import { surfaceClass } from "~/routes/old/statpage";
+import { surfaceClass } from "~/old/routes/statpage";
 
 export interface StatTitleSectionProps {
     title: string;

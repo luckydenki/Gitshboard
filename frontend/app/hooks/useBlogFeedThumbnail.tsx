@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import CommonError from "~/utils/old/common-error";
+import CommonError from "~/utils/common/common-error";
 
 interface WordPressFeaturedMedia {
     source_url?: string;

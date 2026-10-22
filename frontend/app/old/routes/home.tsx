@@ -1,5 +1,5 @@
 import { Navigate } from "react-router";
-import type { Route } from "../+types/home";
+import type { Route } from "../../routes/+types/home";
 import TitleLogo from "~/components/design/TitleLogo";
 import useAuthCheck from "~/hooks/useAuthCheck";
 import SearchForm from "~/components/page/home/SearchForm";

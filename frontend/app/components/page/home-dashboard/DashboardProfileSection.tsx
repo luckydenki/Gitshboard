@@ -1,4 +1,4 @@
-import type { Profile } from "~/types/new/profile";
+import type { Profile } from "~/types/profile";
 import DashboardContributionCalendarArticle from "./DashboardContributionCalendarArticle";
 import DashboardProfileArticle from "./DashboardProfileArticle";
 import { DashboardProfileSectionLayout } from "./DashboardProfileSectionLayout";

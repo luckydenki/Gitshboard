@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { commonRetry } from "../app/utils/old/tanstack-utils";
-import CommonError from "../app/utils/old/common-error";
+import { commonRetry } from "../app/utils/common/tanstack-utils";
+import CommonError from "../app/utils/common/common-error";
 
 
 describe("commonRetry",()=>{

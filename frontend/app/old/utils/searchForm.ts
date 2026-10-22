@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { ChangeEvent } from "react";
-import type { GithubUserSearchResponse } from "~/types/common/search";
+import type { GithubUserSearchResponse } from "~/old/types/search";
 
 
 export const handleSearchDebounce = async (keyword: string, queryClient: QueryClient) => {

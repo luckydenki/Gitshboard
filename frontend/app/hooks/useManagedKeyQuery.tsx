@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { QueryKeys } from "~/types/query-key-enum";
-import type CommonError from "~/utils/old/common-error";
+import type CommonError from "~/utils/common/common-error";
 
 export type UseQueryParams<T, E> = Omit<Parameters<typeof useQuery<T, E>>[0], "queryKey">;
 

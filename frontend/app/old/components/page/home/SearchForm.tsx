@@ -1,8 +1,8 @@
-import { Log } from "~/utils/old/log_system/log";
+import { Log } from "~/utils/log_system/log";
 import { useNavigate } from "react-router";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { GoSearch } from "react-icons/go";
-import type { GithubUserSearchResponse } from "~/types/common/search";
+import type { GithubUserSearchResponse } from "~/old/types/search";
 import { QueryClient, useQueryClient } from "@tanstack/react-query";
 
 const handleSearchSubmit = (

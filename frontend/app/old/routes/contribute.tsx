@@ -1,10 +1,10 @@
-import { useContributeData } from "~/hooks/pages/contribute-hooks";
 import { useState } from "react";
-import ContributionHeader from "~/components/page/contribution/ContributionHeader";
-import ContributionInfoSection from "~/components/page/contribution/ContributionInfoSection";
-import ContributionCommitActivityByRepo from "~/components/page/contribution/ContributionCommitActivityByRepo";
-import ContributionCommitTotalSection from "~/components/page/contribution/ContributionCommitTotalSection";
-import ContributionDateInput from "~/components/page/contribution/ContributionDateInput";
+import ContributionCommitActivityByRepo from "~/old/components/page/contribution/ContributionCommitActivityByRepo";
+import ContributionCommitTotalSection from "~/old/components/page/contribution/ContributionCommitTotalSection";
+import ContributionDateInput from "~/old/components/page/contribution/ContributionDateInput";
+import ContributionHeader from "~/old/components/page/contribution/ContributionHeader";
+import ContributionInfoSection from "~/old/components/page/contribution/ContributionInfoSection";
+import { useContributeData } from "~/old/hooks/pages/contribute-hooks";
 
 export interface GithubCommitActivity {
     total: number;

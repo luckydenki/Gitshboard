@@ -1,6 +1,6 @@
-import { surfaceClass } from "~/routes/old/statpage";
+import { surfaceClass } from "~/old/routes/statpage";
 import SectionHeading from "./SectionHeading";
-import { formatHour } from "~/utils/old/statpage";
+import { formatHour } from "~/old/utils/statpage";
 import { useEffect, useState } from "react";
 import React from "react";
 import { useCommitTimeQuery } from "~/hooks/pages/stat-hooks";

@@ -5,9 +5,9 @@ import {
     type DeveloperProfileStats,
     type LanguageStat,
     type ProjectHealthStats,
-} from "~/types/page/statpage";
+} from "~/old/types/page/statpage";
 import type { CommonErrorResponse } from "~/types/common/common";
-import { statQueryFn } from "~/utils/old/statpage";
+import { statQueryFn } from "~/old/utils/statpage";
 
 const languagesQueryFn = async () => await statQueryFn(`/api/repos/languages`);
 const commitTimeQueryFn = async () => await statQueryFn(`/api/repos/commitTime`);

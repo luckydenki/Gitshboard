@@ -1,8 +1,8 @@
-import type { Commit } from "~/types/new/commit";
+import type { Commit } from "~/types/commit";
 import DashboardActivityArticle from "./DashboardActivityArticle";
 import DashboardRecentActivitySection from "./DashboardRecentActivitySection";
-import type { Issue } from "~/types/new/issue";
-import type { PullRequest } from "~/types/new/pr";
+import type { Issue } from "~/types/issue";
+import type { PullRequest } from "~/types/pr";
 
 export type ActivityItems = Array<Commit | Issue | PullRequest>;
 

@@ -1,5 +1,5 @@
 import { FiGitCommit } from "react-icons/fi";
-import type { Commit } from "~/types/new/commit";
+import type { Commit } from "~/types/commit";
 
 interface DashboardCommitArticleProps {
     commit: Commit;
