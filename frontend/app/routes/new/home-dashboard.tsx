@@ -4,6 +4,7 @@ import DashboardProfileSection from "~/components/page/home-dashboard/DashboardP
 import "~/routes/new/home-dashboard.css";
 import type { Profile } from "./types/profile";
 import { Outlet } from "react-router";
+import { DashboardLayout } from "~/components/page/home-dashboard/DashboardLayout";
 
 // const ThemeColors = {
 //     green: {
@@ -35,14 +36,6 @@ export default function HomeDashboard() {
         avatarUrl: "",
         bio: "우하하adasdasdasd우하하adasdasdasd",
     };
-
-    const location: string = "Korea, Seoul";
-    const bio =
-        "우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하adasdasdasd우하하ada";
-    const name = "flyetanol";
-    const link = ["https://instagram.com", "https://naver.com"];
-    const following = 30;
-    const followers = 25;
 
     const [menuState, setMenuState] = useState<EHomeDashboardMenu>(EHomeDashboardMenu["최근 활동"]);
 
@@ -76,19 +69,12 @@ export default function HomeDashboard() {
                 content={`${EHomeDashboardMenu[menuState]} 페이지`}
             />
 
-            <main className="px-main-side flex w-full min-w-0 flex-col gap-8 pt-8 pb-8">
-                <DashboardProfileSection
-                    name={name}
-                    bio={bio}
-                    location={location}
-                    link={link}
-                    following={following}
-                    followers={followers}
-                />
+            <DashboardLayout>
+                <DashboardProfileSection profile={profile} />
                 <DashboardNavigationSection menus={menus} />
 
                 <Outlet />
-            </main>
+            </DashboardLayout>
         </>
     );
 }
