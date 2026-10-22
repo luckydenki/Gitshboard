@@ -1,5 +1,5 @@
-import CommonError from "~/utils/common-error";
-import type { ISearchFilterCategory } from "../../home/SearchBar";
+import CommonError from "~/utils/old/common-error";
+import type { ISearchFilterCategory } from "../../components/home/SearchBar";
 import type { ErrorStatus } from "~/types/common/common";
 
 export const searchAutoComplete = async (

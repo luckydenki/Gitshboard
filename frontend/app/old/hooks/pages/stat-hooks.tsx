@@ -7,7 +7,7 @@ import {
     type ProjectHealthStats,
 } from "~/types/page/statpage";
 import type { CommonErrorResponse } from "~/types/common/common";
-import { statQueryFn } from "~/utils/statpage";
+import { statQueryFn } from "~/utils/old/statpage";
 
 const languagesQueryFn = async () => await statQueryFn(`/api/repos/languages`);
 const commitTimeQueryFn = async () => await statQueryFn(`/api/repos/commitTime`);

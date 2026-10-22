@@ -1,6 +1,6 @@
 import { useState } from "react";
-import useBlogFeedRSS from "~/routes/new/useBlogFeedRSS";
-import useBlogFeedThumbnail from "~/routes/new/useBlogFeedThumbnail";
+import useBlogFeedRSS from "~/hooks/useBlogFeedRSS";
+import useBlogFeedThumbnail from "~/hooks/useBlogFeedThumbnail";
 const PAGE_SIZE = 5;
 
 export default function GitHubBlogBanner() {

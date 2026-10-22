@@ -1,5 +1,5 @@
 import { FiExternalLink } from "react-icons/fi";
-import HomeSearchBar from "./home/SearchBar";
+import HomeSearchBar from "../components/home/SearchBar";
 import { searchResponseMock } from "~/mock/search/search-response";
 
 /** GitHub REST API `GET /search/users`의 검색 결과 항목입니다. */

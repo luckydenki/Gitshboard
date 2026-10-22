@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { EHomeDashboardMenu } from "~/routes/new/home-dashboard";
+import { EHomeDashboardMenu } from "~/routes/user-dashboard";
 
 const NavigationItems = ({ menu, link }: { menu: string; link: string }) => {
     return (

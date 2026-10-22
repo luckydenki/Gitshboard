@@ -1,6 +1,6 @@
 import type { CommonResponse } from "~/types/common/common";
-import CommonError from "~/utils/common-error";
-import { commonRetry } from "~/utils/tanstack-utils";
+import CommonError from "~/utils/old/common-error";
+import { commonRetry } from "~/utils/old/tanstack-utils";
 import { useState } from "react";
 import { QueryKeys } from "~/types/query-key-enum";
 import useManagedKeyQuery from "./useManagedKeyQuery";

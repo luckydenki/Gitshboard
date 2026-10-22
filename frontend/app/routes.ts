@@ -23,20 +23,20 @@ export default [
     //     ]),
     // ]),
    
-    layout("routes/new/CommonLayout.tsx", [
-        index("routes/new/home.tsx"),
-        route(RouteURL.trend, "routes/new/trend.tsx"),
-        route(RouteURL.search, "routes/new/search.tsx"),
-        route(RouteURL.community, "routes/new/community.tsx"),
-        route("repo/:repo", "routes/new/repo-dashboard.tsx", [
-            index("./components/page/new/dashboard/RepoDashboardRecentActivitySection.tsx"),
-            route("readme", "./components/page/new/dashboard/RepoDashboardReadmeSection.tsx"),
-            route("project", "./components/page/new/dashboard/RepoDashboardProjectStatusSection.tsx"),
-            route("commit", "./components/page/new/dashboard/RepoDashboardCommitStatusSection.tsx"),
-            route("prissue", "./components/page/new/dashboard/RepoDashboardPullRequestIssueSection.tsx"),
-            route("communication", "./components/page/new/dashboard/RepoDashboardCommunicationSection.tsx"),
+    layout("routes/CommonLayout.tsx", [
+        index("routes/home.tsx"),
+        route(RouteURL.trend, "routes/trend.tsx"),
+        route(RouteURL.search, "routes/search.tsx"),
+        route(RouteURL.community, "routes/community.tsx"),
+        route("repo/:repo", "routes/repo-dashboard.tsx", [
+            index("./components/page/repo-dashboard/RepoDashboardRecentActivitySection.tsx"),
+            route("readme", "./components/page/repo-dashboard/RepoDashboardReadmeSection.tsx"),
+            route("project", "./components/page/repo-dashboard/RepoDashboardProjectStatusSection.tsx"),
+            route("commit", "./components/page/repo-dashboard/RepoDashboardCommitStatusSection.tsx"),
+            route("prissue", "./components/page/repo-dashboard/RepoDashboardPullRequestIssueSection.tsx"),
+            route("communication", "./components/page/repo-dashboard/RepoDashboardCommunicationSection.tsx"),
         ]),
-        route("user/:user", "routes/new/user-dashboard.tsx",[
+        route("user/:user", "routes/user-dashboard.tsx",[
             index("./components/page/home-dashboard/DashboardActivitySection.tsx"),
             route("devStyle", "./components/page/home-dashboard/DashboardDevelopStyleSection.tsx"),
             route("repos", "./components/page/home-dashboard/DashboardRepositorySection.tsx"),

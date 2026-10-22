@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "react-router";
 import { DashboardLayout } from "~/components/page/home-dashboard/DashboardLayout";
-import RepoProfileSection from "~/components/page/new/dashboard/RepoProfileSection";
+import RepoProfileSection from "~/components/page/repo-dashboard/RepoProfileSection";
 const menuTabs = [
     { label: "최근 활동", to: "." },
     { label: "README", to: "readme" },

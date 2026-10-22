@@ -1,6 +1,6 @@
 import ReactECharts, { type EChartsOption } from "echarts-for-react";
 import { EmptyChart, surfaceClass, type GithubCommitActivity } from "~/routes/old/contribute";
-import { alignRepositoryActivity, formatDate } from "~/utils/contribute";
+import { alignRepositoryActivity, formatDate } from "~/utils/old/contribute";
 
 const chartPalette = [
     "#4183c4",

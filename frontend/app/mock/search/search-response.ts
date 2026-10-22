@@ -1,4 +1,4 @@
-import type { GitHubSearchUserCardResponse } from "~/routes/new/search";
+import type { GitHubSearchUserCardResponse } from "~/routes/search";
 
 export const searchResponseMock: GitHubSearchUserCardResponse = {
         total_count: 7,

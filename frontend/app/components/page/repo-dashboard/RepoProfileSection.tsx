@@ -7,7 +7,7 @@ import {
     FiStar,
     FiUsers,
 } from "react-icons/fi";
-import { DashboardProfileSectionLayout } from "../../home-dashboard/DashboardProfileSectionLayout";
+import { DashboardProfileSectionLayout } from "../home-dashboard/DashboardProfileSectionLayout";
 import { PiGitFork } from "react-icons/pi";
 
 export default function RepoProfileSection() {

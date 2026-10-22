@@ -1,4 +1,4 @@
-import { Log } from "~/utils/log_system/log";
+import { Log } from "~/utils/old/log_system/log";
 import { useNavigate } from "react-router";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { GoSearch } from "react-icons/go";

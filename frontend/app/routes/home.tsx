@@ -1,10 +1,10 @@
 import { Navigate } from "react-router";
 import useAuthCheck from "~/hooks/useAuthCheck";
-import type { Route } from "../../+types/root";
-import MainLogo from "./home/MainLogo";
-import HomeSearchBar from "./home/SearchBar";
-import HomeBoardList from "./home/HomeBoardList";
-import useChangeLogRSS from "./useChangeLogRSS";
+import type { Route } from "../+types/root";
+import MainLogo from "../components/home/MainLogo";
+import HomeSearchBar from "../components/home/SearchBar";
+import HomeBoardList from "../components/home/HomeBoardList";
+import useChangeLogRSS from "../hooks/useChangeLogRSS";
 import GitHubBlogBanner from "~/components/page/home-dashboard/GitHubBlogBanner";
 
 export function meta({}: Route.MetaArgs) {

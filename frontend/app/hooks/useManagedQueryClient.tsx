@@ -1,6 +1,6 @@
-import { ManagedQueryClient } from "~/utils/tanstack-utils";
+import { ManagedQueryClient } from "~/utils/old/tanstack-utils";
 import { useState } from "react";
-import { commonRetry } from "~/utils/tanstack-utils";
+import { commonRetry } from "~/utils/old/tanstack-utils";
 
 /**
  *

@@ -1,6 +1,6 @@
 import { Outlet } from "react-router";
-import CommonFooter from "./common/CommonFooter";
-import CommonHeader from "./common/CommonHeader";
+import CommonHeader from "../components/common/CommonHeader";
+import CommonFooter from "../components/common/CommonFooter";
 
 export default function CommonLayout() {
     return (
