@@ -7,6 +7,8 @@ interface DashboardProfileArticleProps {
     link: string[];
     following: number;
     followers: number;
+    url: string;
+    avatarUrl: string;
 }
 
 export default function DashboardProfileArticle({
@@ -16,6 +18,8 @@ export default function DashboardProfileArticle({
     link,
     following,
     followers,
+    url,
+    avatarUrl,
 }: DashboardProfileArticleProps) {
     return (
         <article className="flex min-w-0 items-start justify-between gap-6 not-lg:flex-col">
@@ -29,22 +33,23 @@ export default function DashboardProfileArticle({
                         {name}
                     </h1>
                     <div className="max-w-lg text-sm leading-6 break-words text-gray-500">
-                        {bio ? (
-                            bio
-                        ) : (
-                            <div className="min-h-16">소개가 없습니다.</div>
-                        )}
+                        {bio ? bio : <div className="min-h-16">소개가 없습니다.</div>}
                     </div>
                     <div className="flex flex-wrap items-start gap-x-6 gap-y-2 text-sm">
                         <div className="flex min-w-0 gap-2">
                             <span className="shrink-0 text-gray-500">지역</span>
-                            <span className="break-words">{location ? location : "Gyeungi Hwasung"}</span>
+                            <span className="break-words">
+                                {location ? location : "Gyeungi Hwasung"}
+                            </span>
                         </div>
                         <div className="flex min-w-0 flex-wrap gap-2">
                             <span className="shrink-0 text-gray-500">링크</span>
                             {link.map((v, index) => {
                                 return (
-                                    <a key={`${v}-${index}`} className="text-primary underline underline-offset-4" href={v}>
+                                    <a
+                                        key={`${v}-${index}`}
+                                        className="text-primary underline underline-offset-4"
+                                        href={v}>
                                         Instagram
                                     </a>
                                 );

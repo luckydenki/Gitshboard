@@ -1,34 +1,26 @@
+import type { Profile } from "~/routes/new/types/profile";
 import DashboardContributionCalendarArticle from "./DashboardContributionCalendarArticle";
 import DashboardProfileArticle from "./DashboardProfileArticle";
+import { DashboardProfileSectionLayout } from "./DashboardProfileSeectionLayout";
 
 interface DashboardProfileSectionProps {
-    name: string;
-    bio: string;
-    location: string;
-    link: string[];
-    following: number;
-    followers: number;
+    profile: Profile;
 }
 
-export default function DashboardProfileSection({
-    name,
-    bio,
-    location,
-    link,
-    following,
-    followers,
-}: DashboardProfileSectionProps) {
+export default function DashboardProfileSection({ profile }: DashboardProfileSectionProps) {
     return (
-        <section className="bg-panel min-w-sm px-8 pt-8">
+        <DashboardProfileSectionLayout>
             <DashboardProfileArticle
-                name={name}
-                bio={bio}
-                location={location}
-                link={link}
-                following={following}
-                followers={followers}
+                name={profile.name ?? profile.login}
+                bio={profile.bio ?? ""}
+                location={profile.location ?? ""}
+                link={profile.socialAccountsList ?? []}
+                following={profile.followingTotal ?? 0}
+                followers={profile.followersTotal ?? 0}
+                url={profile.url}
+                avatarUrl={profile.avatarUrl}
             />
             <DashboardContributionCalendarArticle />
-        </section>
+        </DashboardProfileSectionLayout>
     );
 }
