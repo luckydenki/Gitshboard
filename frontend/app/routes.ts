@@ -28,7 +28,14 @@ export default [
         route(RouteURL.trend, "routes/new/trend.tsx"),
         route(RouteURL.search, "routes/new/search.tsx"),
         route(RouteURL.community, "routes/new/community.tsx"),
-        route("repo", "routes/new/repo-dashboard.tsx"),
+        route("repo/:repo", "routes/new/repo-dashboard.tsx", [
+            index("./components/page/new/dashboard/RepoDashboardRecentActivitySection.tsx"),
+            route("readme", "./components/page/new/dashboard/RepoDashboardReadmeSection.tsx"),
+            route("project", "./components/page/new/dashboard/RepoDashboardProjectStatusSection.tsx"),
+            route("commit", "./components/page/new/dashboard/RepoDashboardCommitStatusSection.tsx"),
+            route("prissue", "./components/page/new/dashboard/RepoDashboardPullRequestIssueSection.tsx"),
+            route("communication", "./components/page/new/dashboard/RepoDashboardCommunicationSection.tsx"),
+        ]),
         route("user/:user", "routes/new/home-dashboard.tsx",[
             index("./components/page/home-dashboard/DashboardActivitySection.tsx"),
             route("devStyle", "./components/page/home-dashboard/DashboardDevelopStyleSection.tsx"),

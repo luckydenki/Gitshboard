@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { NavLink, Outlet } from "react-router";
 import {
     FiBookOpen,
     FiExternalLink,
@@ -11,27 +11,16 @@ import {
 import { PiGitFork } from "react-icons/pi";
 import { DashboardLayout } from "~/components/page/home-dashboard/DashboardLayout";
 import { DashboardProfileSectionLayout } from "~/components/page/home-dashboard/DashboardProfileSectionLayout";
-import RepoDashboardCommitStatusSection from "~/components/page/new/dashboard/RepoDashboardCommitStatusSection";
-import RepoDashboardCommunicationSection from "~/components/page/new/dashboard/RepoDashboardCommunicationSection";
-import RepoDashboardProjectStatusSection from "~/components/page/new/dashboard/RepoDashboardProjectStatusSection";
-import RepoDashboardPullRequestIssueSection from "~/components/page/new/dashboard/RepoDashboardPullRequestIssueSection";
-import RepoDashboardReadmeSection from "~/components/page/new/dashboard/RepoDashboardReadmeSection";
-import RepoDashboardRecentActivitySection from "~/components/page/new/dashboard/RepoDashboardRecentActivitySection";
-
 const menuTabs = [
-    "최근 활동",
-    "README",
-    "프로젝트 현황",
-    "커밋 현황",
-    "PR 및 이슈 현황",
-    "커뮤니케이션 현황",
+    { label: "최근 활동", to: "." },
+    { label: "README", to: "readme" },
+    { label: "프로젝트 현황", to: "project" },
+    { label: "커밋 현황", to: "commit" },
+    { label: "PR 및 이슈 현황", to: "prissue" },
+    { label: "커뮤니케이션 현황", to: "communication" },
 ] as const;
 
-type RepoDashboardMenu = (typeof menuTabs)[number];
-
 export default function RepoDashboard() {
-    const [activeMenu, setActiveMenu] = useState<RepoDashboardMenu>("최근 활동");
-
     return (
         <>
             <title>facebook/react 저장소 통계 - Gitshboard</title>
@@ -126,39 +115,28 @@ export default function RepoDashboard() {
 
                 <section className="bg-panel min-w-0 overflow-x-auto px-4 py-2">
                     <nav aria-label="저장소 통계 메뉴">
-                        <ul
-                            role="tablist"
-                            className="flex min-w-max gap-4">
-                            {menuTabs.map((menu) => {
-                                const isActive = activeMenu === menu;
-
-                                return (
-                                    <li key={menu}>
-                                        <button
-                                            type="button"
-                                            role="tab"
-                                            aria-selected={isActive}
-                                            className={`h-9 cursor-pointer rounded-lg px-4 text-sm font-medium ${
+                        <ul className="flex min-w-max gap-4">
+                            {menuTabs.map(({ label, to }) => (
+                                <li key={label}>
+                                    <NavLink
+                                        to={to}
+                                        end
+                                        className={({ isActive }) =>
+                                            `flex h-9 cursor-pointer items-center rounded-lg px-4 text-sm font-medium ${
                                                 isActive
                                                     ? "bg-primary text-white"
                                                     : "bg-panel hover:bg-gray-200"
-                                            }`}
-                                            onClick={() => setActiveMenu(menu)}>
-                                            {menu}
-                                        </button>
-                                    </li>
-                                );
-                            })}
+                                            }`
+                                        }>
+                                        {label}
+                                    </NavLink>
+                                </li>
+                            ))}
                         </ul>
                     </nav>
                 </section>
 
-                {activeMenu === "최근 활동" && <RepoDashboardRecentActivitySection />}
-                {activeMenu === "README" && <RepoDashboardReadmeSection />}
-                {activeMenu === "프로젝트 현황" && <RepoDashboardProjectStatusSection />}
-                {activeMenu === "커밋 현황" && <RepoDashboardCommitStatusSection />}
-                {activeMenu === "PR 및 이슈 현황" && <RepoDashboardPullRequestIssueSection />}
-                {activeMenu === "커뮤니케이션 현황" && <RepoDashboardCommunicationSection />}
+                <Outlet />
             </DashboardLayout>
         </>
     );
