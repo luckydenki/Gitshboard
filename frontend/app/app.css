@@ -23,7 +23,7 @@
 
 
   /* 크기는 --spacing */
-  --spacing-main-x-side : 240px;
+  --spacing-main-x-side : clamp(1rem, calc(25vw - 12rem), 15rem);
       /* 4rem = 64px */
     ;
   --spacing-main-y-side : 8rem; 
@@ -43,11 +43,6 @@ main {
   padding-inline : var(--spacing-main-x-side);
 
 }
-
-.dashboard-main {
-  --spacing-main-x-side: clamp(1rem, calc(25vw - 12rem), 15rem);
-}
-
 
 html,
 body {
