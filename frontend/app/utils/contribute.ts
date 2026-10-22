@@ -1,4 +1,4 @@
-import type { GithubCommitActivity } from "~/routes/contribute";
+import type { GithubCommitActivity } from "~/routes/old/contribute";
 
 
 /**

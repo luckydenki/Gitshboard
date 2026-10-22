@@ -1,5 +1,5 @@
-import { surfaceClass } from "~/routes/contribute";
-import type { GithubCommitActivity } from "~/routes/contribute";
+import { surfaceClass } from "~/routes/old/contribute";
+import type { GithubCommitActivity } from "~/routes/old/contribute";
 
 export default function ContributionInfoSection({
     data,

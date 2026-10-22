@@ -1,6 +1,6 @@
 import ReactECharts from "echarts-for-react";
 import type { EChartsOption } from "echarts";
-import { EmptyChart, surfaceClass, type GithubCommitActivity } from "~/routes/contribute";
+import { EmptyChart, surfaceClass, type GithubCommitActivity } from "~/routes/old/contribute";
 import { formatDate } from "~/utils/contribute";
 
 export default function ContributionCommitTotalSection({

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { HTTPCredentials } from "dench-fetch";
-import type { GithubCommitActivity } from "~/routes/contribute";
+import type { GithubCommitActivity } from "~/routes/old/contribute";
 import type { CommonErrorResponse } from "~/types/common/common";
 
 export function useContributeData(from: string, to: string) {

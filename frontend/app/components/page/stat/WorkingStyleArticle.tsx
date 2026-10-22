@@ -1,4 +1,4 @@
-import { surfaceClass } from "~/routes/statpage";
+import { surfaceClass } from "~/routes/old/statpage";
 import SectionHeading from "./SectionHeading";
 import EmptyState from "./EmptyState";
 import { useEffect, useState } from "react";

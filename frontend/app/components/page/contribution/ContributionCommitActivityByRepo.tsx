@@ -1,5 +1,5 @@
 import ReactECharts, { type EChartsOption } from "echarts-for-react";
-import { EmptyChart, surfaceClass, type GithubCommitActivity } from "~/routes/contribute";
+import { EmptyChart, surfaceClass, type GithubCommitActivity } from "~/routes/old/contribute";
 import { alignRepositoryActivity, formatDate } from "~/utils/contribute";
 
 const chartPalette = [
