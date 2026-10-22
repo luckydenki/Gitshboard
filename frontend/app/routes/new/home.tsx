@@ -21,17 +21,7 @@ export function meta({}: Route.MetaArgs) {
  * @returns
  */
 export default function Home() {
-    const { isSuccess } = useAuthCheck();
     const { data, isLoading } = useChangeLogRSS();
-
-    if (isSuccess) {
-        return (
-            <Navigate
-                to="/dashboard"
-                replace={true}
-            />
-        );
-    }
 
     if (isLoading) return;
 
