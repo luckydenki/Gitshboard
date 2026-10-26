@@ -179,7 +179,9 @@ export default function RepoDashboardRecentActivitySection() {
                                             {event.time}
                                         </time>
                                     </div>
-                                    <h4 className="font-semibold break-words">{event.title}</h4>
+                                    <h4 className="wrap-break-words font-semibold">
+                                        {event.title}
+                                    </h4>
                                     <p className="text-sm leading-6 text-gray-500">
                                         {event.description}
                                     </p>

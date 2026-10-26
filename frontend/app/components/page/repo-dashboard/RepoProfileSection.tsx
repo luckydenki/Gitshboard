@@ -40,7 +40,7 @@ export default function RepoProfileSection() {
                                     예시 데이터
                                 </span>
                             </div>
-                            <h1 className="text-2xl leading-tight font-bold break-words sm:text-3xl">
+                            <h1 className="wrap-break-words text-2xl leading-tight font-bold sm:text-3xl">
                                 {profileMock.name}
                             </h1>
                             <p className="max-w-3xl text-sm leading-6 text-gray-500">

@@ -41,7 +41,9 @@ export default function RepoDashboardCommunicationSection() {
                                 className="size-12 shrink-0 rounded-lg border border-gray-300"
                             />
                             <div className="flex min-w-0 flex-1 flex-col gap-1">
-                                <p className="font-semibold break-words">@{contributor.login}</p>
+                                <p className="wrap-break-words font-semibold">
+                                    @{contributor.login}
+                                </p>
                                 <p className="text-xs text-gray-500">
                                     {contributor.commits.toLocaleString()} commits
                                 </p>
@@ -199,7 +201,7 @@ export default function RepoDashboardCommunicationSection() {
                                     {String(index + 1).padStart(2, "0")}
                                 </span>
                                 <div className="flex min-w-0 flex-1 flex-col gap-1">
-                                    <p className="text-sm font-semibold break-words">
+                                    <p className="wrap-break-words text-sm font-semibold">
                                         {item.title}
                                     </p>
                                     <p className="text-xs text-gray-500">{item.category}</p>
