@@ -20,7 +20,7 @@ export enum EHomeDashboardMenu {
     관심사 = 3,
 }
 
-export default function HomeDashboard() {
+export default function UserDashboard() {
     const profile: Profile = {
         name: "flyetanol",
         company: "우리회사",
