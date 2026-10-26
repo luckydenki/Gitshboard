@@ -23,7 +23,7 @@ import type { EChartsOption } from "echarts";
 import EChartsReact from "echarts-for-react";
 
 const issueFlowOption: EChartsOption = {
-    color: ["#076BFF", "#9CA3AF"],
+    color: ["#6B7280", "#9CA3AF"],
     tooltip: { trigger: "axis" },
     legend: {
         bottom: 0,
@@ -63,34 +63,32 @@ export default function RepoDashboardPullRequestIssueSection() {
     return (
         <section
             aria-label="PR 및 이슈 현황"
-            className="flex min-w-0 flex-col gap-6">
+            className="flex min-w-0 flex-col gap-6 divide-y divide-gray-300">
             <section
                 aria-label="Issue 통계"
                 className="flex flex-col gap-6">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="flex flex-wrap gap-4">
                     {issueTotals.map((item) => (
                         <article
                             key={item.label}
-                            className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                            className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.5rem)] xl:w-[calc(33.333333%-0.666667rem)]">
                             <h3 className="text-sm text-gray-500">{item.label}</h3>
-                            <strong className="mt-3 block text-3xl">{item.value}</strong>
-                            <p className="mt-2 text-xs text-gray-500">{item.detail}</p>
+                            <strong className="block text-3xl">{item.value}</strong>
+                            <p className="text-xs text-gray-500">{item.detail}</p>
                         </article>
                     ))}
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2">
+                <div className="flex flex-wrap gap-6">
+                    <article className="bg-panel w-full min-w-0 rounded-lg border border-gray-300 p-6 md:w-full xl:w-[calc(66.666667%-0.5rem)]">
                         <div className="flex flex-wrap items-end justify-between gap-3">
-                            <div>
+                            <div className="flex flex-col gap-1">
                                 <h3 className="text-lg font-bold">Issue 신규·종료 추이</h3>
-                                <p className="mt-1 text-sm text-gray-500">
-                                    {summaryMock.issuePeriod}
-                                </p>
+                                <p className="text-sm text-gray-500">{summaryMock.issuePeriod}</p>
                             </div>
                             <div className="flex gap-5 text-sm">
                                 <span>
-                                    <strong className="text-primary">
+                                    <strong className="text-gray-500">
                                         {summaryMock.openedIssues}
                                     </strong>{" "}
                                     신규
@@ -106,80 +104,74 @@ export default function RepoDashboardPullRequestIssueSection() {
                         />
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">처리 흐름</h3>
-                        <dl className="mt-5 flex flex-col divide-y divide-gray-300">
+                        <dl className="flex flex-col divide-y divide-gray-300">
                             {issueProcessing.map((item) => (
                                 <div
                                     key={item.term}
-                                    className="flex items-center justify-between gap-3 py-4 first:pt-0 last:pb-0">
-                                    <div>
+                                    className="flex items-center justify-between gap-3 py-4">
+                                    <div className="flex flex-col gap-1">
                                         <dt className="text-sm font-medium">{item.term}</dt>
-                                        <p className="mt-1 text-xs text-gray-500">{item.detail}</p>
+                                        <p className="text-xs text-gray-500">{item.detail}</p>
                                     </div>
-                                    <dd className="text-primary text-lg font-bold">{item.value}</dd>
+                                    <dd className="text-lg font-bold text-gray-500">
+                                        {item.value}
+                                    </dd>
                                 </div>
                             ))}
                         </dl>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">첫 응답까지</h3>
-                        <p className="mt-1 text-sm text-gray-500">
-                            Issue 등록부터 첫 유지관리자 응답
-                        </p>
-                        <dl className="mt-6 flex gap-5">
-                            <div className="flex-1">
+                        <p className="text-sm text-gray-500">Issue 등록부터 첫 유지관리자 응답</p>
+                        <dl className="flex gap-5">
+                            <div className="flex flex-1 flex-col gap-2">
                                 <dt className="text-xs text-gray-500">중앙값</dt>
-                                <dd className="mt-2 text-xl font-bold">
+                                <dd className="text-xl font-bold">
                                     {summaryMock.firstResponseTime}
                                 </dd>
                             </div>
-                            <div className="flex-1">
+                            <div className="flex flex-1 flex-col gap-2">
                                 <dt className="text-xs text-gray-500">90백분위</dt>
-                                <dd className="mt-2 text-xl font-bold">
-                                    {summaryMock.assigneeTime}
-                                </dd>
+                                <dd className="text-xl font-bold">{summaryMock.assigneeTime}</dd>
                             </div>
                         </dl>
                     </article>
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">종료까지</h3>
-                        <p className="mt-1 text-sm text-gray-500">Issue 등록부터 종료</p>
-                        <dl className="mt-6 flex gap-5">
-                            <div className="flex-1">
+                        <p className="text-sm text-gray-500">Issue 등록부터 종료</p>
+                        <dl className="flex gap-5">
+                            <div className="flex flex-1 flex-col gap-2">
                                 <dt className="text-xs text-gray-500">중앙값</dt>
-                                <dd className="mt-2 text-xl font-bold">
-                                    {summaryMock.issueCloseTime}
-                                </dd>
+                                <dd className="text-xl font-bold">{summaryMock.issueCloseTime}</dd>
                             </div>
-                            <div className="flex-1">
+                            <div className="flex flex-1 flex-col gap-2">
                                 <dt className="text-xs text-gray-500">90백분위</dt>
-                                <dd className="mt-2 text-xl font-bold">
-                                    {summaryMock.oldestIssue}
-                                </dd>
+                                <dd className="text-xl font-bold">{summaryMock.oldestIssue}</dd>
                             </div>
                         </dl>
                     </article>
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">장기 대기와 재오픈</h3>
-                        <dl className="mt-5 flex flex-col divide-y divide-gray-300">
-                            <div className="flex items-center justify-between gap-3 py-3 first:pt-0">
+                        <dl className="flex flex-col divide-y divide-gray-300">
+                            <div className="flex items-center justify-between gap-3 py-3">
                                 <dt className="text-sm text-gray-500">30일 이상 활동 없음</dt>
                                 <dd className="text-xl font-bold">
                                     {summaryMock.inactiveIssueCount}
                                 </dd>
                             </div>
-                            <div className="flex items-center justify-between gap-3 py-3 last:pb-0">
+                            <div className="flex items-center justify-between gap-3 py-3">
                                 <dt className="text-sm text-gray-500">재오픈 비율</dt>
                                 <dd className="text-xl font-bold">{summaryMock.reopenedRate}</dd>
                             </div>
                         </dl>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">열린 Issue 경과일</h3>
-                        <ul className="mt-5 flex flex-col gap-4">
+                        <ul className="flex flex-col gap-4">
                             {issueAge.map((item) => (
                                 <li
                                     key={item.label}
@@ -192,7 +184,7 @@ export default function RepoDashboardPullRequestIssueSection() {
                                     </div>
                                     <div className="h-2 rounded-lg bg-gray-200">
                                         <div
-                                            className="bg-primary h-full rounded-lg"
+                                            className="h-full rounded-lg bg-gray-500"
                                             style={{
                                                 width: `${item.percent}%`,
                                             }}
@@ -203,10 +195,10 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </ul>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">라벨별 Issue</h3>
-                        <p className="mt-1 text-xs text-gray-500">열린 Issue의 대표 라벨 기준</p>
-                        <ul className="mt-5 flex flex-col gap-4">
+                        <p className="text-xs text-gray-500">열린 Issue의 대표 라벨 기준</p>
+                        <ul className="flex flex-col gap-4">
                             {issueLabels.map((item) => (
                                 <li
                                     key={item.label}
@@ -217,7 +209,7 @@ export default function RepoDashboardPullRequestIssueSection() {
                                     </div>
                                     <div className="h-2 rounded-lg bg-gray-200">
                                         <div
-                                            className="bg-primary h-full rounded-lg"
+                                            className="h-full rounded-lg bg-gray-500"
                                             style={{
                                                 width: `${item.percent}%`,
                                             }}
@@ -228,10 +220,10 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </ul>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">유형별 해결 속도</h3>
-                        <p className="mt-1 text-xs text-gray-500">종료까지 걸린 시간의 중앙값</p>
-                        <ul className="mt-5 flex flex-col gap-4">
+                        <p className="text-xs text-gray-500">종료까지 걸린 시간의 중앙값</p>
+                        <ul className="flex flex-col gap-4">
                             {issueTypes.map((item) => (
                                 <li
                                     key={item.label}
@@ -242,7 +234,7 @@ export default function RepoDashboardPullRequestIssueSection() {
                                     </div>
                                     <div className="h-2 rounded-lg bg-gray-200">
                                         <div
-                                            className="bg-primary h-full rounded-lg"
+                                            className="h-full rounded-lg bg-gray-500"
                                             style={{ width: item.width }}
                                         />
                                     </div>
@@ -251,9 +243,9 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </ul>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">마일스톤 진행률</h3>
-                        <ul className="mt-5 flex flex-col gap-5">
+                        <ul className="flex flex-col gap-5">
                             {milestones.map((item) => (
                                 <li
                                     key={item.name}
@@ -266,7 +258,7 @@ export default function RepoDashboardPullRequestIssueSection() {
                                     </div>
                                     <div className="h-2 rounded-lg bg-gray-200">
                                         <div
-                                            className="bg-primary h-full rounded-lg"
+                                            className="h-full rounded-lg bg-gray-500"
                                             style={{
                                                 width: `${item.percent}%`,
                                             }}
@@ -277,16 +269,16 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </ul>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">참여 가능한 Issue</h3>
-                        <dl className="mt-5 flex flex-col divide-y divide-gray-300">
+                        <dl className="flex flex-col divide-y divide-gray-300">
                             {issueAssignments.map((item) => (
                                 <div
                                     key={item.term}
-                                    className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                                    <div>
+                                    className="flex items-center justify-between gap-3 py-3">
+                                    <div className="flex flex-col gap-1">
                                         <dt className="text-sm font-medium">{item.term}</dt>
-                                        <p className="mt-1 text-xs text-gray-500">{item.detail}</p>
+                                        <p className="text-xs text-gray-500">{item.detail}</p>
                                     </div>
                                     <dd className="text-lg font-bold">{item.value}</dd>
                                 </div>
@@ -294,10 +286,10 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </dl>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">댓글 수 분포</h3>
-                        <p className="mt-1 text-xs text-gray-500">Issue당 댓글</p>
-                        <ul className="mt-5 flex flex-col gap-3">
+                        <p className="text-xs text-gray-500">Issue당 댓글</p>
+                        <ul className="flex flex-col gap-3">
                             {issueCommentDistribution.map((item) => (
                                 <li
                                     key={item.label}
@@ -308,7 +300,7 @@ export default function RepoDashboardPullRequestIssueSection() {
                                     </div>
                                     <div className="h-2 rounded-lg bg-gray-200">
                                         <div
-                                            className="bg-primary h-full rounded-lg"
+                                            className="h-full rounded-lg bg-gray-500"
                                             style={{ width: item.width }}
                                         />
                                     </div>
@@ -317,14 +309,14 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </ul>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">토론이 활발한 Issue</h3>
-                        <ol className="mt-5 flex flex-col divide-y divide-gray-300">
+                        <ol className="flex flex-col divide-y divide-gray-300">
                             {popularIssues.map((item) => (
                                 <li
                                     key={item.number}
-                                    className="flex justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                                    <span className="min-w-0 text-sm font-medium break-words">
+                                    className="flex justify-between gap-3 py-3">
+                                    <span className="wrap-break-words min-w-0 text-sm font-medium">
                                         {item.title}
                                         <span className="ml-2 text-xs text-gray-500">
                                             {item.number}
@@ -338,22 +330,22 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </ol>
                     </article>
 
-                    <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2">
+                    <article className="bg-panel flex w-full min-w-0 flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-full xl:w-[calc(66.666667%-0.5rem)]">
                         <h3 className="text-lg font-bold">Issue 종료 사유</h3>
-                        <p className="mt-1 text-xs text-gray-500">최근 종료된 Issue의 분류</p>
+                        <p className="text-xs text-gray-500">최근 종료된 Issue의 분류</p>
                         <div
-                            className="mt-5 flex h-4 overflow-hidden rounded-lg bg-gray-200"
+                            className="flex h-4 overflow-hidden rounded-lg bg-gray-200"
                             aria-label={summaryMock.issueCloseDistribution}>
                             <span
-                                className="bg-primary"
+                                className="bg-gray-500"
                                 style={{ width: barWidthsMock[0] }}
                             />
                             <span
-                                className="bg-primary/70"
+                                className="bg-gray-400"
                                 style={{ width: barWidthsMock[1] }}
                             />
                             <span
-                                className="bg-primary/40"
+                                className="bg-gray-300"
                                 style={{ width: barWidthsMock[2] }}
                             />
                             <span
@@ -361,11 +353,13 @@ export default function RepoDashboardPullRequestIssueSection() {
                                 style={{ width: barWidthsMock[3] }}
                             />
                         </div>
-                        <dl className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+                        <dl className="flex flex-wrap gap-3">
                             {issueCloseReasons.map((item) => (
-                                <div key={item.term}>
+                                <div
+                                    key={item.term}
+                                    className="flex w-full flex-col gap-1 md:w-[calc(50%-0.375rem)] xl:w-[calc(25%-0.5625rem)]">
                                     <dt className="text-xs text-gray-500">{item.term}</dt>
-                                    <dd className="mt-1 font-bold">{item.value}</dd>
+                                    <dd className="font-bold">{item.value}</dd>
                                 </div>
                             ))}
                         </dl>
@@ -375,28 +369,28 @@ export default function RepoDashboardPullRequestIssueSection() {
 
             <section
                 aria-label="Pull Request 통계"
-                className="flex flex-col gap-6 border-t-1 border-gray-300 pt-6">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                className="flex flex-col gap-6 border-gray-300 pt-6">
+                <div className="flex flex-wrap gap-4">
                     {pullRequestTotals.map((item) => (
                         <article
                             key={item.label}
-                            className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                            className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.5rem)] xl:w-[calc(33.333333%-0.666667rem)]">
                             <h3 className="text-sm text-gray-500">{item.label}</h3>
-                            <strong className="mt-3 block text-3xl">{item.value}</strong>
-                            <p className="mt-2 text-xs text-gray-500">{item.detail}</p>
+                            <strong className="block text-3xl">{item.value}</strong>
+                            <p className="text-xs text-gray-500">{item.detail}</p>
                         </article>
                     ))}
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                <div className="flex flex-wrap gap-6">
+                    <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">PR 처리 결과</h3>
-                        <p className="mt-1 text-xs text-gray-500">{summaryMock.decidedPrPeriod}</p>
+                        <p className="text-xs text-gray-500">{summaryMock.decidedPrPeriod}</p>
                         <div
-                            className="mt-6 flex h-4 overflow-hidden rounded-lg bg-gray-200"
+                            className="flex h-4 overflow-hidden rounded-lg bg-gray-200"
                             aria-label={summaryMock.prOutcomeDistribution}>
                             <span
-                                className="bg-primary"
+                                className="bg-gray-500"
                                 style={{ width: barWidthsMock[4] }}
                             />
                             <span
@@ -404,55 +398,49 @@ export default function RepoDashboardPullRequestIssueSection() {
                                 style={{ width: barWidthsMock[5] }}
                             />
                         </div>
-                        <dl className="mt-5 flex justify-between gap-4">
-                            <div>
+                        <dl className="flex justify-between gap-4">
+                            <div className="flex flex-col gap-1">
                                 <dt className="text-xs text-gray-500">병합률</dt>
-                                <dd className="mt-1 text-xl font-bold">{summaryMock.mergedRate}</dd>
+                                <dd className="text-xl font-bold">{summaryMock.mergedRate}</dd>
                             </div>
-                            <div className="text-right">
+                            <div className="flex flex-col gap-1 text-right">
                                 <dt className="text-xs text-gray-500">거절·중단</dt>
-                                <dd className="mt-1 text-xl font-bold">
-                                    {summaryMock.closedPrRate}
-                                </dd>
+                                <dd className="text-xl font-bold">{summaryMock.closedPrRate}</dd>
                             </div>
                         </dl>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">첫 리뷰까지</h3>
-                        <p className="mt-1 text-sm text-gray-500">PR 생성부터 첫 리뷰</p>
-                        <strong className="mt-6 block text-2xl">
-                            {summaryMock.firstReviewTime}
-                        </strong>
-                        <p className="mt-2 text-xs text-gray-500">중앙값</p>
+                        <p className="text-sm text-gray-500">PR 생성부터 첫 리뷰</p>
+                        <strong className="block text-2xl">{summaryMock.firstReviewTime}</strong>
+                        <p className="text-xs text-gray-500">중앙값</p>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">병합까지</h3>
-                        <p className="mt-1 text-sm text-gray-500">PR 생성부터 병합</p>
-                        <dl className="mt-6 flex gap-5">
-                            <div className="flex-1">
+                        <p className="text-sm text-gray-500">PR 생성부터 병합</p>
+                        <dl className="flex gap-5">
+                            <div className="flex flex-1 flex-col gap-2">
                                 <dt className="text-xs text-gray-500">중앙값</dt>
-                                <dd className="mt-2 text-xl font-bold">{summaryMock.mergeTime}</dd>
+                                <dd className="text-xl font-bold">{summaryMock.mergeTime}</dd>
                             </div>
-                            <div className="flex-1">
+                            <div className="flex flex-1 flex-col gap-2">
                                 <dt className="text-xs text-gray-500">90백분위</dt>
-                                <dd className="mt-2 text-xl font-bold">
-                                    {summaryMock.longestPrTime}
-                                </dd>
+                                <dd className="text-xl font-bold">{summaryMock.longestPrTime}</dd>
                             </div>
                         </dl>
                     </article>
 
-                    <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2">
+                    <article className="bg-panel flex w-full min-w-0 flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-full xl:w-[calc(66.666667%-0.5rem)]">
                         <h3 className="text-lg font-bold">PR 생성 후 리뷰·병합 흐름</h3>
-                        <p className="mt-1 text-sm text-gray-500">중앙값 기준 누적 소요 시간</p>
-                        <ol className="mt-6 flex items-stretch gap-3 not-sm:flex-col">
+                        <p className="text-sm text-gray-500">중앙값 기준 누적 소요 시간</p>
+                        <ol className="flex items-stretch gap-3 not-sm:flex-col">
                             {prTimeline.map((item, index) => (
                                 <li
                                     key={item.label}
-                                    className="bg-primary/10 flex min-w-0 flex-1 flex-col gap-2 rounded-lg p-4">
-                                    <span className="text-primary text-xs">0{index + 1}</span>
+                                    className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg bg-gray-100 p-4">
+                                    <span className="text-xs text-gray-500">0{index + 1}</span>
                                     <span className="text-sm font-semibold">{item.label}</span>
                                     <strong>{item.value}</strong>
                                 </li>
@@ -460,13 +448,13 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </ol>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">PR당 협업 규모</h3>
-                        <dl className="mt-5 flex flex-col divide-y divide-gray-300">
+                        <dl className="flex flex-col divide-y divide-gray-300">
                             {prReviewMetrics.map((item) => (
                                 <div
                                     key={item.term}
-                                    className="flex justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                                    className="flex justify-between gap-3 py-3">
                                     <dt className="text-sm text-gray-500">{item.term}</dt>
                                     <dd className="text-sm font-bold">{item.value}</dd>
                                 </div>
@@ -474,17 +462,17 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </dl>
                     </article>
 
-                    <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2">
+                    <article className="bg-panel flex w-full min-w-0 flex-col gap-6 rounded-lg border border-gray-300 p-6 md:w-full xl:w-[calc(66.666667%-0.5rem)]">
                         <div className="flex flex-wrap items-end justify-between gap-3">
-                            <div>
+                            <div className="flex flex-col gap-1">
                                 <h3 className="text-lg font-bold">PR 크기 분포</h3>
-                                <p className="mt-1 text-sm text-gray-500">변경한 코드 줄 수 기준</p>
+                                <p className="text-sm text-gray-500">변경한 코드 줄 수 기준</p>
                             </div>
                             <span className="text-sm font-semibold">
                                 {summaryMock.changedFiles}
                             </span>
                         </div>
-                        <ul className="mt-6 flex flex-col gap-4">
+                        <ul className="flex flex-col gap-4">
                             {prSizes.map((item) => (
                                 <li
                                     key={item.label}
@@ -497,7 +485,7 @@ export default function RepoDashboardPullRequestIssueSection() {
                                     </div>
                                     <div className="h-2 rounded-lg bg-gray-200">
                                         <div
-                                            className="bg-primary h-full rounded-lg"
+                                            className="h-full rounded-lg bg-gray-500"
                                             style={{
                                                 width: `${item.percent}%`,
                                             }}
@@ -508,51 +496,49 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </ul>
                     </article>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">크기별 병합 속도</h3>
-                        <p className="mt-1 text-xs text-gray-500">생성부터 병합까지 중앙값</p>
-                        <dl className="mt-6 flex flex-col gap-5">
-                            <div>
+                        <p className="text-xs text-gray-500">생성부터 병합까지 중앙값</p>
+                        <dl className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-1">
                                 <dt className="text-sm text-gray-500">작은 PR · 100줄 이하</dt>
-                                <dd className="mt-1 text-xl font-bold">
+                                <dd className="text-xl font-bold">
                                     {summaryMock.smallPrMergeTime}
                                 </dd>
                             </div>
-                            <div>
+                            <div className="flex flex-col gap-1">
                                 <dt className="text-sm text-gray-500">큰 PR · 501줄 이상</dt>
-                                <dd className="mt-1 text-xl font-bold">
+                                <dd className="text-xl font-bold">
                                     {summaryMock.largePrMergeTime}
                                 </dd>
                             </div>
                         </dl>
                     </article>
 
-                    <div className="grid min-w-0 grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2 xl:col-span-3 xl:grid-cols-4">
+                    <div className="flex w-full min-w-0 flex-wrap gap-4 md:w-full xl:w-full">
                         {prMetrics.map((item) => (
                             <article
                                 key={item.label}
-                                className="bg-panel rounded-lg border-1 border-gray-300 p-5">
+                                className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-5 md:w-[calc(50%-0.5rem)] xl:w-[calc(25%-0.75rem)]">
                                 <h3 className="text-sm text-gray-500">{item.label}</h3>
-                                <strong className="mt-3 block text-xl">{item.value}</strong>
-                                <p className="mt-2 text-xs leading-5 text-gray-500">
-                                    {item.detail}
-                                </p>
+                                <strong className="block text-xl">{item.value}</strong>
+                                <p className="text-xs leading-5 text-gray-500">{item.detail}</p>
                             </article>
                         ))}
                     </div>
 
-                    <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+                    <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                         <h3 className="text-lg font-bold">병합 방식</h3>
-                        <p className="mt-1 text-xs text-gray-500">병합된 PR 기준</p>
+                        <p className="text-xs text-gray-500">병합된 PR 기준</p>
                         <div
-                            className="mt-5 flex h-4 overflow-hidden rounded-lg bg-gray-200"
+                            className="flex h-4 overflow-hidden rounded-lg bg-gray-200"
                             aria-label={summaryMock.mergeMethodDistribution}>
                             <span
-                                className="bg-primary"
+                                className="bg-gray-500"
                                 style={{ width: barWidthsMock[6] }}
                             />
                             <span
-                                className="bg-primary/60"
+                                className="bg-gray-400"
                                 style={{ width: barWidthsMock[7] }}
                             />
                             <span
@@ -560,7 +546,7 @@ export default function RepoDashboardPullRequestIssueSection() {
                                 style={{ width: barWidthsMock[8] }}
                             />
                         </div>
-                        <dl className="mt-5 flex flex-col divide-y divide-gray-300">
+                        <dl className="flex flex-col divide-y divide-gray-300">
                             {mergeMethods.map((item) => (
                                 <div
                                     key={item.term}
@@ -572,23 +558,21 @@ export default function RepoDashboardPullRequestIssueSection() {
                         </dl>
                     </article>
 
-                    <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2">
+                    <article className="bg-panel flex w-full min-w-0 flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-full xl:w-[calc(66.666667%-0.5rem)]">
                         <h3 className="text-lg font-bold">Issue와 연결된 PR</h3>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="text-sm text-gray-500">
                             개발 결과가 Issue 해결로 이어진 정도예요.
                         </p>
-                        <dl className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div>
+                        <dl className="flex flex-wrap gap-4">
+                            <div className="flex w-full flex-col gap-2 md:w-[calc(50%-0.5rem)]">
                                 <dt className="text-sm text-gray-500">Issue를 연결한 PR</dt>
-                                <dd className="mt-2 text-2xl font-bold">
-                                    {summaryMock.linkedIssues}
-                                </dd>
+                                <dd className="text-2xl font-bold">{summaryMock.linkedIssues}</dd>
                             </div>
-                            <div>
+                            <div className="flex w-full flex-col gap-2 md:w-[calc(50%-0.5rem)]">
                                 <dt className="text-sm text-gray-500">
                                     병합으로 자동 종료된 Issue
                                 </dt>
-                                <dd className="mt-2 text-2xl font-bold">{summaryMock.linkedPrs}</dd>
+                                <dd className="text-2xl font-bold">{summaryMock.linkedPrs}</dd>
                             </div>
                         </dl>
                     </article>

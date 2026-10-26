@@ -23,49 +23,45 @@ export default function RepoDashboardRecentActivitySection() {
             </h2>
 
             <aside className="flex w-80 shrink-0 flex-col gap-4 not-lg:w-full">
-                <article className="bg-panel rounded-lg border-1 border-gray-300 p-5">
+                <article className="bg-panel flex flex-col gap-4 rounded-lg border border-gray-300 p-5">
                     <h3 className="font-bold">현재 상태</h3>
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2">
                         {activityTags.map((tag) => (
                             <span
                                 key={tag}
-                                className="bg-primary/10 text-primary rounded-lg p-2 text-xs font-semibold">
+                                className="rounded-lg bg-gray-100 p-2 text-xs font-semibold text-gray-500">
                                 {tag}
                             </span>
                         ))}
                     </div>
-                    <p className="mt-4 text-xs leading-5 text-gray-500">
-                        {summaryMock.statusInsight}
-                    </p>
+                    <p className="text-xs leading-5 text-gray-500">{summaryMock.statusInsight}</p>
                 </article>
 
-                <article className="bg-panel rounded-lg border-1 border-gray-300 p-5">
+                <article className="bg-panel flex flex-col gap-4 rounded-lg border border-gray-300 p-5">
                     <p className="text-xs text-gray-500">활동 리듬</p>
-                    <div className="mt-2 flex items-end justify-between gap-3">
+                    <div className="flex items-end justify-between gap-3">
                         <strong className="text-xl">{summaryMock.rhythm}</strong>
-                        <span className="text-primary text-sm font-semibold">
+                        <span className="text-sm font-semibold text-gray-500">
                             {summaryMock.rhythmBadge}
                         </span>
                     </div>
-                    <p className="mt-3 text-xs leading-5 text-gray-500">
-                        {summaryMock.rhythmInsight}
-                    </p>
+                    <p className="text-xs leading-5 text-gray-500">{summaryMock.rhythmInsight}</p>
                 </article>
 
-                <article className="bg-panel rounded-lg border-1 border-gray-300 p-5">
+                <article className="bg-panel flex flex-col gap-5 rounded-lg border border-gray-300 p-5">
                     <div className="flex items-end justify-between gap-3">
-                        <div>
+                        <div className="flex flex-col gap-1">
                             <h3 className="font-bold">주간 커밋</h3>
-                            <p className="mt-1 text-xs text-gray-500">{summaryMock.weeklyPeriod}</p>
+                            <p className="text-xs text-gray-500">{summaryMock.weeklyPeriod}</p>
                         </div>
                         <strong className="text-xl">{summaryMock.weeklyCommits}</strong>
                     </div>
-                    <div className="mt-5 overflow-x-auto">
+                    <div className="overflow-x-auto">
                         <svg
                             role="img"
                             aria-label="월요일부터 일요일까지의 주간 커밋 꺾은선 그래프"
                             viewBox="0 0 504 180"
-                            className="h-40 min-w-[280px] w-full text-primary">
+                            className="h-40 w-full min-w-70 text-gray-500">
                             <line
                                 x1="24"
                                 y1="150"
@@ -98,7 +94,7 @@ export default function RepoDashboardRecentActivitySection() {
                                             x={x}
                                             y="173"
                                             textAnchor="middle"
-                                            className="fill-gray-500 text-[12px]">
+                                            className="fill-gray-500 text-xs">
                                             {day}
                                         </text>
                                     </g>
@@ -106,15 +102,15 @@ export default function RepoDashboardRecentActivitySection() {
                             })}
                         </svg>
                     </div>
-                    <div className="mt-5 border-t-1 border-gray-300 pt-4">
+                    <div className="flex flex-col gap-2 border-gray-300 pt-4">
                         <p className="text-xs text-gray-500">이번 주 가장 활발한 날</p>
-                        <div className="mt-2 flex items-end justify-between gap-3">
+                        <div className="flex items-end justify-between gap-3">
                             <strong className="text-2xl">{summaryMock.peakDay}</strong>
-                            <span className="text-primary text-sm font-bold">
+                            <span className="text-sm font-bold text-gray-500">
                                 {summaryMock.peakCount}
                             </span>
                         </div>
-                        <p className="mt-3 text-xs text-gray-500">{summaryMock.peakBreakdown}</p>
+                        <p className="text-xs text-gray-500">{summaryMock.peakBreakdown}</p>
                     </div>
                 </article>
             </aside>
@@ -167,13 +163,13 @@ export default function RepoDashboardRecentActivitySection() {
                         return (
                             <li
                                 key={`${event.type}-${event.reference}`}
-                                className="flex gap-4 py-5 first:pt-0 last:pb-0">
-                                <span className="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg">
+                                className="flex gap-4 py-5">
+                                <span className="text-primary flex size-10 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                                     <Icon aria-hidden="true" />
                                 </span>
-                                <article className="flex min-w-0 flex-1 flex-col gap-2">
+                                <article className="flex min-w-0 flex-1 flex-col gap-4">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <span className="text-primary text-xs font-semibold">
+                                        <span className="text-xs font-semibold text-gray-500">
                                             {event.label}
                                         </span>
                                         <span className="text-xs text-gray-500">

@@ -18,7 +18,7 @@ import type { EChartsOption } from "echarts";
 import EChartsReact from "echarts-for-react";
 import { FiCheck, FiFile, FiGitPullRequest, FiHardDrive } from "react-icons/fi";
 
-const chartColors = ["#076BFF", "#4D94FF", "#8BBAFF", "#D1D5DB"];
+const chartColors = ["#4B5563", "#9CA3AF", "#D1D5DB", "#076BFF"];
 
 const languagePieOption: EChartsOption = {
     color: chartColors,
@@ -43,7 +43,7 @@ const languagePieOption: EChartsOption = {
             },
             itemStyle: {
                 borderColor: "#FFFFFF",
-                borderWidth: 2,
+                borderWidth: 1,
             },
             data: languages.map(({ name, percent }) => ({
                 name,
@@ -76,7 +76,7 @@ const fileTypePieOption: EChartsOption = {
             },
             itemStyle: {
                 borderColor: "#FFFFFF",
-                borderWidth: 2,
+                borderWidth: 1,
             },
             data: fileTypes.map(({ label, percent }) => ({
                 name: label,
@@ -87,7 +87,7 @@ const fileTypePieOption: EChartsOption = {
 };
 
 const participationOption: EChartsOption = {
-    color: ["#076BFF", "#9CA3AF"],
+    color: ["#6B7280", "#9CA3AF"],
     tooltip: { trigger: "axis" },
     legend: {
         bottom: 0,
@@ -125,7 +125,7 @@ const participationOption: EChartsOption = {
 };
 
 const contributorGrowthOption: EChartsOption = {
-    color: ["#076BFF"],
+    color: ["#6B7280"],
     tooltip: { trigger: "axis" },
     grid: { left: 32, right: 16, top: 24, bottom: 24, containLabel: true },
     xAxis: {
@@ -172,15 +172,15 @@ export default function RepoDashboardProjectStatusSection() {
     return (
         <section
             aria-label="프로젝트 현황"
-            className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
-                <div>
+            className="flex min-w-0 flex-wrap gap-6">
+            <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
+                <div className="flex flex-col gap-1">
                     <h3 className="text-lg font-bold">언어 구성</h3>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="text-sm text-gray-500">
                         저장소 전체 코드를 언어별로 나눈 비중이에요.
                     </p>
                 </div>
-                <div className="mt-4">
+                <div>
                     <EChartsReact
                         option={languagePieOption}
                         className="h-64 w-full"
@@ -189,7 +189,7 @@ export default function RepoDashboardProjectStatusSection() {
                         {languages.map((language) => (
                             <li
                                 key={language.name}
-                                className="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
+                                className="flex items-center justify-between gap-3 py-2">
                                 <span className="flex items-center gap-2 text-sm">
                                     <span
                                         aria-hidden="true"
@@ -204,28 +204,28 @@ export default function RepoDashboardProjectStatusSection() {
                 </div>
             </article>
 
-            <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2">
+            <article className="bg-panel flex w-full min-w-0 flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-full xl:w-[calc(66.666667%-0.5rem)]">
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <h3 className="text-lg font-bold">전체 파일</h3>
-                        <p className="mt-1 text-sm text-gray-500">{summaryMock.filePeriod}</p>
+                        <p className="text-sm text-gray-500">{summaryMock.filePeriod}</p>
                     </div>
                     <div className="flex items-start gap-3 text-right">
-                        <div>
+                        <div className="flex flex-col gap-1">
                             <strong className="text-2xl">{summaryMock.fileCount}</strong>
-                            <p className="text-primary mt-1 text-xs">{summaryMock.fileGrowth}</p>
+                            <p className="text-xs text-gray-500">{summaryMock.fileGrowth}</p>
                         </div>
-                        <span className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
+                        <span className="flex size-10 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                             <FiFile aria-hidden="true" />
                         </span>
                     </div>
                 </div>
-                <div className="mt-5 overflow-x-auto">
+                <div className="overflow-x-auto">
                     <svg
                         role="img"
                         aria-label="최근 6개월 전체 파일 수 꺾은선 그래프"
                         viewBox="0 0 580 200"
-                        className="text-primary h-48 w-full min-w-[560px]">
+                        className="h-48 w-full min-w-140 text-gray-500">
                         {[48, 104, 160].map((y) => (
                             <line
                                 key={y}
@@ -257,7 +257,7 @@ export default function RepoDashboardProjectStatusSection() {
                                     x={40 + index * 100}
                                     y="190"
                                     textAnchor="middle"
-                                    className="fill-gray-500 text-[12px]">
+                                    className="fill-gray-500 text-xs">
                                     {month}
                                 </text>
                             </g>
@@ -266,45 +266,45 @@ export default function RepoDashboardProjectStatusSection() {
                 </div>
             </article>
 
-            <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+            <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                 <h3 className="text-lg font-bold">발견한 프레임워크</h3>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="text-sm text-gray-500">
                     설정과 매니페스트 파일을 기준으로 확인했어요.
                 </p>
-                <ul className="mt-5 flex flex-wrap gap-2">
+                <ul className="flex flex-wrap gap-2">
                     {frameworks.map((framework) => (
                         <li
                             key={framework}
-                            className="bg-primary/10 text-primary rounded-lg p-2 text-xs font-semibold">
+                            className="rounded-lg bg-gray-100 p-2 text-xs font-semibold text-gray-500">
                             {framework}
                         </li>
                     ))}
                 </ul>
-                <p className="mt-5 text-xs text-gray-500">{summaryMock.frameworkEvidence}</p>
+                <p className="text-xs text-gray-500">{summaryMock.frameworkEvidence}</p>
             </article>
 
-            <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2">
+            <article className="bg-panel flex w-full min-w-0 flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-full xl:w-[calc(66.666667%-0.5rem)]">
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <h3 className="text-lg font-bold">Git 저장소 용량</h3>
-                        <p className="mt-1 text-sm text-gray-500">{summaryMock.storagePeriod}</p>
+                        <p className="text-sm text-gray-500">{summaryMock.storagePeriod}</p>
                     </div>
                     <div className="flex items-start gap-3 text-right">
-                        <div>
+                        <div className="flex flex-col gap-1">
                             <strong className="text-2xl">{summaryMock.storageSize}</strong>
-                            <p className="text-primary mt-1 text-xs">{summaryMock.storageGrowth}</p>
+                            <p className="text-xs text-gray-500">{summaryMock.storageGrowth}</p>
                         </div>
-                        <span className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
+                        <span className="flex size-10 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                             <FiHardDrive aria-hidden="true" />
                         </span>
                     </div>
                 </div>
-                <div className="mt-5 overflow-x-auto">
+                <div className="overflow-x-auto">
                     <svg
                         role="img"
                         aria-label="최근 6개월 Git 저장소 용량 꺾은선 그래프"
                         viewBox="0 0 580 200"
-                        className="text-primary h-48 w-full min-w-[560px]">
+                        className="h-48 w-full min-w-140 text-gray-500">
                         {[48, 104, 160].map((y) => (
                             <line
                                 key={y}
@@ -339,7 +339,7 @@ export default function RepoDashboardProjectStatusSection() {
                                     x={40 + index * 100}
                                     y="190"
                                     textAnchor="middle"
-                                    className="fill-gray-500 text-[12px]">
+                                    className="fill-gray-500 text-xs">
                                     {month}
                                 </text>
                             </g>
@@ -348,12 +348,10 @@ export default function RepoDashboardProjectStatusSection() {
                 </div>
             </article>
 
-            <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+            <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                 <h3 className="text-lg font-bold">파일 구성</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                    소스, 테스트, 문서, 설정 파일의 비율이에요.
-                </p>
-                <div className="mt-4">
+                <p className="text-sm text-gray-500">소스, 테스트, 문서, 설정 파일의 비율이에요.</p>
+                <div>
                     <EChartsReact
                         option={fileTypePieOption}
                         className="h-64 w-full"
@@ -362,7 +360,7 @@ export default function RepoDashboardProjectStatusSection() {
                         {fileTypes.map((fileType) => (
                             <li
                                 key={fileType.label}
-                                className="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
+                                className="flex items-center justify-between gap-3 py-2">
                                 <span className="flex items-center gap-2 text-sm">
                                     <span
                                         aria-hidden="true"
@@ -379,42 +377,42 @@ export default function RepoDashboardProjectStatusSection() {
                 </div>
             </article>
 
-            <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2">
+            <article className="bg-panel flex w-full min-w-0 flex-col gap-6 rounded-lg border border-gray-300 p-6 md:w-full xl:w-[calc(66.666667%-0.5rem)]">
                 <div className="flex items-center gap-3">
-                    <span className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-lg">
+                    <span className="flex size-10 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                         <FiGitPullRequest aria-hidden="true" />
                     </span>
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <h3 className="text-lg font-bold">이슈와 Pull Request</h3>
-                        <p className="mt-1 text-sm text-gray-500">현재 열린 수와 전체 기간 누적</p>
+                        <p className="text-sm text-gray-500">현재 열린 수와 전체 기간 누적</p>
                     </div>
                 </div>
-                <dl className="mt-6 flex flex-wrap divide-x divide-gray-300">
+                <dl className="flex flex-wrap divide-x divide-gray-300">
                     {issuePrTotals.map(({ label, value }) => (
                         <div
                             key={label}
-                            className="min-w-32 flex-1 px-4 first:pl-0 last:pr-0">
+                            className="flex min-w-32 flex-1 flex-col gap-2 px-4">
                             <dt className="text-xs text-gray-500">{label}</dt>
-                            <dd className="mt-2 text-xl font-bold">{value}</dd>
+                            <dd className="text-xl font-bold">{value}</dd>
                         </div>
                     ))}
                 </dl>
             </article>
 
-            <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+            <article className="bg-panel flex w-full flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                 <div className="flex items-end justify-between gap-3">
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <h3 className="text-lg font-bold">커뮤니티 건강도</h3>
-                        <p className="mt-1 text-sm text-gray-500">기본 문서 준비 상태</p>
+                        <p className="text-sm text-gray-500">기본 문서 준비 상태</p>
                     </div>
                     <strong className="text-primary text-2xl">{summaryMock.healthScore}</strong>
                 </div>
-                <ul className="mt-5 flex flex-col gap-3">
+                <ul className="flex flex-col gap-3">
                     {healthFiles.map((item) => (
                         <li
                             key={item}
                             className="flex items-center gap-3 text-sm">
-                            <span className="bg-primary flex size-5 items-center justify-center rounded-lg text-white">
+                            <span className="flex size-5 items-center justify-center rounded-lg bg-gray-500 text-white">
                                 <FiCheck
                                     aria-hidden="true"
                                     className="text-xs"
@@ -426,31 +424,31 @@ export default function RepoDashboardProjectStatusSection() {
                 </ul>
             </article>
 
-            <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+            <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                 <h3 className="text-lg font-bold">브랜치 현황</h3>
-                <p className="mt-1 text-sm text-gray-500">{summaryMock.activeBranchPeriod}</p>
-                <dl className="mt-6 flex gap-5">
-                    <div className="flex-1">
+                <p className="text-sm text-gray-500">{summaryMock.activeBranchPeriod}</p>
+                <dl className="flex gap-5">
+                    <div className="flex flex-1 flex-col gap-2">
                         <dt className="text-xs text-gray-500">전체 브랜치</dt>
-                        <dd className="mt-2 text-2xl font-bold">{summaryMock.branchCount}</dd>
+                        <dd className="text-2xl font-bold">{summaryMock.branchCount}</dd>
                     </div>
-                    <div className="flex-1">
+                    <div className="flex flex-1 flex-col gap-2">
                         <dt className="text-xs text-gray-500">최근 활성</dt>
-                        <dd className="text-primary mt-2 text-2xl font-bold">
+                        <dd className="text-2xl font-bold text-gray-500">
                             {summaryMock.activeBranchCount}
                         </dd>
                     </div>
                 </dl>
-                <div className="mt-6 border-t-1 border-gray-300 pt-4">
+                <div className="flex flex-col gap-2 border-gray-300 pt-4">
                     <p className="text-xs text-gray-500">기본 브랜치</p>
-                    <p className="mt-2 font-semibold">{summaryMock.defaultBranch}</p>
+                    <p className="font-semibold">{summaryMock.defaultBranch}</p>
                 </div>
-                <div className="mt-5 border-t-1 border-gray-300 pt-4">
+                <div className="flex flex-col gap-3 border-gray-300 pt-4">
                     <div className="flex items-center justify-between gap-2">
                         <p className="text-xs text-gray-500">{summaryMock.staleBranchPeriod}</p>
                         <strong>{summaryMock.staleBranchCount}</strong>
                     </div>
-                    <ul className="mt-3 flex flex-col gap-2 text-xs text-gray-500">
+                    <ul className="flex flex-col gap-2 text-xs text-gray-500">
                         <li className="flex justify-between gap-2">
                             <span className="truncate">{summaryMock.staleBranchName}</span>
                             <span className="shrink-0">{summaryMock.staleBranchLastCommit}</span>
@@ -465,24 +463,24 @@ export default function RepoDashboardProjectStatusSection() {
                 </div>
             </article>
 
-            <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
+            <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                 <h3 className="text-lg font-bold">배포 결과</h3>
-                <p className="mt-1 text-sm text-gray-500">{summaryMock.deploymentPeriod}</p>
-                <strong className="mt-6 block text-3xl">{summaryMock.deploymentSuccessRate}</strong>
-                <p className="mt-2 text-sm text-gray-500">{summaryMock.deploymentSuccessDetail}</p>
-                <div className="mt-5 h-3 rounded-lg bg-gray-200">
+                <p className="text-sm text-gray-500">{summaryMock.deploymentPeriod}</p>
+                <strong className="block text-3xl">{summaryMock.deploymentSuccessRate}</strong>
+                <p className="text-sm text-gray-500">{summaryMock.deploymentSuccessDetail}</p>
+                <div className="h-3 rounded-lg bg-gray-200">
                     <div
-                        className="bg-primary h-full rounded-lg"
+                        className="h-full rounded-lg bg-gray-500"
                         style={{ width: summaryMock.deploymentSuccessRate }}
                     />
                 </div>
             </article>
 
-            <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2 xl:col-span-3">
+            <article className="bg-panel w-full min-w-0 rounded-lg border border-gray-300 p-6 md:w-full xl:w-full">
                 <div className="flex flex-wrap items-end justify-between gap-3">
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <h3 className="text-lg font-bold">Issue·PR 참여자 추이</h3>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="text-sm text-gray-500">
                             월별 고유 참여자 · 작성·댓글·리뷰 기준
                         </p>
                     </div>
@@ -494,17 +492,15 @@ export default function RepoDashboardProjectStatusSection() {
                 />
             </article>
 
-            <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2 xl:col-span-3">
+            <article className="bg-panel w-full min-w-0 rounded-lg border border-gray-300 p-6 md:w-full xl:w-full">
                 <div className="flex flex-wrap items-end justify-between gap-3">
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <h3 className="text-lg font-bold">기여자 증가 추이</h3>
-                        <p className="mt-1 text-sm text-gray-500">
-                            저장소에 커밋을 남긴 누적 기여자
-                        </p>
+                        <p className="text-sm text-gray-500">저장소에 커밋을 남긴 누적 기여자</p>
                     </div>
-                    <div className="text-right">
+                    <div className="flex flex-col gap-1 text-right">
                         <strong className="text-xl">{summaryMock.contributorCount}</strong>
-                        <p className="text-primary mt-1 text-xs">{summaryMock.contributorGrowth}</p>
+                        <p className="text-xs text-gray-500">{summaryMock.contributorGrowth}</p>
                     </div>
                 </div>
                 <EChartsReact
@@ -513,32 +509,32 @@ export default function RepoDashboardProjectStatusSection() {
                 />
             </article>
 
-            <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2 xl:col-span-3">
+            <article className="bg-panel flex w-full min-w-0 flex-col gap-6 rounded-lg border border-gray-300 p-6 md:w-full xl:w-full">
                 <div className="flex flex-wrap items-end justify-between gap-3">
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <h3 className="text-lg font-bold">배포 리듬</h3>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="text-sm text-gray-500">
                             {summaryMock.deploymentFrequencyPeriod}
                         </p>
                     </div>
-                    <span className="bg-primary/10 text-primary rounded-lg p-2 text-xs font-semibold">
+                    <span className="rounded-lg bg-gray-100 p-2 text-xs font-semibold text-gray-500">
                         {summaryMock.deploymentFrequency}
                     </span>
                 </div>
-                <dl className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <dl className="flex flex-wrap gap-4">
                     {deploymentMetrics.map((item) => (
                         <div
                             key={item.label}
-                            className="rounded-lg border-1 border-gray-300 p-4">
+                            className="flex w-full flex-col gap-2 rounded-lg border border-gray-300 p-4 md:w-[calc(50%-0.5rem)] xl:w-[calc(33.333333%-0.666667rem)]">
                             <dt className="text-xs text-gray-500">{item.label}</dt>
-                            <dd className="mt-2 text-xl font-bold">{item.value}</dd>
-                            <p className="mt-2 text-xs leading-5 text-gray-500">{item.detail}</p>
+                            <dd className="text-xl font-bold">{item.value}</dd>
+                            <p className="text-xs leading-5 text-gray-500">{item.detail}</p>
                         </div>
                     ))}
                 </dl>
-                <div className="mt-6 border-t-1 border-gray-300 pt-5">
+                <div className="flex flex-col gap-4 border-gray-300 pt-5">
                     <h4 className="text-sm font-semibold">시간대별 배포 비중</h4>
-                    <ul className="mt-4 flex flex-col gap-3">
+                    <ul className="flex flex-col gap-3">
                         {deploymentHours.map((item) => (
                             <li
                                 key={item.label}
@@ -548,7 +544,7 @@ export default function RepoDashboardProjectStatusSection() {
                                 </span>
                                 <div className="h-3 flex-1 rounded-lg bg-gray-200">
                                     <div
-                                        className="bg-primary h-full rounded-lg"
+                                        className="h-full rounded-lg bg-gray-500"
                                         style={{ width: `${item.count}%` }}
                                     />
                                 </div>

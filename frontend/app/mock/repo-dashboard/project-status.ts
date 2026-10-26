@@ -1,15 +1,15 @@
 export const languagesMock = [
-    { name: "JavaScript", percent: 63.4, color: "bg-primary" },
-    { name: "TypeScript", percent: 28.1, color: "bg-primary/70" },
-    { name: "CSS", percent: 5.7, color: "bg-primary/40" },
-    { name: "기타", percent: 2.8, color: "bg-gray-300" },
+    { name: "JavaScript", percent: 63.4, color: "bg-gray-600" },
+    { name: "TypeScript", percent: 28.1, color: "bg-gray-400" },
+    { name: "CSS", percent: 5.7, color: "bg-gray-300" },
+    { name: "기타", percent: 2.8, color: "bg-primary" },
 ] as const;
 
 export const fileTypesMock = [
-    { label: "소스", count: "8,940", percent: 68, color: "bg-primary" },
-    { label: "테스트", count: "2,104", percent: 16, color: "bg-primary/70" },
-    { label: "문서", count: "1,183", percent: 9, color: "bg-primary/40" },
-    { label: "설정", count: "918", percent: 7, color: "bg-gray-300" },
+    { label: "소스", count: "8,940", percent: 68, color: "bg-gray-600" },
+    { label: "테스트", count: "2,104", percent: 16, color: "bg-gray-400" },
+    { label: "문서", count: "1,183", percent: 9, color: "bg-gray-300" },
+    { label: "설정", count: "918", percent: 7, color: "bg-primary" },
 ] as const;
 
 export const fileCountTrendMock = [

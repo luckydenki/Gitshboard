@@ -17,8 +17,8 @@ export default function RepoDashboardReadmeSection() {
     return (
         <section
             aria-label="README 내용"
-            className="bg-panel flex min-w-0 flex-col rounded-lg border-1 border-gray-300 md:flex-row">
-            <div className="flex flex-col gap-3 border-b-1 border-gray-300 p-4 md:hidden">
+            className="bg-panel flex min-w-0 flex-col divide-y divide-gray-300 rounded-lg border border-gray-300 md:flex-row md:divide-x md:divide-y-0">
+            <div className="flex flex-col gap-3 border-gray-300 p-4 md:hidden">
                 <label
                     htmlFor="readme-path"
                     className="text-sm font-semibold">
@@ -31,7 +31,7 @@ export default function RepoDashboardReadmeSection() {
                     id="readme-path"
                     value={selectedPath}
                     onChange={(event) => setSelectedPath(event.target.value)}
-                    className="bg-panel w-full cursor-pointer rounded-lg border-1 border-gray-300 p-3 text-sm">
+                    className="bg-panel w-full cursor-pointer rounded-lg border border-gray-300 p-3 text-sm">
                     {readmeDocuments.map((document) => (
                         <option
                             key={document.path}
@@ -41,8 +41,8 @@ export default function RepoDashboardReadmeSection() {
                     ))}
                 </select>
             </div>
-            <aside className="hidden min-w-0 border-gray-300 md:block md:w-64 md:shrink-0 md:border-r-1">
-                <div className="flex items-center justify-between gap-2 border-b-1 border-gray-300 p-4">
+            <aside className="hidden min-w-0 divide-y divide-gray-300 border-gray-300 md:block md:w-64 md:shrink-0">
+                <div className="flex items-center justify-between gap-2 border-gray-300 p-4">
                     <span className="flex items-center gap-2 text-sm font-semibold">
                         <FiBookOpen
                             aria-hidden="true"
@@ -62,7 +62,7 @@ export default function RepoDashboardReadmeSection() {
                             return (
                                 <li
                                     key={document.path}
-                                    className="py-2 first:pt-0 last:pb-0">
+                                    className="py-2">
                                     <button
                                         type="button"
                                         aria-pressed={isSelected}
@@ -81,8 +81,8 @@ export default function RepoDashboardReadmeSection() {
                 </nav>
             </aside>
 
-            <div className="min-w-0 flex-1 md:w-0">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b-1 border-gray-300 p-4">
+            <div className="min-w-0 flex-1 divide-y divide-gray-300 md:w-0">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-gray-300 p-4">
                     <span className="flex min-w-0 items-center gap-2 text-sm font-semibold break-all">
                         <FiBookOpen
                             aria-hidden="true"
@@ -102,8 +102,8 @@ export default function RepoDashboardReadmeSection() {
 
                 <article
                     key={selectedReadme.path}
-                    className="flex min-w-0 flex-col gap-8 p-4 md:p-8">
-                    <header className="flex flex-col gap-4 border-b-1 border-gray-300 pb-8">
+                    className="flex min-w-0 flex-col gap-8 divide-y divide-gray-300 p-4 md:p-8">
+                    <header className="flex flex-col gap-4 border-gray-300 pb-4">
                         <h2 className="text-3xl font-bold">{selectedReadme.title}</h2>
                         <p className="max-w-4xl text-base leading-7 text-gray-500">
                             {selectedReadme.description}
@@ -113,7 +113,7 @@ export default function RepoDashboardReadmeSection() {
                                 {selectedReadme.highlights.map((highlight) => (
                                     <span
                                         key={highlight}
-                                        className="bg-primary/10 text-primary rounded-lg p-2 text-xs font-semibold">
+                                        className="rounded-lg bg-gray-100 p-2 text-xs font-semibold text-gray-500">
                                         {highlight}
                                     </span>
                                 ))}
@@ -124,11 +124,11 @@ export default function RepoDashboardReadmeSection() {
                     {selectedReadme.sections.map((section) => (
                         <section
                             key={section.heading}
-                            className="flex flex-col gap-3">
+                            className="flex flex-col gap-3 py-4">
                             <h3 className="text-xl font-bold sm:text-2xl">{section.heading}</h3>
                             <p className="text-sm leading-6 text-gray-500">{section.body}</p>
                             {section.code && (
-                                <pre className="max-w-full overflow-x-auto rounded-lg border-1 border-gray-300 bg-gray-100 p-4 text-sm leading-6">
+                                <pre className="max-w-full overflow-x-auto rounded-lg border border-gray-300 bg-gray-100 p-4 text-sm leading-6">
                                     <code>{section.code}</code>
                                 </pre>
                             )}
