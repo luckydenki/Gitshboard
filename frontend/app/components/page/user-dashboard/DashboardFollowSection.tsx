@@ -1,3 +1,5 @@
+import { FiUserPlus, FiUsers } from "react-icons/fi";
+
 interface DashboardFollowSectionProps {
     following: number;
     followers: number;
@@ -8,13 +10,21 @@ export default function DashboardFollowSection({
     followers,
 }: DashboardFollowSectionProps) {
     return (
-        <section className="flex gap-4">
-            <div className="h-fit w-24 py-2 text-lg not-lg:w-full">
-                팔로잉 <span>{following}</span>
+        <dl className="flex flex-wrap gap-4 border-t-1 border-gray-300 pt-5">
+            <div className="flex min-w-28 flex-1 flex-col gap-2 p-2">
+                <dt className="flex items-center gap-2 text-xs text-gray-500">
+                    <FiUserPlus aria-hidden="true" />
+                    팔로잉
+                </dt>
+                <dd className="text-xl font-bold">{following.toLocaleString()}</dd>
             </div>
-            <div className="h-fit w-24 py-2 text-lg not-lg:w-full">
-                팔로워 <span>{followers}</span>
+            <div className="flex min-w-28 flex-1 flex-col gap-2 p-2">
+                <dt className="flex items-center gap-2 text-xs text-gray-500">
+                    <FiUsers aria-hidden="true" />
+                    팔로워
+                </dt>
+                <dd className="text-xl font-bold">{followers.toLocaleString()}</dd>
             </div>
-        </section>
+        </dl>
     );
 }

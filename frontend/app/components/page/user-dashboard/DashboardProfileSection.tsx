@@ -11,12 +11,13 @@ export default function DashboardProfileSection({ profile }: DashboardProfileSec
     return (
         <DashboardProfileSectionLayout>
             <DashboardProfileArticle
+                login={profile.login}
                 name={profile.name ?? profile.login}
                 bio={profile.bio ?? ""}
                 location={profile.location ?? ""}
                 link={profile.socialAccountsList ?? []}
-                following={profile.followingTotal ?? 0}
-                followers={profile.followersTotal ?? 0}
+                following={profile.followingTotal ?? profile.following.totalCount}
+                followers={profile.followersTotal ?? profile.followers.totalCount}
                 url={profile.url}
                 avatarUrl={profile.avatarUrl}
             />
