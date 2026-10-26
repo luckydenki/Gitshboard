@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router";
-import { DashboardLayout } from "~/components/page/home-dashboard/DashboardLayout";
+import { DashboardLayout } from "~/components/page/user-dashboard/DashboardLayout";
 import RepoProfileSection from "~/components/page/repo-dashboard/RepoProfileSection";
 const menuTabs = [
     { label: "최근 활동", to: "." },

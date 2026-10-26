@@ -1,10 +1,10 @@
 import { useState } from "react";
-import DashboardNavigationSection from "~/components/page/home-dashboard/DashboardNavigationSection";
-import DashboardProfileSection from "~/components/page/home-dashboard/DashboardProfileSection";
+import DashboardNavigationSection from "~/components/page/user-dashboard/DashboardNavigationSection";
+import DashboardProfileSection from "~/components/page/user-dashboard/DashboardProfileSection";
 import "~/routes/user-dashboard.css";
 import type { Profile } from "../types/profile";
 import { Outlet } from "react-router";
-import { DashboardLayout } from "~/components/page/home-dashboard/DashboardLayout";
+import { DashboardLayout } from "~/components/page/user-dashboard/DashboardLayout";
 
 // const ThemeColors = {
 //     green: {

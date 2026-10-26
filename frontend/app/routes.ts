@@ -39,10 +39,10 @@ export default [
             route("communication", "./components/page/repo-dashboard/RepoDashboardCommunicationSection.tsx"),
         ]),
         route("user/:user", "routes/user-dashboard.tsx",[
-            index("./components/page/home-dashboard/menus/DashboardActivitySection.tsx"),
-            route("devStyle", "./components/page/home-dashboard/menus/DashboardDevelopStyleSection.tsx"),
-            route("repos", "./components/page/home-dashboard/menus/DashboardRepositorySection.tsx"),
-            route("interests", "./components/page/home-dashboard/menus/DashboardInterestsSection.tsx")
+            index("./components/page/user-dashboard/menus/DashboardActivitySection.tsx"),
+            route("devStyle", "./components/page/user-dashboard/menus/DashboardDevelopStyleSection.tsx"),
+            route("repos", "./components/page/user-dashboard/menus/DashboardRepositorySection.tsx"),
+            route("interests", "./components/page/user-dashboard/menus/DashboardInterestsSection.tsx")
         ]),
     ]),
     route("auth/github/callback", "routes/auth/callback.tsx"),
