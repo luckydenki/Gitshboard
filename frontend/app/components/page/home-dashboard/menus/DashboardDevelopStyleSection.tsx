@@ -1,3 +1,10 @@
+import {
+    weeklyActivityMock,
+    workTypesMock,
+    developStyleTopPanelsMock,
+    collaborationStatsMock,
+    developStyleSummaryMock,
+} from "~/mock/home-dashboard/dashboard-develop-style";
 import { useRef, useState } from "react";
 import DashboardDevelopStyleActivityRhythm from "../DashboardDevelopStyleActivityRhythm";
 import DashboardDevelopStyleCodeStyle from "../DashboardDevelopStyleCodeStyle";
@@ -56,60 +63,10 @@ const TopPanel = ({
 
 export default function DashboardDevelopStyleSection() {
     const [isLoading, setIsLoading] = useState(false);
-    const weeklyActivity = [
-        { day: "월", count: 12 },
-        { day: "화", count: 18 },
-        { day: "수", count: 14 },
-        { day: "목", count: 21 },
-        { day: "금", count: 16 },
-        { day: "토", count: 10 },
-        { day: "일", count: 7 },
-    ];
-    const workTypes = [
-        { label: "기능 추가", count: 14, color: "bg-primary" },
-        { label: "버그 수정", count: 9, color: "bg-primary/75" },
-        { label: "리팩터링", count: 6, color: "bg-primary/50" },
-        { label: "테스트 · 문서", count: 5, color: "bg-primary/25" },
-    ];
-
-    const TopPanelList: Array<{
-        id: string;
-        title: string;
-        description: string;
-        from: string;
-        to: string;
-        isLoading: boolean;
-    }> = [
-        {
-            id: "1",
-            title: "주 사용 언어",
-            description: "자주 사용하는 언어 top 5",
-            from: "2025-10-17",
-            to: "2026-10-17",
-            isLoading: isLoading,
-        },
-        {
-            id: "2",
-            title: "주 관심사",
-            description: "주요 관심 기술 top 3",
-            from: "2025-10-17",
-            to: "2026-10-17",
-            isLoading: isLoading,
-        },
-        {
-            id: "3",
-            title: "주 사용 언어",
-            description: "자주 사용하는 언어 top 5",
-            from: "2025-10-17",
-            to: "2026-10-17",
-            isLoading: isLoading,
-        },
-    ];
-
     const dragElements = useRef<Record<string, Element>>({});
 
     const { dragableList, onDragEndHandle, onDragOverCaptureHandle, onDragStartHandle } =
-        useGridDrag(TopPanelList, dragElements.current, "opacity-50", {
+        useGridDrag(developStyleTopPanelsMock, dragElements.current, "opacity-50", {
             duration: 150,
             easeing: "ease-in",
         });
@@ -181,13 +138,13 @@ export default function DashboardDevelopStyleSection() {
                             </span>
                         </div>
                         <div className="bg-primary/10 mt-6 rounded-lg px-4 py-3 text-sm text-gray-500">
-                            <span className="text-primary font-semibold">목요일</span>에 가장 많은
+                            <span className="text-primary font-semibold">{developStyleSummaryMock.peakDayLabel}</span>에 가장 많은
                             활동을 기록했어요.
                         </div>
                         <div
                             className="mt-6 flex h-36 items-end justify-around gap-3"
                             aria-label="요일별 예시 활동 수">
-                            {weeklyActivity.map((item) => (
+                            {weeklyActivityMock.map((item) => (
                                 <div
                                     key={item.day}
                                     className="flex h-full flex-1 flex-col items-center justify-end gap-2">
@@ -195,15 +152,15 @@ export default function DashboardDevelopStyleSection() {
                                         {item.count}
                                     </span>
                                     <div
-                                        className={`w-full max-w-8 rounded-lg ${item.day === "목" ? "bg-primary" : "bg-primary/15"}`}
-                                        style={{ height: `${(item.count / 21) * 100}px` }}
+                                        className={`w-full max-w-8 rounded-lg ${item.day === developStyleSummaryMock.peakDay ? "bg-primary" : "bg-primary/15"}`}
+                                        style={{ height: `${(item.count / developStyleSummaryMock.peakActivityCount) * 100}px` }}
                                     />
                                     <span className="text-xs text-gray-500">{item.day}</span>
                                 </div>
                             ))}
                         </div>
                         <p className="mt-5 text-xs leading-5 text-gray-500">
-                            예시 활동 98건 · 커밋, PR, 이슈, 리뷰 기준
+                            예시 활동 {developStyleSummaryMock.activityCount}건 · 커밋, PR, 이슈, 리뷰 기준
                         </p>
                     </article>
 
@@ -222,16 +179,16 @@ export default function DashboardDevelopStyleSection() {
                         <div
                             className="mt-6 flex h-3 overflow-hidden rounded-lg bg-gray-300"
                             aria-label="작업 유형별 예시 PR 수">
-                            {workTypes.map((item) => (
+                            {workTypesMock.map((item) => (
                                 <div
                                     key={item.label}
                                     className={item.color}
-                                    style={{ width: `${(item.count / 34) * 100}%` }}
+                                    style={{ width: `${(item.count / developStyleSummaryMock.pullRequestCount) * 100}%` }}
                                 />
                             ))}
                         </div>
                         <div className="mt-6 flex flex-col gap-4">
-                            {workTypes.map((item) => (
+                            {workTypesMock.map((item) => (
                                 <div
                                     key={item.label}
                                     className="flex items-center justify-between gap-3">
@@ -249,11 +206,11 @@ export default function DashboardDevelopStyleSection() {
                             ))}
                         </div>
                         <div className="bg-primary/10 mt-6 rounded-lg px-4 py-3 text-sm leading-6 text-gray-500">
-                            <span className="text-primary font-semibold">기능 추가</span>와 함께
+                            <span className="text-primary font-semibold">{developStyleSummaryMock.primaryWorkType}</span>와 함께
                             기존 코드 개선에도 시간을 쓰고 있어요.
                         </div>
                         <p className="mt-5 text-xs leading-5 text-gray-500">
-                            예시 PR 34건 · 작업 유형 분류는 추후 분석 결과를 연결할 수 있어요.
+                            예시 PR {developStyleSummaryMock.pullRequestCount}건 · 작업 유형 분류는 추후 분석 결과를 연결할 수 있어요.
                         </p>
                     </article>
                 </div>
@@ -276,29 +233,7 @@ export default function DashboardDevelopStyleSection() {
                         </span>
                     </div>
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                        {[
-                            {
-                                number: "34",
-                                unit: "개",
-                                title: "PR 작성",
-                                detail: "변경 사항을 공유했어요",
-                                color: "bg-primary/10 text-primary",
-                            },
-                            {
-                                number: "11",
-                                unit: "회",
-                                title: "코드 리뷰",
-                                detail: "동료의 코드에 참여했어요",
-                                color: "bg-primary/10 text-primary",
-                            },
-                            {
-                                number: "4",
-                                unit: "곳",
-                                title: "외부 레포지토리",
-                                detail: "다른 프로젝트에 기여했어요",
-                                color: "bg-primary/10 text-primary",
-                            },
-                        ].map((item) => (
+                        {collaborationStatsMock.map((item) => (
                             <div
                                 key={item.title}
                                 className="bg-panel flex-1 rounded-lg border-1 border-gray-300 p-4">
