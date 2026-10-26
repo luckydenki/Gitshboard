@@ -1,38 +1,17 @@
-const weeklyCommits = [
-    42, 38, 51, 46, 62, 70, 58, 64, 73, 68, 81, 77, 69, 75, 84, 91, 88, 79, 95, 102,
-    97, 108, 113, 105, 119, 124, 116, 132, 127, 138, 144, 136, 129, 151, 147, 158, 162,
-    154, 169, 176, 164, 182, 188, 174, 196, 203, 191, 212, 205, 219, 228, 214,
-] as const;
-
-const commitRecords = [
-    { label: "활동한 날짜", value: "842일", detail: "전체 기간의 31.8%" },
-    { label: "활동한 주", value: "148주", detail: "최근 3년 기준" },
-    { label: "주당 평균 커밋", value: "124.5개", detail: "활동 주 기준" },
-    { label: "활동일당 평균 커밋", value: "21.9개", detail: "커밋이 있던 날 기준" },
-    { label: "가장 활발했던 주", value: "228개", detail: "2026년 41주차" },
-    { label: "마지막 커밋", value: "2시간 전", detail: "main 브랜치" },
-    { label: "최장 무커밋 기간", value: "11일", detail: "2024.12.22 ~ 2025.01.01" },
-    { label: "연속 활동 주 기록", value: "48주", detail: "현재도 기록 중" },
-] as const;
-
-const codeChangeTrend = [8_420, 10_180, 9_360, 12_740, 14_220, 16_480] as const;
-
-const commitsByTime = [
-    { time: "00시", count: 42 },
-    { time: "04시", count: 18 },
-    { time: "08시", count: 76 },
-    { time: "12시", count: 148 },
-    { time: "16시", count: 186 },
-    { time: "20시", count: 104 },
-] as const;
+import {
+    barWidthsMock,
+    weeklyCommitsMock as weeklyCommits,
+    commitRecordsMock as commitRecords,
+    codeChangeTrendMock as codeChangeTrend,
+    commitsByTimeMock as commitsByTime,
+    commitPeriodsMock as commitPeriods,
+    summaryMock,
+} from "~/mock/repo-dashboard/commit-status";
 
 export default function RepoDashboardCommitStatusSection() {
     const maxWeeklyCommits = Math.max(...weeklyCommits);
     const linePoints = weeklyCommits
-        .map(
-            (count, index) =>
-                `${20 + index * 19.6},${210 - (count / maxWeeklyCommits) * 168}`,
-        )
+        .map((count, index) => `${20 + index * 19.6},${210 - (count / maxWeeklyCommits) * 168}`)
         .join(" ");
     const codeChangeMin = Math.min(...codeChangeTrend);
     const codeChangeMax = Math.max(...codeChangeTrend);
@@ -53,29 +32,29 @@ export default function RepoDashboardCommitStatusSection() {
                     <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <p className="text-sm text-gray-500">전체 커밋</p>
-                            <strong className="mt-2 block text-4xl">18,426</strong>
+                            <strong className="mt-2 block text-4xl">
+                                {summaryMock.totalCommits}
+                            </strong>
                         </div>
                         <span className="bg-primary/10 text-primary rounded-lg p-2 text-xs font-semibold">
-                            48주 연속 활동 중
+                            {summaryMock.activeStreak}
                         </span>
                     </div>
                     <div className="mt-8 flex flex-wrap items-end justify-between gap-4 border-t-1 border-gray-300 pt-5">
                         <div>
                             <p className="text-xs text-gray-500">이전 전체 기간 대비</p>
-                            <p className="text-primary mt-1 text-lg font-bold">+12.4%</p>
+                            <p className="text-primary mt-1 text-lg font-bold">
+                                {summaryMock.growthRate}
+                            </p>
                         </div>
                         <p className="max-w-sm text-right text-xs leading-5 text-gray-500">
-                            최근 1년은 이전 1년보다 386개의 커밋이 더 등록됐어요.
+                            {summaryMock.yearlyComparison}
                         </p>
                     </div>
                 </article>
 
                 <div className="flex min-w-0 flex-[3] flex-wrap gap-4">
-                    {[
-                        { period: "최근 7일", value: "85", change: "+9.0%" },
-                        { period: "최근 30일", value: "356", change: "+12.7%" },
-                        { period: "최근 90일", value: "1,074", change: "+8.4%" },
-                    ].map((item) => (
+                    {commitPeriods.map((item) => (
                         <article
                             key={item.period}
                             className="bg-panel min-w-44 flex-1 rounded-lg border-1 border-gray-300 p-6">
@@ -99,8 +78,8 @@ export default function RepoDashboardCommitStatusSection() {
                         </p>
                     </div>
                     <div className="text-right">
-                        <strong className="text-xl">6,494</strong>
-                        <p className="text-xs text-gray-500">52주 합계</p>
+                        <strong className="text-xl">{summaryMock.yearlyCommits}</strong>
+                        <p className="text-xs text-gray-500">{summaryMock.yearlyPeriod}</p>
                     </div>
                 </div>
 
@@ -149,21 +128,21 @@ export default function RepoDashboardCommitStatusSection() {
                             x="20"
                             y="240"
                             className="fill-gray-500 text-[12px]">
-                            2025.11
+                            {summaryMock.chartStart}
                         </text>
                         <text
                             x="510"
                             y="240"
                             textAnchor="middle"
                             className="fill-gray-500 text-[12px]">
-                            2026.05
+                            {summaryMock.chartMiddle}
                         </text>
                         <text
                             x="1020"
                             y="240"
                             textAnchor="end"
                             className="fill-gray-500 text-[12px]">
-                            2026.10
+                            {summaryMock.chartEnd}
                         </text>
                     </svg>
                 </div>
@@ -175,12 +154,12 @@ export default function RepoDashboardCommitStatusSection() {
                         <div>
                             <h3 className="text-lg font-bold">코드 변화량</h3>
                             <p className="mt-1 text-sm text-gray-500">
-                                최근 6개월 순 코드 변화 추이
+                                {summaryMock.codeChangePeriod}
                             </p>
                         </div>
                         <div className="text-right">
-                            <strong className="text-xl">+126,537줄</strong>
-                            <p className="mt-1 text-xs text-primary">최근 증가 속도 +8.7%</p>
+                            <strong className="text-xl">{summaryMock.netCodeChange}</strong>
+                            <p className="mt-1 text-xs text-primary">{summaryMock.codeGrowth}</p>
                         </div>
                     </div>
                     <div className="mt-5 overflow-x-auto">
@@ -226,14 +205,20 @@ export default function RepoDashboardCommitStatusSection() {
                     </div>
                     <div className="mt-5 border-t-1 border-gray-300 pt-4">
                         <div className="flex items-center justify-between gap-3 text-xs text-gray-500">
-                            <span>코드 추가 412,680줄</span>
-                            <span>코드 정리 286,143줄</span>
+                            <span>{summaryMock.addedLines}</span>
+                            <span>{summaryMock.removedLines}</span>
                         </div>
                         <div
-                            aria-label="코드 추가 59%, 코드 정리 41%"
+                            aria-label={summaryMock.codeChangeDistribution}
                             className="mt-3 flex h-3 overflow-hidden rounded-lg bg-gray-200">
-                            <span className="bg-primary h-full w-[59%]" />
-                            <span className="h-full w-[41%] bg-gray-400" />
+                            <span
+                                className="bg-primary h-full"
+                                style={{ width: barWidthsMock[0] }}
+                            />
+                            <span
+                                className="h-full  bg-gray-400"
+                                style={{ width: barWidthsMock[1] }}
+                            />
                         </div>
                     </div>
                 </article>
@@ -242,12 +227,10 @@ export default function RepoDashboardCommitStatusSection() {
                     <div className="flex flex-wrap items-end justify-between gap-4">
                         <div>
                             <h3 className="text-lg font-bold">시간대별 커밋 분포</h3>
-                            <p className="mt-1 text-sm text-gray-500">
-                                최근 90일 커밋 시간을 기준으로 했어요.
-                            </p>
+                            <p className="mt-1 text-sm text-gray-500">{summaryMock.timePeriod}</p>
                         </div>
                         <div className="text-right">
-                            <strong className="text-xl">16시</strong>
+                            <strong className="text-xl">{summaryMock.peakTime}</strong>
                             <p className="mt-1 text-xs text-gray-500">가장 활발한 시간대</p>
                         </div>
                     </div>
@@ -263,14 +246,16 @@ export default function RepoDashboardCommitStatusSection() {
                                 <span
                                     aria-hidden="true"
                                     className="bg-primary w-full max-w-10 rounded-t-lg"
-                                    style={{ height: `${(count / maxTimeCommits) * 132}px` }}
+                                    style={{
+                                        height: `${(count / maxTimeCommits) * 132}px`,
+                                    }}
                                 />
                                 <span className="pb-2 text-xs text-gray-500">{time}</span>
                             </div>
                         ))}
                     </div>
                     <p className="mt-4 text-xs leading-5 text-gray-500">
-                        전체 커밋의 58%가 12시부터 20시 사이에 등록됐어요.
+                        {summaryMock.timeInsight}
                     </p>
                 </article>
             </div>

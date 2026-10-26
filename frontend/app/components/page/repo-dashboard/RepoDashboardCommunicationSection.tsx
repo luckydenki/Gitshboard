@@ -1,44 +1,13 @@
+import {
+    contributorsMock as contributors,
+    contributorMetricsMock as contributorMetrics,
+    issueReadinessMock as issueReadiness,
+    discussionCategoriesMock as discussionCategories,
+    popularDiscussionsMock as popularDiscussions,
+    recurringTopicsMock as recurringTopics,
+    summaryMock,
+} from "~/mock/repo-dashboard/communication";
 import { FiUsers } from "react-icons/fi";
-
-const contributors = [
-    { login: "gaearon", commits: 1_284, share: "18.2%" },
-    { login: "sebmarkbage", commits: 976, share: "13.8%" },
-    { login: "acdlite", commits: 641, share: "9.1%" },
-    { login: "sophiebits", commits: 438, share: "6.2%" },
-] as const;
-
-const contributorMetrics = [
-    { label: "good first issue", value: "24건", detail: "열린 Issue 중" },
-    { label: "help wanted", value: "41건", detail: "열린 Issue 중" },
-    { label: "신규 기여자 PR 병합률", value: "72%", detail: "첫 PR의 처리 결과 기준" },
-    { label: "첫 PR에 남긴 리뷰 댓글", value: "평균 4.6개", detail: "유지관리자 작성 댓글" },
-    { label: "외부 기여자 재참여율", value: "38%", detail: "첫 기여 뒤 6개월 내 재참여" },
-    { label: "작게 시작할 수 있는 Issue", value: "29%", detail: "작업 범위가 작은 열린 Issue" },
-] as const;
-
-const issueReadiness = [
-    { label: "담당자 명시", value: 63 },
-    { label: "예상 난이도 명시", value: 52 },
-    { label: "재현 절차 명시", value: 71 },
-] as const;
-
-const discussionCategories = [
-    { name: "Q&A", count: 156, percent: 40 },
-    { name: "Ideas", count: 94, percent: 24 },
-    { name: "Show and tell", count: 62, percent: 16 },
-    { name: "Announcements", count: 43, percent: 11 },
-    { name: "General", count: 32, percent: 9 },
-] as const;
-
-const popularDiscussions = [
-    { title: "How to migrate an existing app to React 19?", category: "Q&A", replies: 42 },
-    {
-        title: "Share your React Compiler migration results",
-        category: "Show and tell",
-        replies: 36,
-    },
-    { title: "Proposal: improve transition debugging", category: "Ideas", replies: 31 },
-] as const;
 
 export default function RepoDashboardCommunicationSection() {
     return (
@@ -54,7 +23,8 @@ export default function RepoDashboardCommunicationSection() {
                         </p>
                     </div>
                     <span className="flex items-center gap-2 text-xs text-gray-500">
-                        <FiUsers aria-hidden="true" />총 1,842명
+                        <FiUsers aria-hidden="true" />
+                        {summaryMock.contributorTotal}
                     </span>
                 </div>
                 <ol className="mt-5 flex flex-col divide-y divide-gray-300">
@@ -121,7 +91,7 @@ export default function RepoDashboardCommunicationSection() {
                         ))}
                     </ul>
                     <p className="mt-6 border-t-1 border-gray-300 pt-4 text-xs leading-5 text-gray-500">
-                        세 정보가 모두 명확한 Issue는 46%예요.
+                        {summaryMock.readinessInsight}
                     </p>
                 </article>
 
@@ -131,16 +101,18 @@ export default function RepoDashboardCommunicationSection() {
                     <div className="mt-6 flex flex-col gap-3 rounded-lg border-1 border-gray-300 p-4">
                         <span className="text-primary text-xs font-semibold">첫 PR 병합</span>
                         <strong className="text-base leading-6">
-                            docs: clarify the useTransition example
+                            {summaryMock.firstContributionTitle}
                         </strong>
-                        <p className="text-xs text-gray-500">@new-react-contributor · #34872</p>
+                        <p className="text-xs text-gray-500">
+                            {summaryMock.firstContributionReference}
+                        </p>
                         <div className="flex flex-wrap gap-3 border-t-1 border-gray-300 pt-3 text-xs text-gray-500">
-                            <span>리뷰 댓글 5개</span>
-                            <span>병합까지 2일 4시간</span>
+                            <span>{summaryMock.firstContributionReviews}</span>
+                            <span>{summaryMock.firstContributionMergeTime}</span>
                         </div>
                     </div>
                     <p className="mt-4 text-xs leading-5 text-gray-500">
-                        문서 예제의 혼동되는 부분을 고친 작은 변경이었어요.
+                        {summaryMock.firstContributionDescription}
                     </p>
                 </article>
 
@@ -151,15 +123,12 @@ export default function RepoDashboardCommunicationSection() {
                             AI 요약 · 예시
                         </span>
                     </div>
-                    <strong className="mt-5 block text-2xl">보통</strong>
+                    <strong className="mt-5 block text-2xl">{summaryMock.difficulty}</strong>
                     <p className="mt-3 text-sm leading-6 text-gray-500">
-                        첫 기여용 Issue와 도움 요청이 꾸준히 열려 있고 첫 PR도 비교적 잘 병합돼요.
-                        다만 담당자·난이도·재현 절차가 모두 명확한 Issue는 절반에 미치지 못해 작업을
-                        고르는 데 시간이 걸릴 수 있어요.
+                        {summaryMock.difficultyInsight}
                     </p>
                     <p className="mt-5 border-t-1 border-gray-300 pt-4 text-xs leading-5 text-gray-500">
-                        근거: good first issue 24건 · help wanted 41건 · 첫 PR 병합률 72% · 안내
-                        완성도 46%
+                        {summaryMock.difficultyEvidence}
                     </p>
                 </article>
             </section>
@@ -173,7 +142,7 @@ export default function RepoDashboardCommunicationSection() {
                             <h3 className="text-lg font-bold">Discussion 카테고리</h3>
                             <p className="mt-1 text-sm text-gray-500">전체 게시물의 주제별 분포</p>
                         </div>
-                        <strong className="text-xl">387개</strong>
+                        <strong className="text-xl">{summaryMock.totalDiscussions}</strong>
                     </div>
                     <ul className="mt-6 flex flex-col gap-4">
                         {discussionCategories.map((category) => (
@@ -189,7 +158,9 @@ export default function RepoDashboardCommunicationSection() {
                                 <div className="h-2 rounded-lg bg-gray-200">
                                     <div
                                         className="bg-primary h-full rounded-lg"
-                                        style={{ width: `${category.percent}%` }}
+                                        style={{
+                                            width: `${category.percent}%`,
+                                        }}
                                     />
                                 </div>
                             </li>
@@ -202,19 +173,19 @@ export default function RepoDashboardCommunicationSection() {
                     <dl className="mt-6 flex flex-col divide-y divide-gray-300">
                         <div className="flex items-center justify-between gap-3 py-4 first:pt-0">
                             <dt className="text-sm text-gray-500">답변 완료율</dt>
-                            <dd className="text-xl font-bold">84%</dd>
+                            <dd className="text-xl font-bold">{summaryMock.answeredRate}</dd>
                         </div>
                         <div className="flex items-center justify-between gap-3 py-4">
                             <dt className="text-sm text-gray-500">첫 답변 중앙값</dt>
-                            <dd className="text-xl font-bold">3시간 12분</dd>
+                            <dd className="text-xl font-bold">{summaryMock.firstAnswerTime}</dd>
                         </div>
                         <div className="flex items-center justify-between gap-3 py-4 last:pb-0">
                             <dt className="text-sm text-gray-500">Discussion에서 해결</dt>
-                            <dd className="text-xl font-bold">71건</dd>
+                            <dd className="text-xl font-bold">{summaryMock.resolvedDiscussions}</dd>
                         </div>
                     </dl>
                     <p className="mt-5 text-xs leading-5 text-gray-500">
-                        Issue로 옮기지 않고 Discussion 답변으로 해결한 문의는 최근 90일 기준이에요.
+                        {summaryMock.resolvedPeriod}
                     </p>
                 </article>
 
@@ -246,15 +217,10 @@ export default function RepoDashboardCommunicationSection() {
                 <article className="bg-panel rounded-lg border-1 border-gray-300 p-6">
                     <h3 className="text-lg font-bold">반복되는 질문과 주제</h3>
                     <p className="mt-1 text-sm text-gray-500">
-                        최근 90일 Discussion에서 자주 등장했어요.
+                        {summaryMock.recurringTopicsPeriod}
                     </p>
                     <ul className="mt-5 flex flex-col divide-y divide-gray-300">
-                        {[
-                            { topic: "React 19 마이그레이션", count: 38 },
-                            { topic: "React Compiler 설정", count: 27 },
-                            { topic: "서버 컴포넌트", count: 19 },
-                            { topic: "Hydration 오류", count: 15 },
-                        ].map((item) => (
+                        {recurringTopics.map((item) => (
                             <li
                                 key={item.topic}
                                 className="flex justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0">
@@ -267,17 +233,23 @@ export default function RepoDashboardCommunicationSection() {
 
                 <article className="bg-panel min-w-0 rounded-lg border-1 border-gray-300 p-6 md:col-span-2 xl:col-span-3">
                     <h3 className="text-lg font-bold">공지와 릴리스 소식</h3>
-                    <p className="mt-1 text-sm text-gray-500">최근 6개월 게시 빈도</p>
+                    <p className="mt-1 text-sm text-gray-500">{summaryMock.announcementsPeriod}</p>
                     <dl className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="rounded-lg border-1 border-gray-300 p-4">
                             <dt className="text-sm text-gray-500">공지사항</dt>
-                            <dd className="mt-2 text-2xl font-bold">12건</dd>
-                            <p className="mt-2 text-xs text-gray-500">월평균 2.0건</p>
+                            <dd className="mt-2 text-2xl font-bold">
+                                {summaryMock.announcementCount}
+                            </dd>
+                            <p className="mt-2 text-xs text-gray-500">
+                                {summaryMock.announcementAverage}
+                            </p>
                         </div>
                         <div className="rounded-lg border-1 border-gray-300 p-4">
                             <dt className="text-sm text-gray-500">릴리스 소식</dt>
-                            <dd className="mt-2 text-2xl font-bold">8건</dd>
-                            <p className="mt-2 text-xs text-gray-500">월평균 1.3건</p>
+                            <dd className="mt-2 text-2xl font-bold">{summaryMock.releaseCount}</dd>
+                            <p className="mt-2 text-xs text-gray-500">
+                                {summaryMock.releaseAverage}
+                            </p>
                         </div>
                     </dl>
                 </article>

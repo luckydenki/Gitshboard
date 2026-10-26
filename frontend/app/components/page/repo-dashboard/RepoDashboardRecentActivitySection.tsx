@@ -1,79 +1,15 @@
+import {
+    weeklyActivityMock as weeklyActivity,
+    activityEventsMock as activityEvents,
+    activityTagsMock as activityTags,
+    summaryMock,
+} from "~/mock/repo-dashboard/recent-activity";
 import { FiAlertCircle, FiGitCommit, FiGitPullRequest } from "react-icons/fi";
-
-const weeklyActivity = [
-    { day: "월", count: 8 },
-    { day: "화", count: 14 },
-    { day: "수", count: 11 },
-    { day: "목", count: 19 },
-    { day: "금", count: 16 },
-    { day: "토", count: 7 },
-    { day: "일", count: 10 },
-] as const;
-
-const activityEvents = [
-    {
-        type: "commit",
-        label: "Commit",
-        title: "feat: add Activity component to the public API",
-        description: "packages/react/src/ReactClient.js 외 4개 파일 변경",
-        actor: "gaearon",
-        reference: "8c21f4a",
-        time: "오늘 14:32",
-    },
-    {
-        type: "pull-request",
-        label: "Pull Request",
-        title: "Improve hydration error messages for nested boundaries",
-        description: "리뷰 4개를 거쳐 main 브랜치에 병합됨",
-        actor: "acdlite",
-        reference: "#34918",
-        time: "오늘 12:08",
-    },
-    {
-        type: "issue",
-        label: "Issue",
-        title: "useEffect cleanup runs twice in development mode",
-        description: "bug 라벨과 Status: Unconfirmed 라벨로 등록됨",
-        actor: "dev-user",
-        reference: "#34917",
-        time: "오늘 10:41",
-    },
-    {
-        type: "commit",
-        label: "Commit",
-        title: "fix: preserve pending state after interrupted transition",
-        description: "ReactFiberLane.js 외 2개 파일 변경",
-        actor: "sebmarkbage",
-        reference: "f173bd2",
-        time: "어제 21:17",
-    },
-    {
-        type: "pull-request",
-        label: "Pull Request",
-        title: "Add regression test for deferred value update",
-        description: "CI 검사를 통과하고 리뷰를 기다리는 중",
-        actor: "sophiebits",
-        reference: "#34912",
-        time: "어제 18:56",
-    },
-    {
-        type: "issue",
-        label: "Issue",
-        title: "Documentation example uses a removed option",
-        description: "documentation 라벨로 분류된 뒤 종료됨",
-        actor: "react-helper",
-        reference: "#34908",
-        time: "어제 15:24",
-    },
-] as const;
 
 export default function RepoDashboardRecentActivitySection() {
     const maxActivity = Math.max(...weeklyActivity.map(({ count }) => count));
     const linePoints = weeklyActivity
-        .map(
-            ({ count }, index) =>
-                `${24 + index * 76},${150 - (count / maxActivity) * 112}`,
-        )
+        .map(({ count }, index) => `${24 + index * 76},${150 - (count / maxActivity) * 112}`)
         .join(" ");
 
     return (
@@ -90,7 +26,7 @@ export default function RepoDashboardRecentActivitySection() {
                 <article className="bg-panel rounded-lg border-1 border-gray-300 p-5">
                     <h3 className="font-bold">현재 상태</h3>
                     <div className="mt-4 flex flex-wrap gap-2">
-                        {["활발한 프로젝트", "꾸준한 커밋", "빠른 이슈 응답"].map((tag) => (
+                        {activityTags.map((tag) => (
                             <span
                                 key={tag}
                                 className="bg-primary/10 text-primary rounded-lg p-2 text-xs font-semibold">
@@ -99,18 +35,20 @@ export default function RepoDashboardRecentActivitySection() {
                         ))}
                     </div>
                     <p className="mt-4 text-xs leading-5 text-gray-500">
-                        최근 7일 동안 커밋, PR, 이슈 활동이 모두 확인됐어요.
+                        {summaryMock.statusInsight}
                     </p>
                 </article>
 
                 <article className="bg-panel rounded-lg border-1 border-gray-300 p-5">
                     <p className="text-xs text-gray-500">활동 리듬</p>
                     <div className="mt-2 flex items-end justify-between gap-3">
-                        <strong className="text-xl">평일 집중형</strong>
-                        <span className="text-primary text-sm font-semibold">꾸준함</span>
+                        <strong className="text-xl">{summaryMock.rhythm}</strong>
+                        <span className="text-primary text-sm font-semibold">
+                            {summaryMock.rhythmBadge}
+                        </span>
                     </div>
                     <p className="mt-3 text-xs leading-5 text-gray-500">
-                        전체 활동의 76%가 평일에 기록되며 오후 시간대가 가장 활발해요.
+                        {summaryMock.rhythmInsight}
                     </p>
                 </article>
 
@@ -118,9 +56,9 @@ export default function RepoDashboardRecentActivitySection() {
                     <div className="flex items-end justify-between gap-3">
                         <div>
                             <h3 className="font-bold">주간 커밋</h3>
-                            <p className="mt-1 text-xs text-gray-500">최근 7일</p>
+                            <p className="mt-1 text-xs text-gray-500">{summaryMock.weeklyPeriod}</p>
                         </div>
-                        <strong className="text-xl">85</strong>
+                        <strong className="text-xl">{summaryMock.weeklyCommits}</strong>
                     </div>
                     <div className="mt-5 overflow-x-auto">
                         <svg
@@ -171,12 +109,12 @@ export default function RepoDashboardRecentActivitySection() {
                     <div className="mt-5 border-t-1 border-gray-300 pt-4">
                         <p className="text-xs text-gray-500">이번 주 가장 활발한 날</p>
                         <div className="mt-2 flex items-end justify-between gap-3">
-                            <strong className="text-2xl">목요일</strong>
-                            <span className="text-primary text-sm font-bold">19회</span>
+                            <strong className="text-2xl">{summaryMock.peakDay}</strong>
+                            <span className="text-primary text-sm font-bold">
+                                {summaryMock.peakCount}
+                            </span>
                         </div>
-                        <p className="mt-3 text-xs text-gray-500">
-                            커밋 14 · PR 3 · 이슈 2
-                        </p>
+                        <p className="mt-3 text-xs text-gray-500">{summaryMock.peakBreakdown}</p>
                     </div>
                 </article>
             </aside>
@@ -197,15 +135,21 @@ export default function RepoDashboardRecentActivitySection() {
                     </div>
                     <div className="flex gap-4 text-right text-xs text-gray-500">
                         <span>
-                            <strong className="block text-base text-inherit">12</strong>
+                            <strong className="block text-base text-inherit">
+                                {summaryMock.commitCount}
+                            </strong>
                             Commit
                         </span>
                         <span>
-                            <strong className="block text-base text-inherit">3</strong>
+                            <strong className="block text-base text-inherit">
+                                {summaryMock.pullRequestCount}
+                            </strong>
                             PR
                         </span>
                         <span>
-                            <strong className="block text-base text-inherit">2</strong>
+                            <strong className="block text-base text-inherit">
+                                {summaryMock.issueCount}
+                            </strong>
                             Issue
                         </span>
                     </div>
