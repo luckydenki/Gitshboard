@@ -1,4 +1,4 @@
-import DashboardCommitArticle from "./DashboardCommitArticle";
+import DashboardCommitArticle from "../DashboardCommitArticle";
 
 import type { ActivityItems } from "./DashboardActivitySection";
 

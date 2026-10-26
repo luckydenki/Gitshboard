@@ -1,5 +1,5 @@
 import type { Commit } from "~/types/commit";
-import DashboardActivityArticle from "./DashboardActivityArticle";
+import DashboardActivityArticle from "../DashboardActivityArticle";
 import DashboardRecentActivitySection from "./DashboardRecentActivitySection";
 import type { Issue } from "~/types/issue";
 import type { PullRequest } from "~/types/pr";
