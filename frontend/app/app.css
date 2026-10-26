@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "./font.css";
-@import "./routes/new/home.css";
+@import "./routes/home.css";
 
 @theme {
 
@@ -39,9 +39,7 @@
 
 
 main {
-
   padding-inline : var(--spacing-main-x-side);
-
 }
 
 html,
