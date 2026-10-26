@@ -66,7 +66,7 @@ export default function DashboardRepositorySection() {
                             <div className="flex min-w-0 flex-col gap-3">
                                 <a
                                     href={repo.url}
-                                    className="text-primary text-xl font-semibold break-words hover:underline">
+                                    className="text-primary wrap-break-words text-xl font-semibold hover:underline">
                                     {repo.name}
                                 </a>
                                 <div className="flex flex-wrap items-center gap-4 text-sm">

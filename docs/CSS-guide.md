@@ -2,6 +2,11 @@
 
 UI를 만들 경우, 다음 CSS 가이드를 지키세요
 
+## Tailwind CSS 클래스 작성 규칙
+
+- Tailwind CSS 클래스 작성 시 동일한 스타일을 표현하는 여러 방법이 있다면 공식 권장 표준 클래스(Canonical Class)를 우선 사용하세요.
+- Tailwind CSS IntelliSense의 suggestCanonicalClasses 경고가 발생하는 표현은 가능한 한 피하세요.
+ex: `border-1` 대신 `border` 를 사용할 것.
 
 ## 색상
 1. 주 색은 `primary`입니다. `ex: bg-primary` 강조하고 싶은 경우 이것을 활용하세요.
