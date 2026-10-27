@@ -30,6 +30,7 @@ export default function DashboardRecentActivitySection({
                 {data.map((e, idx) => {
                     if ("nameWithOwner" in e) {
                         return (
+                            //TODO : 임시적으로 키값 인덱스로 부여했습니다. 주의하세요
                             <DashboardCommitArticle
                                 key={idx}
                                 commit={e}
