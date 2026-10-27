@@ -5,6 +5,7 @@ import "~/routes/user-dashboard.css";
 import type { Profile } from "../types/profile";
 import { Outlet } from "react-router";
 import { DashboardLayout } from "~/components/page/user-dashboard/DashboardLayout";
+import { CommonBackground } from "~/components/common/CommonBackground";
 
 // const ThemeColors = {
 //     green: {
@@ -68,6 +69,9 @@ export default function UserDashboard() {
                 name="description"
                 content={`${EHomeDashboardMenu[menuState]} 페이지`}
             />
+
+            <CommonBackground />
+            {/* 지금 아래 -mt-48과 같이 음수 마진 기법을 쓰면 absolute 없이도 무언가와 겹쳐지는 것을 구현할 수 있습니다. */}
 
             <DashboardLayout>
                 <DashboardProfileSection profile={profile} />
