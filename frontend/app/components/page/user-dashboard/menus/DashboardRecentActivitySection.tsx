@@ -27,11 +27,11 @@ export default function DashboardRecentActivitySection({
             </div>
 
             <ul className="divide-y divide-gray-200">
-                {data.map((e) => {
+                {data.map((e, idx) => {
                     if ("nameWithOwner" in e) {
                         return (
                             <DashboardCommitArticle
-                                key={`${e.nameWithOwner}-${e.oid}`}
+                                key={idx}
                                 commit={e}
                             />
                         );
