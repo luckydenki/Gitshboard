@@ -31,12 +31,12 @@ export default [
         route(RouteURL.community, "routes/community.tsx"),
         route("test", "routes/Test.tsx"),   //test
         route("repo/:repo", "routes/repo-dashboard.tsx", [
-            index("./components/page/repo-dashboard/RepoDashboardRecentActivitySection.tsx"),
-            route("readme", "./components/page/repo-dashboard/RepoDashboardReadmeSection.tsx"),
-            route("project", "./components/page/repo-dashboard/RepoDashboardProjectStatusSection.tsx"),
-            route("commit", "./components/page/repo-dashboard/RepoDashboardCommitStatusSection.tsx"),
-            route("prissue", "./components/page/repo-dashboard/RepoDashboardPullRequestIssueSection.tsx"),
-            route("communication", "./components/page/repo-dashboard/RepoDashboardCommunicationSection.tsx"),
+            index("./components/page/repo-dashboard/menus/RepoDashboardRecentActivitySection.tsx"),
+            route("readme", "./components/page/repo-dashboard/menus/RepoDashboardReadmeSection.tsx"),
+            route("project", "./components/page/repo-dashboard/menus/RepoDashboardProjectStatusSection.tsx"),
+            route("commit", "./components/page/repo-dashboard/menus/RepoDashboardCommitStatusSection.tsx"),
+            route("prissue", "./components/page/repo-dashboard/menus/RepoDashboardPullRequestIssueSection.tsx"),
+            route("communication", "./components/page/repo-dashboard/menus/RepoDashboardCommunicationSection.tsx"),
         ]),
         route("user/:user", "routes/user-dashboard.tsx",[
             index("./components/page/user-dashboard/menus/DashboardActivitySection.tsx"),
