@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BiMenu } from "react-icons/bi";
-import SideTitleLogo from "~/components/SideTitleLogo";
+import SideTitleLogo from "~/components/common/SideTitleLogo";
 import { tv, type VariantProps } from "tailwind-variants";
 import { RouteURL } from "~/routes";
 
