@@ -21,7 +21,7 @@ const profileStatIcons = { FiStar, PiGitFork, FiEye, FiUsers, FiGitCommit };
 export default function RepoProfileSection() {
     return (
         <DashboardProfileSectionLayout>
-            <div className="flex flex-col gap-6 divide-y divide-gray-300 pb-8">
+            <div className="flex flex-col gap-6 divide-gray-300 pb-8">
                 <div className="flex min-w-0 items-start justify-between gap-6 not-lg:flex-col">
                     <div className="flex min-w-0 items-start gap-5 not-sm:flex-col">
                         <img
