@@ -4,7 +4,7 @@ import {
     activityTagsMock as activityTags,
     summaryMock,
 } from "~/mock/repo-dashboard/recent-activity";
-import { FiAlertCircle, FiGitCommit, FiGitPullRequest } from "react-icons/fi";
+import DashboardRecentActivityList from "~/components/common/DashboardRecentActivityList";
 
 export default function RepoDashboardRecentActivitySection() {
     const maxActivity = Math.max(...weeklyActivity.map(({ count }) => count));
@@ -151,46 +151,12 @@ export default function RepoDashboardRecentActivitySection() {
                     </div>
                 </div>
 
-                <ol className="flex flex-col divide-y divide-gray-300">
-                    {activityEvents.map((event) => {
-                        const Icon =
-                            event.type === "commit"
-                                ? FiGitCommit
-                                : event.type === "pull-request"
-                                  ? FiGitPullRequest
-                                  : FiAlertCircle;
-
-                        return (
-                            <li
-                                key={`${event.type}-${event.reference}`}
-                                className="flex gap-4 py-5">
-                                <span className="text-primary flex size-10 shrink-0 items-center justify-center rounded-lg bg-gray-100">
-                                    <Icon aria-hidden="true" />
-                                </span>
-                                <article className="flex min-w-0 flex-1 flex-col gap-4">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <span className="text-xs font-semibold text-gray-500">
-                                            {event.label}
-                                        </span>
-                                        <span className="text-xs text-gray-500">
-                                            {event.reference}
-                                        </span>
-                                        <time className="ml-auto text-xs text-gray-500">
-                                            {event.time}
-                                        </time>
-                                    </div>
-                                    <h4 className="wrap-break-words font-semibold">
-                                        {event.title}
-                                    </h4>
-                                    <p className="text-sm leading-6 text-gray-500">
-                                        {event.description}
-                                    </p>
-                                    <p className="text-xs text-gray-500">@{event.actor}</p>
-                                </article>
-                            </li>
-                        );
-                    })}
-                </ol>
+                <DashboardRecentActivityList
+                    events={activityEvents.map((event) => ({
+                        ...event,
+                        id: `${event.type}:${event.reference}`,
+                    }))}
+                />
             </section>
         </section>
     );
