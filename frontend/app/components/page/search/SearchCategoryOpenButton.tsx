@@ -1,5 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
-import type { ISearchFilterCategory } from "../page/home/SearchBar";
+import type { ISearchFilterCategory } from "../home/SearchBar";
 
 const CategoryButton = ({ value, callback }: { value: string; callback: () => void }) => {
     return (
