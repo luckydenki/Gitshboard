@@ -32,5 +32,10 @@ ex: `border-1` 대신 `border` 를 사용할 것.
 4. 구분선은 `divide`계열로 만드세요
 5. `main` 태그는 각 페이지당 최대 하나만 존재하게 되어있으며, main은 `main-x-side`만큼의 `px`패딩을 가져야 합니다. (ex:`px-main-x-side`)
 
+## 변종
+1. 만약 어떤 컴포넌트가 props에 따라 다른 스타일을 보이게 만들어야 하는 요구사항이라면 tailwind variant를 사용해 스타일을 만드세요. 
+2. 모든 tailwind variant는 뒤에 `TV`가 붙어있게 해주세요
+3. tailwind variant는 `VariantProps`를 통해 props 타입을 추출하여 컴포넌트 props에서 받도록 만드세요
+
 ## 그 외 기타
 1. `border-1` 같은 건 `border`로 대체 가능하고 `w-[100%]`는 `w-full`로 대체 가능합니다. 이렇듯 최대한 축약시킬 수 있는 표현을 사용하세요. 
