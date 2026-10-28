@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router";
 import { DashboardLayout } from "~/components/page/user-dashboard/DashboardLayout";
 import RepoProfileSection from "~/components/page/repo-dashboard/RepoProfileSection";
+import { CommonBackground } from "~/components/common/CommonBackground";
 const menuTabs = [
     { label: "최근 활동", to: "." },
     { label: "README", to: "readme" },
@@ -18,7 +19,7 @@ export default function RepoDashboard() {
                 name="description"
                 content="facebook/react 저장소의 활동, 프로젝트, 커밋, 이슈와 커뮤니케이션 통계입니다."
             />
-
+            <CommonBackground />
             <DashboardLayout>
                 <RepoProfileSection />
 
