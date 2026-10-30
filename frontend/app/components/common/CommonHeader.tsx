@@ -3,7 +3,7 @@ import HeaderLoginButton from "./LoginButton";
 
 import HeaderMenu from "./HeaderMenu";
 import useAuthCheck from "~/hooks/useAuthCheck";
-import ListLayout, { ListA, ListButton } from "./ListLayout";
+import ListLayout, { ListA } from "./ListLayout";
 
 export default function CommonHeader() {
     const { isSuccess } = useAuthCheck();
