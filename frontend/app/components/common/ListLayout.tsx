@@ -33,7 +33,7 @@ export const ListButton = ({
 }) => {
     return (
         <button
-            className="hover:bg-back text-md flex h-10 w-full items-center justify-center"
+            className={list_TV(listtv)}
             onClick={callback}>
             {value}
         </button>
