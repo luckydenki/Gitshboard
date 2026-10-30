@@ -3,9 +3,12 @@ import HeaderLoginButton from "./LoginButton";
 
 import HeaderMenu from "./HeaderMenu";
 import useAuthCheck from "~/hooks/useAuthCheck";
+import ListLayout, { ListA, ListButton } from "./ListLayout";
 
 export default function CommonHeader() {
     const { isSuccess } = useAuthCheck();
+
+    const nickname = "덴첩";
 
     if (isSuccess === undefined) {
         console.log("기다려^^");
@@ -15,6 +18,19 @@ export default function CommonHeader() {
     if (isSuccess) {
         console.log("축하해~");
     }
+
+    const MenuList = [
+        {
+            id: "1",
+            value: "내 프로필",
+            href: `/user/${nickname}`,
+        },
+        {
+            id: "2",
+            value: "내 설정",
+            href: "/settings",
+        },
+    ];
 
     return (
         <header className="bg-panel relative flex justify-between px-12 not-sm:px-16">
@@ -30,15 +46,20 @@ export default function CommonHeader() {
                                 alt="프로필사진"
                                 className="size-6"
                             />
-                            <span className="line-clamp-1 not-lg:hidden">김덴덴덴첩덴첩</span>
+                            <span className="line-clamp-1 not-lg:hidden">{nickname}</span>
                         </button>
-                        <div className="bg-panel absolute flex w-[calc(100%)] translate-y-4 flex-col items-center border border-gray-300">
-                            <div>이동해</div>
-                            <a>이동해</a>
-                            <a>이동해</a>
-                            <a>이동해</a>
-                            <a>이동해</a>
-                        </div>
+
+                        <ListLayout>
+                            {MenuList.map((e) => {
+                                return (
+                                    <ListA
+                                        key={e.id}
+                                        href={e.href}
+                                        value={e.value}
+                                    />
+                                );
+                            })}
+                        </ListLayout>
                     </div>
                 )}
             </div>

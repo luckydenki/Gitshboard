@@ -1,15 +1,6 @@
-import { useState, type Dispatch, type SetStateAction } from "react";
+import React, { useState, type Dispatch, type SetStateAction } from "react";
 import type { ISearchFilterCategory } from "../home/SearchBar";
-
-const CategoryButton = ({ value, callback }: { value: string; callback: () => void }) => {
-    return (
-        <li
-            className="flex items-center justify-center"
-            onClick={callback}>
-            {value}
-        </li>
-    );
-};
+import ListLayout, { ListButton } from "~/components/common/ListLayout";
 
 export default function SearchCategoryOpenButton({
     category,
@@ -30,8 +21,8 @@ export default function SearchCategoryOpenButton({
             <div className="w-20">{category.name}</div>
 
             {isCategoryOpen && (
-                <ul className="bg-panel [&>li]:hover:bg-back [&>li]:text-md absolute top-full left-0 mt-2 w-full items-center justify-center rounded-lg border border-gray-300 text-center shadow-lg [&>li]:h-10">
-                    <CategoryButton
+                <ListLayout>
+                    <ListButton
                         value="사용자"
                         callback={() =>
                             setCategory({
@@ -40,7 +31,7 @@ export default function SearchCategoryOpenButton({
                             })
                         }
                     />
-                    <CategoryButton
+                    <ListButton
                         value="저장소"
                         callback={() =>
                             setCategory({
@@ -49,7 +40,7 @@ export default function SearchCategoryOpenButton({
                             })
                         }
                     />
-                </ul>
+                </ListLayout>
             )}
         </button>
     );
