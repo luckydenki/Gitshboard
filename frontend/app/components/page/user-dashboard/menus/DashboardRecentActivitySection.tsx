@@ -44,7 +44,7 @@ export default function DashboardRecentActivitySection({
     const visibleEvents = events.filter((event) => category === "all" || event.type === category);
 
     return (
-        <section className="bg-panel min-w-0 flex-1 p-6">
+        <section className="bg-panel min-w-0 flex-1 p-6 not-lg:w-full">
             <div className="flex flex-wrap items-end justify-between gap-4 pb-5">
                 <div className="flex flex-col gap-1">
                     <h3 className="text-xl font-bold sm:text-2xl">최근 활동 내역</h3>
