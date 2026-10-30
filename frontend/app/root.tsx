@@ -11,6 +11,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import type { Route } from "./+types/root";
 import "./app.css";
 import useManagedQueryClient from "./hooks/useManagedQueryClient";
+import ServiceErrorPage from "./components/common/ServiceErrorPage";
 
 /**
  * 글로벌 스타일과 폰트를 설정하는 링크를 반환하는 함수입니다.
@@ -89,30 +90,24 @@ export default function App() {
  * @returns
  */
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-    let message = "Oops!";
-    let details = "An unexpected error occurred.";
-    let stack: string | undefined;
-
-    if (isRouteErrorResponse(error)) {
-        message = error.status === 404 ? "404" : "Error";
-        details =
-            error.status === 404
-                ? "The requested page could not be found."
-                : error.statusText || details;
-    } else if (import.meta.env.DEV && error && error instanceof Error) {
-        details = error.message;
-        stack = error.stack;
+    if (!isRouteErrorResponse(error) || error.status >= 500) {
+        return (
+            <ServiceErrorPage
+                status={isRouteErrorResponse(error) && error.status === 503 ? 503 : 500}
+            />
+        );
     }
+
+    const message = error.status === 404 ? "404" : "Error";
+    const details =
+        error.status === 404
+            ? "The requested page could not be found."
+            : error.statusText || "An unexpected error occurred.";
 
     return (
         <main className="container mx-auto p-4 pt-16">
             <h1>{message}</h1>
             <p>{details}</p>
-            {stack && (
-                <pre className="w-full overflow-x-auto p-4">
-                    <code>{stack}</code>
-                </pre>
-            )}
         </main>
     );
 }

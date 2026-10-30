@@ -44,6 +44,9 @@ export default [
             route("repos", "./components/page/user-dashboard/menus/DashboardRepositorySection.tsx"),
             route("interests", "./components/page/user-dashboard/menus/DashboardInterestsSection.tsx")
         ]),
+        route("500", "routes/error/server-error-page.tsx"),
+        route("503", "routes/error/service-unavailable-page.tsx"),
+        route("*", "routes/error/not-found-page.tsx"),
     ]),
     route("auth/github/callback", "routes/auth/callback.tsx"),
 
