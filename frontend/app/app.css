@@ -37,9 +37,10 @@
   
 }
 
-
-main {
-  padding-inline : var(--spacing-main-x-side);
+@layer base{
+  main {
+    padding-inline : var(--spacing-main-x-side);
+  }
 }
 
 html,
