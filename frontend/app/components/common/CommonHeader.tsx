@@ -4,9 +4,11 @@ import HeaderLoginButton from "./LoginButton";
 import HeaderMenu from "./HeaderMenu";
 import useAuthCheck from "~/hooks/useAuthCheck";
 import ListLayout, { ListA } from "./ListLayout";
+import { useState } from "react";
 
 export default function CommonHeader() {
     const { isSuccess } = useAuthCheck();
+    const [check, setCheck] = useState(false);
 
     const nickname = "덴첩";
 
@@ -41,7 +43,11 @@ export default function CommonHeader() {
                     <HeaderLoginButton />
                 ) : (
                     <div className="relative">
-                        <button className="hover:ring-primary flex items-center justify-between gap-2 rounded-full px-4 py-2 ring-1 not-lg:p-1 hover:cursor-pointer hover:ring-2 lg:w-32">
+                        <button
+                            className="hover:ring-primary flex items-center justify-between gap-2 rounded-full px-4 py-2 ring-1 not-lg:p-1 hover:cursor-pointer hover:ring-2 lg:w-32"
+                            onClick={() => {
+                                setCheck((e) => !e);
+                            }}>
                             <img
                                 alt="프로필사진"
                                 className="size-6"
@@ -49,17 +55,19 @@ export default function CommonHeader() {
                             <span className="line-clamp-1 not-lg:hidden">{nickname}</span>
                         </button>
 
-                        <ListLayout>
-                            {MenuList.map((e) => {
-                                return (
-                                    <ListA
-                                        key={e.id}
-                                        href={e.href}
-                                        value={e.value}
-                                    />
-                                );
-                            })}
-                        </ListLayout>
+                        {check && (
+                            <ListLayout>
+                                {MenuList.map((e) => {
+                                    return (
+                                        <ListA
+                                            key={e.id}
+                                            href={e.href}
+                                            value={e.value}
+                                        />
+                                    );
+                                })}
+                            </ListLayout>
+                        )}
                     </div>
                 )}
             </div>

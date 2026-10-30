@@ -1,7 +1,7 @@
 import { tv, type VariantProps } from "tailwind-variants";
 
 const list_TV = tv({
-    base: "hover:bg-back flex items-center justify-center",
+    base: "hover:bg-back flex w-full items-center justify-center",
     variants: {
         height: {
             md: "h-10",
@@ -60,7 +60,7 @@ export const ListA = ({
 
 export default function ListLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="bg-panel absolute top-full left-0 mt-2 w-full items-center justify-center rounded-lg border border-gray-300 text-center shadow-lg">
+        <div className="bg-panel absolute top-full z-1 mt-2 w-full min-w-24 items-center justify-center rounded-lg border border-gray-300 text-center text-nowrap shadow-lg not-lg:right-0 lg:left-0">
             {children}
         </div>
     );
