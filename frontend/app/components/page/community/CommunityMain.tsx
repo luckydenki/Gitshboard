@@ -150,7 +150,7 @@ export default function CommunityMain() {
             </div>
 
             <div className="flex min-h-screen min-w-0 items-start gap-4 not-lg:flex-col">
-                <aside className="bg-panel sticky top-20 w-48 shrink-0 rounded-lg border-1 border-gray-300 p-3 not-lg:top-16 not-lg:w-full">
+                <aside className="bg-panel sticky top-20 w-48 shrink-0 rounded-lg border border-gray-300 p-3 not-lg:top-16 not-lg:w-full">
                     <nav aria-label="커뮤니티 게시판">
                         <ul className="flex flex-col gap-1 not-lg:flex-row not-lg:overflow-x-auto">
                             {communityCategories.map((category) => {
@@ -206,7 +206,7 @@ export default function CommunityMain() {
                                     <h3 className="min-w-0 text-base leading-6 font-semibold">
                                         <a
                                             href="#"
-                                            className="hover:text-primary break-words">
+                                            className="hover:text-primary wrap-break-words">
                                             {post.title}
                                         </a>{" "}
                                         <span className="text-primary text-sm font-semibold whitespace-nowrap">
@@ -222,7 +222,7 @@ export default function CommunityMain() {
                                 <img
                                     src={post.thumbnail}
                                     alt=""
-                                    className="h-16 w-24 shrink-0 rounded-lg border-1 border-gray-300 object-cover sm:h-20 sm:w-28"
+                                    className="h-16 w-24 shrink-0 rounded-lg border border-gray-300 object-cover sm:h-20 sm:w-28"
                                 />
                             </li>
                         ))}
@@ -230,11 +230,11 @@ export default function CommunityMain() {
 
                     <nav
                         aria-label="게시글 페이지 이동"
-                        className="mt-6 flex items-center justify-center gap-2 border-t-1 border-gray-300 pt-5">
+                        className="mt-6 flex items-center justify-center gap-2 border-t border-gray-300 pt-5">
                         <button
                             type="button"
                             disabled={currentPage === 1}
-                            className="bg-panel cursor-pointer rounded-lg border-1 border-gray-300 p-2 text-sm disabled:cursor-default disabled:text-gray-500"
+                            className="bg-panel cursor-pointer rounded-lg border border-gray-300 p-2 text-sm disabled:cursor-default disabled:text-gray-500"
                             onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}>
                             이전
                         </button>
@@ -243,7 +243,7 @@ export default function CommunityMain() {
                                 key={page}
                                 type="button"
                                 aria-current={currentPage === page ? "page" : undefined}
-                                className={`size-9 cursor-pointer rounded-lg border-1 p-2 text-sm font-medium ${
+                                className={`size-9 cursor-pointer rounded-lg border p-2 text-sm font-medium ${
                                     currentPage === page
                                         ? "border-primary bg-primary text-white"
                                         : "bg-panel hover:border-primary border-gray-300"
@@ -255,7 +255,7 @@ export default function CommunityMain() {
                         <button
                             type="button"
                             disabled={currentPage === totalPages}
-                            className="bg-panel cursor-pointer rounded-lg border-1 border-gray-300 p-2 text-sm disabled:cursor-default disabled:text-gray-500"
+                            className="bg-panel cursor-pointer rounded-lg border border-gray-300 p-2 text-sm disabled:cursor-default disabled:text-gray-500"
                             onClick={() =>
                                 setCurrentPage((page) => Math.min(totalPages, page + 1))
                             }>
