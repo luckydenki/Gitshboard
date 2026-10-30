@@ -1,4 +1,5 @@
 import { BiStar } from "react-icons/bi";
+import { Link } from "react-router";
 import { reposMock } from "~/mock/home-dashboard/dashboard-repos";
 
 /**
@@ -64,11 +65,11 @@ export default function DashboardRepositorySection() {
                             key={repo.url}
                             className="bg-panel flex flex-col gap-4 rounded-lg p-5 sm:flex-row sm:items-center sm:justify-between">
                             <div className="flex min-w-0 flex-col gap-3">
-                                <a
-                                    href={repo.url}
-                                    className="text-primary wrap-break-words text-xl font-semibold hover:underline">
+                                <Link
+                                    to={`/repo/${encodeURIComponent(repo.name)}`}
+                                    className="text-primary cursor-pointer wrap-break-words text-xl font-semibold hover:underline">
                                     {repo.name}
-                                </a>
+                                </Link>
                                 <div className="flex flex-wrap items-center gap-4 text-sm">
                                     <span className="flex items-center gap-1">
                                         <BiStar
