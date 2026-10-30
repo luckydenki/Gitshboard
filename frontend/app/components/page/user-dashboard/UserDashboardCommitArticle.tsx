@@ -1,11 +1,11 @@
 import { FiGitCommit } from "react-icons/fi";
 import type { Commit } from "~/types/commit";
 
-interface DashboardCommitArticleProps {
+interface UserDashboardCommitArticleProps {
     commit: Commit;
 }
 
-export default function DashboardCommitArticle({ commit }: DashboardCommitArticleProps) {
+export default function UserDashboardCommitArticle({ commit }: UserDashboardCommitArticleProps) {
     return (
         <li className="bg-panel rounded-lg p-4">
             <article className="space-y-2">

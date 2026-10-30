@@ -1,7 +1,7 @@
 import { FiExternalLink, FiLink, FiMapPin, FiUser } from "react-icons/fi";
-import DashboardFollowSection from "./DashboardFollowSection";
+import UserDashboardFollowSection from "./UserDashboardFollowSection";
 
-interface DashboardProfileArticleProps {
+interface UserDashboardProfileArticleProps {
     login: string;
     name: string;
     bio: string;
@@ -13,7 +13,7 @@ interface DashboardProfileArticleProps {
     avatarUrl: string;
 }
 
-export default function DashboardProfileArticle({
+export default function UserDashboardProfileArticle({
     login,
     name,
     bio,
@@ -23,7 +23,7 @@ export default function DashboardProfileArticle({
     followers,
     url,
     avatarUrl,
-}: DashboardProfileArticleProps) {
+}: UserDashboardProfileArticleProps) {
     const githubUrl = url || `https://github.com/${encodeURIComponent(login)}`;
 
     return (
@@ -85,7 +85,7 @@ export default function DashboardProfileArticle({
                 </a>
             </div>
 
-            <DashboardFollowSection
+            <UserDashboardFollowSection
                 following={following}
                 followers={followers}
             />

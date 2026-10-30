@@ -6,9 +6,9 @@ import {
     developStyleSummaryMock,
 } from "~/mock/home-dashboard/dashboard-develop-style";
 import { useRef, useState } from "react";
-import DashboardDevelopStyleActivityRhythm from "../DashboardDevelopStyleActivityRhythm";
-import DashboardDevelopStyleCodeStyle from "../DashboardDevelopStyleCodeStyle";
-import DashboardDevelopStyleCollaborationStyle from "../DashboardDevelopStyleCollaborationStyle";
+import UserDashboardDevelopStyleActivityRhythm from "../UserDashboardDevelopStyleActivityRhythm";
+import UserDashboardDevelopStyleCodeStyle from "../UserDashboardDevelopStyleCodeStyle";
+import UserDashboardDevelopStyleCollaborationStyle from "../UserDashboardDevelopStyleCollaborationStyle";
 import { useGridDrag } from "~/hooks/useGridDrag";
 
 interface TopPanel {
@@ -61,7 +61,7 @@ const TopPanel = ({
     );
 };
 
-export default function DashboardDevelopStyleSection() {
+export default function UserDashboardDevelopStyleSection() {
     const [isLoading, setIsLoading] = useState(false);
     const dragElements = useRef<Record<string, Element>>({});
 
@@ -112,9 +112,9 @@ export default function DashboardDevelopStyleSection() {
                     );
                 })}
 
-                <DashboardDevelopStyleActivityRhythm />
-                <DashboardDevelopStyleCodeStyle />
-                <DashboardDevelopStyleCollaborationStyle />
+                <UserDashboardDevelopStyleActivityRhythm />
+                <UserDashboardDevelopStyleCodeStyle />
+                <UserDashboardDevelopStyleCollaborationStyle />
             </section>
 
             {/* 아래 내용은 개발 성향 화면을 위한 예시 데이터입니다. */}

@@ -13,11 +13,11 @@ const dashboardLayout_tv = tv({
     },
 });
 
-interface DashboardLayoutProps {
+interface UserDashboardLayoutProps {
     dashboardLayouttv?: VariantProps<typeof dashboardLayout_tv>;
     children: React.ReactNode;
 }
 
-export const DashboardLayout = ({ dashboardLayouttv, children }: DashboardLayoutProps) => {
+export const UserDashboardLayout = ({ dashboardLayouttv, children }: UserDashboardLayoutProps) => {
     return <main className={dashboardLayout_tv(dashboardLayouttv)}>{children}</main>;
 };

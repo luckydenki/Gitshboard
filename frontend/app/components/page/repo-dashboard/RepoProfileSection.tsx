@@ -13,14 +13,14 @@ import {
     FiStar,
     FiUsers,
 } from "react-icons/fi";
-import { DashboardProfileSectionLayout } from "../user-dashboard/DashboardProfileSectionLayout";
+import { UserDashboardProfileSectionLayout } from "../user-dashboard/UserDashboardProfileSectionLayout";
 import { PiGitFork } from "react-icons/pi";
 
 const profileStatIcons = { FiStar, PiGitFork, FiEye, FiUsers, FiGitCommit };
 
 export default function RepoProfileSection() {
     return (
-        <DashboardProfileSectionLayout>
+        <UserDashboardProfileSectionLayout>
             <div className="flex flex-col gap-6 divide-gray-300 pb-8">
                 <div className="flex min-w-0 items-start justify-between gap-6 not-lg:flex-col">
                     <div className="flex min-w-0 items-start gap-5 not-sm:flex-col">
@@ -96,6 +96,6 @@ export default function RepoProfileSection() {
                     })}
                 </dl>
             </div>
-        </DashboardProfileSectionLayout>
+        </UserDashboardProfileSectionLayout>
     );
 }

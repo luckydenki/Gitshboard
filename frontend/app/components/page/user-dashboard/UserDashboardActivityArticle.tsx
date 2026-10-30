@@ -1,8 +1,8 @@
 import { activitySummaryMock as summary } from "~/mock/home-dashboard/dashboard-activity";
-import DashboardWeeklyActivityArticle from "./DashboardWeeklyActivityArticle";
-import DashboardRepositoryActivityArticle from "./DashboardRepositoryActivityArticle";
+import UserDashboardWeeklyActivityArticle from "./UserDashboardWeeklyActivityArticle";
+import UserDashboardRepositoryActivityArticle from "./UserDashboardRepositoryActivityArticle";
 
-export default function DashboardActivityArticle() {
+export default function UserDashboardActivityArticle() {
     return (
         <aside aria-label="사용자 활동 요약" className="flex w-80 shrink-0 flex-col gap-4 not-lg:w-full">
             <article className="bg-panel flex flex-col gap-4 rounded-lg border border-gray-300 p-5">
@@ -15,8 +15,8 @@ export default function DashboardActivityArticle() {
                     <strong className="text-2xl">{summary.totalCommits.toLocaleString()}<span className="text-sm font-normal text-gray-500"> 회</span></strong>
                 </div>
             </article>
-            <DashboardWeeklyActivityArticle />
-            <DashboardRepositoryActivityArticle />
+            <UserDashboardWeeklyActivityArticle />
+            <UserDashboardRepositoryActivityArticle />
         </aside>
     );
 }

@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router";
-import { DashboardLayout } from "~/components/page/user-dashboard/DashboardLayout";
+import { UserDashboardLayout } from "~/components/page/user-dashboard/UserDashboardLayout";
 import RepoProfileSection from "~/components/page/repo-dashboard/RepoProfileSection";
 import { CommonBackground } from "~/components/common/CommonBackground";
 const menuTabs = [
@@ -20,7 +20,7 @@ export default function RepoDashboard() {
                 content="facebook/react 저장소의 활동, 프로젝트, 커밋, 이슈와 커뮤니케이션 통계입니다."
             />
             <CommonBackground />
-            <DashboardLayout>
+            <UserDashboardLayout>
                 <RepoProfileSection />
 
                 <section className="bg-panel min-w-0 overflow-x-auto px-4 py-2">
@@ -47,7 +47,7 @@ export default function RepoDashboard() {
                 </section>
 
                 <Outlet />
-            </DashboardLayout>
+            </UserDashboardLayout>
         </>
     );
 }

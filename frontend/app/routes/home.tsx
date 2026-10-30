@@ -3,7 +3,7 @@ import MainLogo from "../components/page/home/MainLogo";
 import HomeSearchBar from "../components/page/home/SearchBar";
 import HomeBoardList from "../components/page/home/HomeBoardList";
 import useChangeLogRSS from "../hooks/useChangeLogRSS";
-import GitHubBlogBanner from "~/components/page/user-dashboard/GitHubBlogBanner";
+import GitHubBlogBanner from "~/components/page/home/GitHubBlogBanner";
 
 export function meta({}: Route.MetaArgs) {
     return [

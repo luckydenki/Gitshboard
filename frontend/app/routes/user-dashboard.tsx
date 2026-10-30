@@ -1,10 +1,10 @@
 import { useState } from "react";
-import DashboardNavigationSection from "~/components/page/user-dashboard/DashboardNavigationSection";
-import DashboardProfileSection from "~/components/page/user-dashboard/DashboardProfileSection";
+import UserDashboardNavigationSection from "~/components/page/user-dashboard/UserDashboardNavigationSection";
+import UserDashboardProfileSection from "~/components/page/user-dashboard/UserDashboardProfileSection";
 import "~/routes/user-dashboard.css";
 import type { Profile } from "../types/profile";
 import { Outlet } from "react-router";
-import { DashboardLayout } from "~/components/page/user-dashboard/DashboardLayout";
+import { UserDashboardLayout } from "~/components/page/user-dashboard/UserDashboardLayout";
 import { CommonBackground } from "~/components/common/CommonBackground";
 
 // const ThemeColors = {
@@ -73,12 +73,12 @@ export default function UserDashboard() {
             <CommonBackground />
             {/* 지금 아래 -mt-48과 같이 음수 마진 기법을 쓰면 absolute 없이도 무언가와 겹쳐지는 것을 구현할 수 있습니다. */}
 
-            <DashboardLayout>
-                <DashboardProfileSection profile={profile} />
-                <DashboardNavigationSection menus={menus} />
+            <UserDashboardLayout>
+                <UserDashboardProfileSection profile={profile} />
+                <UserDashboardNavigationSection menus={menus} />
 
                 <Outlet />
-            </DashboardLayout>
+            </UserDashboardLayout>
         </>
     );
 }

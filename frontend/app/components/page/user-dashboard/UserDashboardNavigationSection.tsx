@@ -15,7 +15,7 @@ const NavigationItems = ({ menu, link }: { menu: string; link: string }) => {
  *
  * @returns
  */
-export default function DashboardNavigationSection({
+export default function UserDashboardNavigationSection({
     menus,
 }: {
     menus: Array<{

@@ -2,7 +2,7 @@ import { interestTopicsMock } from "~/mock/home-dashboard/dashboard-interests";
 import { recommendedRepositoriesMock } from "~/mock/home-dashboard/dashboard-recommendRepos";
 import { viewedRepositoriesMock, viewedUsersMock } from "~/mock/home-dashboard/dashboard-viewed";
 
-export default function DashboardInterestsSection() {
+export default function UserDashboardInterestsSection() {
     const interestTopics = interestTopicsMock;
     const viewedRepositories = viewedRepositoriesMock;
     const viewedUsers = viewedUsersMock;

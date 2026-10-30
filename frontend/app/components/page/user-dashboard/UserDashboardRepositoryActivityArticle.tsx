@@ -33,7 +33,7 @@ const repositoryOption: EChartsOption = {
     }],
 };
 
-export default function DashboardRepositoryActivityArticle() {
+export default function UserDashboardRepositoryActivityArticle() {
     return (
         <article className="bg-panel flex min-h-48 flex-col gap-4 rounded-lg border border-gray-300 p-5">
             <h3 className="font-bold">저장소 별 활동</h3>

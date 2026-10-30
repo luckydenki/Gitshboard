@@ -1,14 +1,14 @@
 import { FiUserPlus, FiUsers } from "react-icons/fi";
 
-interface DashboardFollowSectionProps {
+interface UserDashboardFollowSectionProps {
     following: number;
     followers: number;
 }
 
-export default function DashboardFollowSection({
+export default function UserDashboardFollowSection({
     following,
     followers,
-}: DashboardFollowSectionProps) {
+}: UserDashboardFollowSectionProps) {
     return (
         <dl className="flex flex-wrap gap-4 border-t border-gray-300 pt-5">
             <div className="flex min-w-28 flex-1 flex-col gap-2 p-2">

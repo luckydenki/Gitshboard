@@ -1,8 +1,8 @@
-import DashboardDevelopStyleFullPanelLayout from "./DashboardDevelopStyleFullPanelLayout";
+import UserDashboardDevelopStyleFullPanelLayout from "./UserDashboardDevelopStyleFullPanelLayout";
 
-export default function DashboardDevelopStyleActivityRhythm() {
+export default function UserDashboardDevelopStyleActivityRhythm() {
     return (
-        <DashboardDevelopStyleFullPanelLayout>
+        <UserDashboardDevelopStyleFullPanelLayout>
             <h3 className="mb-3 text-xl font-semibold">활동 리듬</h3>
             <div className="grid h-48 grid-cols-3 divide-x divide-gray-300 not-lg:grid-cols-1 not-lg:divide-x-0 not-lg:divide-y">
                 <div className="px-4">
@@ -26,6 +26,6 @@ export default function DashboardDevelopStyleActivityRhythm() {
                     </span>
                 </div>
             </div>
-        </DashboardDevelopStyleFullPanelLayout>
+        </UserDashboardDevelopStyleFullPanelLayout>
     );
 }

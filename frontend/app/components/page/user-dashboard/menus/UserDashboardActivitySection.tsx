@@ -1,12 +1,12 @@
 import type { Commit } from "~/types/commit";
-import DashboardActivityArticle from "../DashboardActivityArticle";
-import DashboardRecentActivitySection from "./DashboardRecentActivitySection";
+import UserDashboardActivityArticle from "../UserDashboardActivityArticle";
+import UserDashboardRecentActivitySection from "./UserDashboardRecentActivitySection";
 import type { Issue } from "~/types/issue";
 import type { PullRequest } from "~/types/pr";
 
 export type ActivityItems = Array<Commit | Issue | PullRequest>;
 
-export default function DashboardActivitySection() {
+export default function UserDashboardActivitySection() {
     const commits: Commit[] = [];
     for (let i = 0; i < 12; ++i) {
         commits.push({
@@ -22,8 +22,8 @@ export default function DashboardActivitySection() {
 
     return (
         <section className="flex min-w-sm items-start gap-6 not-lg:flex-col">
-            <DashboardActivityArticle />
-            <DashboardRecentActivitySection data={commits} />
+            <UserDashboardActivityArticle />
+            <UserDashboardRecentActivitySection data={commits} />
         </section>
     );
 }

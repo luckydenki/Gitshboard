@@ -2,15 +2,15 @@ import { useState } from "react";
 import DashboardRecentActivityList, {
     type DashboardActivityEvent,
 } from "~/components/common/DashboardRecentActivityList";
-import type { ActivityItems } from "./DashboardActivitySection";
+import type { ActivityItems } from "./UserDashboardActivitySection";
 
-interface DashboardRecentCommitsSectionProps {
+interface UserDashboardRecentActivitySectionProps {
     data: ActivityItems;
 }
 
-export default function DashboardRecentActivitySection({
+export default function UserDashboardRecentActivitySection({
     data,
-}: DashboardRecentCommitsSectionProps) {
+}: UserDashboardRecentActivitySectionProps) {
     const [category, setCategory] = useState("all");
     const events = data.map<DashboardActivityEvent>((activity, index) => {
         if ("oid" in activity) {

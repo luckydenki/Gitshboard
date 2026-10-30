@@ -1,16 +1,16 @@
 import type { Profile } from "~/types/profile";
-import DashboardContributionCalendarArticle from "./DashboardContributionCalendarArticle";
-import DashboardProfileArticle from "./DashboardProfileArticle";
-import { DashboardProfileSectionLayout } from "./DashboardProfileSectionLayout";
+import UserDashboardContributionCalendarArticle from "./UserDashboardContributionCalendarArticle";
+import UserDashboardProfileArticle from "./UserDashboardProfileArticle";
+import { UserDashboardProfileSectionLayout } from "./UserDashboardProfileSectionLayout";
 
-interface DashboardProfileSectionProps {
+interface UserDashboardProfileSectionProps {
     profile: Profile;
 }
 
-export default function DashboardProfileSection({ profile }: DashboardProfileSectionProps) {
+export default function UserDashboardProfileSection({ profile }: UserDashboardProfileSectionProps) {
     return (
-        <DashboardProfileSectionLayout>
-            <DashboardProfileArticle
+        <UserDashboardProfileSectionLayout>
+            <UserDashboardProfileArticle
                 login={profile.login}
                 name={profile.name ?? profile.login}
                 bio={profile.bio ?? ""}
@@ -21,7 +21,7 @@ export default function DashboardProfileSection({ profile }: DashboardProfileSec
                 url={profile.url}
                 avatarUrl={profile.avatarUrl}
             />
-            <DashboardContributionCalendarArticle />
-        </DashboardProfileSectionLayout>
+            <UserDashboardContributionCalendarArticle />
+        </UserDashboardProfileSectionLayout>
     );
 }

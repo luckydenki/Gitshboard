@@ -34,7 +34,7 @@ const weeklyOption: EChartsOption = {
     ],
 };
 
-export default function DashboardWeeklyActivityArticle() {
+export default function UserDashboardWeeklyActivityArticle() {
     return (
         <article className="bg-panel flex min-h-48 flex-col gap-4 rounded-lg border border-gray-300 p-5">
             <h3 className="font-bold">최근 일주일 간의 활동</h3>

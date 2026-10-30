@@ -47,7 +47,7 @@ export interface RepositoryItems {
     updatedAt: string; // 저장소가 마지막으로 업데이트된 시각
 }
 
-export default function DashboardRepositorySection() {
+export default function UserDashboardRepositorySection() {
     const repos: Array<RepositoryItems> = reposMock;
 
     return (
