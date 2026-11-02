@@ -1,4 +1,5 @@
 name : test-ci
+# 해당 워크플로우는 프론트엔드와 백엔드의 CI를 수행합니다.
 
 on :
     pull_request:
