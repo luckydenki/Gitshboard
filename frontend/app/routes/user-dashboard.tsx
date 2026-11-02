@@ -1,8 +1,7 @@
-import { useState } from "react";
 import UserDashboardNavigationSection from "~/components/page/user-dashboard/UserDashboardNavigationSection";
 import UserDashboardProfileSection from "~/components/page/user-dashboard/UserDashboardProfileSection";
 import "~/routes/user-dashboard.css";
-import { Outlet } from "react-router";
+import { Outlet, useMatch, useParams } from "react-router";
 import { UserDashboardLayout } from "~/components/page/user-dashboard/UserDashboardLayout";
 import { CommonBackground } from "~/components/common/CommonBackground";
 import { userProfileMock } from "~/mock/home-dashboard/user-profile";
@@ -22,7 +21,8 @@ export enum EHomeDashboardMenu {
 }
 
 export default function UserDashboard() {
-    const [menuState, setMenuState] = useState<EHomeDashboardMenu>(EHomeDashboardMenu["최근 활동"]);
+    const { user } = useParams();
+    const menuMatch = useMatch("/user/:user/:menu");
 
     // 관심사 화면의 구성과 추천 방식을 보여주기 위한 예시 데이터입니다.
 
@@ -45,13 +45,16 @@ export default function UserDashboard() {
         },
     ];
 
+    const currentMenu =
+        menus.find((item) => item.link === `./${menuMatch?.params.menu}`) ?? menus[0];
+
     return (
         <>
             {/* React 19버전 이후부터 가능한 meta 주입 방식입니다. */}
-            <title>{userProfileMock.name + " - " + EHomeDashboardMenu[menuState]}</title>
+            <title>{`${user ?? "사용자"} - ${currentMenu.menu}`}</title>
             <meta
                 name="description"
-                content={`${EHomeDashboardMenu[menuState]} 페이지`}
+                content={`${user ?? "사용자"}의 ${currentMenu.menu} 페이지`}
             />
 
             <CommonBackground />
