@@ -34,6 +34,7 @@ export default function Test() {
 
     return (
         <main className="p-0">
+            <title>컴포넌트 테스트 - Gitshboard</title>
             <nav className="bg-panel fixed right-0 z-1 flex h-fit gap-4 rounded-lg p-4 shadow-md">
                 {menus.map((e, idx) => {
                     return (
