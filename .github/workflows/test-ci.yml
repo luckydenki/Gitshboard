@@ -19,6 +19,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+          # fetch-depth를 0으로 설정하여 전체 Git 히스토리를 가져옵니다. 
+          # fetch-depth 설정은 Git 히스토리의 깊이를 제한하여 가져오는 방식으로, 기본적으로는 1로 설정되어 있습니다.
+          # 높을 수록 더 많은 Git 히스토리를 가져오게 되며, 이는 일부 CI/CD 작업에서 필요할 수 있습니다. 
+          # 반대로 0은 아예 제한 없이 전체 Git 히스토리를 가져오게 됩니다.
+          # 이는 Chromatic이 변경 사항을 정확하게 감지하고 시각적 회귀 테스트를 수행하는 데 필요합니다.
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
