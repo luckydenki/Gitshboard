@@ -39,6 +39,11 @@ jobs:
       - name: Run frontend tests
         run: npm run test
 
+      - name: Run Chromatic
+        run : npm run chromatic
+        env : 
+          CHROMATIC_PROJECT_TOKEN : ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+
   backend:
     name: Backend CI
     runs-on: ubuntu-latest

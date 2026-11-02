@@ -18,8 +18,9 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "format": "prettier --write .",
-    "preview" :"vite preview",
-    "format:check": "prettier --check ."
+    "preview": "vite preview",
+    "format:check": "prettier --check .",
+    "chromatic": "npx chromatic"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.15.1",
