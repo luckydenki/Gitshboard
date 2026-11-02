@@ -6,6 +6,9 @@
     "**/.server/**/*",
     "**/.client/**/*",
     ".react-router/types/**/*",
+    "playwright.config.ts",
+    "e2e/**/*.ts",
+    "e2e/**/*.tsx",
     "test/**/*.ts",
     "test/**/*.tsx"
   ],
