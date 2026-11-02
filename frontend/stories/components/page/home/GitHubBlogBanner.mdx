@@ -1,0 +1,22 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./GitHubBlogBanner.stories";
+
+<Meta of={Stories} />
+
+# GitHubBlogBanner
+
+Displays the latest GitHub Blog posts and thumbnails, with pagination in groups of five.
+
+## Props
+
+This component accepts no props. It uses TanStack Query and requires a `QueryClientProvider`. It renders nothing while loading or without data; an empty array shows the heading and an empty list.
+
+## Usage
+
+```tsx
+<QueryClientProvider client={queryClient}>
+  <GitHubBlogBanner />
+</QueryClientProvider>
+```
+
+<Canvas of={Stories.Default} />

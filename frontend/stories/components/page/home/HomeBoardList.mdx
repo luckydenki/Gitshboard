@@ -1,0 +1,25 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./HomeBoardList.stories";
+
+<Meta of={Stories} />
+
+# HomeBoardList
+
+Displays a board title and articles, filling empty positions when there are one to four articles.
+
+## Props
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `boardTitle` | `string` | Board heading. |
+| `data` | `Array<{ title: string; url: string; date: string; description: string }>` | Articles with a title, link, date and description. An empty array displays a placeholder. |
+
+The component mutates arrays containing one to four items, so pass a copy when reusing the data.
+
+## Usage
+
+```tsx
+<HomeBoardList boardTitle="Updates" data={[{ title: "News", url: "https://github.blog", date: "Mon 01 Jan 2024", description: "New features" }]} />
+```
+
+<Canvas of={Stories.Default} />

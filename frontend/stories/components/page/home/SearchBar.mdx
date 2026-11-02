@@ -1,0 +1,23 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./SearchBar.stories";
+
+<Meta of={Stories} />
+
+# SearchBar
+
+A search form for GitHub users or repositories, with optional filters. The search button currently logs form values to the console.
+
+## Props
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `enableFilter` | `boolean` | Shows the search filters when true; defaults to false. |
+| `variant` | `{ wsize?: "sm" \| "md" \| "lg" \| "xl" \| "full" }` | Tailwind Variants width setting. `wsize` defaults to `md`; `full` has no maximum width. |
+
+## Usage
+
+```tsx
+<SearchBar enableFilter variant={{ wsize: "lg" }} />
+```
+
+<Canvas of={Stories.Default} />
