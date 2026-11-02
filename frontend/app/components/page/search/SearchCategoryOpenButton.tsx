@@ -10,11 +10,11 @@ export default function SearchCategoryOpenButton({
     setCategory: Dispatch<SetStateAction<ISearchFilterCategory>>;
 }) {
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+    console.log("재렌더링", category);
 
     return (
-        <button
-            type="button"
-            className="hover:bg-panel-hover relative z-1 rounded-l-full pl-4 text-left hover:cursor-pointer hover:bg-gray-300"
+        <div
+            className="hover:bg-panel-hover relative z-1 flex items-center justify-center rounded-l-full pl-4 text-left hover:cursor-pointer hover:bg-gray-300"
             onBlur={() => setIsCategoryOpen(false)}
             onClick={() => setIsCategoryOpen(!isCategoryOpen)}
             aria-label="검색 카테고리 선택 버튼">
@@ -42,6 +42,6 @@ export default function SearchCategoryOpenButton({
                     />
                 </ListLayout>
             )}
-        </button>
+        </div>
     );
 }

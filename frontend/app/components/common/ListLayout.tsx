@@ -31,6 +31,7 @@ export const ListButton = ({
     callback: () => void;
     listtv?: listTVType;
 }) => {
+    console.log("callback", callback);
     return (
         <button
             className={list_TV(listtv)}
