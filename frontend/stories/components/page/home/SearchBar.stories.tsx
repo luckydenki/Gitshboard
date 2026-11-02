@@ -15,23 +15,29 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// 기본 너비에서 검색어를 입력하고 검색 버튼을 누르는 사례입니다.
 export const Default: Story = {
+    // 검색어 입력과 검색 버튼 동작을 확인합니다.
     play: async ({ canvas }) => {
-        const input = canvas.getByPlaceholderText("\uac80\uc0c9...");
+        const input = canvas.getByPlaceholderText("검색...");
         await userEvent.type(input, "octocat");
         await expect(input).toHaveValue("octocat");
-        await userEvent.click(canvas.getByRole("button", { name: "\uac80\uc0c9 \ubc84\ud2bc" }));
+        await userEvent.click(canvas.getByRole("button", { name: "검색 버튼" }));
     },
 };
+// 작은 너비에 검색 필터를 표시하는 사례입니다.
 export const SmallWithFilters: Story = {
     args: { enableFilter: true, variant: { wsize: "sm" } },
+    // 필터를 열고 타입과 지역을 선택하면 선택값이 표시되는지 확인합니다.
     play: async ({ canvas }) => {
-        await userEvent.click(canvas.getByRole("button", { name: /\uac80\uc0c9 \ud544\ud130/ }));
-        await userEvent.click(canvas.getByLabelText("\uac1c\uc778"));
+        await userEvent.click(canvas.getByRole("button", { name: /검색 필터/ }));
+        await userEvent.click(canvas.getByLabelText("개인"));
         await expect(canvas.getByText("type:user")).toBeVisible();
-        await userEvent.type(canvas.getByPlaceholderText("\uc9c0\uc5ed\uc744 \uc785\ub825\ud558\uc138\uc694"), "Seoul");
+        await userEvent.type(canvas.getByPlaceholderText("지역을 입력하세요"), "Seoul");
         await expect(canvas.getByText("location:Seoul")).toBeVisible();
     },
 };
+// 최대 너비 제한이 없는 검색창입니다.
 export const FullWidth: Story = { args: { variant: { wsize: "full" } } };
+// 최대 너비가 가장 큰 검색창입니다.
 export const LargestWidth: Story = { args: { variant: { wsize: "xl" } } };

@@ -1,0 +1,36 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./SearchItemLayout.stories";
+
+<Meta of={Stories} />
+
+# SearchItemLayout
+
+검색 결과의 프로필 이미지, 제목, 설명, 통계와 링크를 배치하는 공통 카드입니다. 내부 링크에는 라우터가 필요합니다.
+
+## Props
+
+| 이름 | 타입 | 설명 |
+| --- | --- | --- |
+| `avatarUrl` | `string` | 프로필 이미지 주소입니다. |
+| `avatarAlt` | `string` | 이미지 대체 텍스트입니다. |
+| `title` | `string` | 대시보드 링크에 표시할 제목입니다. |
+| `badge` | `string` | 제목 옆 유형 표시입니다. |
+| `dashboardUrl` | `string` | 내부 대시보드 경로입니다. |
+| `githubUrl` | `string` | 새 탭으로 열 GitHub 주소입니다. |
+| `description` | `string \| null` | 소개 문구입니다. 비어 있으면 기본 문구를 표시합니다. |
+| `stars` | `number` | 별 개수입니다. |
+| `starsLabel` | `string` | 별 개수의 레이블이며 기본값은 `Star`입니다. |
+| `updatedAt` | `string` | 최근 업데이트 날짜 문자열입니다. |
+| `children` | `ReactNode` | 제목 아래 추가 정보입니다. 선택 사항입니다. |
+
+## 사용 예시
+
+```tsx
+<SearchItemLayout avatarUrl={avatar} avatarAlt="프로필" title="octocat/repo" badge="저장소"
+  dashboardUrl="/repo/octocat%2Frepo" githubUrl="https://github.com/octocat/repo"
+  description="예제 저장소" stars={10} updatedAt="2024-01-01T00:00:00Z">
+  <span>TypeScript</span>
+</SearchItemLayout>
+```
+
+<Canvas of={Stories.Default} />

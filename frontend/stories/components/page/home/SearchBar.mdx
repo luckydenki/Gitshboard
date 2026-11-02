@@ -5,16 +5,16 @@ import * as Stories from "./SearchBar.stories";
 
 # SearchBar
 
-A search form for GitHub users or repositories, with optional filters. The search button currently logs form values to the console.
+GitHub 사용자 또는 저장소를 검색하고 선택적으로 필터를 적용하는 검색 폼입니다. 현재 검색 버튼은 폼 값을 콘솔에 기록합니다.
 
-## Props
+## 속성
 
-| Prop | Type | Description |
+| 속성 | 타입 | 설명 |
 | --- | --- | --- |
-| `enableFilter` | `boolean` | Shows the search filters when true; defaults to false. |
-| `variant` | `{ wsize?: "sm" \| "md" \| "lg" \| "xl" \| "full" }` | Tailwind Variants width setting. `wsize` defaults to `md`; `full` has no maximum width. |
+| `enableFilter` | `boolean` | 검색 필터 표시 여부입니다. 기본값은 `false`입니다. |
+| `variant` | `{ wsize?: "sm" \| "md" \| "lg" \| "xl" \| "full" }` | Tailwind Variants 너비 설정입니다. `wsize`의 기본값은 `md`이며 `full`은 최대 너비를 제한하지 않습니다. |
 
-## Usage
+## 사용 예시
 
 ```tsx
 <SearchBar enableFilter variant={{ wsize: "lg" }} />

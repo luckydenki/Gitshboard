@@ -5,13 +5,13 @@ import * as Stories from "./GitHubBlogBanner.stories";
 
 # GitHubBlogBanner
 
-Displays the latest GitHub Blog posts and thumbnails, with pagination in groups of five.
+GitHub Blog의 최신 글과 썸네일을 표시하고 다섯 개씩 페이지를 이동합니다.
 
-## Props
+## 속성
 
-This component accepts no props. It uses TanStack Query and requires a `QueryClientProvider`. It renders nothing while loading or without data; an empty array shows the heading and an empty list.
+받는 props는 없습니다. TanStack Query를 사용하므로 `QueryClientProvider`가 필요합니다. 로딩 중이거나 데이터가 없으면 아무것도 렌더링하지 않으며, 빈 배열이면 제목과 빈 목록을 표시합니다.
 
-## Usage
+## 사용 예시
 
 ```tsx
 <QueryClientProvider client={queryClient}>
