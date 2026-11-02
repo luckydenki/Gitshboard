@@ -2,10 +2,10 @@ import { useState } from "react";
 import UserDashboardNavigationSection from "~/components/page/user-dashboard/UserDashboardNavigationSection";
 import UserDashboardProfileSection from "~/components/page/user-dashboard/UserDashboardProfileSection";
 import "~/routes/user-dashboard.css";
-import type { Profile } from "../types/profile";
 import { Outlet } from "react-router";
 import { UserDashboardLayout } from "~/components/page/user-dashboard/UserDashboardLayout";
 import { CommonBackground } from "~/components/common/CommonBackground";
+import { userProfileMock } from "~/mock/home-dashboard/user-profile";
 
 // const ThemeColors = {
 //     green: {
@@ -22,22 +22,6 @@ export enum EHomeDashboardMenu {
 }
 
 export default function UserDashboard() {
-    const profile: Profile = {
-        name: "flyetanol",
-        company: "우리회사",
-        createdAt: "2017.12.14",
-        followers: { totalCount: 3 },
-        following: { totalCount: 4 },
-        login: "니똥꼬",
-        url: "",
-        websiteUrl: "",
-        socialAccounts: { nodes: [{ url: "a" }, { url: "b" }] },
-        contributionsCollection: { contributionCalendar: { totalContributions: 3 } },
-        location: "Korea, Seoul",
-        avatarUrl: "",
-        bio: "우하하adasdasdasd우하하adasdasdasd",
-    };
-
     const [menuState, setMenuState] = useState<EHomeDashboardMenu>(EHomeDashboardMenu["최근 활동"]);
 
     // 관심사 화면의 구성과 추천 방식을 보여주기 위한 예시 데이터입니다.
@@ -64,7 +48,7 @@ export default function UserDashboard() {
     return (
         <>
             {/* React 19버전 이후부터 가능한 meta 주입 방식입니다. */}
-            <title>{name + " - " + EHomeDashboardMenu[menuState]}</title>
+            <title>{userProfileMock.name + " - " + EHomeDashboardMenu[menuState]}</title>
             <meta
                 name="description"
                 content={`${EHomeDashboardMenu[menuState]} 페이지`}
@@ -74,7 +58,7 @@ export default function UserDashboard() {
             {/* 지금 아래 -mt-48과 같이 음수 마진 기법을 쓰면 absolute 없이도 무언가와 겹쳐지는 것을 구현할 수 있습니다. */}
 
             <UserDashboardLayout>
-                <UserDashboardProfileSection profile={profile} />
+                <UserDashboardProfileSection profile={userProfileMock} />
                 <UserDashboardNavigationSection menus={menus} />
 
                 <Outlet />
