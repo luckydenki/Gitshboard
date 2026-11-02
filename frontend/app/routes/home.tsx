@@ -6,10 +6,7 @@ import useChangeLogRSS from "../hooks/useChangeLogRSS";
 import GitHubBlogBanner from "~/components/page/home/GitHubBlogBanner";
 
 export function meta({}: Route.MetaArgs) {
-    return [
-        { title: "GitHub Dashboard" },
-        { name: "description", content: "GitHub Dashboard login" },
-    ];
+    return [{ title: "Gitshboard" }, { name: "description", content: "GitHub Dashboard login" }];
 }
 
 /**
