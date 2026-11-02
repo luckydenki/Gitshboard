@@ -1,0 +1,28 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./SearchCategoryOpenButton.stories";
+
+<Meta of={Stories} />
+
+# SearchCategoryOpenButton
+
+사용자 또는 저장소 검색 카테고리를 선택하는 메뉴입니다.
+
+## Props
+
+| 이름 | 타입 | 설명 |
+| --- | --- | --- |
+| `category` | `ISearchFilterCategory` | 현재 카테고리의 `value`와 한글 `name`입니다. |
+| `setCategory` | `Dispatch<SetStateAction<ISearchFilterCategory>>` | 카테고리 선택을 부모 상태에 반영합니다. |
+
+## 사용 예시
+
+```tsx
+const [category, setCategory] = useState<ISearchFilterCategory>({ value: "users", name: "사용자" });
+<SearchCategoryOpenButton category={category} setCategory={setCategory} />
+```
+
+<Canvas of={Stories.Default} />
+
+## 상호작용 범위
+
+메뉴 열기와 닫기는 실제 포인터 이벤트로 확인합니다. 선택 상태 변경은 `fireEvent.click`으로 확인합니다. 현재 부모의 `onBlur`가 메뉴를 닫기 때문에 이 사례는 실제 포커스 이동을 포함한 선택 동작까지 검증하지 않습니다.

@@ -4,6 +4,7 @@ import "../app/app.css";
 
 const preview: Preview = {
   parameters: {
+    a11y: { test: "todo" },
     controls: {
       matchers: {
         color: /(background|color)$/i,

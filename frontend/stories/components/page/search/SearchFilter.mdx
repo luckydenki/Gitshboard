@@ -1,0 +1,24 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./SearchFilter.stories";
+
+<Meta of={Stories} />
+
+# SearchFilter
+
+검색 타입, 언어, 지역을 선택하고 현재 선택값을 표시합니다.
+
+## Props
+
+| 이름 | 타입 | 설명 |
+| --- | --- | --- |
+| `choice` | `SearchChoiceOptions` | 선택된 `type`, `languages`, `location`을 담습니다. 각 필드는 선택 사항입니다. |
+| `choiceHandler` | `(key: SearchChoiceOptionsKeyType, value: string) => void` | 필터 입력이 바뀔 때 필드와 새 값을 전달합니다. |
+
+## 사용 예시
+
+```tsx
+const [choice, setChoice] = useState<SearchChoiceOptions>({});
+<SearchFilter choice={choice} choiceHandler={(key, value) => setChoice((prev) => ({ ...prev, [key]: value }))} />
+```
+
+<Canvas of={Stories.Default} />

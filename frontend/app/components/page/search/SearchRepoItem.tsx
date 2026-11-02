@@ -1,0 +1,21 @@
+import { FiGitBranch } from "react-icons/fi";
+import type { SearchRepoCard } from "~/types/search/search-result";
+import SearchItemLayout from "./SearchItemLayout";
+
+export default function SearchRepoItem({ item }: { item: SearchRepoCard }) {
+    return (
+        <SearchItemLayout
+            avatarUrl={item.owner.avatar_url}
+            avatarAlt={`${item.owner.login} 프로필 사진`}
+            title={item.full_name}
+            badge="저장소"
+            dashboardUrl={`/repo/${encodeURIComponent(item.full_name)}`}
+            githubUrl={item.html_url}
+            description={item.description}
+            stars={item.stargazers_count}
+            updatedAt={item.updated_at}>
+            {item.language && <span>{item.language}</span>}
+            <span className="flex items-center gap-1"><FiGitBranch aria-hidden="true" />Fork {item.forks_count.toLocaleString("ko-KR")}</span>
+        </SearchItemLayout>
+    );
+}

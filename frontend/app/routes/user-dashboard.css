@@ -1,0 +1,14 @@
+.preferencebox-border {
+
+
+    background:
+    linear-gradient(var(--color-panel), var(--color-panel)) padding-box,
+    linear-gradient(var(--color-primary), var(--color-secondary)) border-box;
+    /*
+        background 또는 background-image 속성은
+        맨위에 선언한 이미지(레이어) 가 가장 나중에 그려집니다.
+        즉, 가장 위에 올라오는 레이어라는 뜻입니다.
+        위의 경우 border-box가 가장 아래에 깔리고, 그 위에 padding box 영역이 그려진다고 이해하면 됩니다.
+        
+    */
+}

@@ -1,0 +1,20 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./MainLogo.stories";
+
+<Meta of={Stories} />
+
+# MainLogo
+
+화면 너비에 따라 SVG 로고 또는 텍스트 로고를 표시합니다.
+
+## 속성
+
+받는 props는 없습니다.
+
+## 사용 예시
+
+```tsx
+<MainLogo />
+```
+
+<Canvas of={Stories.Default} />

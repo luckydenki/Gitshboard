@@ -1,4 +1,5 @@
 name : PR-auto
+# 해당 워크플로우는 feat-*, fix-*, refactor-* 브랜치에 대한 PR을 자동으로 생성합니다.
 
 on:
     push:

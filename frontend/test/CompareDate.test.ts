@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { compareDate } from "../app/components/page/contribution/ContributionDateInput";
-
+import { compareDate } from "~/old/components/page/contribution/ContributionDateInput";
 
 
 

@@ -1,0 +1,25 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./HomeBoardList.stories";
+
+<Meta of={Stories} />
+
+# HomeBoardList
+
+게시판 제목과 글 목록을 표시합니다. 글이 1~4개이면 나머지 자리를 안내 문구로 채웁니다.
+
+## 속성
+
+| 속성 | 타입 | 설명 |
+| --- | --- | --- |
+| `boardTitle` | `string` | 게시판 제목입니다. |
+| `data` | `Array<{ title: string; url: string; date: string; description: string }>` | 제목, 링크, 날짜, 설명을 담은 글 목록입니다. 빈 배열이면 안내 문구를 표시합니다. |
+
+컴포넌트는 항목이 1~4개인 배열을 직접 수정하므로 데이터를 재사용할 때는 복사해서 전달하세요.
+
+## 사용 예시
+
+```tsx
+<HomeBoardList boardTitle="업데이트" data={[{ title: "새 소식", url: "https://github.blog", date: "Mon 01 Jan 2024", description: "새로운 기능" }]} />
+```
+
+<Canvas of={Stories.Default} />

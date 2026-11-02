@@ -1,0 +1,22 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./SearchUserItem.stories";
+
+<Meta of={Stories} />
+
+# SearchUserItem
+
+사용자 또는 조직의 검색 결과와 소유 저장소의 별 합계를 카드로 표시합니다. 내부 링크에는 라우터가 필요합니다.
+
+## Props
+
+| 이름 | 타입 | 설명 |
+| --- | --- | --- |
+| `item` | `GitHubSearchUserCard` | 로그인, 프로필, 사용자 유형, 링크, 별 합계와 업데이트 시각을 담은 결과입니다. 이름, 소개, 지역은 `null`일 수 있습니다. |
+
+## 사용 예시
+
+```tsx
+<SearchUserItem item={user} />
+```
+
+<Canvas of={Stories.Default} />

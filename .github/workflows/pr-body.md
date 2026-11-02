@@ -1,55 +1,46 @@
-# README Commit Activity SVG API 추가
+# 검색 카테고리 수정 및 홈·검색 Storybook 재정비
+
+## 작성 범위
+
+- 브랜치: `refactor-design`
+- 로컬 원격 추적 참조의 reflog에서 확인한 마지막 push: `3631b3b` (2026-11-02 15:03:11 +09:00)
+- 비교 범위: `3631b3b..f69c8c4`의 19개 커밋. 마지막 push 이전 변경은 제외했습니다.
+- 현재 작업 트리에 기존 `pr-body.md`가 없어 새로 작성했습니다.
 
 ## 변경 사항
 
-- 인증 없이 GitHub README에서 사용할 수 있는 `GET /api/readme/commit-activity.svg` 엔드포인트를 추가했습니다. `username`을 필수로 받고, `from`, `to`, `width`, `height`로 조회 기간과 SVG 크기를 조정할 수 있습니다.
-- ECharts SSR SVG 렌더링으로 커밋 활동 라인 차트를 생성하며, 전체 커밋 수·최대 커밋 수·최대 커밋 일자를 함께 표시합니다.
-- 저장소별 기여 데이터를 날짜순으로 정렬해 차트의 날짜와 커밋 수가 일치하도록 보정하고, 공통 `GithubCommitActivity` 타입을 분리했습니다.
-- 로그인 토큰이 없는 README 요청은 서버의 공개 GitHub API 토큰을 사용하도록 GraphQL 호출을 보완했습니다.
-- 기여 데이터와 완성된 SVG를 Redis에 각각 1시간 캐시해 반복 요청의 GitHub API 호출과 SVG 렌더링을 줄였습니다.
-- `username` 누락, 잘못된 기간, 1년 초과 기간 등 400 오류는 README에서 바로 확인할 수 있는 오류 SVG 카드로 반환합니다. 공통 오류 객체 설명도 보강했습니다.
-- TSX 컴파일 설정과 ECharts 의존성을 추가하고, 배포 환경에 공개 API 토큰 설정을 반영했습니다.
-- pre-push 훅의 Codex 문서 생성 안내를 갱신해, 이미 푸시된 브랜치에서는 이전 PR 문서 작성 이후의 변경만 문서화하도록 했습니다.
+### 검색 UI 및 페이지 메타데이터
 
-## 검증 포인트
+- 검색 카테고리 컨트롤의 바깥 요소를 `button`에서 `div`로 바꾸어 내부 선택 버튼과의 중첩을 해소하고, 카테고리 선택 상태가 바뀌지 않던 문제를 수정했습니다.
+- 공통 `React-Github` 제목을 제거하고 홈 제목을 `Gitshboard`로 변경했습니다.
+- 사용자 대시보드 제목에 URL의 사용자와 현재 메뉴를 반영하고, 검색·로그인 콜백·컴포넌트 개발 페이지 및 오류 화면의 제목을 보완했습니다.
+- 검색 페이지와 사용자 개발 성향 화면에 설명 메타데이터를 추가했습니다.
+- 파비콘을 서비스 로고로 교체했습니다.
 
-- `GET /api/readme/commit-activity.svg?username={github-username}` 호출이 `image/svg+xml` 차트를 반환하는지
-- `from`·`to`·`width`·`height` 지정 시 차트 기간 및 크기가 반영되는지
-- `username` 누락, `from > to`, 1년 초과 기간에서 HTTP 400 오류 SVG가 반환되는지
-- 동일 사용자·기간·크기 요청이 Redis 캐시된 기여 데이터 및 SVG를 사용하는지
+### Storybook 문서 및 상호작용 사례
 
-## 테스트
+- 이전 레이아웃·기여도·검색 컴포넌트의 오래된 스토리를 제거하고, 현재 홈·검색 컴포넌트 중심으로 재구성했습니다.
+- 홈의 `GitHubBlogBanner`, `HomeBoardList`, `MainLogo`, `SearchBar`와 검색의 `SearchCategoryOpenButton`, `SearchFilter`, `SearchItemLayout`, `SearchRepoItem`, `SearchResultHeader`, `SearchUserItem`에 스토리와 한국어 MDX 문서를 추가했습니다.
+- 컴포넌트 요약·props·사용 예시를 문서화하고, 빈 데이터·긴 문자열·큰 수치·로딩·페이지 경계 등 시각적 사례를 추가했습니다.
+- 블로그 페이지 이동, 검색 입력과 이동, 카테고리 선택, 필터 변경, 사용자·저장소 대시보드 링크 이동 등의 상호작용 검증 코드를 추가했습니다.
+- 홈·검색 Storybook mock 데이터를 분리하고, `public` 정적 자산 경로를 등록했습니다. 중복 preview 파일을 제거하고 접근성 검사 설정을 `preview.ts`로 모았습니다.
 
-- 미실행: PR 문서 작성 작업이며, 프로젝트 규칙에 따라 `npm run build`는 실행하지 않았습니다.
+### 테스트 구성 및 CI
 
----
+- 기존 E2E 시나리오와 fixture를 삭제했습니다. Playwright 실행 설정과 `test:e2e` 스크립트는 유지하며, 기본 `npm test`에서는 E2E 실행을 제외하고 Vitest만 실행하도록 변경했습니다.
+- 검색 폼 디바운스 호출 측정 테스트를 삭제하고, 날짜 비교·검색 데이터 테스트의 import 경로를 `old` 컴포넌트 위치에 맞게 수정했습니다.
+- 프런트엔드에 `chromatic` 스크립트를 추가하고, PR CI에 Chromatic 실행 단계를 추가했습니다.
+- push마다 Chromatic을 실행하는 별도 워크플로우를 추가하고, PR 자동 생성 및 CI 워크플로우의 역할 설명 주석을 보완했습니다.
+- AGENTS.md의 모델 선택·Storybook·커밋 지침과 커밋 가이드를 보완했습니다.
 
-# README SVG 통계 확장 및 렌더링 구조화
+## 리뷰 및 확인 포인트
 
-## 변경 사항
+- 검색 카테고리 변경과 필터 선택이 화면에 반영되는지 확인이 필요합니다. 카테고리 스토리는 부모의 blur로 메뉴가 사라질 수 있어 선택에 `fireEvent.click`을 사용합니다. 실제 포인터 및 키보드 동작은 별도 확인이 필요합니다.
+- 각 화면의 제목과 사용자·메뉴별 대시보드 제목이 올바르게 표시되는지 확인이 필요합니다.
+- Chromatic 실행에는 `CHROMATIC_PROJECT_TOKEN` secret이 필요합니다. 별도 `chromatic.yml`은 저장소 루트에서 npm 명령을 실행하지만 `chromatic` 스크립트는 `frontend/package.json`에 있으므로 실행 경로 확인이 필요합니다.
+- 기존 E2E 시나리오는 제거되어 기본 CI에서 브라우저 사용자 흐름을 검증하지 않습니다.
 
-- README에서 사용할 SVG API를 controller → service → route 구조로 분리하고, 다음 통계 엔드포인트를 추가했습니다.
-  - `GET /api/readme/tech-distribution.svg`
-  - `GET /api/readme/preferred-commit-time.svg`
-  - `GET /api/readme/weekly-commit-activity.svg`
-- 기존 커밋 활동 차트를 포함한 ECharts 옵션을 `render/echart` 모듈로 분리했습니다. 기술 스택 분포, 선호 커밋 시간, 요일별 커밋 활동 차트 렌더러를 각각 추가했습니다.
-- 모든 README SVG에 `locale=ko|en|jp` 파라미터를 지원하고, 차트 제목·축·레이블의 언어별 문구를 locale 모듈로 분리했습니다.
-- README 전용 날짜·화면 크기·오류 처리 유틸을 추가했습니다. 날짜 기본값은 최근 30일이며, 크기는 width 200~1500 및 height 100~1500 범위로 보정됩니다.
-- README SVG 캐시 키에 차트 종류, 언어, 기간, 크기를 포함하도록 Redis 키 생성과 `setEx` 기능을 보강했습니다.
-- 저장소 통계 서비스가 GitHub 사용자명과 선택적 액세스 토큰을 기준으로 동작하도록 정리하고, 일부 저장소 서비스 오류를 `CommonError`로 통일했습니다.
-- `CommonError`에 400·401·404·500 생성 메서드와 `detailCode`를 추가했으며, README 요청 오류를 SVG 응답으로 일관되게 반환하도록 했습니다.
-- 프런트엔드 통계 훅의 API 응답 타입을 실제 데이터 타입에 맞게 수정하고, 저장소 활동 섹션의 null 접근 가능성을 제거했습니다.
-- README 유틸의 크기 보정, 표시용 날짜 변환, 날짜 파라미터 초기화 테스트를 추가했습니다.
-- Component SVG 생성 에이전트 설정을 추가하고, 백엔드 개발 서버가 `.tsx` 변경을 감지하도록 설정했습니다.
+## 검증
 
-## 검증 포인트
-
-- 각 README SVG 엔드포인트가 `username`과 선택적 `width`·`height`·`locale` 파라미터를 받아 `image/svg+xml`을 반환하는지
-- 잘못된 `locale` 또는 누락된 `username` 요청이 오류 SVG와 적절한 HTTP 상태 코드로 반환되는지
-- `commit-activity.svg`의 `from`·`to` 범위, 크기 보정, 언어별 레이블이 반영되는지
-- 동일한 사용자·차트·언어·기간·크기 조합의 요청이 Redis 캐시를 재사용하는지
-- 프런트엔드 통계 화면에서 API 데이터가 없거나 로딩 중일 때 저장소 활동 섹션이 안전하게 렌더링되는지
-
-## 테스트
-
-- 미실행: PR 문서 작성 작업이며, 프로젝트 규칙에 따라 `npm run build`는 실행하지 않았습니다.
+- Git 로그·push reflog·마지막 push 이후 파일 diff를 확인해 작성했습니다.
+- 프로젝트 지침에 따라 빌드, Vitest, E2E 및 Storybook 테스트는 실행하지 않았습니다. 추가된 테스트의 통과 여부와 GitHub Actions 실행 결과는 확인하지 않았습니다.
