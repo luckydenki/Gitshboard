@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {fetchSearchData} from "../app/components/page/home/SearchForm";
+import { fetchSearchData } from "~/old/components/page/home/SearchForm";
 
 
 /**
