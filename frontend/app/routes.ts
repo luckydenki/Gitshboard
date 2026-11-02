@@ -8,28 +8,17 @@ export const RouteURL = {
 }
 
 
-
 export default [
-    //index는 기본 라우트("/")로 사용될 컴포넌트를 지정할 때 사용
-    // index("old/home","routes/old/home.tsx"),
-    // layout("components/layout/QueryClientLayout.tsx", [
-    //         route("old/search","routes/old/search.tsx"),
-    // ]
-    // ),
-    // layout("components/layout/RouteGuardLayout.tsx", [
-    //     layout("components/layout/DashboardLayout.tsx", [
-    //         route("old/dashboard", "routes/old/dashboard.tsx"),
-    //         route("old/statpage", "routes/old/statpage.tsx"),
-    //         route("old/contribute", "routes/old/contribute.tsx"),
-    //     ]),
-    // ]),
-   
+
     layout("routes/CommonLayout.tsx", [
         index("routes/home.tsx"),
         route(RouteURL.trend, "routes/trend.tsx"),
         route(RouteURL.search, "routes/search.tsx"),
         route(RouteURL.community, "routes/community.tsx"),
-        route("test", "routes/Test.tsx"),   //test
+
+        ...(import.meta.env.DEV) ? [route("test", "routes/Test.tsx")] : [],  //test
+
+
         route("repo/:repo", "routes/repo-dashboard.tsx", [
             index("./components/page/repo-dashboard/menus/RepoDashboardRecentActivitySection.tsx"),
             route("readme", "./components/page/repo-dashboard/menus/RepoDashboardReadmeSection.tsx"),

@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import GridDragTest from "~/components/do-not-touch-thisfolder/GridDragTest";
+import InfiniteListTest from "~/components/do-not-touch-thisfolder/InfiniteListTest";
 import SideBarTest from "~/components/do-not-touch-thisfolder/SideBarTest";
+import VirtualizeListTest from "~/components/do-not-touch-thisfolder/VirtualizeListTest";
 
 export default function Test() {
     const [menuNum, setMenuNum] = useState(0);
@@ -14,6 +16,14 @@ export default function Test() {
                 name: "사이드바 테스트",
                 render: <SideBarTest />,
             },
+            {
+                name: "무한 스크롤링 테스트",
+                render: <InfiniteListTest />,
+            },
+            {
+                name: "가상 스크롤링 테스트",
+                render: <VirtualizeListTest />,
+            },
         ];
     }, []);
 
@@ -24,7 +34,7 @@ export default function Test() {
 
     return (
         <main className="p-0">
-            <nav className="bg-panel fixed right-0 flex h-fit gap-4 rounded-lg p-4 shadow-md">
+            <nav className="bg-panel fixed right-0 z-1 flex h-fit gap-4 rounded-lg p-4 shadow-md">
                 {menus.map((e, idx) => {
                     return (
                         <button
