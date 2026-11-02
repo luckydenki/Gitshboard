@@ -38,7 +38,6 @@ export const links: Route.LinksFunction = () => [
 // 배열 안의 객체 하나하나가 <link> 태그의 속성으로 변환되어 head에 추가됩니다.
 
 export const meta: Route.MetaFunction = () => [
-    { title: "React-Github" },
     {
         name: "description",
         content:
@@ -106,6 +105,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
     return (
         <main className="container mx-auto p-4 pt-16">
+            <title>{`${error.status === 404 ? "페이지를 찾을 수 없습니다" : "오류가 발생했습니다"} - Gitshboard`}</title>
             <h1>{message}</h1>
             <p>{details}</p>
         </main>

@@ -9,7 +9,7 @@ export default function ServiceErrorPage({ status }: ServiceErrorPageProps) {
 
     return (
         <>
-            <title>{isMaintenance ? "서비스를 잠시 이용할 수 없습니다" : "서버 오류가 발생했습니다"} - Gitshboard</title>
+            <title>{`${isMaintenance ? "서비스를 잠시 이용할 수 없습니다" : "서버 오류가 발생했습니다"} - Gitshboard`}</title>
             <meta name="robots" content="noindex" />
             <main className="flex items-center justify-center min-h-[70vh] px-main-x-side py-8 text-github-black [grid-area:main] dark:text-gray-100">
                 <section
