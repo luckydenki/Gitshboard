@@ -19,6 +19,6 @@
 ## 쿼리와 검증
 
 - 공통 쿼리 동작에는 `QueryKeys`, `useManagedKeyQuery`, `commonRetry`를 사용합니다. 키와 신선도 정책은 [TanStack Query 컨벤션](../conventions/tanstack_query_convention.md)을 따릅니다.
-- `npm run test:vitest`는 브라우저 기반 Storybook 테스트를 포함한 프런트엔드 Vitest 프로젝트를 실행합니다. `npm run test:e2e`는 Playwright를, `npm run test`는 둘 다 실행합니다.
-- Playwright는 기본적으로 프런트엔드 개발 서버를 시작합니다. 백엔드 응답·OAuth·Redis·PostgreSQL이 필요한 테스트는 해당 의존성 또는 명시적 mock이 필요합니다. [테스트 안내](../docs/test.md)를 참고합니다.
+- `npm run test`와 `npm run test:vitest`는 브라우저 기반 Storybook 테스트를 포함한 프런트엔드 Vitest 프로젝트를 실행합니다.
+- Playwright는 Storybook 브라우저 테스트의 Chromium 실행에 사용합니다. 별도의 E2E 테스트와 개발 서버 자동 실행 설정은 제거되었습니다.
 - 어떤 `build` 스크립트도 실행하지 않습니다.
