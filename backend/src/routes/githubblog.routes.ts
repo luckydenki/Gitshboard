@@ -1,23 +1,21 @@
-import {Router} from "express";
+import { Router } from "express";
 import { CommonErrorResponse, CommonResponse } from "../types/middlewares/common";
 import CommonError from "../utils/common-error";
 import Parser from "rss-parser";
 import { redisClient } from "../infra/redis/redisClient";
 
-
 const githubblog_router = Router();
 
-githubblog_router.get('/health', (req, res)=>{
-    res.json({ message: 'Github Blog route is working!' });
-})
-
+githubblog_router.get("/health", (req, res) => {
+    res.json({ message: "Github Blog route is working!" });
+});
 
 /**
  * GET /api/githubblog/changelog
  * 깃허브 블로그의 changelog RSS를 가져오는 api
- * 
+ *
  * aside cache 패턴으로 아마 redis에 하루 단위로 저장할 듯
- * 
+ *
  * @resoponse {
  *  success : boolean;
  *  status : number;
@@ -28,81 +26,76 @@ githubblog_router.get('/health', (req, res)=>{
  *      description : string;
  *  }
  * }
- * 
+ *
  */
-githubblog_router.get('/changelog',async (req, res)=>{
-
-    try{
+githubblog_router.get("/changelog", async (req, res) => {
+    try {
         const cached_changelogs = await redisClient.get("githubblog:changelog");
 
-        if(cached_changelogs){
-                const commonResponse : CommonResponse<typeof cached_changelogs> = {
-                    success: true,
-                    status: 200,
-                    data: JSON.parse(cached_changelogs)
-                }
+        if (cached_changelogs) {
+            const commonResponse: CommonResponse<typeof cached_changelogs> = {
+                success: true,
+                status: 200,
+                data: JSON.parse(cached_changelogs),
+            };
 
             console.log("[/gibhubblog/changelog] hit");
-            res.json(commonResponse)
+            res.json(commonResponse);
             return;
         }
 
-        const response = await fetch("https://github.blog/changelog/feed/",{
-            method:"GET"
-        })
+        const response = await fetch("https://github.blog/changelog/feed/", {
+            method: "GET",
+        });
 
         const parser = new Parser();
 
-        if(response.ok){
+        if (response.ok) {
             const xml = await response.text();
             const feed = await parser.parseString(xml);
 
             const changelogs = feed.items.slice(0, 5).map((item) => {
-                const summary = (item.contentSnippet ?? "")
-                    .replace(/\s+/g, " ")
-                    .trim();
+                const summary = (item.contentSnippet ?? "").replace(/\s+/g, " ").trim();
 
                 return {
                     title: item.title ?? "",
                     link: item.link ?? "",
-                    date : item.pubDate ?? "",
+                    date: item.pubDate ?? "",
                     summary,
                 };
             });
 
-        const commonResponse : CommonResponse<typeof changelogs> = {
-            success: true,
-            status: 200,
-            data: changelogs
-        }
+            const commonResponse: CommonResponse<typeof changelogs> = {
+                success: true,
+                status: 200,
+                data: changelogs,
+            };
 
-        redisClient.set("githubblog:changelog", JSON.stringify(changelogs));
-        console.log("[/gibhubblog/changelog] githubblog:changelog redis save");
-        res.json(commonResponse);
-
+            redisClient.set("githubblog:changelog", JSON.stringify(changelogs));
+            console.log("[/gibhubblog/changelog] githubblog:changelog redis save");
+            res.json(commonResponse);
         } else {
             throw new Error("Failed to fetch changelog RSS");
         }
-    }catch(error){
+    } catch (error) {
         console.error("[githubblog_router] error :", error);
-        
-        const errorResponse =  CommonError.create400Error("Failed to fetch changelog RSS", 
-            "/api/githubblog/changelog", "GITHUBBLOG-CHANGLOG-001");
 
+        const errorResponse = CommonError.create400Error(
+            "Failed to fetch changelog RSS",
+            "/api/githubblog/changelog",
+            "GITHUBBLOG-CHANGLOG-001",
+        );
 
         res.status(500).json(errorResponse);
     }
-})
-
-
-
+});
 
 /**
  * GET /api/githubblog/blog?latest=true
  * 깃허브 블로그의 changelog RSS를 가져오는 api
- * 
+ *
  * aside cache 패턴으로 아마 redis에 하루 단위로 저장할 듯
- * 
+ *
  * @resoponse {
  *  success : boolean;
  *  status : number;
@@ -113,52 +106,44 @@ githubblog_router.get('/changelog',async (req, res)=>{
  *      description : string;
  *  }
  * }
- * 
+ *
  */
-githubblog_router.get('/blog', async(req, res)=>{
-
-    try{
-
-        const cached_blogposts =  await redisClient.get("githubblog:blogposts");
-        if(cached_blogposts){
-            const commonResponse : CommonResponse<typeof cached_blogposts> = {
-            status : 200,
-            success : true,
-            data : JSON.parse(cached_blogposts)
-            }
-            res.json(commonResponse)
+githubblog_router.get("/blog", async (req, res) => {
+    try {
+        const cached_blogposts = await redisClient.get("githubblog:blogposts");
+        if (cached_blogposts) {
+            const commonResponse: CommonResponse<typeof cached_blogposts> = {
+                status: 200,
+                success: true,
+                data: JSON.parse(cached_blogposts),
+            };
+            res.json(commonResponse);
             return;
         }
-        
 
-
-        const latest = req.query.latest
-        const url = latest === "true" ? "https://github.blog/latest/feed/" : "https://github.blog/feed/";
+        const latest = req.query.latest;
+        const url =
+            latest === "true" ? "https://github.blog/latest/feed/" : "https://github.blog/feed/";
         const response = await fetch(url);
 
-        if(!response){
+        if (!response) {
             throw new Error("정보 가져오기에 실패했습니다.");
         }
 
         const parser = new Parser({
-            customFields : {
-                item: [
-                    ["dc:creator", "authorName"],
-                ],
-            }
+            customFields: {
+                item: [["dc:creator", "authorName"]],
+            },
         });
 
         const xml = await response.text();
         const feed = await parser.parseString(xml);
-
 
         const blogpost = feed.items.map((e) => {
             const id = e.guid ?? "";
             const title = e.title ?? "";
             const publishedAt = e.pubDate ?? "";
             const authorName = e.creator?.trim() ?? "";
-
-            
 
             const categories = e.categories;
             //   const categories = [e.querySelector("category")?.textContent ?? ""];
@@ -181,22 +166,19 @@ githubblog_router.get('/blog', async(req, res)=>{
 
         redisClient.set("githubblog:blogposts", JSON.stringify(blogpost));
 
-        const commonResponse : CommonResponse<typeof blogpost> = {
-            status : 200,
-            success : true,
-            data : blogpost
-        }
-        
-        res.json(commonResponse)
+        const commonResponse: CommonResponse<typeof blogpost> = {
+            status: 200,
+            success: true,
+            data: blogpost,
+        };
 
+        res.json(commonResponse);
+    } catch (error) {
+        let errorResponse: CommonErrorResponse;
 
-    }catch(error){
-        let errorResponse : CommonErrorResponse
-        
-        if(error instanceof Error){
-            errorResponse = CommonError.create500Error(error.message)
-        }
-        else{
+        if (error instanceof Error) {
+            errorResponse = CommonError.create500Error(error.message);
+        } else {
             errorResponse = CommonError.create500Error();
         }
 
@@ -204,9 +186,6 @@ githubblog_router.get('/blog', async(req, res)=>{
 
         res.status(errorResponse.status).json(errorResponse);
     }
-})
-
-
-
+});
 
 export default githubblog_router;

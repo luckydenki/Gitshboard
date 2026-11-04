@@ -1,18 +1,17 @@
 import { CommonErrorResponse, ErrorStatus } from "../types/middlewares/common";
 
 interface GithubUserSearchItem {
-    login: string,
-    id: number,
-    avatar_url: string,
-    html_url: string,
-    type: string
+    login: string;
+    id: number;
+    avatar_url: string;
+    html_url: string;
+    type: string;
 }
 
-
 interface GithubUserSearchResponse {
-    total_count: number
-    incomplete_results: boolean,
-    items: Array<GithubUserSearchItem>
+    total_count: number;
+    incomplete_results: boolean;
+    items: Array<GithubUserSearchItem>;
 }
 
 interface GithubSearchErrorResponse {
@@ -22,38 +21,39 @@ interface GithubSearchErrorResponse {
     errors?: unknown[];
 }
 
-
-
 class SearchClient {
+    public search = async (
+        name: string,
+        page: number,
+        per_page: number,
+        github_token?: string,
+    ): Promise<GithubUserSearchResponse> => {
+        try {
+            const params = new URLSearchParams({
+                q: name,
+                page: page.toString(),
+                per_page: per_page.toString(),
+            });
 
-
-    public search = async(name : string, page : number, per_page : number, github_token?: string) : Promise<GithubUserSearchResponse> => {
-
-        try{
-            const params = new URLSearchParams({ q: name, page: page.toString(), per_page: per_page.toString() });
-            
             console.log("github_token : ", github_token);
-            
-            const headers : HeadersInit = {
-                'Accept' : 'application/vnd.github+json'
+
+            const headers: HeadersInit = {
+                Accept: "application/vnd.github+json",
+            };
+
+            if (github_token) {
+                headers["Authorization"] = `Bearer ${github_token}`;
             }
 
-            if(github_token){
-                headers['Authorization'] = `Bearer ${github_token}`;
-            }
-
-
-
-            const search_res = await fetch(`https://api.github.com/search/users?${params.toString()}`,
+            const search_res = await fetch(
+                `https://api.github.com/search/users?${params.toString()}`,
                 {
                     method: "GET",
-                    headers
-                });
+                    headers,
+                },
+            );
 
-
-          
             console.log([...search_res.headers.entries()]);
-
 
             if (search_res.ok) {
                 const data: GithubUserSearchResponse = await search_res.json();
@@ -61,36 +61,29 @@ class SearchClient {
                 data.items.forEach((e, idx) => {
                     const { id, avatar_url, html_url, login, type } = e;
                     data.items[idx] = { id, avatar_url, html_url, login, type };
-                })
+                });
 
                 return data;
-            }
-            else {
+            } else {
                 const data: GithubSearchErrorResponse = await search_res.json();
 
-                const errorResponse : CommonErrorResponse = {
-                    type: data.documentation_url ?? "https://docs.github.com/en/rest/search?apiVersion=2022-11-28",
+                const errorResponse: CommonErrorResponse = {
+                    type:
+                        data.documentation_url ??
+                        "https://docs.github.com/en/rest/search?apiVersion=2022-11-28",
                     title: `Failed to GitHub Search Request : ${name}`,
                     status: data.status ?? 500,
-                    detail: data.message ?? "Failed to get data from Github"
-                }
-                
+                    detail: data.message ?? "Failed to get data from Github",
+                };
+
                 throw errorResponse;
             }
-                
-        }
-        catch(error){
+        } catch (error) {
             console.error("Error : Github search failed", error);
             throw error;
         }
-
-    }
-
-
-
+    };
 }
-
-
 
 const searchClient = new SearchClient();
 export default searchClient;

@@ -1,80 +1,78 @@
 export interface GithubLanguageNode {
-    size: number,
-    node: { name: string }
+    size: number;
+    node: { name: string };
 }
-
 
 /**
  * @api /api/repos/languages
  */
 export interface GithubLanguageRepositoryNode {
-    name: string,
+    name: string;
     languages: {
-        totalSize: number,
-        edges: Array<GithubLanguageNode>
-    }
+        totalSize: number;
+        edges: Array<GithubLanguageNode>;
+    };
 }
 
 export interface GihhubCommitTimeHistoryNode {
-    committedDate: string
+    committedDate: string;
 }
 
-
 export interface GithubCommitTimeRepositoryNode {
-    name: string,
+    name: string;
     defaultBranchRef: {
         target: {
             history: {
-                nodes: Array<GihhubCommitTimeHistoryNode>
-            }
-        }
-    } | null
+                nodes: Array<GihhubCommitTimeHistoryNode>;
+            };
+        };
+    } | null;
 }
 
 export interface GithubProjectTopicsNode {
-    name: string,
+    name: string;
     repositoryTopics: {
         nodes: Array<{
             topic: {
-                name: string
-            }
-        }>
-    }
+                name: string;
+            };
+        }>;
+    };
 }
 
 export interface DevelopStatsNode {
     defaultBranchRef: {
         target: {
             history: {
-                nodes: Array<{ committedDate: string }>
-            }
-        }
-    } | null,
+                nodes: Array<{ committedDate: string }>;
+            };
+        };
+    } | null;
     languages: {
         edges: Array<{
-            node: { name: string }
-        }>
-    },
+            node: { name: string };
+        }>;
+    };
     repositoryTopics: {
         nodes: Array<{
-            topic: { name: string }
-        }>
-    }
+            topic: { name: string };
+        }>;
+    };
 }
 
 export interface ProjectLiveRateNode {
-    name: string,
-    createdAt: string,
-    pushedAt: string | null,
-    updatedAt: string,
-    isArchived: boolean,
-    isFork: boolean
+    name: string;
+    createdAt: string;
+    pushedAt: string | null;
+    updatedAt: string;
+    isArchived: boolean;
+    isFork: boolean;
 }
 
 export interface GithubRepoCommonResponse<T> {
     user: {
         repositories: {
-            nodes: Array<T>
-        }
-    }
+            nodes: Array<T>;
+        };
+    };
 }

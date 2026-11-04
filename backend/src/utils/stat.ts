@@ -5,7 +5,7 @@ import type {
     GithubProjectTopicsNode,
     GithubRepoCommonResponse,
     ProjectLiveRateNode,
-} from "../types/stat"
+} from "../types/stat";
 
 const languageColors: Record<string, string> = {
     TypeScript: "bg-[#3178c6]",
@@ -20,7 +20,17 @@ const languageColors: Record<string, string> = {
 
 const projectCategoryKeywords = {
     Frontend: ["frontend", "front-end", "react", "vue", "angular", "svelte", "ui", "css", "web"],
-    Backend: ["backend", "back-end", "api", "server", "express", "nestjs", "spring", "django", "fastapi"],
+    Backend: [
+        "backend",
+        "back-end",
+        "api",
+        "server",
+        "express",
+        "nestjs",
+        "spring",
+        "django",
+        "fastapi",
+    ],
     Game: ["game", "unity", "unreal", "godot"],
     AI: ["ai", "ml", "machine-learning", "deep-learning", "llm", "openai"],
     DevOps: ["devops", "docker", "kubernetes", "k8s", "terraform", "cloud", "ci-cd"],
@@ -102,7 +112,9 @@ const getNodes = <T>(response?: GithubRepoCommonResponse<T>) =>
 const roundPercent = (value: number, total: number) =>
     total > 0 ? Math.round((value / total) * 1000) / 10 : 0;
 
-export function calculateLanguageStats(response?: GithubRepoCommonResponse<GithubLanguageRepositoryNode>): LanguageStat[] {
+export function calculateLanguageStats(
+    response?: GithubRepoCommonResponse<GithubLanguageRepositoryNode>,
+): LanguageStat[] {
     const sizes = new Map<string, number>();
 
     getNodes(response).forEach((repository) => {
@@ -133,13 +145,14 @@ export interface CommitStats {
     weekdays: WeekdayStat[];
 }
 
-
-
-export function calculateCommitStats(response?: GithubRepoCommonResponse<GithubCommitTimeRepositoryNode>) : CommitStats {
-    const dates = getNodes(response).flatMap((repository) =>
-        repository.defaultBranchRef?.target.history.nodes
-            .map(({ committedDate }) => new Date(committedDate))
-            .filter((date) => !Number.isNaN(date.getTime())) ?? []
+export function calculateCommitStats(
+    response?: GithubRepoCommonResponse<GithubCommitTimeRepositoryNode>,
+): CommitStats {
+    const dates = getNodes(response).flatMap(
+        (repository) =>
+            repository.defaultBranchRef?.target.history.nodes
+                .map(({ committedDate }) => new Date(committedDate))
+                .filter((date) => !Number.isNaN(date.getTime())) ?? [],
     );
 
     const timeBuckets = [
@@ -167,7 +180,7 @@ export function calculateCommitStats(response?: GithubRepoCommonResponse<GithubC
         weekdays[day === 0 ? 6 : day - 1].count += 1;
     });
 
-    const peakHour = hours.reduce((best, count, hour) => count > hours[best] ? hour : best, 0);
+    const peakHour = hours.reduce((best, count, hour) => (count > hours[best] ? hour : best), 0);
     const maxWeekday = Math.max(...weekdays.map(({ count }) => count), 1);
 
     return {
@@ -187,9 +200,6 @@ export function calculateCommitStats(response?: GithubRepoCommonResponse<GithubC
     };
 }
 
-
-
-
 function findProjectCategory(values: string[]) {
     const normalized = values.map((value) => value.toLowerCase());
 
@@ -202,7 +212,9 @@ function findProjectCategory(values: string[]) {
     return "Other";
 }
 
-export function calculateProjectCategories(response?: GithubRepoCommonResponse<GithubProjectTopicsNode>): ProjectCategoryStat[] {
+export function calculateProjectCategories(
+    response?: GithubRepoCommonResponse<GithubProjectTopicsNode>,
+): ProjectCategoryStat[] {
     const counts = new Map<string, number>();
     const repositories = getNodes(response);
 
@@ -213,18 +225,22 @@ export function calculateProjectCategories(response?: GithubRepoCommonResponse<G
     });
 
     return [...counts.entries()]
-        .map(([name, count]) => ({ name, count, percent: roundPercent(count, repositories.length) }))
+        .map(([name, count]) => ({
+            name,
+            count,
+            percent: roundPercent(count, repositories.length),
+        }))
         .sort((a, b) => b.count - a.count);
 }
-
 
 export interface DeveloperProfileStats {
     profiles: DeveloperProfileStat[];
     traits: DeveloperTrait[];
 }
 
-
-export function calculateDeveloperProfile(response?: GithubRepoCommonResponse<DevelopStatsNode>) : DeveloperProfileStats {
+export function calculateDeveloperProfile(
+    response?: GithubRepoCommonResponse<DevelopStatsNode>,
+): DeveloperProfileStats {
     const repositories = getNodes(response);
     const scores = new Map<string, number>();
     const commitDates: Date[] = [];
@@ -234,9 +250,11 @@ export function calculateDeveloperProfile(response?: GithubRepoCommonResponse<De
         const topics = repository.repositoryTopics.nodes.map(({ topic }) => topic.name);
 
         languages.forEach((language) => {
-            Object.entries(developerLanguageWeights[language] ?? {}).forEach(([profile, weight]) => {
-                scores.set(profile, (scores.get(profile) ?? 0) + weight);
-            });
+            Object.entries(developerLanguageWeights[language] ?? {}).forEach(
+                ([profile, weight]) => {
+                    scores.set(profile, (scores.get(profile) ?? 0) + weight);
+                },
+            );
         });
 
         const topicCategory = findProjectCategory(topics);
@@ -252,7 +270,10 @@ export function calculateDeveloperProfile(response?: GithubRepoCommonResponse<De
 
     const totalScore = [...scores.values()].reduce((sum, score) => sum + score, 0);
     const profiles: DeveloperProfileStat[] = [...scores.entries()]
-        .map(([name, score]) => ({ name: `${name} Engineer`, percent: roundPercent(score, totalScore) }))
+        .map(([name, score]) => ({
+            name: `${name} Engineer`,
+            percent: roundPercent(score, totalScore),
+        }))
         .sort((a, b) => b.percent - a.percent);
 
     if (commitDates.length === 0) {
@@ -263,17 +284,32 @@ export function calculateDeveloperProfile(response?: GithubRepoCommonResponse<De
     const traits: DeveloperTrait[] = [];
 
     if (commitStats.nightPercent >= 35) {
-        traits.push({ title: "Night Owl Developer", detail: `Most active around ${formatHour(commitStats.peakHour)}` });
+        traits.push({
+            title: "Night Owl Developer",
+            detail: `Most active around ${formatHour(commitStats.peakHour)}`,
+        });
     } else if (commitStats.morningPercent >= 35) {
-        traits.push({ title: "Early Builder", detail: `Most active around ${formatHour(commitStats.peakHour)}` });
+        traits.push({
+            title: "Early Builder",
+            detail: `Most active around ${formatHour(commitStats.peakHour)}`,
+        });
     } else {
-        traits.push({ title: "Balanced Builder", detail: `Peak activity around ${formatHour(commitStats.peakHour)}` });
+        traits.push({
+            title: "Balanced Builder",
+            detail: `Peak activity around ${formatHour(commitStats.peakHour)}`,
+        });
     }
 
     traits.push(
         commitStats.weekendPercent >= 30
-            ? { title: "Weekend Builder", detail: `${commitStats.weekendPercent}% of commits occur on weekends` }
-            : { title: "Weekday Focused", detail: `${100 - commitStats.weekendPercent}% of commits occur on weekdays` }
+            ? {
+                  title: "Weekend Builder",
+                  detail: `${commitStats.weekendPercent}% of commits occur on weekends`,
+              }
+            : {
+                  title: "Weekday Focused",
+                  detail: `${100 - commitStats.weekendPercent}% of commits occur on weekdays`,
+              },
     );
 
     return { profiles, traits };
@@ -294,7 +330,7 @@ function calculateCommitStatsFromDates(dates: Date[]) {
     });
 
     return {
-        peakHour: hours.reduce((best, count, hour) => count > hours[best] ? hour : best, 0),
+        peakHour: hours.reduce((best, count, hour) => (count > hours[best] ? hour : best), 0),
         nightPercent: roundPercent(night, dates.length),
         morningPercent: roundPercent(morning, dates.length),
         weekendPercent: roundPercent(weekend, dates.length),
@@ -308,14 +344,17 @@ export function calculateProjectHealth(
     const projects = getNodes(response)
         .map((project): ProjectHealthItem => {
             const lastActivity = new Date(project.pushedAt ?? project.updatedAt);
-            const daysSincePush = Math.max(0, Math.floor((now.getTime() - lastActivity.getTime()) / 86_400_000));
+            const daysSincePush = Math.max(
+                0,
+                Math.floor((now.getTime() - lastActivity.getTime()) / 86_400_000),
+            );
             const status: ProjectStatus = project.isArchived
                 ? "Archived"
                 : daysSincePush <= 30
-                    ? "Active"
-                    : daysSincePush > 180
-                        ? "Dormant"
-                        : "Idle";
+                  ? "Active"
+                  : daysSincePush > 180
+                    ? "Dormant"
+                    : "Idle";
 
             return {
                 ...project,

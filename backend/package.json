@@ -9,7 +9,8 @@
     "start": "node dist/app.js",
     "build": "tsc",
     "dev": "nodemon --watch src --ext ts,tsx,json --exec ts-node src/app.ts",
-    "dev-kill": "npx kill-port 3000"
+    "dev-kill": "npx kill-port 3000",
+    "format": "prettier --write src"
   },
   "keywords": [],
   "author": "",

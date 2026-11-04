@@ -1,14 +1,17 @@
 import type { RenderLocale } from "./RenderLocale";
 
-export const locale: Record<RenderLocale, {
-    eyebrow: string;
-    title: string;
-    detail: string;
-    period: string;
-    totalCommits: string;
-    peakCommits: string;
-    peakDay: string;
-}> = {
+export const locale: Record<
+    RenderLocale,
+    {
+        eyebrow: string;
+        title: string;
+        detail: string;
+        period: string;
+        totalCommits: string;
+        peakCommits: string;
+        peakDay: string;
+    }
+> = {
     en: {
         eyebrow: "DAILY VOLUME",
         title: "All commits by date",

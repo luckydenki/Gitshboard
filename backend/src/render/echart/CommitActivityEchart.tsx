@@ -67,19 +67,17 @@ export const chart = (
     const dates = commitActivity.commitOccuredAt.slice(0, dataLength);
     const commitCounts = commitActivity.commitCounts.slice(0, dataLength);
     const peak = commitCounts.reduce(
-        (currentPeak, count, index) => count > currentPeak.count
-            ? { count, index }
-            : currentPeak,
+        (currentPeak, count, index) => (count > currentPeak.count ? { count, index } : currentPeak),
         { count: 0, index: -1 },
     );
     const peakDay = peak.index >= 0 ? dates[peak.index] : undefined;
     const dateRange = `${formatDate(from, renderLocale)} - ${formatDate(to, renderLocale)}`;
     const cardInset = Math.min(24, Math.max(10, Math.round(Math.min(width, height) * 0.055)));
-    const cardWidth = Math.max(0, width - (cardInset * 2));
-    const cardHeight = Math.max(0, height - (cardInset * 2));
+    const cardWidth = Math.max(0, width - cardInset * 2);
+    const cardHeight = Math.max(0, height - cardInset * 2);
     const headerLeft = cardInset + 30;
     const metricWidth = 104;
-    const metricsLeft = Math.max(headerLeft + 260, width - cardInset - (metricWidth * 3) - 30);
+    const metricsLeft = Math.max(headerLeft + 260, width - cardInset - metricWidth * 3 - 30);
     const xAxisInterval = Math.max(0, Math.ceil(dates.length / 6) - 1);
 
     return {
@@ -95,7 +93,11 @@ export const chart = (
                 type: "text",
                 left: headerLeft,
                 top: 54,
-                style: { text: copy.eyebrow, fill: colors.mutedText, font: "600 11px Arial, sans-serif" },
+                style: {
+                    text: copy.eyebrow,
+                    fill: colors.mutedText,
+                    font: "600 11px Arial, sans-serif",
+                },
             },
             {
                 type: "text",
@@ -117,11 +119,15 @@ export const chart = (
                 type: "text",
                 left: headerLeft,
                 top: 135,
-                style: { text: `${copy.period}  ${dateRange}`, fill: colors.mutedText, font: "600 10px Arial, sans-serif" },
+                style: {
+                    text: `${copy.period}  ${dateRange}`,
+                    fill: colors.mutedText,
+                    font: "600 10px Arial, sans-serif",
+                },
             },
             metric(metricsLeft, copy.totalCommits, String(commitActivity.total)),
             metric(metricsLeft + metricWidth, copy.peakCommits, String(peak.count)),
-            metric(metricsLeft + (metricWidth * 2), copy.peakDay, formatDate(peakDay, renderLocale)),
+            metric(metricsLeft + metricWidth * 2, copy.peakDay, formatDate(peakDay, renderLocale)),
         ],
         grid: {
             top: 184,
@@ -154,13 +160,15 @@ export const chart = (
             axisLabel: { color: colors.mutedText, fontSize: 11 },
             splitLine: { lineStyle: { color: colors.grid } },
         },
-        series: [{
-            name: "Commits",
-            type: "bar",
-            barMaxWidth: 26,
-            data: commitCounts,
-            itemStyle: { color: colors.accent, borderRadius: [7, 7, 0, 0] },
-            emphasis: { disabled: true },
-        }],
+        series: [
+            {
+                name: "Commits",
+                type: "bar",
+                barMaxWidth: 26,
+                data: commitCounts,
+                itemStyle: { color: colors.accent, borderRadius: [7, 7, 0, 0] },
+                emphasis: { disabled: true },
+            },
+        ],
     };
 };

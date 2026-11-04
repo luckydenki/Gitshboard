@@ -3,34 +3,31 @@ import { AuthRequest } from "../types/middlewares/auth";
 import { CommonResponse } from "../types/middlewares/common";
 import { Response } from "express";
 
-
-
 class ContributionController {
-
-
-    public getCommitActivity = async (req: AuthRequest, res : Response) => {
-
+    public getCommitActivity = async (req: AuthRequest, res: Response) => {
         try {
-            const github_token = req.user?.githubAccessToken
-            const username = req.user?.githubUsername
+            const github_token = req.user?.githubAccessToken;
+            const username = req.user?.githubUsername;
             const from = req.query.from as string;
             const to = req.query.to as string;
 
+            const data = await contributionService.getCommitActivity(
+                github_token,
+                username,
+                from,
+                to,
+            );
 
-            const data = await contributionService.getCommitActivity(github_token, username, from, to);
-            
             //typeof data -> data의 타입이 꽤 자주 변할 수가 있기 때문에 의존성을 줄이려고 의도적으로 사용함.
             const response: CommonResponse<typeof data> = {
                 success: true,
                 status: 200,
-                data: data
-            }
+                data: data,
+            };
 
-           // console.log("contribute data", data);
+            // console.log("contribute data", data);
             res.status(200).json(response);
-
-        }
-        catch (error : any) {
+        } catch (error: any) {
             console.error("Error in /commitActivity route:", error);
 
             if (error instanceof Error) {
@@ -39,31 +36,24 @@ class ContributionController {
                     title: "GitHub API Error",
                     status: 500,
                     detail: error.message,
-                    instance: "/graphql"
-                }
+                    instance: "/graphql",
+                };
                 return res.status(500).json(errorResponse);
-            }
-            else if('status' in error){
+            } else if ("status" in error) {
                 return res.status(error.status).json(error);
-            }
-
-            else{
+            } else {
                 const errorResponse = {
                     type: "https://docs.github.com/en/graphql/overview/explorer",
                     title: "GitHub API Error",
                     status: 500,
                     detail: "알 수 없는 오류가 발생했습니다.",
-                    instance: "/graphql"
-                }
+                    instance: "/graphql",
+                };
                 return res.status(500).json(errorResponse);
             }
-  
         }
-
-    }
+    };
 }
-
-
 
 const contributionController = new ContributionController();
 export default contributionController;
