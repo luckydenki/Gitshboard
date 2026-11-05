@@ -1,6 +1,6 @@
 import type { Route } from "../+types/root";
 import MainLogo from "../components/page/home/MainLogo";
-import HomeSearchBar from "../components/page/home/SearchBar";
+import SearchBar from "../components/page/home/SearchBar";
 import HomeBoardList from "../components/page/home/HomeBoardList";
 import useChangeLogRSS from "../hooks/useChangeLogRSS";
 import GitHubBlogBanner from "~/components/page/home/GitHubBlogBanner";
@@ -24,7 +24,7 @@ export default function Home() {
         <main className="flex flex-col items-center gap-4 py-32 [grid-area:main] [&>section]:items-center">
             <section className="relative flex w-full flex-col pb-12">
                 <MainLogo />
-                <HomeSearchBar />
+                <SearchBar />
             </section>
             <section className="flex flex-col gap-12">
                 <GitHubBlogBanner />
