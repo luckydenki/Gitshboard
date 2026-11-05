@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { CommonResponse } from "~/types/common/common";
 
-interface GitHubBlogPost {
+export interface GitHubBlogPost {
     id: string;
     title: string;
     publishedAt: string;
