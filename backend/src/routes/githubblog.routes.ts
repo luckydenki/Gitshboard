@@ -188,4 +188,73 @@ githubblog_router.get("/blog", async (req, res) => {
     }
 });
 
+interface WordPressFeaturedMedia {
+    source_url?: string;
+}
+
+interface WordPressBlogPost {
+    link: string;
+    jetpack_featured_media_url?: string;
+    _embedded?: {
+        "wp:featuredmedia"?: WordPressFeaturedMedia[];
+    };
+}
+interface BlogThumbnail {
+    url: string;
+    thumbnailUrl: string | null; //derived
+}
+
+githubblog_router.get("/blog/thumbnails", async (req, res) => {
+    try {
+        const cached_thumbnails = await redisClient.get("githubblog:thumbnails");
+
+        if (cached_thumbnails) {
+            const commonResponse: CommonResponse<typeof cached_thumbnails> = {
+                status: 200,
+                success: true,
+                data: JSON.parse(cached_thumbnails),
+            };
+            res.json(commonResponse);
+            return;
+        }
+
+        const response = await fetch(
+            "https://github.blog/wp-json/wp/v2/posts?per_page=10&orderby=date&order=desc&_embed=wp:featuredmedia",
+        ); //WordPress Json
+
+        if (response.ok) {
+            const posts: WordPressBlogPost[] = await response.json();
+
+            const data: BlogThumbnail[] = posts.map((e) => ({
+                url: e.link,
+                thumbnailUrl:
+                    e._embedded?.["wp:featuredmedia"]?.[0]?.source_url ??
+                    e.jetpack_featured_media_url ??
+                    null,
+            }));
+
+            console.log("data : ", data);
+
+            const commonResponse: CommonResponse<BlogThumbnail[]> = {
+                status: 200,
+                success: true,
+                data: data,
+            };
+
+            redisClient.set("githubblog:thumbnails", JSON.stringify(data));
+
+            res.json(commonResponse);
+        } else {
+            throw new CommonError({
+                status: 500,
+                title: "블로그 썸네일 응답 오류",
+                detail: "블로그 썸네일의 응답이 모종의 이유로 정상적이지 못합니다.",
+                type: "",
+            });
+        }
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
 export default githubblog_router;

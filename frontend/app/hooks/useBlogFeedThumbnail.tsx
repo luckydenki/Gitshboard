@@ -1,17 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import CommonError from "~/utils/common/common-error";
 
-interface WordPressFeaturedMedia {
-    source_url?: string;
-}
-
-interface WordPressBlogPost {
-    link: string;
-    jetpack_featured_media_url?: string;
-    _embedded?: {
-        "wp:featuredmedia"?: WordPressFeaturedMedia[];
-    };
-}
+import type { CommonResponse } from "~/types/common/common";
 
 interface BlogThumbnail {
     url: string;
@@ -29,30 +18,16 @@ export default function useBlogFeedThumbnail() {
         queryKey: ["blogThumbNail"],
         queryFn: async () => {
             try {
-                const res = await fetch(
-                    "https://github.blog/wp-json/wp/v2/posts?per_page=10&orderby=date&order=desc&_embed=wp:featuredmedia",
-                ); //WordPress Json
+                const res = await fetch("/api/githubblog/blog/thumbnails"); //WordPress Json
+                const json = await res.json();
 
-                if (res.ok) {
-                    const posts: WordPressBlogPost[] = await res.json();
-
-                    const data: BlogThumbnail[] = posts.map((e) => ({
-                        url: e.link,
-                        thumbnailUrl:
-                            e._embedded?.["wp:featuredmedia"]?.[0]?.source_url ??
-                            e.jetpack_featured_media_url ??
-                            null,
-                    }));
-
-                    return data;
-                } else {
-                    throw new CommonError({
-                        status: 500,
-                        title: "블로그 썸네일 응답 오류",
-                        detail: "블로그 썸네일의 응답이 모종의 이유로 정상적이지 못합니다.",
-                        type: "",
-                    });
+                if (!res.ok) {
+                    throw json;
                 }
+
+                const thumbnaildata = json as CommonResponse<BlogThumbnail[]>;
+
+                return thumbnaildata.data;
             } catch (error) {
                 console.error("[useBlogFeedThumbnail] error :", error);
             }
