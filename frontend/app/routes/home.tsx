@@ -29,7 +29,7 @@ export default function Home() {
             <section className="flex flex-col gap-12">
                 <GitHubBlogBanner />
 
-                <section className={"grid gap-8 [grid-area:section] lg:grid-cols-2"}>
+                <section className={"grid w-full gap-8 [grid-area:section] lg:grid-cols-2"}>
                     <HomeBoardList
                         boardTitle="깃허브 ChangeLog"
                         data={data ?? []}
