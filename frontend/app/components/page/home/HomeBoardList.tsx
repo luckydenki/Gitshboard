@@ -72,7 +72,7 @@ export default function HomeBoardList({ boardTitle, data }: HomeBoardListProps) 
                 <h1 className="text-lg font-semibold">{boardTitle}</h1> <a href="#"> 더보기 </a>
             </div>
             {data.length > 0 ? (
-                <ul className="[&>li]:border-border-light bg-panel rounded-lg px-4 py-4 [&>li]:flex [&>li]:justify-between [&>li]:gap-4 [&>li]:border-b [&>li]:py-2">
+                <ul className="[&>li]:border-border-light bg-panel w-full rounded-lg px-4 py-4 [&>li]:flex [&>li]:justify-between [&>li]:gap-4 [&>li]:border-b [&>li]:py-2">
                     {data.map((value, idx) => {
                         return (
                             <BoardListItem
