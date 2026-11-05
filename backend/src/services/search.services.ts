@@ -28,12 +28,9 @@ class SearchService {
                 throw errorResponse;
             }
 
-            const search_res = await searchClient.search(
-                name,
-                parseInt(page),
-                parseInt(per_page),
+            const search_res = await searchClient.search(name, parseInt(page), parseInt(per_page), {
                 github_token,
-            );
+            });
             return search_res;
         } catch (error) {
             console.error("Error : Github search failed", error);
