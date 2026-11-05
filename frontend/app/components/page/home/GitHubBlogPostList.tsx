@@ -1,4 +1,37 @@
 import type { GitHubBlogPost } from "~/hooks/useBlogFeedRSS";
+import GitHubBlogPostItemLayout from "./GitHubBlogPostItemLayout";
+
+const postGridClassName = "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5";
+
+export const GitHubBlogPostListSkeleton = ({ count }: { count: number }) => {
+    return (
+        <>
+            <p
+                role="status"
+                className="sr-only">
+                블로그 글을 불러오는 중입니다.
+            </p>
+            <ul
+                aria-hidden="true"
+                className={`${postGridClassName} motion-safe:animate-pulse`}>
+                {Array.from({ length: count }, (_, index) => (
+                    <GitHubBlogPostItemLayout
+                        key={index}
+                        thumbnail={<div className="h-full w-full bg-gray-200" />}
+                        categories={<li className="h-5 w-16 rounded-full bg-gray-200" />}
+                        title={<span className="block h-5 w-4/5 rounded bg-gray-200" />}
+                        metadata={
+                            <>
+                                <span className="h-4 w-20 rounded bg-gray-200" />
+                                <span className="h-4 w-16 rounded bg-gray-200" />
+                            </>
+                        }
+                    />
+                ))}
+            </ul>
+        </>
+    );
+};
 
 export const GitHubBlogPostItem = ({ post }: { post: GitHubBlogPost }) => {
     return (
@@ -58,7 +91,7 @@ export const GitHubBlogPostItem = ({ post }: { post: GitHubBlogPost }) => {
 
 export default function GitHubBlogPostList({ visiblePosts }: { visiblePosts: GitHubBlogPost[] }) {
     return (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <ul className={postGridClassName}>
             {visiblePosts.map((post) => (
                 <GitHubBlogPostItem
                     key={post.id}

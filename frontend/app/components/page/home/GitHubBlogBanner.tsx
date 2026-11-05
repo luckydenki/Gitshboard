@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useBlogFeedRSS from "~/hooks/useBlogFeedRSS";
+import GitHubBlogPostList, { GitHubBlogPostListSkeleton } from "./GitHubBlogPostList";
 import useBlogFeedThumbnail from "~/hooks/useBlogFeedThumbnail";
-import GitHubBlogPostList from "./GitHubBlogPostList";
 const PAGE_SIZE = 5;
 
 interface GitHubBlogPaginationProps {
@@ -46,18 +46,23 @@ export default function GitHubBlogBanner() {
     const { data: blogPosts, isLoading } = useBlogFeedRSS(true);
     const { data: thumbnails } = useBlogFeedThumbnail();
 
-    if (!blogPosts || isLoading) {
+    if (!blogPosts && !isLoading) {
         return;
     }
-    if (thumbnails) {
+    if (blogPosts && thumbnails) {
         thumbnails.forEach((v, idx) => {
-            blogPosts[idx].thumbnailUrl = v.thumbnailUrl;
+            const post = blogPosts[idx];
+            if (post) {
+                post.thumbnailUrl = v.thumbnailUrl;
+            }
         });
     }
 
-    const visiblePosts = blogPosts.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE);
+    const visiblePosts = blogPosts?.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE) ?? [];
+    const postCount = blogPosts?.length ?? 0;
+
     const hasPreviousPage = pageIndex > 0;
-    const hasNextPage = (pageIndex + 1) * PAGE_SIZE < blogPosts.length;
+    const hasNextPage = (pageIndex + 1) * PAGE_SIZE < postCount;
 
     return (
         <section
@@ -73,7 +78,7 @@ export default function GitHubBlogBanner() {
                     </h3>
                 </div>
 
-                {blogPosts.length > PAGE_SIZE && (
+                {postCount > PAGE_SIZE && (
                     <GitHubBlogPagination
                         hasPreviousPage={hasPreviousPage}
                         hasNextPage={hasNextPage}
@@ -83,7 +88,11 @@ export default function GitHubBlogBanner() {
                 )}
             </header>
 
-            <GitHubBlogPostList visiblePosts={visiblePosts} />
+            {isLoading ? (
+                <GitHubBlogPostListSkeleton count={PAGE_SIZE} />
+            ) : (
+                <GitHubBlogPostList visiblePosts={visiblePosts} />
+            )}
         </section>
     );
 }
