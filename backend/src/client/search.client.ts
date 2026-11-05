@@ -23,18 +23,24 @@ interface GithubSearchErrorResponse {
 
 class SearchClient {
     public search = async (
-        name: string,
+        q: string,
         page: number,
         per_page: number,
-        github_token?: string,
+        options?: {
+            type?: "user" | "org";
+            languages?: string;
+            locations?: string;
+            github_token?: string;
+        },
     ): Promise<GithubUserSearchResponse> => {
         try {
             const params = new URLSearchParams({
-                q: name,
+                q: q,
                 page: page.toString(),
                 per_page: per_page.toString(),
             });
 
+            const github_token = options?.github_token;
             console.log("github_token : ", github_token);
 
             const headers: HeadersInit = {
