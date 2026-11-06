@@ -81,15 +81,15 @@ export default function Trend() {
                     </label>
                 </section>
 
-                <div className="flex min-w-0 items-start gap-6 not-xl:flex-col">
+                <div className="flex min-w-0 flex-col gap-6">
                     <section
                         aria-labelledby="trending-repositories-title"
-                        className="bg-panel min-w-0 flex-[2] rounded-lg border-1 border-gray-300 p-6 not-xl:w-full">
+                        className="bg-panel min-w-0 rounded-lg border border-gray-300 p-6">
                         <div className="flex flex-wrap items-end justify-between gap-3 pb-5">
                             <div className="flex flex-col gap-1">
                                 <h2
                                     id="trending-repositories-title"
-                                    className="text-xl font-bold sm:text-2xl">
+                                    className="text-lg font-bold sm:text-xl">
                                     주목받는 프로젝트
                                 </h2>
                                 <p className="text-sm text-gray-500">
@@ -164,11 +164,11 @@ export default function Trend() {
 
                     <section
                         aria-labelledby="trending-developers-title"
-                        className="bg-panel min-w-80 flex-1 rounded-lg border-1 border-gray-300 p-6 not-xl:w-full not-xl:min-w-0">
+                        className="bg-panel min-w-0 rounded-lg border border-gray-300 p-6">
                         <div className="flex flex-col gap-1 pb-5">
                             <h2
                                 id="trending-developers-title"
-                                className="text-xl font-bold sm:text-2xl">
+                                className="text-lg font-bold sm:text-xl">
                                 주목받는 개발자
                             </h2>
                             <p className="text-sm text-gray-500">
