@@ -30,7 +30,7 @@ export default function SearchItemLayout({
     children,
 }: SearchItemLayoutProps) {
     return (
-        <article className="bg-panel relative flex w-full items-center gap-4 rounded-lg border border-gray-300 p-4 not-sm:flex-wrap not-sm:items-start">
+        <article className="bg-panel relative flex w-full items-center gap-4 rounded-lg border border-gray-300 p-4 hover:outline hover:outline-primary not-sm:flex-wrap not-sm:items-start">
             <img
                 src={avatarUrl}
                 alt={avatarAlt}
@@ -75,7 +75,7 @@ export default function SearchItemLayout({
                 href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary relative z-10 flex shrink-0 items-center justify-center gap-1 rounded-lg p-2 text-sm font-medium">
+                className="text-primary relative z-10 flex shrink-0 items-center justify-center gap-1 rounded-lg p-2 text-sm font-medium hover:underline">
                 GitHub에서 보기 <FiExternalLink aria-hidden="true" />
             </a>
         </article>
