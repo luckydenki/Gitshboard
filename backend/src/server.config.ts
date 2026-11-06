@@ -1,0 +1,2 @@
+export const GITHUB_REST_API_VERSION = "2022-11-28";
+export const GITHUB_REST_NEW_API_VERSION = "2026-03-10";
