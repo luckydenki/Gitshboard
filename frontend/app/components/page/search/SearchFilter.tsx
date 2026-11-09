@@ -1,26 +1,30 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { BsFilterCircle, BsFilterCircleFill } from "react-icons/bs";
-import type { SearchChoiceOptions, SearchChoiceOptionsKeyType } from "../home/SearchBar";
+import type {
+    ISearchFilterCategory,
+    SearchChoiceOptions,
+    SearchChoiceOptionsKeyType,
+} from "../home/SearchBar";
 
 const typeFilterOptions = [
-    { label: "전체", value: "all", name: "type", defaultChecked: true },
+    { label: "전체", value: "", name: "type", defaultChecked: true },
     { label: "개인", value: "user", name: "type" },
     { label: "레포지토리", value: "org", name: "type" },
 ];
 
 const languageFilterOptions = [
-    { label: "전체", value: "all", name: "languages", defaultChecked: true },
-    { label: "C", value: "C", name: "languages" },
-    { label: "C++", value: "C++", name: "languages" },
-    { label: "Java", value: "Java", name: "languages" },
-    { label: "Kotlin", value: "Kotlin", name: "languages" },
-    { label: "Javascript", value: "Javascript", name: "languages" },
-    { label: "Typescript", value: "Typescript", name: "languages" },
-    { label: "C#", value: "C#", name: "languages" },
-    { label: "Python", value: "Python", name: "languages" },
-    { label: "Go", value: "Go", name: "languages" },
-    { label: "PHP", value: "PHP", name: "languages" },
-    { label: "Ruby", value: "Ruby", name: "languages" },
+    { label: "전체", value: "", name: "language", defaultChecked: true },
+    { label: "C", value: "C", name: "language" },
+    { label: "C++", value: "C++", name: "language" },
+    { label: "Java", value: "Java", name: "language" },
+    { label: "Kotlin", value: "Kotlin", name: "language" },
+    { label: "Javascript", value: "Javascript", name: "language" },
+    { label: "Typescript", value: "Typescript", name: "language" },
+    { label: "C#", value: "C#", name: "language" },
+    { label: "Python", value: "Python", name: "language" },
+    { label: "Go", value: "Go", name: "language" },
+    { label: "PHP", value: "PHP", name: "language" },
+    { label: "Ruby", value: "Ruby", name: "language" },
 ];
 
 const FilterOpenButton = ({
@@ -82,9 +86,11 @@ const FilterOptionRadio = ({
 
 export default function SearchFilter({
     choice,
+    category,
     choiceHandler,
 }: {
     choice: SearchChoiceOptions;
+    category: ISearchFilterCategory;
     choiceHandler: (key: SearchChoiceOptionsKeyType, value: string) => void;
 }) {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -102,9 +108,9 @@ export default function SearchFilter({
                             {"type:" + choice.type}
                         </li>
                     )}
-                    {choice.languages && (
+                    {choice.language && (
                         <li className="flex items-center rounded-full border px-2">
-                            {"language:" + choice.languages}
+                            {"language:" + choice.language}
                         </li>
                     )}
                     {choice.location && (
@@ -117,7 +123,7 @@ export default function SearchFilter({
             <div
                 className={
                     isFilterOpen
-                        ? `bg-panel/30 absolute flex w-full flex-col gap-3 rounded-lg px-3 py-4 backdrop-blur-sm`
+                        ? `bg-panel/30 absolute z-1 flex w-full flex-col gap-3 rounded-lg px-3 py-4 backdrop-blur-sm`
                         : `hidden`
                 }>
                 <fieldset
@@ -141,7 +147,7 @@ export default function SearchFilter({
                     className="flex flex-wrap gap-4 **:appearance-none"
                     onClick={(e) => {
                         if (e.target instanceof HTMLInputElement) {
-                            choiceHandler("languages", e.target.value);
+                            choiceHandler("language", e.target.value);
                         }
                     }}>
                     <legend className="mb-2 font-semibold"> 언어 </legend>
@@ -159,28 +165,30 @@ export default function SearchFilter({
                             className="outline-primary mr-2 rounded-full px-4 py-1 outline-1 focus:outline-2"
                             placeholder="languages"
                             onChange={(e) => {
-                                choiceHandler("languages", e.target.value);
+                                choiceHandler("language", e.target.value);
                             }}
                         />
                     </label>
                 </fieldset>
 
-                <div className="flex flex-col">
-                    <label
-                        className="mb-2 font-semibold"
-                        htmlFor="combobox-languages">
-                        지역
-                    </label>
-                    <input
-                        placeholder="지역을 입력하세요"
-                        id="locations"
-                        name="locations"
-                        className="outline-primary h-8 w-sm rounded-lg px-2 py-1 outline-1 focus:outline-2"
-                        onChange={(e) => {
-                            choiceHandler("location", e.target.value);
-                        }}
-                    />
-                </div>
+                {category.value === "users" && (
+                    <div className="flex flex-col">
+                        <label
+                            className="mb-2 font-semibold"
+                            htmlFor="combobox-languages">
+                            지역
+                        </label>
+                        <input
+                            placeholder="지역을 입력하세요"
+                            id="locations"
+                            name="locations"
+                            className="outline-primary h-8 w-sm rounded-lg px-2 py-1 outline-1 focus:outline-2"
+                            onChange={(e) => {
+                                choiceHandler("location", e.target.value);
+                            }}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );
