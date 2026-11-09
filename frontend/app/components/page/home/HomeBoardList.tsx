@@ -65,7 +65,7 @@ export default function HomeBoardList({ boardTitle, data }: HomeBoardListProps) 
         }
     }
 
-    console.log("[HomeBoardList] data ", data);
+    //console.log("[HomeBoardList] data ", data);
     return (
         <div className="animate-fadeIn flex h-full w-full flex-col gap-2">
             <div className="flex justify-between">
