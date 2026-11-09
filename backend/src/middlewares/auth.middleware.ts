@@ -10,7 +10,7 @@ import { CommonErrorResponse } from "../types/middlewares/common";
 import CommonError from "../utils/common-error";
 
 /**
- * JWT 토큰을 검증하여 인증된 사용자임을 확인하는 미들웨어
+ * JWT 토큰(우리 서버용 토큰)을 검증하여 인증된 사용자임을 확인하는 미들웨어
  * 성공시 Request객체에 decoded_token에 userId와 githubId를 추가하여 다음 미들웨어로 넘긴다.
  *
  * 실패시 401을 반환하여 실패처리 한다.
