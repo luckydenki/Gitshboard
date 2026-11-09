@@ -9,7 +9,7 @@ interface RepositorySearchLicense {
 }
 
 /** GET /api/search/repositories의 응답에 포함된 저장소입니다. */
-interface RepositorySearchItem {
+export interface RepositorySearchItem {
     id: number; // 저장소 ID
     name: string; // 저장소 이름
     full_name: string; // 소유자를 포함한 저장소 이름
