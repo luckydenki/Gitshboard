@@ -4,10 +4,15 @@ import SearchRepoItem from "~/components/page/search/SearchRepoItem";
 import SearchResultHeader from "~/components/page/search/SearchResultHeader";
 import type { SearchResultResponse } from "~/types/search/search-result";
 import { searchResponseMock } from "~/mock/search/search-response";
+import { useSearchParams } from "react-router";
 
 export default function Search() {
     const searchResponse: SearchResultResponse = searchResponseMock;
     const { items: data, total_count } = searchResponse;
+
+    const params = useSearchParams();
+
+    console.log(params);
 
     return (
         <>
