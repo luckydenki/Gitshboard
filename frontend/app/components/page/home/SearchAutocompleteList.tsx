@@ -52,11 +52,15 @@ const SearchAutoCompleteRepoItem = ({
 }: {
     e: RepositorySearchItem;
     dayString: string;
-    refCallback: (e: HTMLAnchorElement) => void;
+    refCallback: (e: HTMLButtonElement) => void;
 }) => {
+    const navigate = useNavigate();
     return (
-        <Link
-            to={`../repo/${e.name.split("/")[0]}`}
+        <button
+            type="button"
+            onClick={() => {
+                navigate(`../repo/${e.name.split("/")[0]}`);
+            }}
             ref={refCallback}
 
             key={e.id}
@@ -74,10 +78,13 @@ const SearchAutoCompleteRepoItem = ({
             </div>
             <a
                 className="text-primary flex h-full items-center text-sm hover:underline"
+                onClick={(element) => {
+                    element.stopPropagation();
+                }}
                 href={e.html_url}>
                 Github
             </a>
-        </Link>
+        </button>
     );
 };
 
