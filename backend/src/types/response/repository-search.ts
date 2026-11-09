@@ -1,13 +1,13 @@
 import type {
-    GitHubRepositorySearchItem,
-    GitHubRepositorySearchResponse,
+    GithubSearchReposItem,
+    GithubSearchReposResponse,
 } from "../github/rest/repository-search";
 
 /**
- * GET /api/search/repositories가 반환하는 저장소 항목입니다.
+ * GET /api/search/repos가 반환하는 저장소 항목입니다.
  */
 type RepositorySearchItem = Pick<
-    GitHubRepositorySearchItem,
+    GithubSearchReposItem,
     | "id" // 저장소 ID
     | "name" // 저장소 이름
     | "full_name" // 소유자를 포함한 저장소 이름
@@ -21,20 +21,21 @@ type RepositorySearchItem = Pick<
     | "license" // 라이선스 정보
 > & {
     owner: Pick<
-        GitHubRepositorySearchItem["owner"],
+        NonNullable<GithubSearchReposItem["owner"]>,
         | "login" // 소유 계정 로그인명
         | "avatar_url" // 소유 계정 아바타 URL
         | "html_url" // 소유 계정 프로필 URL
-        | "type" // 소유 계정 유형
-    >;
+    > & {
+        type: "User" | "Organization"; // 소유 계정 유형
+    };
 };
 
 /**
- * GET /api/search/repositories의 응답 데이터입니다.
+ * GET /api/search/repos의 응답 데이터입니다.
  * total_count는 전체 검색 결과 수, incomplete_results는 검색 결과의 불완전 여부입니다.
  */
 export type RepositorySearchData = Pick<
-    GitHubRepositorySearchResponse,
+    GithubSearchReposResponse,
     "total_count" | "incomplete_results"
 > & {
     items: RepositorySearchItem[]; // 요청 페이지의 저장소 목록

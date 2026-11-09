@@ -1,15 +1,17 @@
 import { Router } from "express";
+import { Octokit } from "@octokit/rest";
 import { checkToken, checkUser } from "../middlewares/auth.middleware";
 import searchController from "../controllers/search.controllers";
+import { GITHUB_REST_API_VERSION } from "../server.config";
 import CommonError from "../utils/common-error";
-import type { GitHubUserSearchResponse } from "../types/github/rest/user-search";
 import type { CommonErrorResponse, CommonResponse } from "../types/middlewares/common";
 import type { UserSearchData } from "../types/response/user-search";
 
-import type { GitHubRepositorySearchResponse } from "../types/github/rest/repository-search";
 import type { RepositorySearchData } from "../types/response/repository-search";
 
 const search_router = Router();
+const octokit = new Octokit();
+const githubRestHeaders = { "X-GitHub-Api-Version": GITHUB_REST_API_VERSION };
 
 search_router.get("/health", (req, res) => {
     res.json({ message: "Search route is working!" });
@@ -59,30 +61,65 @@ search_router.get("/", checkToken, checkUser, searchController.search);
  *   items[].name, email - GitHub가 제공하는 공개 이름과 이메일.
  *   items[].type, user_view_type - 계정 유형과 GitHub가 제공하는 공개 범위.
  *
+ * @error [400] : 검색어, 페이지 또는 정렬 옵션이 잘못된 경우.
  * @error [500] : GitHub 요청 실패 또는 응답 JSON 읽기 실패.
  */
 const search_users = search_router.get("/users", async (req, res) => {
     console.log("search호출");
     try {
-        const { searchParams } = new URL(req.originalUrl, "http://localhost");
+        const { q, page = "1", per_page = "30", sort, order } = req.query;
 
-        const response = await fetch(
-            `https://api.github.com/search/users?${searchParams.toString()}`,
-            {
-                method: "GET",
-            },
-        );
-
-        if (!response.ok) {
-            throw new CommonError({
-                status: 500,
-                title: "검색 실패",
-                type: "몰라",
-                detail: "알 수 없는 이유로 github api의 검색이 실패되었습니다.",
-            });
+        if (typeof q !== "string" || !q.trim()) {
+            throw CommonError.create400Error("검색어를 입력해 주세요.");
+        }
+        if (
+            typeof page !== "string" ||
+            !/^\d+$/.test(page) ||
+            !Number.isSafeInteger(Number(page)) ||
+            Number(page) < 1
+        ) {
+            throw CommonError.create400Error("페이지 번호는 1 이상의 정수여야 합니다.");
+        }
+        if (
+            typeof per_page !== "string" ||
+            !/^\d+$/.test(per_page) ||
+            Number(per_page) < 1 ||
+            Number(per_page) > 100
+        ) {
+            throw CommonError.create400Error("페이지당 결과 수는 1부터 100까지의 정수여야 합니다.");
+        }
+        if (
+            sort !== undefined &&
+            sort !== "followers" &&
+            sort !== "repositories" &&
+            sort !== "joined"
+        ) {
+            throw CommonError.create400Error("지원하지 않는 사용자 검색 정렬 기준입니다.");
+        }
+        if (order !== undefined && order !== "asc" && order !== "desc") {
+            throw CommonError.create400Error("정렬 방향은 asc 또는 desc여야 합니다.");
         }
 
-        const json: GitHubUserSearchResponse = await response.json();
+        const { data: json } = await octokit.rest.search
+            .users({
+                q,
+                page: Number(page),
+                per_page: Number(per_page),
+                sort,
+                order,
+                headers: githubRestHeaders,
+            })
+            .catch((error: unknown) => {
+                if (error instanceof Error && "response" in error && error.response) {
+                    throw new CommonError({
+                        status: 500,
+                        title: "검색 실패",
+                        type: "몰라",
+                        detail: "알 수 없는 이유로 github api의 검색이 실패되었습니다.",
+                    });
+                }
+                throw error;
+            });
 
         const commonResponse: CommonResponse<UserSearchData> = {
             status: 200,
@@ -97,7 +134,7 @@ const search_users = search_router.get("/users", async (req, res) => {
                     html_url: item.html_url,
                     name: item.name,
                     email: item.email,
-                    type: item.type,
+                    type: item.type as UserSearchData["items"][number]["type"],
                     user_view_type: item.user_view_type,
                 })),
             },
@@ -121,8 +158,8 @@ const search_users = search_router.get("/users", async (req, res) => {
  * @githubRef https://docs.github.com/en/rest/search/search#search-repositories
  * @github GET https://api.github.com/search/repositories
  *   q, page, per_page를 쿼리로 전달합니다. 요청 본문 없음.
- * @githubresponse GitHubRepositorySearchResponse
- *   전체 결과 수, 불완전 여부와 저장소 목록. 각 항목의 필드는 GitHubRepositorySearchItem을 참조합니다.
+ * @githubresponse GithubSearchReposResponse
+ *   전체 결과 수, 불완전 여부와 저장소 목록. 각 항목의 필드는 GithubSearchReposItem을 참조합니다.
  * @response RepositorySearchData
  *   total_count - 전체 결과 수.
  *   incomplete_results - 검색 결과가 불완전한지 여부.
@@ -157,44 +194,54 @@ search_router.get("/repos", async (req, res) => {
             throw CommonError.create400Error("페이지당 결과 수는 1부터 100까지의 정수여야 합니다.");
         }
 
-        const searchParams = new URLSearchParams({ q: q.trim(), page, per_page });
-        const response = await fetch(
-            `https://api.github.com/search/repositories?${searchParams.toString()}`,
-            { headers: { Accept: "application/vnd.github+json" } },
-        );
-
-        if (!response.ok) {
-            if (response.status === 422) {
-                throw CommonError.create400Error(
-                    "GitHub에서 검색 조건 또는 페이지 범위를 처리할 수 없습니다.",
-                );
-            }
-            throw CommonError.create500Error("GitHub 저장소 검색 요청에 실패했습니다.");
-        }
-
-        const json: GitHubRepositorySearchResponse = await response.json();
+        const { data: json } = await octokit.rest.search
+            .repos({
+                q: q.trim(),
+                page: Number(page),
+                per_page: Number(per_page),
+                headers: githubRestHeaders,
+            })
+            .catch((error: unknown) => {
+                if (error instanceof Error && "response" in error && error.response) {
+                    if ("status" in error && error.status === 422) {
+                        throw CommonError.create400Error(
+                            "GitHub에서 검색 조건 또는 페이지 범위를 처리할 수 없습니다.",
+                        );
+                    }
+                    throw CommonError.create500Error("GitHub 저장소 검색 요청에 실패했습니다.");
+                }
+                throw error;
+            });
         const data: RepositorySearchData = {
             total_count: json.total_count,
             incomplete_results: json.incomplete_results,
-            items: json.items.map((item) => ({
-                id: item.id,
-                name: item.name,
-                full_name: item.full_name,
-                description: item.description,
-                html_url: item.html_url,
-                owner: {
-                    login: item.owner.login,
-                    avatar_url: item.owner.avatar_url,
-                    html_url: item.owner.html_url,
-                    type: item.owner.type,
-                },
-                language: item.language,
-                stargazers_count: item.stargazers_count,
-                forks_count: item.forks_count,
-                created_at: item.created_at,
-                updated_at: item.updated_at,
-                license: item.license,
-            })),
+            items: json.items.map((item) => {
+                const { owner } = item;
+                if (!owner) {
+                    throw CommonError.create500Error(
+                        "GitHub 저장소 검색 응답을 처리하지 못했습니다.",
+                    );
+                }
+                return {
+                    id: item.id,
+                    name: item.name,
+                    full_name: item.full_name,
+                    description: item.description,
+                    html_url: item.html_url,
+                    owner: {
+                        login: owner.login,
+                        avatar_url: owner.avatar_url,
+                        html_url: owner.html_url,
+                        type: owner.type as RepositorySearchData["items"][number]["owner"]["type"],
+                    },
+                    language: item.language,
+                    stargazers_count: item.stargazers_count,
+                    forks_count: item.forks_count,
+                    created_at: item.created_at,
+                    updated_at: item.updated_at,
+                    license: item.license,
+                };
+            }),
         };
         const commonResponse: CommonResponse<RepositorySearchData> = {
             status: 200,
