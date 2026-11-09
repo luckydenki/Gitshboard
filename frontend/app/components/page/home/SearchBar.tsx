@@ -92,6 +92,7 @@ export default function SearchBar({ enableFilter, variant }: SearchBarProps) {
     return (
         <form
             method="GET"
+            action="/search"
             className={searchBarTv(variant)}>
             <div className="bg-panel text-md flex h-12 w-full gap-4 self-center rounded-full shadow-md not-sm:h-16 not-lg:w-full">
                 <SearchCategoryOpenButton
@@ -116,10 +117,15 @@ export default function SearchBar({ enableFilter, variant }: SearchBarProps) {
                 />
 
                 <button
-                    type="button"
+                    type="submit"
                     className="cursor-pointer pr-8"
                     aria-label="검색 버튼"
-                    onClick={async (e: React.MouseEvent<HTMLButtonElement>) => {}}>
+                    onSubmit={(e) => {
+                        if (!e.currentTarget.value) {
+                            e.preventDefault();
+                            console.log("입려을 안했는데?");
+                        }
+                    }}>
                     <BiSearch size="24" />
                 </button>
             </div>

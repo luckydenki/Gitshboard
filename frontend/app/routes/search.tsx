@@ -7,7 +7,6 @@ import { searchResponseMock } from "~/mock/search/search-response";
 
 export default function Search() {
     const searchResponse: SearchResultResponse = searchResponseMock;
-
     const { items: data, total_count } = searchResponse;
 
     return (

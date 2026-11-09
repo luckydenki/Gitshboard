@@ -157,35 +157,16 @@ export default function SearchAutocompleteList({
                         daydiff == 0 ? "오늘" : daydiff == 1 ? "어제" : `${daydiff}일 전`;
 
                     return (
-                        <a
-                            href={`../repo/${e.name.split("/")[0]}`}
-                            ref={(ref) => {
+                        <SearchAutoCompleteRepoItem
+                            e={e}
+                            key={e.id}
+                            refCallback={(ref) => {
                                 if (idx == arr.length - 1) {
                                     lastItemElement.current = ref;
                                 }
                             }}
-
-                            key={e.id}
-                            className="flex min-h-12 w-full items-center justify-between gap-8 hover:bg-gray-200">
-                            <div className="flex w-full flex-col">
-                                <div className="line-clamp-1 max-w-2/3 text-ellipsis">
-                                    {e.full_name}
-                                </div>
-                                <div className="flex text-sm">
-                                    <img
-                                        alt="프로필 사진"
-                                        src={e.owner.avatar_url}
-                                        className="mr-2 size-6 rounded-full"></img>
-                                    <span>{e.owner.login}</span>
-                                    <span className="ml-4">{dayString}</span>
-                                </div>
-                            </div>
-                            <a
-                                className="text-primary flex h-full items-center text-sm hover:underline"
-                                href={e.html_url}>
-                                Github
-                            </a>
-                        </a>
+                            dayString={dayString}
+                        />
                     );
                 })
             ) : searchResult.user?.total_count === 0 || searchResult.repo?.total_count === 0 ? (

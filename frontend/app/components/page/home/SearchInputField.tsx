@@ -88,7 +88,7 @@ export default function SearchInputField({
         }
     }, [category, setSearchResult]);
 
-    const loadMore = useCallback(() => {
+    const loadMore = useCallback(async () => {
         page.current++;
 
         if (page.current > maxPage) {
@@ -99,17 +99,24 @@ export default function SearchInputField({
         if (!inputRef.current) return;
 
         setIsLoadingMore(true);
-        searchCallback(inputRef.current, category.value, page.current, setSearchResult);
+        await searchCallback(inputRef.current, category.value, page.current, setSearchResult);
+        setIsLoadingMore(false);
     }, [category.value, maxPage, setSearchResult]);
 
     return (
         <div className="relative flex w-full">
             <input
+                required
                 ref={inputRef}
                 name="q"
                 placeholder="검색..."
                 className="w-full min-w-64 appearance-none pr-2 outline-none"
-
+                onFocus={(e) => {
+                    if (e.target.value) setIsVisible(true);
+                }}
+                onBlur={() => {
+                    setIsVisible(false);
+                }}
                 onChange={(e) => {
                     page.current = 1;
                     setIsLoadingMax(false);
