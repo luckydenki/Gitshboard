@@ -26,8 +26,15 @@ export const GithubGraphqlFetch = async <T>(
     variables: Record<string, unknown>,
 ): Promise<T> => {
     const auth = githubAccessToken || process.env.PUBLIC_API_TOKEN;
-    const octokit = new Octokit({ auth });
-    return octokit.graphql<T>(query, variables);
+
+    try {
+        const octokit = new Octokit({ auth });
+        return await octokit.graphql<T>(query, variables);
+    } catch (error) {
+        const status = error instanceof Error && "status" in error ? error.status : undefined;
+        console.error("GraphQL 요청 실패", { status });
+        throw error;
+    }
 };
 
 class GithubRepoAPIClient {
