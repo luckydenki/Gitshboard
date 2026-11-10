@@ -104,6 +104,11 @@ export default function SearchBar({ enableFilter, variant }: SearchBarProps) {
                     name="category"
                     value={category.value}
                 />
+                <input
+                    type="hidden"
+                    name="page"
+                    value={1}
+                />
                 {/* form 을 쓸 떄 hidden 을 쓰면 어떤 변수 값이든 form 에 포함시켜서
                         보낼 수 있다. 매우 중요할 듯 
                         추가로 name 속성을 넣어야 formData에 추가된다. 이게 허용되는 태그가

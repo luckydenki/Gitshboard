@@ -161,9 +161,9 @@ export default function SearchFilter({
                     <label className="flex items-center gap-2">
                         <p>직접 입력</p>
                         <input
-                            name="languages"
+                            name="language"
                             className="outline-primary mr-2 rounded-full px-4 py-1 outline-1 focus:outline-2"
-                            placeholder="languages"
+                            placeholder="language"
                             onChange={(e) => {
                                 choiceHandler("language", e.target.value);
                             }}
@@ -180,8 +180,8 @@ export default function SearchFilter({
                         </label>
                         <input
                             placeholder="지역을 입력하세요"
-                            id="locations"
-                            name="locations"
+                            id="location"
+                            name="location"
                             className="outline-primary h-8 w-sm rounded-lg px-2 py-1 outline-1 focus:outline-2"
                             onChange={(e) => {
                                 choiceHandler("location", e.target.value);

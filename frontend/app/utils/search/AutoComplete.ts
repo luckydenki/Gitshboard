@@ -3,7 +3,6 @@ import type { ISearchFilterCategory } from "../../components/page/home/SearchBar
 import type { CommonResponse, ErrorStatus } from "~/types/common/common";
 import type { UserSearchData } from "~/types/search/user-search";
 import type { RepositorySearchData } from "~/types/search/repository-search";
-import { QueryClient } from "@tanstack/react-query";
 
 /**
  * 최종 검색 스트링 q를 생성하는 메서드
@@ -35,8 +34,8 @@ const createq = (formq: string, options?: { formData: FormData; querykey: Array<
 
 const createSearchParameter = (
     formData: FormData,
-    page: number,
-    per_page: number,
+    page: number | string,
+    per_page: number | string,
     querykey: Array<string>,
 ) => {
     const formq = formData.get("q")?.toString();
@@ -84,7 +83,11 @@ const searchfetch = async (category: string, params: URLSearchParams) => {
     }
 };
 
-export const searchUser = async (searchForm: FormData | string, page: number, per_page: number) => {
+export const searchUser = async (
+    searchForm: FormData | URLSearchParams | string,
+    page: number | string,
+    per_page: number | string,
+) => {
     //return await searchSubmit(formData, page, per_page) as CommonResponse<UserSearchData>
     try {
         let params: URLSearchParams;
@@ -94,6 +97,8 @@ export const searchUser = async (searchForm: FormData | string, page: number, pe
                 "language",
                 "location",
             ]);
+        } else if (searchForm instanceof URLSearchParams) {
+            params = searchForm;
         } else {
             params = createSearchParameterByString(
                 ["q", "page", "per_page"],

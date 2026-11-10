@@ -5,14 +5,32 @@ import SearchResultHeader from "~/components/page/search/SearchResultHeader";
 import type { SearchResultResponse } from "~/types/search/search-result";
 import { searchResponseMock } from "~/mock/search/search-response";
 import { useSearchParams } from "react-router";
+import { useEffect, useState } from "react";
+import { searchUser } from "~/utils/search/AutoComplete";
 
 export default function Search() {
     const searchResponse: SearchResultResponse = searchResponseMock;
     const { items: data, total_count } = searchResponse;
 
-    const params = useSearchParams();
+    const [params] = useSearchParams();
+    const [perPage, setPerPage] = useState(12);
 
-    console.log(params);
+    useEffect(() => {
+        const search = async () => {
+            const page = params.get("page");
+            if (!page) return;
+            try {
+                const res = await searchUser(params, page, perPage);
+
+                if (res.success) {
+                } else {
+                    throw new Error("문제가 발생했습니다.");
+                }
+            } catch (error) {
+                throw error;
+            }
+        };
+    }, [params, perPage]);
 
     return (
         <>
@@ -22,7 +40,7 @@ export default function Search() {
                 content="Gitshboard 검색 페이지"
             />
 
-            <main className="px-main-x-side grid grid-rows-[auto_1fr] [grid-area:main]">
+            <main className="px-main-x-side grid grid-rows-[auto_1fr]">
                 <section className="flex h-fit w-full flex-col items-center justify-center gap-4 pt-22 pb-12">
                     <SearchBar
                         enableFilter={true}
