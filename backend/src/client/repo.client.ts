@@ -6,75 +6,56 @@ import {
     ProjectLiveRateNode,
 } from "../types/stat";
 import dotenv from "dotenv";
+import { Octokit } from "@octokit/rest";
+import { repoLanguagesQuery } from "./queries/github/repo-languages.query";
+import type {
+    GetRepoLanguagesQuery,
+    GetRepoLanguagesQueryVariables,
+} from "../types/github/graphql/operations.generated";
 dotenv.config();
 
-export const GithubGraphqlFetch = async (
+export const GithubGraphqlFetch = async <T>(
     githubAccessToken: string | undefined,
     query: string,
-    variables: any,
-) => {
-    let authorization = "";
-    //graphql api는 최소한 PAT 권한은 필요로 하기 때문에 사용함...
-    if (!githubAccessToken) {
-        // console.log("githubAccessToken is undefined, using public api token ", process.env.GITHUB_PUBLIC_API_TOKEN);
-        authorization = `Bearer ${process.env.PUBLIC_API_TOKEN}`;
-    } else {
-        authorization = `token ${githubAccessToken}`;
-    }
-
-    const github_response = await fetch("https://api.github.com/graphql", {
-        method: "POST",
-        headers: {
-            Authorization: authorization,
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            query,
-            variables,
-        }),
-    });
-
-    return github_response;
+    variables: Record<string, unknown>,
+): Promise<T> => {
+    const auth = githubAccessToken || process.env.PUBLIC_API_TOKEN;
+    const octokit = new Octokit({ auth });
+    return octokit.graphql<T>(query, variables);
 };
 
 class GithubRepoAPIClient {
-    public getLanguages = async (githubUsername: string, githubAccessToken: string | undefined) => {
-        const query = `
-            query GetRepoLanguages($login : String!){
-                user(login : $login){
-                    repositories(first:20, ownerAffiliations:OWNER){
-                        nodes{
-                            name
-                            languages(first:20){
-                                totalSize
-                                edges{
-                                    size
-                                    node{
-                                        name
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        `;
-
+    public getLanguages = async (
+        githubUsername: string,
+        githubAccessToken: string | undefined,
+    ): Promise<GithubRepoCommonResponse<GithubLanguageRepositoryNode> | null> => {
         const variables = {
             login: githubUsername,
-        };
+        } satisfies GetRepoLanguagesQueryVariables;
 
         try {
-            const github_response = await GithubGraphqlFetch(githubAccessToken, query, variables);
+            const { user } = await GithubGraphqlFetch<GetRepoLanguagesQuery>(
+                githubAccessToken,
+                repoLanguagesQuery,
+                variables,
+            );
+            if (!user) return null;
 
-            if (github_response.ok) {
-                const githubData = await github_response.json();
-                const userData: GithubRepoCommonResponse<GithubLanguageRepositoryNode> =
-                    githubData.data;
-                return userData;
-            } else {
-                return null;
-            }
+            const nodes = (user.repositories.nodes ?? []).flatMap((repository) => {
+                if (!repository?.languages) return [];
+
+                return [
+                    {
+                        name: repository.name,
+                        languages: {
+                            totalSize: repository.languages.totalSize,
+                            edges: (repository.languages.edges ?? []).filter((edge) => edge !== null),
+                        },
+                    },
+                ];
+            });
+
+            return { user: { repositories: { nodes } } };
         } catch (error) {
             console.error("Failed to fetch languages from GitHub API", error);
             return null;
