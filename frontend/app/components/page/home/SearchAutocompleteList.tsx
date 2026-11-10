@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef } from "react";
 import { VscLoading } from "react-icons/vsc";
 import type { RepositorySearchData, RepositorySearchItem } from "~/types/search/repository-search";
 import type { UserSearchData, UserSearchItem } from "~/types/search/user-search";
@@ -24,7 +24,7 @@ const SearchAutoCompleteUserItem = ({
             }}
             ref={refCallback}
             key={e.id}
-            className="flex w-full justify-between hover:bg-gray-200">
+            className="flex w-full justify-between hover:cursor-pointer hover:bg-gray-200">
             <div className="flex gap-4">
                 <img
                     alt="프로필 사진"
@@ -62,11 +62,10 @@ const SearchAutoCompleteRepoItem = ({
                 navigate(`../repo/${e.name.split("/")[0]}`);
             }}
             ref={refCallback}
-
             key={e.id}
-            className="flex min-h-12 w-full items-center justify-between gap-8 hover:bg-gray-200">
+            className="flex min-h-12 w-full justify-between gap-8 hover:cursor-pointer hover:bg-gray-200">
             <div className="flex w-full flex-col">
-                <div className="line-clamp-1 max-w-2/3 text-ellipsis">{e.full_name}</div>
+                <div className="line-clamp-1 flex max-w-2/3 text-ellipsis">{e.full_name}</div>
                 <div className="flex text-sm">
                     <img
                         alt="프로필 사진"

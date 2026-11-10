@@ -110,7 +110,7 @@ export default function SearchInputField({
                 ref={inputRef}
                 name="q"
                 placeholder="검색..."
-                className="w-full min-w-64 appearance-none pr-2 outline-none"
+                className="w-full min-w-64 appearance-none outline-none"
                 onFocus={(e) => {
                     if (e.target.value) setIsVisible(true);
                 }}
