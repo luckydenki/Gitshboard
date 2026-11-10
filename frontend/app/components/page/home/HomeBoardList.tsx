@@ -49,9 +49,10 @@ const BoardListItem = ({ title, url, date, description }: BoardListItemProps) =>
 export interface HomeBoardListProps {
     boardTitle: string;
     data: BoardListItemProps[];
+    isLoading?: boolean;
 }
 
-export default function HomeBoardList({ boardTitle, data }: HomeBoardListProps) {
+export default function HomeBoardList({ boardTitle, data, isLoading = false }: HomeBoardListProps) {
     if (data.length > 0 && data.length < 5) {
         const size = data.length;
 
@@ -71,7 +72,24 @@ export default function HomeBoardList({ boardTitle, data }: HomeBoardListProps) 
             <div className="flex justify-between">
                 <h1 className="text-lg font-semibold">{boardTitle}</h1> <a href="#"> 더보기 </a>
             </div>
-            {data.length > 0 ? (
+            {isLoading ? (
+                <div
+                    role="status"
+                    className="bg-panel flex min-h-40 w-full flex-1 flex-col justify-center gap-3 rounded-lg p-4">
+                    <span className="sr-only">{boardTitle} 목록을 불러오는 중입니다.</span>
+                    <div
+                        aria-hidden="true"
+                        className="flex flex-col gap-3 divide-y divide-gray-200 motion-safe:animate-pulse">
+                        {[0, 1].map((index) => (
+                            <div key={index} className="flex flex-col gap-2 first:pb-3">
+                                <div className="h-4 w-2/5 rounded bg-gray-200 dark:bg-gray-700" />
+                                <div className="h-3 w-4/5 rounded bg-gray-200 dark:bg-gray-700" />
+                                <div className="h-3 w-16 self-end rounded bg-gray-200 dark:bg-gray-700" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : data.length > 0 ? (
                 <ul className="[&>li]:border-border-light bg-panel w-full rounded-lg px-4 py-4 [&>li]:flex [&>li]:justify-between [&>li]:gap-4 [&>li]:border-b [&>li]:py-2">
                     {data.map((value, idx) => {
                         return (
@@ -86,7 +104,7 @@ export default function HomeBoardList({ boardTitle, data }: HomeBoardListProps) 
                     })}
                 </ul>
             ) : (
-                <div className="bg-panel flex h-full items-center justify-center rounded-lg p-4 text-gray-500">
+                <div className="bg-panel flex h-full min-h-40 items-center justify-center rounded-lg p-4 text-gray-500">
                     {" "}
                     업데이트를 기대해주세요{" "}
                 </div>

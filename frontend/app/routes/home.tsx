@@ -18,25 +18,25 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
     const { data, isLoading } = useChangeLogRSS();
 
-    if (isLoading) return;
-
     return (
-        <main className="flex flex-col items-center gap-4 py-32 [grid-area:main] [&>section]:items-center">
+        <main className="flex flex-col items-center gap-4 py-32 [&>section]:items-center">
             <section className="relative flex w-full flex-col pb-12">
                 <MainLogo />
                 <SearchBar />
             </section>
-            <section className="flex flex-col gap-12">
+            <section className="flex w-full min-w-0 flex-col gap-12">
                 <GitHubBlogBanner />
 
-                <section className={"grid w-full gap-8 [grid-area:section] lg:grid-cols-2"}>
+                <section className="grid w-full grid-cols-1 gap-8 lg:grid-cols-2">
                     <HomeBoardList
                         boardTitle="깃허브 ChangeLog"
                         data={data ?? []}
+                        isLoading={isLoading}
                     />
                     <HomeBoardList
                         boardTitle="Gitshboard 패치노트"
                         data={[]}
+                        isLoading={isLoading}
                     />
                 </section>
             </section>
