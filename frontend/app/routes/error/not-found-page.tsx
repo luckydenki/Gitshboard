@@ -15,7 +15,7 @@ export default function NotFoundPage() {
                 content="요청하신 페이지를 찾을 수 없습니다. Gitshboard 홈으로 이동하거나 사용자와 저장소를 검색해 보세요."
             />
 
-            <main className="px-main-x-side text-github-black flex items-center justify-center py-8 [grid-area:main] dark:text-gray-100">
+            <main className="px-main-x-side text-github-black flex items-center justify-center py-8 dark:text-gray-100">
                 <section
                     aria-labelledby="not-found-title"
                     className="bg-panel flex w-full max-w-2xl flex-col items-center gap-8 rounded-lg border border-gray-300 p-6 text-center sm:p-8 dark:border-gray-700 dark:bg-gray-900">
