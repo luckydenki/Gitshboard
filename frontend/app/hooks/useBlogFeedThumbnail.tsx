@@ -17,21 +17,18 @@ export default function useBlogFeedThumbnail() {
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ["blogThumbNail"],
         queryFn: async () => {
-            try {
-                const res = await fetch("/api/githubblog/blog/thumbnails"); //WordPress Json
-                const json = await res.json();
+            const res = await fetch("/api/githubblog/blog/thumbnails"); //WordPress Json
+            const json = await res.json();
 
-                if (!res.ok) {
-                    throw json;
-                }
-
-                const thumbnaildata = json as CommonResponse<BlogThumbnail[]>;
-
-                return thumbnaildata.data;
-            } catch (error) {
-                console.error("[useBlogFeedThumbnail] error :", error);
+            if (!res.ok) {
+                throw json;
             }
+
+            const thumbnaildata = json as CommonResponse<BlogThumbnail[]>;
+            return thumbnaildata.data;
         },
+        retry: 3,
+        retryDelay: 1000,
         staleTime: 5 * 60 * 1000,
     });
 

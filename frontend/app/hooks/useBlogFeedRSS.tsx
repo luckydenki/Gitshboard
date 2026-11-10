@@ -36,6 +36,8 @@ export default function useBlogFeedRSS(latest?: boolean) {
                 throw error;
             }
         },
+        retry: 3,
+        retryDelay: 1000,
         staleTime: 5 * 60 * 1000,
     });
 

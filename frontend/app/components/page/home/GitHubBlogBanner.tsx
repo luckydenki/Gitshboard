@@ -43,12 +43,15 @@ export const GitHubBlogPagination = ({
 
 export default function GitHubBlogBanner() {
     const [pageIndex, setPageIndex] = useState(0);
-    const { data: blogPosts, isLoading } = useBlogFeedRSS(true);
-    const { data: thumbnails } = useBlogFeedThumbnail();
+    const { data: blogPosts, isLoading: isBlogLoading, isError: isBlogError } = useBlogFeedRSS(true);
+    const {
+        data: thumbnails,
+        isLoading: isThumbnailLoading,
+        isError: isThumbnailError,
+    } = useBlogFeedThumbnail();
+    const isLoading = isBlogLoading || isThumbnailLoading;
+    const isError = isBlogError || isThumbnailError;
 
-    if (!blogPosts && !isLoading) {
-        return;
-    }
     if (blogPosts && thumbnails) {
         thumbnails.forEach((v, idx) => {
             const post = blogPosts[idx];
@@ -67,7 +70,7 @@ export default function GitHubBlogBanner() {
     return (
         <section
             aria-labelledby="github-blog-banner-title"
-            className="flex flex-col gap-4">
+            className="flex w-full min-w-0 flex-col gap-4">
             <header className="flex items-center justify-between gap-4">
                 <div>
                     <p className="text-sm text-gray-500">GitHub Blog</p>
@@ -78,7 +81,7 @@ export default function GitHubBlogBanner() {
                     </h3>
                 </div>
 
-                {postCount > PAGE_SIZE && (
+                {!isLoading && !isError && postCount > PAGE_SIZE && (
                     <GitHubBlogPagination
                         hasPreviousPage={hasPreviousPage}
                         hasNextPage={hasNextPage}
@@ -88,7 +91,13 @@ export default function GitHubBlogBanner() {
                 )}
             </header>
 
-            {isLoading ? (
+            {isError ? (
+                <p
+                    role="status"
+                    className="bg-panel flex min-h-40 items-center justify-center rounded-lg border border-gray-300 p-4 text-center text-gray-500">
+                    네트워크 요청에 실패했습니다
+                </p>
+            ) : isLoading ? (
                 <GitHubBlogPostListSkeleton count={PAGE_SIZE} />
             ) : (
                 <GitHubBlogPostList visiblePosts={visiblePosts} />
