@@ -9,10 +9,10 @@ interface SearchItemLayoutProps {
     badge: string;
     dashboardUrl: string;
     githubUrl: string;
-    description: string | null;
-    stars: number;
+    description?: string | null;
+    stars?: number;
     starsLabel?: string;
-    updatedAt: string;
+    updatedAt?: string;
     children?: ReactNode;
 }
 
@@ -53,23 +53,31 @@ export default function SearchItemLayout({
                         {children}
                     </div>
                 )}
-                <p className="line-clamp-2 text-sm leading-6 text-gray-500">
-                    {description || "소개가 없습니다"}
-                </p>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                        <FiStar aria-hidden="true" />
-                        {starsLabel} {stars.toLocaleString("ko-KR")}
-                    </span>
-                    <span>
-                        최근 업데이트{" "}
-                        <time dateTime={updatedAt}>
-                            {new Date(updatedAt).toLocaleDateString("ko-KR", {
-                                timeZone: "Asia/Seoul",
-                            })}
-                        </time>
-                    </span>
-                </div>
+                {description !== undefined && (
+                    <p className="line-clamp-2 text-sm leading-6 text-gray-500">
+                        {description || "소개가 없습니다"}
+                    </p>
+                )}
+                {(stars !== undefined || updatedAt) && (
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                        {stars !== undefined && (
+                            <span className="flex items-center gap-1">
+                                <FiStar aria-hidden="true" />
+                                {starsLabel} {stars.toLocaleString("ko-KR")}
+                            </span>
+                        )}
+                        {updatedAt && (
+                            <span>
+                                최근 업데이트{" "}
+                                <time dateTime={updatedAt}>
+                                    {new Date(updatedAt).toLocaleDateString("ko-KR", {
+                                        timeZone: "Asia/Seoul",
+                                    })}
+                                </time>
+                            </span>
+                        )}
+                    </div>
+                )}
             </div>
             <a
                 href={githubUrl}

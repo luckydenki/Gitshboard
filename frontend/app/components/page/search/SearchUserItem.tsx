@@ -1,7 +1,14 @@
-import type { GitHubSearchUserCard } from "~/types/search/search-result";
+import type { UserSearchItem } from "~/types/search/user-search";
 import SearchItemLayout from "./SearchItemLayout";
 
-export default function SearchUserItem({ item }: { item: GitHubSearchUserCard }) {
+export type SearchUserCardItem = UserSearchItem & {
+    bio?: string | null;
+    location?: string | null;
+    total_stars?: number;
+    updated_at?: string;
+};
+
+export default function SearchUserItem({ item }: { item: SearchUserCardItem }) {
     return (
         <SearchItemLayout
             avatarUrl={item.avatar_url}

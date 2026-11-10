@@ -1,8 +1,8 @@
 import { FiGitBranch } from "react-icons/fi";
-import type { SearchRepoCard } from "~/types/search/search-result";
+import type { RepositorySearchItem } from "~/types/search/repository-search";
 import SearchItemLayout from "./SearchItemLayout";
 
-export default function SearchRepoItem({ item }: { item: SearchRepoCard }) {
+export default function SearchRepoItem({ item }: { item: RepositorySearchItem }) {
     return (
         <SearchItemLayout
             avatarUrl={item.owner.avatar_url}
