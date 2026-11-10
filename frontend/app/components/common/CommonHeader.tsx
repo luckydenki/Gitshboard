@@ -12,15 +12,6 @@ export default function CommonHeader() {
 
     const nickname = "덴첩";
 
-    if (isSuccess === undefined) {
-        console.log("기다려^^");
-        return null;
-    }
-
-    if (isSuccess) {
-        console.log("축하해~");
-    }
-
     const MenuList = [
         {
             id: "1",
@@ -39,7 +30,7 @@ export default function CommonHeader() {
             <HeaderMenu />
             <div className="flex flex-row items-center gap-4">
                 <HeaderDarkModeButton />
-                {isSuccess === false ? (
+                {isSuccess !== true ? (
                     <HeaderLoginButton />
                 ) : (
                     <div className="relative">
