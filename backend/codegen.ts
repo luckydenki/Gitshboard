@@ -9,6 +9,7 @@ export default {
             config: {
                 onlyOperationTypes: true,
                 useTypeImports: true,
+                scalars: { DateTime: "string", URI: "string" },
             },
         },
     },

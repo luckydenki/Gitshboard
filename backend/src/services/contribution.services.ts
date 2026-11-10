@@ -1,4 +1,3 @@
-import { CommitContributionActivity } from "../client/contribution.client";
 import contributionClient from "../client/contribution.client";
 import { redisClient } from "../infra/redis/redisClient";
 import { GithubCommitActivity } from "../types/contribution";
@@ -54,7 +53,7 @@ class ContributionService {
                     "/graphql",
                 );
             }
-            const data: CommitContributionActivity = await contributionClient.getCommitActivity(
+            const data = await contributionClient.getCommitActivity(
                 githubAccessToken,
                 githubUsername,
                 from,

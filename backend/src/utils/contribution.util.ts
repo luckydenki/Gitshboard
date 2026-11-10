@@ -1,4 +1,4 @@
-import { CommitContributionActivity } from "../client/contribution.client";
+import type { GetCommitActivityQuery } from "../types/github/graphql/operations.generated";
 import type { GithubCommitActivity } from "../types/contribution";
 
 /**
@@ -38,10 +38,12 @@ export const OccuredDateYYMMDD = (occuredAtArray: Array<string>) => {
     });
 };
 
-export const getGithubCommitActivity = (data: CommitContributionActivity): GithubCommitActivity => {
-    const total = data.user.contributionsCollection.totalCommitContributions;
+export const getGithubCommitActivity = (
+    user: NonNullable<GetCommitActivityQuery["user"]>,
+): GithubCommitActivity => {
+    const total = user.contributionsCollection.totalCommitContributions;
     const contributionsByRepository =
-        data.user.contributionsCollection.commitContributionsByRepository;
+        user.contributionsCollection.commitContributionsByRepository;
 
     const arr: GithubCommitActivity = { total, results: [], commitOccuredAt: [], commitCounts: [] };
 
@@ -50,12 +52,13 @@ export const getGithubCommitActivity = (data: CommitContributionActivity): Githu
     contributionsByRepository.forEach((repos) => {
         const name = repos.repository.name;
         //console.log(`Repository: ${name}`);
-        const contributions = repos.contributions.nodes;
+        const contributions = repos.contributions.nodes ?? [];
 
         let occuredAtArray: Array<string> = [];
         let commitCountArray: Array<number> = [];
 
-        contributions.forEach((contribution, idx) => {
+        contributions.forEach((contribution) => {
+            if (!contribution) return;
             const occuredAt = contribution.occurredAt;
             const commitCount = contribution.commitCount;
 

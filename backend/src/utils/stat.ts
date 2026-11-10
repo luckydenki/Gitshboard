@@ -1,11 +1,10 @@
 import type {
-    DevelopStatsNode,
-    GithubCommitTimeRepositoryNode,
-    GithubLanguageRepositoryNode,
-    GithubProjectTopicsNode,
-    GithubRepoCommonResponse,
-    ProjectLiveRateNode,
-} from "../types/stat";
+    GetCommitTimesQuery,
+    GetDevelopTimeQuery,
+    GetProjectLiveRateQuery,
+    GetProjectTopicsQuery,
+    GetRepoLanguagesQuery,
+} from "../types/github/graphql/operations.generated";
 
 const languageColors: Record<string, string> = {
     TypeScript: "bg-[#3178c6]",
@@ -90,7 +89,11 @@ export interface DeveloperTrait {
 
 export type ProjectStatus = "Active" | "Idle" | "Dormant" | "Archived";
 
-export interface ProjectHealthItem extends ProjectLiveRateNode {
+type ProjectHealthRepository = NonNullable<
+    NonNullable<NonNullable<GetProjectLiveRateQuery["user"]>["repositories"]["nodes"]>[number]
+>;
+
+export interface ProjectHealthItem extends ProjectHealthRepository {
     status: ProjectStatus;
     daysSincePush: number;
     updatedLabel: string;
@@ -106,19 +109,22 @@ export interface ProjectHealthStats {
     projects: ProjectHealthItem[];
 }
 
-const getNodes = <T>(response?: GithubRepoCommonResponse<T>) =>
-    response?.user?.repositories?.nodes ?? [];
+const getNodes = <T>(response?: {
+    user?: { repositories: { nodes?: Array<T | null> | null } } | null;
+}) => (response?.user?.repositories.nodes ?? []).filter((node) => node !== null);
 
 const roundPercent = (value: number, total: number) =>
     total > 0 ? Math.round((value / total) * 1000) / 10 : 0;
 
 export function calculateLanguageStats(
-    response?: GithubRepoCommonResponse<GithubLanguageRepositoryNode>,
+    response?: GetRepoLanguagesQuery,
 ): LanguageStat[] {
     const sizes = new Map<string, number>();
 
     getNodes(response).forEach((repository) => {
-        repository.languages.edges.forEach(({ node, size }) => {
+        repository.languages?.edges?.forEach((edge) => {
+            if (!edge) return;
+            const { node, size } = edge;
             sizes.set(node.name, (sizes.get(node.name) ?? 0) + size);
         });
     });
@@ -146,14 +152,17 @@ export interface CommitStats {
 }
 
 export function calculateCommitStats(
-    response?: GithubRepoCommonResponse<GithubCommitTimeRepositoryNode>,
+    response?: GetCommitTimesQuery,
 ): CommitStats {
-    const dates = getNodes(response).flatMap(
-        (repository) =>
-            repository.defaultBranchRef?.target.history.nodes
-                .map(({ committedDate }) => new Date(committedDate))
-                .filter((date) => !Number.isNaN(date.getTime())) ?? [],
-    );
+    const dates = getNodes(response).flatMap((repository) => {
+        const target = repository.defaultBranchRef?.target;
+        if (!target || !("history" in target)) return [];
+
+        return (target.history.nodes ?? [])
+            .filter((commit) => commit !== null)
+            .map(({ committedDate }) => new Date(committedDate))
+            .filter((date) => !Number.isNaN(date.getTime()));
+    });
 
     const timeBuckets = [
         { label: "Dawn", count: 0 },
@@ -213,13 +222,15 @@ function findProjectCategory(values: string[]) {
 }
 
 export function calculateProjectCategories(
-    response?: GithubRepoCommonResponse<GithubProjectTopicsNode>,
+    response?: GetProjectTopicsQuery,
 ): ProjectCategoryStat[] {
     const counts = new Map<string, number>();
     const repositories = getNodes(response);
 
     repositories.forEach((repository) => {
-        const topics = repository.repositoryTopics.nodes.map(({ topic }) => topic.name);
+        const topics = (repository.repositoryTopics.nodes ?? [])
+            .filter((entry) => entry !== null)
+            .map(({ topic }) => topic.name);
         const category = findProjectCategory([repository.name, ...topics]);
         counts.set(category, (counts.get(category) ?? 0) + 1);
     });
@@ -239,15 +250,19 @@ export interface DeveloperProfileStats {
 }
 
 export function calculateDeveloperProfile(
-    response?: GithubRepoCommonResponse<DevelopStatsNode>,
+    response?: GetDevelopTimeQuery,
 ): DeveloperProfileStats {
     const repositories = getNodes(response);
     const scores = new Map<string, number>();
     const commitDates: Date[] = [];
 
     repositories.forEach((repository) => {
-        const languages = repository.languages.edges.map(({ node }) => node.name);
-        const topics = repository.repositoryTopics.nodes.map(({ topic }) => topic.name);
+        const languages = (repository.languages?.edges ?? [])
+            .filter((edge) => edge !== null)
+            .map(({ node }) => node.name);
+        const topics = (repository.repositoryTopics.nodes ?? [])
+            .filter((entry) => entry !== null)
+            .map(({ topic }) => topic.name);
 
         languages.forEach((language) => {
             Object.entries(developerLanguageWeights[language] ?? {}).forEach(
@@ -262,10 +277,14 @@ export function calculateDeveloperProfile(
             scores.set(topicCategory, (scores.get(topicCategory) ?? 0) + 3);
         }
 
-        repository.defaultBranchRef?.target.history.nodes.forEach(({ committedDate }) => {
-            const date = new Date(committedDate);
-            if (!Number.isNaN(date.getTime())) commitDates.push(date);
-        });
+        const target = repository.defaultBranchRef?.target;
+        if (target && "history" in target) {
+            target.history.nodes?.forEach((commit) => {
+                if (!commit) return;
+                const date = new Date(commit.committedDate);
+                if (!Number.isNaN(date.getTime())) commitDates.push(date);
+            });
+        }
     });
 
     const totalScore = [...scores.values()].reduce((sum, score) => sum + score, 0);
@@ -338,7 +357,7 @@ function calculateCommitStatsFromDates(dates: Date[]) {
 }
 
 export function calculateProjectHealth(
-    response?: GithubRepoCommonResponse<ProjectLiveRateNode>,
+    response?: GetProjectLiveRateQuery,
     now = new Date(),
 ): ProjectHealthStats {
     const projects = getNodes(response)

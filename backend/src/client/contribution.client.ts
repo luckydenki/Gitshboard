@@ -1,33 +1,11 @@
-import { CommonErrorResponse, ErrorStatus } from "../types/middlewares/common";
+import type { CommonErrorResponse } from "../types/middlewares/common";
+import CommonError from "../utils/common-error";
 import { GithubGraphqlFetch } from "./repo.client";
-
-export interface CommitActivityRepositoryNode {
-    name: string;
-    nameWithOwner: string;
-}
-
-export interface CommitActivityConstributeNode {
-    occurredAt: string;
-    commitCount: number;
-}
-
-export interface CommitContributionActivity {
-    user: {
-        contributionsCollection: {
-            totalCommitContributions: number;
-            commitContributionsByRepository: Array<{
-                repository: CommitActivityRepositoryNode;
-                contributions: {
-                    nodes: Array<CommitActivityConstributeNode>;
-                    pageInfo: {
-                        hasNextPage: boolean;
-                        endCursor: string | null;
-                    };
-                };
-            }>;
-        };
-    };
-}
+import { userCommitActivityQuery } from "./queries/github/user-commit-activity.query";
+import type {
+    GetCommitActivityQuery,
+    GetCommitActivityQueryVariables,
+} from "../types/github/graphql/operations.generated";
 
 class ContributionClient {
     /**
@@ -50,81 +28,36 @@ class ContributionClient {
         username: string,
         from: string,
         to: string,
-    ): Promise<CommitContributionActivity> => {
+    ): Promise<NonNullable<GetCommitActivityQuery["user"]>> => {
         try {
-            // 날짜 기준으로 오름차순으로 가져와야함
-            const query = `
-                query GetCommitActivity(
-                $username: String!,
-                $from: DateTime!,
-                $to: DateTime!
-                ) {
-                user(login: $username) {
-                    contributionsCollection(from: $from, to: $to) {
-                    totalCommitContributions
-
-                    commitContributionsByRepository(maxRepositories: 100) {
-                        repository {
-                        name
-                        nameWithOwner
-                        }
-
-                        contributions(
-                            first: 100
-                            orderBy : { field : OCCURRED_AT, direction: ASC }
-                        ) {
-                        nodes {
-                            occurredAt
-                            commitCount
-                        }
-
-                        pageInfo {
-                            hasNextPage
-                            endCursor
-                        }
-                        }
-                    }
-                    }
-                }
-                }
-            `;
-
             const variables = {
                 username,
                 from,
                 to,
-            };
+            } satisfies GetCommitActivityQueryVariables;
             console.log(`Fetching commit activity for user: ${username}, from: ${from}, to: ${to}`);
 
-            const response = await GithubGraphqlFetch(githubAccessToken, query, variables);
+            const response = await GithubGraphqlFetch<GetCommitActivityQuery>(
+                githubAccessToken,
+                userCommitActivityQuery,
+                variables,
+            );
 
-            if (response.ok) {
-                const data = await response.json();
-                console.log("GitHub API response data:", data);
-                const commitActivity = data.data;
-
-                return commitActivity;
+            if (response?.user) {
+                return response.user;
             } else {
-                const errorResponse: CommonErrorResponse = {
-                    type: "https://docs.github.com/en/graphql/overview/explorer",
-                    title: "GitHub API Error",
-                    status: response.status as ErrorStatus,
-                    detail: "Failed to fetch commit activity from GitHub API",
-                    instance: "/graphql",
-                };
+                const errorResponse: CommonErrorResponse = CommonError.create400Error(
+                    "Failed to fetch commit activity from GitHub API",
+                );
                 throw errorResponse;
             }
         } catch (error) {
             console.error("Failed to fetch commit activity from GitHub API", error);
 
             if (error instanceof Error) {
-                const errorResponse: CommonErrorResponse = {
-                    type: "https://docs.github.com/en/graphql/overview/explorer",
-                    title: "GitHub API Error",
-                    status: 500,
-                    detail: error.message,
-                    instance: "/graphql",
-                };
+                const errorResponse: CommonErrorResponse = CommonError.create500Error(
+                    error.message,
+                );
                 throw errorResponse;
             }
 

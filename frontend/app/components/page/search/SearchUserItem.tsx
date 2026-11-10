@@ -2,10 +2,7 @@ import type { UserSearchItem } from "~/types/search/user-search";
 import SearchItemLayout from "./SearchItemLayout";
 
 export type SearchUserCardItem = UserSearchItem & {
-    bio?: string | null;
-    location?: string | null;
     total_stars?: number;
-    updated_at?: string;
 };
 
 export default function SearchUserItem({ item }: { item: SearchUserCardItem }) {

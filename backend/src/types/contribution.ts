@@ -1,5 +1,5 @@
 /**
- * GithubCommitActivity는 CommitContributionActivity를 기반으로 만들어진 데이터 구조입니다.
+ * GithubCommitActivity는 GetCommitActivity GraphQL 응답에서 계산한 통계 데이터입니다.
  *
  * - total : 총 commit 수
  * - results : 각 repository별 commit activity 정보

@@ -5,18 +5,16 @@ import {
     CommonErrorResponse,
     CommonResponse,
     ErrorStatus,
-    GithubCommonResponse,
 } from "../types/middlewares/common";
 import { GithubUser } from "../client/user.client";
+import { GithubGraphqlFetch } from "../client/repo.client";
+import { userHeaderQuery } from "../client/queries/github/user-header.query";
+import type {
+    GetUserQuery,
+    GetUserQueryVariables,
+} from "../types/github/graphql/operations.generated";
 
 const user_router = Router();
-
-interface GithubUserResponse {
-    user: {
-        login: string;
-        avatarUrl: string;
-    };
-}
 
 // api/users/health
 user_router.get("/health", (req, res) => {
@@ -86,65 +84,38 @@ user_router.get("/", authToken, authUser, async (req: AuthRequest, res) => {
 user_router.get("/userheader", authToken, authUser, async (req: AuthRequest, res) => {
     const user = req.user!;
 
-    const query = `
-        query GetUser($login : String!){
-            user(login : $login){
-                login
-                avatarUrl
-            }
-        }
-    `;
+    const variables = { login: user.githubUsername } satisfies GetUserQueryVariables;
     try {
-        const github_response = await fetch("https://api.github.com/graphql", {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${user.githubAccessToken}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                query,
-                variables: {
-                    login: user.githubUsername,
-                },
-            }),
-        });
-
-        const data = await github_response.json();
-
-        const userData =
-            ChangeResponseType<GithubCommonResponse<GithubUserResponse>>(data).data.user;
-        console.log("GitHub GraphQL API response:", data);
-
-        if (github_response.ok) {
-            const response: CommonResponse<typeof userData> = {
-                status: 200,
-                success: true,
-                data: userData,
-            };
-
-            res.status(200).json(response);
-        } else {
-            console.error("GitHub GraphQL API error:", github_response.status);
-
-            const errorResponse: CommonErrorResponse = {
-                status: github_response.status as ErrorStatus,
-                type: "GitHub API Error",
-                title: "GitHub API 요청 실패",
-                detail: data.errors?.[0]?.message || "GitHub API 요청 중 오류가 발생했습니다.",
-                instance: "/api/users/userheader",
-            };
-
-            res.status(github_response.status).json(errorResponse);
-        }
+        const { user: userData } = await GithubGraphqlFetch<GetUserQuery>(
+            user.githubAccessToken,
+            userHeaderQuery,
+            variables,
+        );
+        const response: CommonResponse<typeof userData> = {
+            status: 200,
+            success: true,
+            data: userData ?? null,
+        };
+        res.status(200).json(response);
     } catch (error) {
-        console.error("Error fetching GitHub user header:", error);
-        res.status(500).json({ error: "서버 에러" });
+        const status =
+            error instanceof Error &&
+            "status" in error &&
+            typeof error.status === "number" &&
+            error.status >= 400 &&
+            error.status < 600
+                ? (error.status as ErrorStatus)
+                : 500;
+        const errorResponse: CommonErrorResponse = {
+            status,
+            type: "GitHub API Error",
+            title: "GitHub API 요청 실패",
+            detail: "GitHub 사용자 헤더 정보를 가져오지 못했습니다.",
+            instance: "/api/users/userheader",
+        };
+        res.status(status).json(errorResponse);
     }
 });
-
-function ChangeResponseType<T>(data: unknown): T {
-    return data as T;
-}
 
 // api/users/repos
 user_router.get("/repos", authToken, authUser, async (req: AuthRequest, res) => {

@@ -8,8 +8,7 @@ import { searchRepo, searchUser } from "~/utils/search/AutoComplete";
 
 /**
  * 현재 검색 API 응답에 없는 카드 정보입니다.
- * - 사용자: bio(소개), location(지역), updated_at(프로필 수정 시각),
- *   total_stars(derived: 소유 저장소가 받은 별의 합계).
+ * - 사용자: total_stars(derived: 소유 저장소가 받은 별의 합계).
  * - 저장소: 카드에 필요한 필드가 모두 제공됩니다.
  */
 export default function Search() {

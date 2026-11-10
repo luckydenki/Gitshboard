@@ -2,8 +2,8 @@ import type { SearchUserCardItem } from "../../app/components/page/search/Search
 import type { RepositorySearchItem } from "../../app/types/search/repository-search";
 
 export const searchUser: SearchUserCardItem = {
-    id: 1, login: "octocat", name: "The Octocat", avatar_url: "https://avatars.githubusercontent.com/u/583231?v=4",
-    url: "https://api.github.com/users/octocat", html_url: "https://github.com/octocat",
+    id: "U_octocat", login: "octocat", name: "The Octocat", avatar_url: "https://avatars.githubusercontent.com/u/583231?v=4",
+    html_url: "https://github.com/octocat",
     type: "User", bio: "GitHub mascot", location: "San Francisco",
     total_stars: 1234, updated_at: "2024-01-01T00:00:00Z",
 };

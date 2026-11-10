@@ -28,7 +28,7 @@ export type Scalars = {
   /** An ISO-8601 encoded date string. */
   Date: { input: any; output: any; }
   /** An ISO-8601 encoded UTC date string. */
-  DateTime: { input: any; output: any; }
+  DateTime: { input: string; output: string; }
   /** A Git object ID. */
   GitObjectID: { input: any; output: any; }
   /** A fully qualified reference name (e.g. `refs/heads/master`). */
@@ -42,7 +42,7 @@ export type Scalars = {
   /** An ISO-8601 encoded UTC date string with millisecond precision. */
   PreciseDateTime: { input: any; output: any; }
   /** An RFC 3986, RFC 3987, and RFC 6570 (level 4) compliant URI string. */
-  URI: { input: any; output: any; }
+  URI: { input: string; output: string; }
   /** A valid x509 certificate string */
   X509Certificate: { input: any; output: any; }
 };
@@ -9432,9 +9432,62 @@ export type WorkflowsParametersInput = {
   workflows: Array<WorkflowFileReferenceInput>;
 };
 
+export type GetCommitTimesQueryVariables = Exact<{
+  login: Scalars['String']['input'];
+}>;
+
+
+export type GetCommitTimesQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', name: string, defaultBranchRef?: { __typename?: 'Ref', target?: { __typename?: 'Blob' } | { __typename?: 'Commit', history: { __typename?: 'CommitHistoryConnection', nodes?: Array<{ __typename?: 'Commit', committedDate: string } | null> | null } } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null } | null } | null> | null } } | null };
+
+export type GetDevelopTimeQueryVariables = Exact<{
+  login: Scalars['String']['input'];
+}>;
+
+
+export type GetDevelopTimeQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', defaultBranchRef?: { __typename?: 'Ref', target?: { __typename?: 'Blob' } | { __typename?: 'Commit', history: { __typename?: 'CommitHistoryConnection', nodes?: Array<{ __typename?: 'Commit', committedDate: string } | null> | null } } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null } | null, languages?: { __typename?: 'LanguageConnection', edges?: Array<{ __typename?: 'LanguageEdge', node: { __typename?: 'Language', name: string } } | null> | null } | null, repositoryTopics: { __typename?: 'RepositoryTopicConnection', nodes?: Array<{ __typename?: 'RepositoryTopic', topic: { __typename?: 'Topic', name: string } } | null> | null } } | null> | null } } | null };
+
 export type GetRepoLanguagesQueryVariables = Exact<{
   login: Scalars['String']['input'];
 }>;
 
 
 export type GetRepoLanguagesQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', name: string, languages?: { __typename?: 'LanguageConnection', totalSize: number, edges?: Array<{ __typename?: 'LanguageEdge', size: number, node: { __typename?: 'Language', name: string } } | null> | null } | null } | null> | null } } | null };
+
+export type GetProjectLiveRateQueryVariables = Exact<{
+  login: Scalars['String']['input'];
+}>;
+
+
+export type GetProjectLiveRateQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', createdAt: string, updatedAt: string, pushedAt?: string | null, isArchived: boolean, isFork: boolean, name: string } | null> | null } } | null };
+
+export type GetProjectTopicsQueryVariables = Exact<{
+  login: Scalars['String']['input'];
+}>;
+
+
+export type GetProjectTopicsQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', name: string, repositoryTopics: { __typename?: 'RepositoryTopicConnection', nodes?: Array<{ __typename?: 'RepositoryTopic', topic: { __typename?: 'Topic', name: string } } | null> | null } } | null> | null } } | null };
+
+export type SearchUsersQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+  first: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type SearchUsersQuery = { __typename?: 'Query', search: { __typename?: 'SearchResultItemConnection', userCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null }, nodes?: Array<{ __typename: 'App' } | { __typename: 'Discussion' } | { __typename: 'Issue' } | { __typename: 'MarketplaceListing' } | { __typename: 'Organization', id: string, login: string, name?: string | null, avatarUrl: string, url: string, location?: string | null, updatedAt: string, bio?: string | null } | { __typename: 'PullRequest' } | { __typename: 'Repository' } | { __typename: 'User', id: string, login: string, name?: string | null, avatarUrl: string, url: string, bio?: string | null, location?: string | null, updatedAt: string } | null> | null } };
+
+export type GetCommitActivityQueryVariables = Exact<{
+  username: Scalars['String']['input'];
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type GetCommitActivityQuery = { __typename?: 'Query', user?: { __typename?: 'User', contributionsCollection: { __typename?: 'ContributionsCollection', totalCommitContributions: number, commitContributionsByRepository: Array<{ __typename?: 'CommitContributionsByRepository', repository: { __typename?: 'Repository', name: string, nameWithOwner: string }, contributions: { __typename?: 'CreatedCommitContributionConnection', nodes?: Array<{ __typename?: 'CreatedCommitContribution', occurredAt: string, commitCount: number } | null> | null, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null } } }> } } | null };
+
+export type GetUserQueryVariables = Exact<{
+  login: Scalars['String']['input'];
+}>;
+
+
+export type GetUserQuery = { __typename?: 'Query', user?: { __typename?: 'User', login: string, avatarUrl: string } | null };
