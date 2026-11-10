@@ -122,13 +122,24 @@ ex
 2. 모든 최종 에러 응답은 `CommonErrorResponse` 타입으로 작성됩니다. 이를 위한 헬퍼 클래스 `CommonError` 도 존재하며, 필요에 따라 알아서 잘 사용하세요
 3. github api와 관련된 api의 경우 다음의 절차를 걸쳐 타입을 만드세요
     3-1.
-        (RESTAPI) 해당 github api에서 가져올 수 있는 **모든** 정보를 인터페이스 화 시키고 이를 별도의 타입 파일로 분리시키세요.
-        (GraphQL) 해당 쿼리를 통해 가져오게 되는 **모든** 정보를 인터페이스 화 시키고 별도의 타입 파일로 분리시키세요
+        (RESTAPI) 해당 github api에서 가져올 수 있는 정보(response)를 `RestEndpointMethodTypes`를 통해 다시 이름만 재명명해주세요. 이 때, 타입의 이름은
+        `Github + Octokit 그룹 + 메서드 + Response`로 지으세요
+        ex) 
+
+        ```ts 
+         await octokit.rest.search.users...
+         => type GithubSearchUsersResponse
+        ```
+
+        (GraphQL) 해당 쿼리를 통해 가져오게 되는 **모든** 정보를 인터페이스 화 시키고 별도의 타입 파일로 분리시키세요      
     3-2. 
         모든 타입 파일은 src/types 폴더 아래에 작성하며, 특히 github api와 직접적인 타입들은  types/github 폴더 아래에 작성합니다.
         만약 RESTAPI의 타입이라면 github/rest 폴더 아래에, graphql 쿼리로 만들어진 거라면 github/graphql 폴더 아래에 작성해주세요.
+        RESTAPI의 파일 분리는 Octokit 그룹 & 메서드 로 나눠서 정리해주세요.
     3-3. 
-        파일명은 알아서 잘 직관적으로 작성해주세요
+        RESTAPI의 경우 파일명을 `Octokit그룹-메서드` 로 지으세요
+        `ex) search.users 라면 search-users`
+        Graphql은 그냥 알아서 잘 지으세요
     3-4. 
         인터페이스를 작성할 때에는 다음 설명 주석을 작성하세요
         - 해당 인터페이스에 대한 설명
