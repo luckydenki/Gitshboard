@@ -6,55 +6,7 @@
 
 ## API 개설 규칙
 
-(임시 규칙입니다. 이 규칙은 변경될 수 있으며, 우선은 controller나 service 파일로 분리시키지 말고 routes 파일 안에 모두 작성하세요)
-
-1. 이 서비스의 api는 github api를 호출하여 그것을 정제하여 내려보내는 api와 순수한 우리 서버의 서비스 및 기능을 수행하는 api로 나뉩니다. 여기서 전자 타입을 "github service" 후자 타입을 "server service"로 약칭합니다.
-
-2. 모든 응답은 `CommonResponse<T>`로, 모든 에러는 `CommonErrorResponse`로 작성하여 보냅니다.
-
-3. github service는 항상 다음과 같은 절차로 response를 받아오세요
-    2-1. github api를 fetch로 호출합니다.
-    2-2. 그것으로 받아온 응답객체는 `response`라고 이름을 짓습니다. 만약 호출하는 github api가 여러가지라면 `(적당히 직관적인 이름)_response`로 지으세요
-    2-3. response는 반드시 `.ok`로 체크해야 하며, false인 상황은 throw 시키세요.
-    2-4. response의 데이터를 `.json()`하는 경우 그 객체의 이름을 json 이라 이름을 지으세요. 만약 여러개의 json이라면 `(적당히 직관적인 이름)_json`으로 지으세요
-    2-5. (API와 관련된 타입 수칙 참고) 해당 json은 **모든** 정보가 담긴 인터페이스 타입으로 사용하세요. (변수의 타입을 그렇게 선언하면 됨)
-    2-6. 최종 CommonResponse로 만들 때 그 변수이름은 항상 `commonResponse`로, 그 안에 들어가는 data는 `data`라는 이름으로 새로 만들어서 대입시키세요
-
-활용 예시
-```ts
-    const response = await fetch("깃허브 api주소",{
-        'Accept':"application/vnd.github+json"
-    });
-
-    if(!response.ok){
-        throw new Error("에러 메세지")
-    }
-
-    const json : GithubUserResponse = await response.json();
-    
-    const data  :UserInfo = {
-       // ...json.(필요한 필드)
-    }
-
-    const commonResponse : CommonResponse<UserInfo> = {
-        status : 200,
-        success : true,
-        data
-    }
-
-    res.json(commonResponse)
-```
-
-4. 에러 로직을 작성할 때는 발생 가능한 모든 에러 상황을 분석하여 알아서 판단하여 분기를 나누고, 이를 CommonErrorResponse로 치환시킨 후 `res.status().json()`문법으로 에러를 보내세요. 이때 상세 내용들은 모두 **한글**로 작성하는 것을 원칙으로 합니다.
-
-5. API를 개설 요청할 땐 반드시 다음 정보가 수반되어야 합니다.
-    - CommonResponse의 데이터의 타입, 또는 어떤 객체나 데이터가 와야 하는지에 대한 정보
-    - api 경로 이름과 메서드
-    - (필요한 경우) api에 사용되는 쿼리 파라미터의 정보, 없으면 없다고 할 것
-    - (POST, PUT, PATCH의 경우) api에 올라오는 요청 body, 없으면 없다고 할 것
-
-이 정보가 제대로 제공되지 않는다면 작업을 수행하지 말고 요청자에게 물어보거나 추가적인 요청자의 조건을 확인해보시길 바랍니다.
-
+API를 만들어달라는 개설 요청시 `(프로젝트루트)/docs/backend/APICreate-guide.md`를 참고하세요.
 
 
 
@@ -131,10 +83,10 @@ ex
          => type GithubSearchUsersResponse
         ```
 
-        (GraphQL) 해당 쿼리를 통해 가져오게 되는 **모든** 정보를 인터페이스 화 시키고 별도의 타입 파일로 분리시키세요      
+        (GraphQL) 쿼리와 응답 타입은 아래 **GitHub GraphQL 타입 생성 규칙**을 따르세요.
     3-2. 
         모든 타입 파일은 src/types 폴더 아래에 작성하며, 특히 github api와 직접적인 타입들은  types/github 폴더 아래에 작성합니다.
-        만약 RESTAPI의 타입이라면 github/rest 폴더 아래에, graphql 쿼리로 만들어진 거라면 github/graphql 폴더 아래에 작성해주세요.
+        REST API 타입은 `types/github/rest`에 두고, GraphQL 생성 타입은 `types/github/graphql`에 둡니다.
         RESTAPI의 파일 분리는 Octokit 그룹 & 메서드 로 나눠서 정리해주세요.
     3-3. 
         RESTAPI의 경우 파일명을 `Octokit그룹-메서드` 로 지으세요
@@ -160,3 +112,10 @@ ex
         - 해당 응답이 사용되어지는 우리 서버 api들
         - 각 필드마다의 설명, 추가로 derived 필드 또는 original 필드가 존재한다면 주석 설명에 (derived) 또는 (original)을 꼭 붙혀주세요
     - **그리고 이렇게 만든 최종 응답 data는 프론트엔드의 types 폴더에도 똑같은 이름의 타입을 만들어주세요. 다만, 여기서는 Pick을 쓰기보단 그냥 필요한 필드를 직접 인터페이스화 시켜서 작성하세요**
+
+### GitHub GraphQL 타입 생성 규칙
+
+- GitHub GraphQL API를 추가하거나 수정할 때 쿼리를 `src/client/queries/github/<기능>-<조회대상>.query.ts`에 분리합니다. 파일 하나에 이름이 있는 오퍼레이션 하나를 두고, 쿼리 문자열에 `/* GraphQL */`을 붙입니다.
+- 쿼리를 추가하거나 변경한 뒤 `backend`에서 `npm run codegen`을 실행합니다. 생성 결과는 `src/types/github/graphql/operations.generated.ts`에 저장합니다.
+- 호출부에서는 생성된 `*QueryVariables`로 요청 변수를 검사하고, `GithubGraphqlFetch<*Query>()`에 해당 쿼리의 생성 응답 타입을 전달합니다. GitHub 원본 응답 타입은 수기로 정의하지 않으며 생성 파일은 직접 수정하지 않습니다.
+- 프론트엔드에 전달하는 서비스 응답 DTO는 기존 `types/response` 규칙에 따라 관리합니다.
