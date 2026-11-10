@@ -8,6 +8,7 @@
     "test:watch": "vitest",
     "start": "node dist/app.js",
     "build": "tsc",
+    "codegen": "graphql-codegen --config codegen.ts",
     "dev": "nodemon --watch src --ext ts,tsx,json --exec ts-node src/app.ts",
     "dev-kill": "npx kill-port 3000",
     "format": "prettier --write src"
@@ -32,6 +33,9 @@
     "rss-parser": "^3.13.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/typescript-operations": "^4.6.1",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
