@@ -9468,7 +9468,7 @@ export type GetProjectTopicsQueryVariables = Exact<{
 export type GetProjectTopicsQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', name: string, repositoryTopics: { __typename?: 'RepositoryTopicConnection', nodes?: Array<{ __typename?: 'RepositoryTopic', topic: { __typename?: 'Topic', name: string } } | null> | null } } | null> | null } } | null };
 
 export type SearchUsersQueryVariables = Exact<{
-  query: Scalars['String']['input'];
+  searchQuery: Scalars['String']['input'];
   first: Scalars['Int']['input'];
   after?: InputMaybe<Scalars['String']['input']>;
 }>;

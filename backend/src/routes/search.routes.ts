@@ -1,19 +1,19 @@
 import { Router } from "express";
 import { Octokit } from "@octokit/rest";
 import { checkToken, checkUser } from "../middlewares/auth.middleware";
-import searchController from "../controllers/search.controllers";
 import { GITHUB_REST_API_VERSION } from "../server.config";
 import CommonError from "../utils/common-error";
+import type { AuthRequest } from "../types/middlewares/auth";
 import type { CommonErrorResponse, CommonResponse } from "../types/middlewares/common";
 import { GithubGraphqlFetch } from "../client/repo.client";
-import { searchUsersQuery } from "../client/queries/github/search-users.query";
+import { githubSearchUsersQuery } from "../client/queries/github/search-users.query";
 import type {
     SearchUsersQuery,
     SearchUsersQueryVariables,
 } from "../types/github/graphql/operations.generated";
-import type { UserSearchData } from "../types/response/user-search";
-
-import type { RepositorySearchData } from "../types/response/repository-search";
+import type { GetSearchDto } from "../types/response/search";
+import type { GetSearchUsersDto } from "../types/response/search-users";
+import type { GetSearchReposDto } from "../types/response/search-repos";
 
 const search_router = Router();
 const octokit = new Octokit();
@@ -23,7 +23,82 @@ search_router.get("/health", (req, res) => {
     res.json({ message: "Search route is working!" });
 });
 
-search_router.get("/", checkToken, checkUser, searchController.search);
+/**
+ * @api GET /api/search
+ *
+ * @desc 기존 클라이언트용 GitHub 사용자 검색입니다.
+ *
+ * @query q (string, 필수) - 검색어와 검색 조건.
+ * @query page (integer, 선택) - 페이지 번호. 기본값 1.
+ * @query per_page (integer, 선택) - 페이지당 결과 수. 기본값 10, 최대 100.
+ *
+ * @github backend/src/types/github/rest/search-users.ts
+ *
+ * @response backend/src/types/response/search.ts
+ *
+ * @error [400] : 검색어 또는 페이지 입력이 잘못됐거나 GitHub가 검색 조건을 거부한 경우.
+ * @error [500] : 사용자 인증 처리 또는 GitHub 검색이 실패한 경우.
+ */
+search_router.get("/", checkToken, checkUser, async (req: AuthRequest, res) => {
+    try {
+        const { q, page = "1", per_page = "12" } = req.query;
+        if (typeof q !== "string" || !q.trim()) {
+            throw CommonError.create400Error("검색어를 입력해 주세요.");
+        }
+        if (
+            typeof page !== "string" ||
+            !/^\d+$/.test(page) ||
+            !Number.isSafeInteger(Number(page)) ||
+            Number(page) < 1
+        ) {
+            throw CommonError.create400Error("페이지 번호는 1 이상의 정수여야 합니다.");
+        }
+        if (
+            typeof per_page !== "string" ||
+            !/^\d+$/.test(per_page) ||
+            Number(per_page) < 1 ||
+            Number(per_page) > 100
+        ) {
+            throw CommonError.create400Error("페이지당 결과 수는 1부터 100까지의 정수여야 합니다.");
+        }
+
+        const auth = req.user?.githubAccessToken;
+        const searchOctokit = auth ? new Octokit({ auth }) : octokit;
+        const { data: response } = await searchOctokit.rest.search.users({
+            q,
+            page: Number(page),
+            per_page: Number(per_page),
+            headers: githubRestHeaders,
+        });
+        const data: GetSearchDto = {
+            total_count: response.total_count,
+            incomplete_results: response.incomplete_results,
+            items: response.items.map(({ id, avatar_url, html_url, login, type }) => ({
+                id,
+                avatar_url,
+                html_url,
+                login,
+                type,
+            })),
+        };
+        const commonResponse: CommonResponse<GetSearchDto> = { status: 200, success: true, data };
+        res.json(commonResponse);
+    } catch (error) {
+        let errorResponse: CommonErrorResponse;
+        if (error instanceof CommonError) {
+            errorResponse = error;
+        } else if (error instanceof Error && "status" in error && error.status === 422) {
+            errorResponse = CommonError.create400Error(
+                "GitHub에서 검색 조건을 처리할 수 없습니다.",
+            );
+        } else {
+            errorResponse = CommonError.create500Error(
+                "GitHub 사용자 검색 응답을 처리하지 못했습니다.",
+            );
+        }
+        res.status(errorResponse.status).json(errorResponse);
+    }
+});
 
 /**
  * @api GET /api/search/users
@@ -37,21 +112,17 @@ search_router.get("/", checkToken, checkUser, searchController.search);
  * @query sort (followers | repositories | joined, 선택) - 정렬 기준.
  * @query order (asc | desc, 선택) - 정렬 방향. sort 지정 시 기본값 desc.
  *
- * @githubRef https://docs.github.com/en/graphql/reference/queries#search
- * @githubRef https://docs.github.com/en/graphql/guides/using-pagination-in-the-graphql-api
+ * @github backend/src/client/queries/github/search-users.query.ts
  *
- * @github POST https://api.github.com/graphql - SearchUsers 오퍼레이션.
- *
- * @githubresponse userCount, pageInfo와 User 또는 Organization 노드를 반환합니다.
- *
- * @response UserSearchData - 전체 결과 수, 계정 목록, 다음 페이지 여부와 커서.
+ * @response backend/src/types/response/search-users.ts
  *
  * @error [400] : 검색어, 페이지, 커서 또는 정렬 옵션이 잘못된 경우.
  * @error [500] : GitHub 검색 요청이 실패한 경우.
  */
 search_router.get("/users", async (req, res) => {
     try {
-        const { q, page = "1", per_page = "30", after, sort, order } = req.query;
+        console.log("/search/users :", req.query);
+        const { q, page = "1", per_page = "12", after, sort, order } = req.query;
 
         if (typeof q !== "string" || !q.trim()) {
             throw CommonError.create400Error("검색어를 입력해 주세요.");
@@ -76,7 +147,9 @@ search_router.get("/users", async (req, res) => {
             after !== undefined &&
             (typeof after !== "string" || !after.trim() || Number(page) !== 1)
         ) {
-            throw CommonError.create400Error("유효한 커서를 보내고 페이지 번호는 1로 지정해 주세요.");
+            throw CommonError.create400Error(
+                "유효한 커서를 보내고 페이지 번호는 1로 지정해 주세요.",
+            );
         }
         if (
             sort !== undefined &&
@@ -96,9 +169,9 @@ search_router.get("/users", async (req, res) => {
             throw CommonError.create400Error("검색 결과는 처음 1,000개까지 조회할 수 있습니다.");
         }
 
-        const query = sort ? `${q.trim()} sort:${sort}-${order ?? "desc"}` : q.trim();
+        const searchQuery = sort ? `${q.trim()} sort:${sort}-${order ?? "desc"}` : q.trim();
         const variables: SearchUsersQueryVariables = {
-            query,
+            searchQuery,
             first: perPage,
             after: after ?? null,
         };
@@ -106,21 +179,23 @@ search_router.get("/users", async (req, res) => {
         // 기존 페이지 번호 요청은 앞선 결과를 건너뛸 커서를 먼저 찾습니다.
         while (remainingOffset > 0) {
             const first = Math.min(remainingOffset, 100);
-            const { search } = await GithubGraphqlFetch<SearchUsersQuery>(
+            const cursor_response = await GithubGraphqlFetch<SearchUsersQuery>(
                 undefined,
-                searchUsersQuery,
+                githubSearchUsersQuery,
                 { ...variables, first },
             );
+            const { search } = cursor_response;
             const { hasNextPage, endCursor } = search.pageInfo;
             if (!hasNextPage || !endCursor) {
-                const commonResponse: CommonResponse<UserSearchData> = {
+                const data: GetSearchUsersDto = {
+                    total_count: search.userCount,
+                    items: [],
+                    page_info: { has_next_page: false, end_cursor: null },
+                };
+                const commonResponse: CommonResponse<GetSearchUsersDto> = {
                     status: 200,
                     success: true,
-                    data: {
-                        total_count: search.userCount,
-                        items: [],
-                        page_info: { has_next_page: false, end_cursor: null },
-                    },
+                    data,
                 };
                 res.json(commonResponse);
                 return;
@@ -129,12 +204,16 @@ search_router.get("/users", async (req, res) => {
             remainingOffset -= first;
         }
 
-        const { search } = await GithubGraphqlFetch<SearchUsersQuery>(
+        const response = await GithubGraphqlFetch<SearchUsersQuery>(
             undefined,
-            searchUsersQuery,
+            githubSearchUsersQuery,
             variables,
         );
-        const data: UserSearchData = {
+
+        console.log("response", response);
+        const { search } = response;
+
+        const data: GetSearchUsersDto = {
             total_count: search.userCount,
             items: (search.nodes ?? []).flatMap((node) => {
                 if (node?.__typename !== "User" && node?.__typename !== "Organization") return [];
@@ -158,7 +237,7 @@ search_router.get("/users", async (req, res) => {
                 end_cursor: search.pageInfo.endCursor ?? null,
             },
         };
-        const commonResponse: CommonResponse<UserSearchData> = {
+        const commonResponse: CommonResponse<GetSearchUsersDto> = {
             status: 200,
             success: true,
             data,
@@ -174,21 +253,18 @@ search_router.get("/users", async (req, res) => {
 });
 
 /**
- * @api GET /api/search/repositories
+ * @api GET /api/search/repos
+ *
  * @desc GitHub에서 검색 조건에 일치하는 저장소를 조회합니다.
+ *
  * @query q (string, 필수) - 검색어와 검색 조건을 포함하는 검색식.
  * @query page (integer, 선택) - 페이지 번호. 기본값 1.
  * @query per_page (integer, 선택) - 페이지당 결과 수. 기본값 30, 최대 100.
- * @githubRef https://docs.github.com/en/rest/search/search#search-repositories
- * @github GET https://api.github.com/search/repositories
- *   q, page, per_page를 쿼리로 전달합니다. 요청 본문 없음.
- * @githubresponse GithubSearchReposResponse
- *   전체 결과 수, 불완전 여부와 저장소 목록. 각 항목의 필드는 GithubSearchReposItem을 참조합니다.
- * @response RepositorySearchData
- *   total_count - 전체 결과 수.
- *   incomplete_results - 검색 결과가 불완전한지 여부.
- *   items - 저장소 식별 정보, 설명, 링크, 소유 계정 요약, 언어, 별표 수,
- *   포크 수, 생성 및 업데이트 시각, 라이선스를 담은 목록.
+ *
+ * @github backend/src/types/github/rest/search-repos.ts
+ *
+ * @response backend/src/types/response/search-repos.ts
+ *
  * @error [400] : 검색어 또는 페이지 입력이 잘못됐거나 GitHub가 검색 조건을 거부한 경우.
  * @error [500] : GitHub 요청 또는 응답 처리 실패.
  */
@@ -218,7 +294,7 @@ search_router.get("/repos", async (req, res) => {
             throw CommonError.create400Error("페이지당 결과 수는 1부터 100까지의 정수여야 합니다.");
         }
 
-        const { data: json } = await octokit.rest.search
+        const { data: response } = await octokit.rest.search
             .repos({
                 q: q.trim(),
                 page: Number(page),
@@ -236,10 +312,10 @@ search_router.get("/repos", async (req, res) => {
                 }
                 throw error;
             });
-        const data: RepositorySearchData = {
-            total_count: json.total_count,
-            incomplete_results: json.incomplete_results,
-            items: json.items.map((item) => {
+        const data: GetSearchReposDto = {
+            total_count: response.total_count,
+            incomplete_results: response.incomplete_results,
+            items: response.items.map((item) => {
                 const { owner } = item;
                 if (!owner) {
                     throw CommonError.create500Error(
@@ -256,7 +332,7 @@ search_router.get("/repos", async (req, res) => {
                         login: owner.login,
                         avatar_url: owner.avatar_url,
                         html_url: owner.html_url,
-                        type: owner.type as RepositorySearchData["items"][number]["owner"]["type"],
+                        type: owner.type as GetSearchReposDto["items"][number]["owner"]["type"],
                     },
                     language: item.language,
                     stargazers_count: item.stargazers_count,
@@ -267,7 +343,7 @@ search_router.get("/repos", async (req, res) => {
                 };
             }),
         };
-        const commonResponse: CommonResponse<RepositorySearchData> = {
+        const commonResponse: CommonResponse<GetSearchReposDto> = {
             status: 200,
             success: true,
             data,

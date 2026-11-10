@@ -58,7 +58,7 @@ ex
  *
  * @github backend/src/client/queries/github/search-users.query.ts
  *
- * @response backend/src/types/response/user-search.ts
+ * @response backend/src/types/response/search-users.ts
  *
  * @error [400] : 검색어, 페이지, 커서 또는 정렬 옵션이 잘못된 경우.
  * @error [500] : GitHub 검색 요청 또는 응답 처리가 실패한 경우.

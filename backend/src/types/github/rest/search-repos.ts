@@ -6,8 +6,8 @@ import type { RestEndpointMethodTypes } from "@octokit/rest";
  * req : GET https://api.github.com/search/repositories
  * link : https://docs.github.com/en/rest/search/search#search-repositories
  */
-export type GithubSearchReposResponse =
+export type GithubSearchReposDto =
     RestEndpointMethodTypes["search"]["repos"]["response"]["data"];
 
 /** GitHub 저장소 검색 결과의 개별 저장소입니다. */
-export type GithubSearchReposItem = GithubSearchReposResponse["items"][number];
+export type GithubSearchReposItem = GithubSearchReposDto["items"][number];

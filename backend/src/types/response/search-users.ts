@@ -12,7 +12,7 @@ export interface UserSearchItem {
 }
 
 /** GET /api/search/users의 응답 데이터입니다. */
-export interface UserSearchData {
+export interface GetSearchUsersDto {
     total_count: number; // 전체 검색 결과 수
     items: UserSearchItem[]; // 요청 페이지의 계정 목록
     page_info: {

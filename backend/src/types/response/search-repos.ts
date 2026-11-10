@@ -1,7 +1,7 @@
 import type {
     GithubSearchReposItem,
-    GithubSearchReposResponse,
-} from "../github/rest/repository-search";
+    GithubSearchReposDto,
+} from "../github/rest/search-repos";
 
 /**
  * GET /api/search/repos가 반환하는 저장소 항목입니다.
@@ -34,8 +34,8 @@ type RepositorySearchItem = Pick<
  * GET /api/search/repos의 응답 데이터입니다.
  * total_count는 전체 검색 결과 수, incomplete_results는 검색 결과의 불완전 여부입니다.
  */
-export type RepositorySearchData = Pick<
-    GithubSearchReposResponse,
+export type GetSearchReposDto = Pick<
+    GithubSearchReposDto,
     "total_count" | "incomplete_results"
 > & {
     items: RepositorySearchItem[]; // 요청 페이지의 저장소 목록
