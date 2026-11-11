@@ -4,8 +4,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 import SearchFilter from "../search/SearchFilter";
 
 import SearchCategoryOpenButton from "../search/SearchCategoryOpenButton";
-import type { UserSearchData } from "~/types/search/user-search";
-import type { RepositorySearchData } from "~/types/search/repository-search";
+import type { SearchResult } from "./SearchAutocompleteList";
 import SearchInputField from "./SearchInputField";
 
 export interface ISearchFilterCategory {
@@ -72,10 +71,7 @@ export default function SearchBar({ enableFilter, variant }: SearchBarProps) {
     const [choice, setChoice] = useState<SearchChoiceOptions>({});
     const [perPage, setPerPage] = useState(10);
 
-    const [searchResult, setSearchResult] = useState<{
-        user?: UserSearchData;
-        repo?: RepositorySearchData;
-    }>({});
+    const [searchResult, setSearchResult] = useState<SearchResult>({});
 
     const choiceHandler = (
         key: SearchChoiceOptionsKeyType,

@@ -5,7 +5,10 @@ import type { UserSearchData, UserSearchItem } from "~/types/search/user-search"
 import type { ISearchFilterCategory } from "./SearchBar";
 import { Link, useNavigate } from "react-router";
 
-export type SearchResult = { user?: UserSearchData; repo?: RepositorySearchData };
+export type SearchResult = {
+    user?: Pick<UserSearchData, "items" | "total_count">;
+    repo?: Pick<RepositorySearchData, "items" | "total_count">;
+};
 
 const SearchAutoCompleteUserItem = ({
     e,
