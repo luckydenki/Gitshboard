@@ -19,7 +19,7 @@ export default function SearchUserItem({ item }: { item: SearchUserCardItem }) {
             starsLabel="소유 저장소 Star 합계"
             updatedAt={item.updated_at}>
             <span>@{item.login}</span>
-            {item.location && <span>{item.location}</span>}
+            {item.location && <span>지역 {item.location}</span>}
         </SearchItemLayout>
     );
 }

@@ -9,7 +9,7 @@ import type {
 const typeFilterOptions = [
     { label: "전체", value: "", name: "type", defaultChecked: true },
     { label: "개인", value: "user", name: "type" },
-    { label: "레포지토리", value: "org", name: "type" },
+    { label: "조직", value: "org", name: "type" },
 ];
 
 const languageFilterOptions = [
