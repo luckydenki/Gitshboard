@@ -1,6 +1,6 @@
-import CommonError from "~/utils/common/common-error";
+import type { SearchResult } from "../../components/page/home/SearchAutocompleteList";
 import type { ISearchFilterCategory } from "../../components/page/home/SearchBar";
-import type { CommonResponse, ErrorStatus } from "~/types/common/common";
+import type { CommonResponse } from "~/types/common/common";
 import type { UserSearchData } from "~/types/search/user-search";
 import type { RepositorySearchData } from "~/types/search/repository-search";
 
@@ -130,56 +130,60 @@ export const searchRepo = async (searchForm: FormData | string, page: number, pe
     }
 };
 
+/**
+ * 검색 API의 응답에서 자동완성 목록에 필요한 항목과 전체 개수만 전달합니다.
+ * @param input 현재 검색 입력 요소
+ * @param category 요청할 사용자 또는 저장소 검색 범주
+ * @param page 기존 페이지 번호
+ * @param perPage 요청할 항목 수
+ * @param updateResult 응답을 목록 상태에 반영하는 함수
+ * @returns 요청 처리가 끝나면 완료되며, 검색어가 비어 있거나 응답이 실패하면 상태를 갱신하지 않습니다.
+ * @example searchAutoComplete(input, category, 1, 12, setSearchResult)
+ */
 export const searchAutoComplete = async (
-    target: EventTarget & HTMLInputElement,
+    input: HTMLInputElement,
     category: ISearchFilterCategory,
     page: number,
-    per_page: number,
-    setState: React.Dispatch<
-        React.SetStateAction<{
-            user?: UserSearchData;
-            repo?: RepositorySearchData;
-        }>
-    >,
+    perPage: number,
+    updateResult: (update: (previous: SearchResult) => SearchResult) => void,
 ) => {
+    const keyword = input.value.trim();
+    if (!keyword) return;
+
     try {
-        if (!target.value) return;
+        if (category.value === "users") {
+            const response = await searchUser(keyword, page, perPage);
+            if (!response?.success || !response.data || input.value.trim() !== keyword) return;
 
-        const params = createSearchParameterByString(
-            ["q", "page", "per_page"],
-            [target.value, page.toString(), per_page.toString()],
-        );
-        const res = await fetch(`api/search/${category.value}?${params.toString()}`);
+            const { total_count, items } = response.data;
 
-        if (res.ok) {
-            const json = await res.json();
-
-            setState((e) => {
-                if (category.value == "users") {
-                    const newdata: CommonResponse<UserSearchData> = json;
-                    return {
-                        repo: undefined,
-                        user: newdata.data,
-                    };
-                } else {
-                    const newdata: CommonResponse<RepositorySearchData> = json;
-                    return {
-                        user: undefined,
-                        repo: newdata.data,
-                    };
-                }
+            updateResult((previous) => {
+                return {
+                    repo: previous.repo,
+                    user: previous.user,
+                };
             });
 
-            //console.log("success");
+            //updateResult의 인자에 이 함수를 실행할 시 발생할 set콜백을 지정한다.
+            updateResult((previous) => ({
+                user: {
+                    total_count,
+                    items: page === 1 ? items : [...(previous.user?.items ?? []), ...items],
+                },
+            }));
         } else {
-            throw new CommonError({
-                status: res.status as ErrorStatus,
-                title: "니얼굴",
-                type: "검색 에러",
-                detail: "검색창에서 진짜 심각한 에러가 터졌습니다",
-            });
+            const response = await searchRepo(keyword, page, perPage);
+            if (!response?.success || !response.data || input.value.trim() !== keyword) return;
+
+            const { total_count, items } = response.data;
+            updateResult((previous) => ({
+                repo: {
+                    total_count,
+                    items: page === 1 ? items : [...(previous.repo?.items ?? []), ...items],
+                },
+            }));
         }
-    } catch (e) {
-        console.log("error ", e);
+    } catch (error) {
+        console.error("자동완성 검색 요청에 실패했습니다.", error);
     }
 };
