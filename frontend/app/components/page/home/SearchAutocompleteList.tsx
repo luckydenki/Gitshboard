@@ -18,11 +18,12 @@ const SearchAutoCompleteUserItem = ({
     refCallback: (e: HTMLButtonElement) => void;
 }) => {
     const navigate = useNavigate();
-
+    //  console.log("e.login", e.login);
     return (
         <button
             type="button"
             onClick={() => {
+                console.log("누르기");
                 navigate(`../user/${e.login ?? e.name}`);
             }}
             ref={refCallback}
@@ -38,10 +39,10 @@ const SearchAutoCompleteUserItem = ({
             </div>
             <a
                 href={e.html_url}
-                className="text-primary flex h-full items-center text-sm hover:underline"
                 onClick={(element) => {
                     element.stopPropagation();
-                }}>
+                }}
+                className="text-primary flex h-full items-center text-sm hover:underline">
                 Github
             </a>
         </button>

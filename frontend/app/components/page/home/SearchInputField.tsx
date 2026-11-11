@@ -92,10 +92,10 @@ export default function SearchInputField({
                 placeholder="검색..."
                 className="w-full min-w-64 appearance-none outline-none"
                 onFocus={(e) => {
-                    if (e.target.value) setIsVisible(true);
+                    //if (e.target.value) setIsVisible(true);
                 }}
                 onBlur={() => {
-                    setIsVisible(false);
+                    // setIsVisible(false);
                 }}
                 onChange={(e) => {
                     page.current = 1;

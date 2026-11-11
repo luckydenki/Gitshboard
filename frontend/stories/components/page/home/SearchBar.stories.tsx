@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { expect, userEvent } from "storybook/test";
 import SearchBar from "../../../../app/components/page/home/SearchBar";
+import { searchRepo, searchUser } from "../../../../mock/storybook/search";
 
 const meta = {
     title: "Components/Page/Home/SearchBar",
@@ -8,7 +9,17 @@ const meta = {
     args: { enableFilter: false, variant: { wsize: "md" } },
     beforeEach: () => {
         const originalFetch = globalThis.fetch;
-        globalThis.fetch = async () => new Response("", { status: 200 });
+        globalThis.fetch = async (input) => {
+            const isRepoSearch = String(input).includes("/api/search/repos?");
+            const data = isRepoSearch
+                ? { total_count: 1, incomplete_results: false, items: [searchRepo] }
+                : {
+                      total_count: 1,
+                      items: [searchUser],
+                      page_info: { has_next_page: false, end_cursor: null },
+                  };
+            return Response.json({ success: true, status: 200, data });
+        };
         return () => { globalThis.fetch = originalFetch; };
     },
 } satisfies Meta<typeof SearchBar>;
