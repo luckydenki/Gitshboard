@@ -1,4 +1,5 @@
 import SearchBar from "~/components/page/home/SearchBar";
+import SearchPagination from "~/components/page/search/SearchPagination";
 import SearchUserItem from "~/components/page/search/SearchUserItem";
 import SearchRepoItem from "~/components/page/search/SearchRepoItem";
 import SearchResultHeader from "~/components/page/search/SearchResultHeader";
@@ -88,6 +89,7 @@ export default function Search() {
                                         item={item}
                                     />
                                 ))}
+                            <SearchPagination />
                         </section>
                     ) : (
                         <div className="flex h-full items-center justify-center text-3xl text-gray-500">
