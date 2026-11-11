@@ -1,14 +1,9 @@
 # 프론트엔드 AGENTS.md
 
 
-## 컴포넌트 및 UI 구현 및 수정 : 6.1 Terra 모델
+## 컴포넌트 및 UI 구현 및 수정
 
-컴포넌트 및 UI를 구현 및 수정을 요구하는 모든 요청에는 `(프로젝트루트)/docs/Component-guide.md`를 참고하여 구현하세요.
-
-
-## 테일윈드 및 CSS 스타일 효과 기본 가이드
-
-UI를 만드는 요청에는 `(프로젝트루트)/docs/CSS-guide.md`를 참고하여 css 스타일을 만드세요
+메인 에이전트는 컴포넌트 및 UI 구현·수정을 `component_worker`에 위임하고, 1차 구현이 끝나면 `uiux_reviewer`를 호출하세요. 점검과 피드백 전달은 `docs/UIUX-guide.md`를 따르세요.
 
 
 ## Storybook 테스트
