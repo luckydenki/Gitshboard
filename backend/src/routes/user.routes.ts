@@ -28,6 +28,7 @@ import type {
     UserRecentActivityItem,
 } from "../types/response/user-recent-activity";
 import CommonError from "../utils/common-error";
+import { calculateContributionStreak } from "../utils/contribution-streak";
 
 const user_router = Router();
 
@@ -190,7 +191,7 @@ user_router.get("/repos", authToken, authUser, async (req: AuthRequest, res) => 
 /**
  * @api GET /api/users/:login/profile
  *
- * @desc GitHub 프로필, 팔로워·팔로잉 수, 소셜 링크와 기여 캘린더를 조회합니다. 로그인한 방문자의 토큰이 있으면 해당 토큰을 사용합니다.
+ * @desc GitHub 프로필, 팔로워·팔로잉 수, 소셜 링크, 기여 캘린더와 연속 활동 일수를 조회합니다. 로그인한 방문자의 토큰이 있으면 해당 토큰을 사용합니다.
  *
  * @github backend/src/client/queries/github/user-dashboard-profile.query.ts
  *
@@ -219,7 +220,13 @@ user_router.get("/:login/profile", checkToken, checkUser, async (req: AuthReques
             throw CommonError.create404Error("GitHub 사용자를 찾을 수 없습니다.");
         }
 
-        const data: GetUserProfileDto = response;
+        const { weeks } = response.user.contributionsCollection.contributionCalendar;
+        const days = weeks.flatMap(({ contributionDays }) => contributionDays);
+        const today = new Date().toISOString().slice(0, 10);
+        const data: GetUserProfileDto = {
+            ...response,
+            streakDays: calculateContributionStreak(days, today),
+        };
         const commonResponse: CommonResponse<GetUserProfileDto> = {
             status: 200,
             success: true,

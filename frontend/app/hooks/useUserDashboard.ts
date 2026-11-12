@@ -56,13 +56,13 @@ export function useUserDashboardProfile(login?: string) {
         gcTime: 0,
         queryFn: async ({ signal }) => {
             const errorMessage = "GitHub 프로필을 불러오지 못했습니다.";
-            const { user } = await fetchDashboardData<{ user: DashboardProfile | null }>(
+            const data = await fetchDashboardData<{ user: DashboardProfile | null; streakDays: number }>(
                 `/api/users/${encodeURIComponent(login ?? "")}/profile`,
                 signal,
                 errorMessage,
             );
-            if (!user) throw new Error(errorMessage);
-            return user;
+            if (!data.user) throw new Error(errorMessage);
+            return data;
         },
     });
 }

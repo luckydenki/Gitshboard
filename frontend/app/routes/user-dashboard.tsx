@@ -64,10 +64,10 @@ export default function UserDashboard() {
             <UserDashboardLayout>
                 {isLoading && <p role="status">프로필을 불러오는 중입니다.</p>}
                 {isError && <p role="alert">프로필을 불러오지 못했습니다.</p>}
-                {profile && <UserDashboardProfileSection profile={profile} />}
+                {profile?.user && <UserDashboardProfileSection profile={profile.user} />}
                 <UserDashboardNavigationSection menus={menus} />
 
-                <Outlet />
+                <Outlet context={{ streakDays: profile?.streakDays, isProfileLoading: isLoading, isProfileError: isError }} />
             </UserDashboardLayout>
         </>
     );
