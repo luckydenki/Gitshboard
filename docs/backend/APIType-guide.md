@@ -5,7 +5,8 @@
 ## 공통
 
 - API 타입은 크게 "서버 DTO (실제 우리 서버에서 클라이언트로 내려보낼 Responst data 타입임)", "Github DTO(Github API 호출로 인한 DTO, graphql과 rest 방식 모두 포함)"로 나뉩니다. 이 둘은 별개로 관리해야 합니다.
-- 모든 Github DTO는 무엇을 나타내는 타입인지 한 줄 요약해서 설명하세요. (graphql 은 쿼리 파일에 작성하면 됨)
+- 모든 Github DTO는 무엇을 나타내는 타입인지 한 줄 요약해서 설명하세요. 
+- graphql 의 경우 쿼리 파일에 직접 무엇과 관련된 쿼리인지 요약해서 설명하세요
 - Github DTO의 경우, API 타입과 관련된 GITHUB API 공식 문서를 `link :`라 키워드 붙히고 작성하세요.
 
 ## Github Rest DTO
