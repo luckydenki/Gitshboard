@@ -1,0 +1,17 @@
+node_modules
+dist
+build
+coverage
+.cache
+public
+*.min.js
+package.json
+package-lock.json
+*.md
+*.json
+*.config.*
+Dockerfile
+docker-compose.yml
+*.mdx
+*.yml
+*.json5

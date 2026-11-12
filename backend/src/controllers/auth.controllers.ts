@@ -1,126 +1,116 @@
-import jwt from 'jsonwebtoken';
-import { CookieOptions } from 'express';
-import { Request, Response } from 'express';
-import { AuthRequest } from '../types/middlewares/auth';
-import authService from '../services/auth.services';
-import { CommonErrorResponse, CommonResponse } from '../types/middlewares/common';
-import { redisClient } from '../infra/redis/redisClient';
+import jwt from "jsonwebtoken";
+import { CookieOptions } from "express";
+import { Request, Response } from "express";
+import { AuthRequest } from "../types/middlewares/auth";
+import authService from "../services/auth.services";
+import { CommonErrorResponse, CommonResponse } from "../types/middlewares/common";
+import { redisClient } from "../infra/redis/redisClient";
 
 class AuthController {
+    public check = async (req: AuthRequest, res: Response) => {
+        if (req.state === "failed") {
+            const response: CommonResponse<string> = {
+                success: false,
+                status: 200,
+                data: "인증되지 않은 사용자입니다.",
+            };
 
-        public check = async(req: AuthRequest, res: Response)=>{
+            res.status(200).json(response);
+        } else {
+            const response: CommonResponse<string> = {
+                success: true,
+                status: 200,
+                data: "인증된 사용자입니다.",
+            };
 
-            if(req.state === 'failed'){
-                const response : CommonResponse<string> ={
-                    success : false,
-                    status : 200,
-                    data : '인증되지 않은 사용자입니다.',
-                }
-
-                res.status(200).json(response);
-            }
-            else{
-                const response : CommonResponse<string> ={
-                    success : true,
-                    status : 200,
-                    data : '인증된 사용자입니다.',
-
-                }
-
-                res.status(200).json(response);
-            }
+            res.status(200).json(response);
         }
+    };
 
-        
-        public getGithubUser = async(req: Request, res: Response) => {
+    public getGithubUser = async (req: Request, res: Response) => {
         //Express는 응답을 한번만 보낼 수 있음. 조심하셈
-            const { code }  = req.body;
-            try{
-                    const userData = await authService.getGithubUser(code);
-                    if(!userData){
-                        console.error("Error : Github authentication failed");
-                        throw new Error("Github authentication failed");
-                    }
-
-                    const { githubUserData, user } = userData;
-                    const jwtToken = process.env.JWT_SECRET;
-                    const appToken = jwt.sign(
-                        {                           //payload
-                            userId : user.id,
-                            githubId : user.githubId,
-                        },
-                        jwtToken!,                 //secret key
-                        { expiresIn : '1h' }        //options
-                    );
-        
-                    //sameSite 옵션
-                    // - 'strict' : 엄격한 sameSite 정책, 타 사이트에서 쿠키 전송 불가
-                    // - 'lax' : 타 사이트에서 쿠키 전송 허용, 단 GET 요청에 한함
-                    // - 'none' : 모든 상황에서 쿠키 전송 허용, 단 secure 옵션도 true로 설정해야 함 (브라우저 강제 사항)
-        
-                    const cookieOptions : CookieOptions ={
-                        httpOnly : true,            //http only 활성화
-                        secure : true,              //https에서만 쿠키 전송, 다만 개발환경에서는 false로 설정
-                        sameSite : 'none',          //CSRF 공격 방지는 어쩔수가 없이 false로 해야할 듯
-                        maxAge : 240 * 60 * 1000,   //쿠키 만료 시간 설정, ms 단위, 4시간
-                    }
-                    res.cookie('app_token', appToken, cookieOptions);
-        
-                    console.log("Success : Set cookie with JWT token", { appToken, cookieOptions });
-        
-                    
-                    const response : CommonResponse<typeof githubUserData> ={
-                        success : true,
-                        status : 200,
-                        data : githubUserData,
-                    }
-                    res.json(response);
-
-            }catch(error){
-                console.log("Error : Github authentication error", error);
-
-                const errorResponse : CommonErrorResponse ={
-                    status : 500,
-                    type : 'Github authentication error',
-                    title : 'Github authentication error',
-                    detail : (error as Error).message,
-                }
-
-                res.status(500).json(errorResponse);
+        const { code } = req.body;
+        try {
+            const userData = await authService.getGithubUser(code);
+            if (!userData) {
+                console.error("Error : Github authentication failed");
+                throw new Error("Github authentication failed");
             }
+
+            const { githubUserData, user } = userData;
+            const jwtToken = process.env.JWT_SECRET;
+            const appToken = jwt.sign(
+                {
+                    //payload
+                    userId: user.id,
+                    githubId: user.githubId,
+                },
+                jwtToken!, //secret key
+                { expiresIn: "1h" }, //options
+            );
+
+            //sameSite 옵션
+            // - 'strict' : 엄격한 sameSite 정책, 타 사이트에서 쿠키 전송 불가
+            // - 'lax' : 타 사이트에서 쿠키 전송 허용, 단 GET 요청에 한함
+            // - 'none' : 모든 상황에서 쿠키 전송 허용, 단 secure 옵션도 true로 설정해야 함 (브라우저 강제 사항)
+
+            const cookieOptions: CookieOptions = {
+                httpOnly: true, //http only 활성화
+                secure: true, //https에서만 쿠키 전송, 다만 개발환경에서는 false로 설정
+                sameSite: "none", //CSRF 공격 방지는 어쩔수가 없이 false로 해야할 듯
+                maxAge: 240 * 60 * 1000, //쿠키 만료 시간 설정, ms 단위, 4시간
+            };
+            res.cookie("app_token", appToken, cookieOptions);
+
+            console.log("Success : Set cookie with JWT token", { appToken, cookieOptions });
+
+            const response: CommonResponse<typeof githubUserData> = {
+                success: true,
+                status: 200,
+                data: githubUserData,
+            };
+            res.json(response);
+        } catch (error) {
+            console.log("Error : Github authentication error", error);
+
+            const errorResponse: CommonErrorResponse = {
+                status: 500,
+                type: "Github authentication error",
+                title: "Github authentication error",
+                detail: (error as Error).message,
+            };
+
+            res.status(500).json(errorResponse);
         }
+    };
 
+    public logoutUser = async (req: AuthRequest, res: Response) => {
+        try {
+            res.clearCookie("app_token");
+            console.log("userid ", req.user?.id);
 
-        public logoutUser = async(req: AuthRequest, res: Response)=>{
-            try{
-                res.clearCookie('app_token');
-                console.log("userid ", req.user?.id);
+            const del = await redisClient.del(`gitshboard:user:${req.user?.id}`); // Redis에서 사용자 세션 삭제
 
-                const del = await redisClient.del(`gitshboard:user:${req.user?.id}`); // Redis에서 사용자 세션 삭제
+            console.log("Redis del result : ", del);
 
- 
-                console.log("Redis del result : ", del);
-
-                const response : CommonResponse<null> ={
-                    success : true,
-                    status : 200,
-                    data : null,
-                }
-                res.json(response);
-
-            }catch(error){
-                console.error("Error : Logout failed", error);
-                const errorResponse : CommonErrorResponse ={
-                    status : 500,
-                    type : 'Logout failed',
-                    title : 'Logout failed',
-                    detail : (error as Error).message,
-                }
-                res.status(500).json(errorResponse);
-            }
+            const response: CommonResponse<null> = {
+                success: true,
+                status: 200,
+                data: null,
+            };
+            res.json(response);
+        } catch (error) {
+            console.error("Error : Logout failed", error);
+            const errorResponse: CommonErrorResponse = {
+                status: 500,
+                type: "Logout failed",
+                title: "Logout failed",
+                detail: (error as Error).message,
+            };
+            res.status(500).json(errorResponse);
         }
+    };
 }
-
 
 const authController = new AuthController();
 export default authController;

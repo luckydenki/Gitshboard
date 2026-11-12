@@ -1,15 +1,12 @@
 import { User } from "@prisma/client";
-import {Request} from 'express';
-
+import { Request } from "express";
 
 export interface UserWithAccessToken extends User {
-    githubAccessToken : string;
+    githubAccessToken: string;
 }
 
-
-
 export interface AuthRequest extends Request {
-    state? : 'success' | 'failed'
-    user? : UserWithAccessToken;
-    decoded_token? : { userId : number, githubId : number };
+    state?: "success" | "failed";
+    user?: UserWithAccessToken;
+    decoded_token?: { userId: number; githubId: number };
 }

@@ -1,11 +1,14 @@
 import type { RenderLocale } from "./RenderLocale";
 
-export const locale: Record<RenderLocale, {
-    eyebrow: string;
-    title: string;
-    detail: string;
-    empty: string;
-}> = {
+export const locale: Record<
+    RenderLocale,
+    {
+        eyebrow: string;
+        title: string;
+        detail: string;
+        empty: string;
+    }
+> = {
     en: {
         eyebrow: "LANGUAGES",
         title: "Technology distribution",

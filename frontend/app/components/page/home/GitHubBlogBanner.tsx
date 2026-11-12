@@ -1,30 +1,76 @@
 import { useState } from "react";
 import useBlogFeedRSS from "~/hooks/useBlogFeedRSS";
+import GitHubBlogPostList, { GitHubBlogPostListSkeleton } from "./GitHubBlogPostList";
 import useBlogFeedThumbnail from "~/hooks/useBlogFeedThumbnail";
 const PAGE_SIZE = 5;
 
+interface GitHubBlogPaginationProps {
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+    onPreviousPage: () => void;
+    onNextPage: () => void;
+}
+
+export const GitHubBlogPagination = ({
+    hasPreviousPage,
+    hasNextPage,
+    onPreviousPage,
+    onNextPage,
+}: GitHubBlogPaginationProps) => {
+    return (
+        <nav
+            aria-label="GitHub Blog 페이지 이동"
+            className="flex items-center gap-2">
+            <button
+                type="button"
+                onClick={onPreviousPage}
+                disabled={!hasPreviousPage}
+                aria-label="이전 5개 글 보기"
+                className="rounded-md border border-gray-300 px-3 py-1 text-sm hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40">
+                &lt;-
+            </button>
+            <button
+                type="button"
+                onClick={onNextPage}
+                disabled={!hasNextPage}
+                aria-label="다음 5개 글 보기"
+                className="rounded-md border border-gray-300 px-3 py-1 text-sm hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40">
+                -&gt;
+            </button>
+        </nav>
+    );
+};
+
 export default function GitHubBlogBanner() {
     const [pageIndex, setPageIndex] = useState(0);
-    const { data: blogPosts, isLoading } = useBlogFeedRSS(true);
-    const { data: thumbnails } = useBlogFeedThumbnail();
+    const { data: blogPosts, isLoading: isBlogLoading, isError: isBlogError } = useBlogFeedRSS(true);
+    const {
+        data: thumbnails,
+        isLoading: isThumbnailLoading,
+        isError: isThumbnailError,
+    } = useBlogFeedThumbnail();
+    const isLoading = isBlogLoading || isThumbnailLoading;
+    const isError = isBlogError || isThumbnailError;
 
-    if (!blogPosts || isLoading) {
-        return;
-    }
-    if (thumbnails) {
+    if (blogPosts && thumbnails) {
         thumbnails.forEach((v, idx) => {
-            blogPosts[idx].thumbnailUrl = v.thumbnailUrl;
+            const post = blogPosts[idx];
+            if (post) {
+                post.thumbnailUrl = v.thumbnailUrl;
+            }
         });
     }
 
-    const visiblePosts = blogPosts.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE);
+    const visiblePosts = blogPosts?.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE) ?? [];
+    const postCount = blogPosts?.length ?? 0;
+
     const hasPreviousPage = pageIndex > 0;
-    const hasNextPage = (pageIndex + 1) * PAGE_SIZE < blogPosts.length;
+    const hasNextPage = (pageIndex + 1) * PAGE_SIZE < postCount;
 
     return (
         <section
             aria-labelledby="github-blog-banner-title"
-            className="flex flex-col gap-4">
+            className="flex w-full min-w-0 flex-col gap-4">
             <header className="flex items-center justify-between gap-4">
                 <div>
                     <p className="text-sm text-gray-500">GitHub Blog</p>
@@ -35,85 +81,27 @@ export default function GitHubBlogBanner() {
                     </h3>
                 </div>
 
-                {blogPosts.length > PAGE_SIZE && (
-                    <nav
-                        aria-label="GitHub Blog 페이지 이동"
-                        className="flex items-center gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setPageIndex((currentIndex) => currentIndex - 1)}
-                            disabled={!hasPreviousPage}
-                            aria-label="이전 5개 글 보기"
-                            className="rounded-md border border-gray-300 px-3 py-1 text-sm hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40">
-                            &lt;-
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setPageIndex((currentIndex) => currentIndex + 1)}
-                            disabled={!hasNextPage}
-                            aria-label="다음 5개 글 보기"
-                            className="rounded-md border border-gray-300 px-3 py-1 text-sm hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40">
-                            -&gt;
-                        </button>
-                    </nav>
+                {!isLoading && !isError && postCount > PAGE_SIZE && (
+                    <GitHubBlogPagination
+                        hasPreviousPage={hasPreviousPage}
+                        hasNextPage={hasNextPage}
+                        onPreviousPage={() => setPageIndex((currentIndex) => currentIndex - 1)}
+                        onNextPage={() => setPageIndex((currentIndex) => currentIndex + 1)}
+                    />
                 )}
             </header>
 
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                {visiblePosts.map((post) => (
-                    <li key={post.id}>
-                        <article className="bg-panel hover:outline-primary flex h-full flex-col overflow-hidden rounded-lg border border-gray-200 hover:outline-2">
-                            <figure className="flex aspect-video items-center justify-center bg-gray-100">
-                                {post.thumbnailUrl ? (
-                                    <img
-                                        src={post.thumbnailUrl}
-                                        alt={`${post.title} 썸네일`}
-                                        className="h-full w-full object-cover"
-                                    />
-                                ) : (
-                                    <span className="text-sm text-gray-400">No image</span>
-                                )}
-                            </figure>
-
-                            <div className="flex flex-1 flex-col gap-3 p-4">
-                                <header>
-                                    <ul
-                                        aria-label="게시글 카테고리"
-                                        className="flex flex-wrap gap-1">
-                                        {post.categories.map((category) => (
-                                            <li
-                                                key={category}
-                                                className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                                                {category}
-                                            </li>
-                                        ))}
-                                    </ul>
-
-                                    <h3 className="mt-3 line-clamp-3 text-base font-semibold">
-                                        <a
-                                            href={post.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="hover:underline">
-                                            {post.title}
-                                        </a>
-                                    </h3>
-                                </header>
-
-                                <footer className="mt-auto flex flex-col gap-1 text-xs text-gray-500">
-                                    <p>
-                                        <span className="sr-only">작성자: </span>
-                                        {post.authorName}
-                                    </p>
-                                    <time dateTime={post.publishedAt}>
-                                        {new Date(post.publishedAt).toLocaleDateString()}
-                                    </time>
-                                </footer>
-                            </div>
-                        </article>
-                    </li>
-                ))}
-            </ul>
+            {isError ? (
+                <p
+                    role="status"
+                    className="bg-panel flex min-h-40 items-center justify-center rounded-lg border border-gray-300 p-4 text-center text-gray-500">
+                    네트워크 요청에 실패했습니다
+                </p>
+            ) : isLoading ? (
+                <GitHubBlogPostListSkeleton count={PAGE_SIZE} />
+            ) : (
+                <GitHubBlogPostList visiblePosts={visiblePosts} />
+            )}
         </section>
     );
 }

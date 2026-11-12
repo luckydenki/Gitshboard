@@ -1,314 +1,141 @@
-import { GithubLanguageRepositoryNode, GithubRepoCommonResponse, GithubCommitTimeRepositoryNode, GithubProjectTopicsNode, ProjectLiveRateNode } from "../types/stat";
 import dotenv from "dotenv";
+import { Octokit } from "@octokit/rest";
+import { repoLanguagesQuery } from "./queries/github/repo-languages.query";
+import { repoCommitTimesQuery } from "./queries/github/repo-commit-times.query";
+import { repoProjectTopicsQuery } from "./queries/github/repo-project-topics.query";
+import { repoDeveloperProfileQuery } from "./queries/github/repo-developer-profile.query";
+import { repoProjectHealthQuery } from "./queries/github/repo-project-health.query";
+import type {
+    GetRepoLanguagesQuery,
+    GetRepoLanguagesQueryVariables,
+    GetCommitTimesQuery,
+    GetCommitTimesQueryVariables,
+    GetProjectTopicsQuery,
+    GetProjectTopicsQueryVariables,
+    GetDevelopTimeQuery,
+    GetDevelopTimeQueryVariables,
+    GetProjectLiveRateQuery,
+    GetProjectLiveRateQueryVariables,
+} from "../types/github/graphql/operations.generated";
 dotenv.config();
 
+//이제 옥토킷에서 냅다 던져주는 방식인데, 옥토킷 graphql은 별다른 거 없이 data T와 또는 에러만 던집니다!
+export const GithubGraphqlFetch = async <T>(
+    githubAccessToken: string | undefined,
+    query: string,
+    variables: Record<string, unknown>,
+): Promise<T> => {
+    const auth = githubAccessToken || process.env.PUBLIC_API_TOKEN;
 
-export const GithubGraphqlFetch = async(githubAccessToken: string | undefined, query: string, variables: any) =>{
-    
-    let authorization = "";
-    //graphql api는 최소한 PAT 권한은 필요로 하기 때문에 사용함...
-    if(!githubAccessToken){
-       // console.log("githubAccessToken is undefined, using public api token ", process.env.GITHUB_PUBLIC_API_TOKEN);
-        authorization = `Bearer ${process.env.PUBLIC_API_TOKEN}`;
-    }
-    else{
-        authorization = `token ${githubAccessToken}`;
-    }
-    
+    if (githubAccessToken) console.log("github Access Token으로 API 호출 중");
+    else console.warn("일반 pat token으로 호출 중");
 
-    const github_response = await fetch('https://api.github.com/graphql', {
-        method: 'POST',
-        headers: {
-            'Authorization': authorization,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            query,
-            variables
-        })
-    });
-
-    return github_response;
-};
-
-
-
-class GithubRepoAPIClient{
-
-    public  getLanguages = async( githubUsername : string, githubAccessToken : string | undefined) => {
-
-    const query = `
-            query GetRepoLanguages($login : String!){
-                user(login : $login){
-                    repositories(first:20, ownerAffiliations:OWNER){
-                        nodes{
-                            name
-                            languages(first:20){
-                                totalSize
-                                edges{
-                                    size
-                                    node{
-                                        name
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        `
-
-
-    const variables = {
-        login: githubUsername
-    };
-
-    try{
-        const github_response = await GithubGraphqlFetch(githubAccessToken, query, variables);
-
-        if(github_response.ok){
-            const githubData = await github_response.json();
-            const userData: GithubRepoCommonResponse<GithubLanguageRepositoryNode> = githubData.data;
-            return userData;
-        }
-        else{
-            return null;
-        }
+    try {
+        const octokit = new Octokit({ auth });
+        return await octokit.graphql<T>(query, variables);
     } catch (error) {
-        console.error("Failed to fetch languages from GitHub API", error);
-        return null;
+        const status = error instanceof Error && "status" in error ? error.status : undefined;
+        console.error("GraphQL 요청 실패", error);
+        throw error;
     }
 };
 
-    public getCommitTime = async(githubUsername : string, githubAccessToken : string | undefined) => {
-
-        const query = `
-            query GetCommitTimes($login : String!){
-                user(login : $login){
-                    repositories(first : 20){
-                        nodes{
-                            name
-                            defaultBranchRef{
-                                target{
-                                    ... on Commit{
-                                        history(first:50){
-                                            nodes {
-                                                committedDate
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }   
-            }
-        `
-
-        const variables = {
-            login: githubUsername
-        }
+class GithubRepoAPIClient {
+    public getLanguages = async (
+        githubUsername: string,
+        githubAccessToken: string | undefined,
+    ): Promise<GetRepoLanguagesQuery | null> => {
+        const variables = { login: githubUsername } satisfies GetRepoLanguagesQueryVariables;
 
         try {
-            const github_response = await GithubGraphqlFetch(githubAccessToken, query, variables);
+            const response = await GithubGraphqlFetch<GetRepoLanguagesQuery>(
+                githubAccessToken,
+                repoLanguagesQuery,
+                variables,
+            );
+            return response.user ? response : null;
+        } catch (error) {
+            console.error("Failed to fetch languages from GitHub API", error);
+            return null;
+        }
+    };
 
-            if (github_response.ok) {
-                const githubData = await github_response.json();
-                const userData: GithubRepoCommonResponse<GithubCommitTimeRepositoryNode> = githubData.data;
-                return userData;
-            } else {
-                return null;
-            }
+    public getCommitTime = async (
+        githubUsername: string,
+        githubAccessToken: string | undefined,
+    ): Promise<GetCommitTimesQuery | null> => {
+        const variables = { login: githubUsername } satisfies GetCommitTimesQueryVariables;
+
+        try {
+            const response = await GithubGraphqlFetch<GetCommitTimesQuery>(
+                githubAccessToken,
+                repoCommitTimesQuery,
+                variables,
+            );
+            return response.user ? response : null;
         } catch (error) {
             console.error("Failed to fetch commit times from GitHub API", error);
             return null;
         }
     };
 
+    public getProjectTopics = async (
+        githubUsername: string,
+        githubAccessToken: string | undefined,
+    ): Promise<GetProjectTopicsQuery | null> => {
+        const variables = { login: githubUsername } satisfies GetProjectTopicsQueryVariables;
 
-    public getProjectTopics = async(githubUsername : string, githubAccessToken : string | undefined) => {
-          //graphql query에서 String! 이라 되어있는건 String 만 가능하다는 것
-                //!를 제거하면 String | null 이므로 null 도 허용된다
-                const query = `
-                    query GetProjectTopics($login : String!){
-                        user(login : $login){
-                            repositories(first : 20){
-                                nodes {
-                                    name
-                                    repositoryTopics(first : 20){
-                                        nodes {
-                                            topic {
-                                                name
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                `
-        
-                const variables = {
-                    login: githubUsername
-                }
         try {
-            const github_response = await fetch("https://api.github.com/graphql", {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `token ${githubAccessToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        query,
-                        variables
-                    })
-                });
-                
-        
-                if(github_response.ok){
-                    const githubData = await github_response.json();
-                    const userData: GithubRepoCommonResponse<GithubProjectTopicsNode> = githubData.data;
-
-                    return userData;
-                } else {
-                    return null;    
-                }
-            } catch (error) {
-                console.error("Failed to fetch project topics from GitHub API", error);
-                return null;
-            }
-    }
-
-
-
-    public getDevelopStats = async(githubUsername : string, githubAccessToken : string | undefined) => {
-
-        const query = `
-            query GetDevelopTime($login : String!){
-                user(login : $login){
-                    repositories(first : 20){
-                        nodes {
-                            defaultBranchRef{
-                                target{
-                                    ... on Commit{
-                                        history(first : 30){
-                                            nodes{
-                                                committedDate    
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            languages(first : 20){
-                                edges{
-                                    node{
-                                        name
-                                    }
-                                }
-                            }
-                            repositoryTopics(first : 20){
-                                nodes{
-                                    topic{
-                                        name
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        `
-
-        const variables = {
-            login: githubUsername
+            const response = await GithubGraphqlFetch<GetProjectTopicsQuery>(
+                githubAccessToken,
+                repoProjectTopicsQuery,
+                variables,
+            );
+            return response.user ? response : null;
+        } catch (error) {
+            console.error("Failed to fetch project topics from GitHub API", error);
+            return null;
         }
-        try{
-        const github_response = await fetch("https://api.github.com/graphql", {
-            method: 'POST',
-            headers: {
-                'Authorization': `token ${githubAccessToken}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query,
-                variables
-            })
-        })
+    };
 
-        if (github_response.ok) {
-            const githubData = await github_response.json();
-            const userData: GithubRepoCommonResponse<GithubCommitTimeRepositoryNode & GithubLanguageRepositoryNode & GithubProjectTopicsNode> = githubData.data;
-                return userData;
-            } else {
-                return null;
-            }
-        }
+    public getDevelopStats = async (
+        githubUsername: string,
+        githubAccessToken: string | undefined,
+    ): Promise<GetDevelopTimeQuery | null> => {
+        const variables = { login: githubUsername } satisfies GetDevelopTimeQueryVariables;
 
-         catch (error) {
+        try {
+            const response = await GithubGraphqlFetch<GetDevelopTimeQuery>(
+                githubAccessToken,
+                repoDeveloperProfileQuery,
+                variables,
+            );
+            return response.user ? response : null;
+        } catch (error) {
             console.error("Failed to fetch develop stats from GitHub API", error);
             return null;
         }
-    }
+    };
 
-
-    public getProjectLiveRate = async(githubUsername : string, githubAccessToken : string | undefined) => {
-
-        const query = `
-                query getProjectLiveRate($login : String!){
-                    user(login : $login){
-                        repositories(first : 20){
-                            nodes{
-                                createdAt
-                                updatedAt
-                                pushedAt
-                                isArchived
-                                isFork
-                                name
-                            }   
-                        }
-                    }
-                }
-            `
-
-        const variables = {
-            login: githubUsername
-        }
+    public getProjectLiveRate = async (
+        githubUsername: string,
+        githubAccessToken: string | undefined,
+    ): Promise<GetProjectLiveRateQuery | null> => {
+        const variables = { login: githubUsername } satisfies GetProjectLiveRateQueryVariables;
 
         try {
-            const github_response = await fetch("https://api.github.com/graphql", {
-            method: 'POST',
-            headers: {
-                'Authorization': `token ${githubAccessToken}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query,
-                variables
-            })
-        });
-
-
-
-
-        if (github_response.ok) {
-            const githubData = await github_response.json();
-            const userData: GithubRepoCommonResponse<ProjectLiveRateNode> = githubData.data;
-            return userData;
-        }
-        else{
-            return null;
-        }
-        }catch(error){
+            const response = await GithubGraphqlFetch<GetProjectLiveRateQuery>(
+                githubAccessToken,
+                repoProjectHealthQuery,
+                variables,
+            );
+            return response.user ? response : null;
+        } catch (error) {
             console.error("Failed to fetch project live rate from GitHub API", error);
             return null;
         }
-    }
-
-
+    };
 }
-
-
-
 
 const githubRepoAPIClient = new GithubRepoAPIClient();
 export default githubRepoAPIClient;
