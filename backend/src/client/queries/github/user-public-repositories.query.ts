@@ -1,3 +1,4 @@
+/** 사용자가 소유한 공개 저장소 목록을 최근 갱신순으로 페이지 단위로 조회합니다. */
 export const userPublicRepositoriesQuery = /* GraphQL */ `
     query GetUserPublicRepositories($login: String!, $after: String) {
         user(login: $login) {

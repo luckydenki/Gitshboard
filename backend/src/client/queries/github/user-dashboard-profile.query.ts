@@ -1,3 +1,4 @@
+/** 개인 통계 대시보드에 사용할 사용자 프로필과 기여 캘린더를 조회합니다. */
 export const userDashboardProfileQuery = /* GraphQL */ `
     query GetUserDashboardProfile($login: String!) {
         user(login: $login) {

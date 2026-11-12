@@ -1,3 +1,4 @@
+/** 사용자 저장소의 기본 브랜치에서 최근 커밋 시각을 조회합니다. */
 export const repoCommitTimesQuery = /* GraphQL */ `
     query GetCommitTimes($login: String!) {
       user(login: $login) {

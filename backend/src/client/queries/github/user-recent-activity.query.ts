@@ -1,3 +1,4 @@
+/** 사용자의 최근 이슈와 PR, 지정 시점 이후 커밋에 기여한 저장소 ID를 조회합니다. */
 export const userRecentActivityQuery = /* GraphQL */ `
     query GetUserRecentActivity($login: String!, $limit: Int!, $since: DateTime!) {
         user(login: $login) {
