@@ -1,29 +1,17 @@
-import type { Commit } from "~/types/commit";
+import { useParams } from "react-router";
+import { useUserRecentActivity } from "~/hooks/useUserDashboard";
 import UserDashboardActivityArticle from "../UserDashboardActivityArticle";
 import UserDashboardRecentActivitySection from "./UserDashboardRecentActivitySection";
-import type { Issue } from "~/types/issue";
-import type { PullRequest } from "~/types/pr";
-
-export type ActivityItems = Array<Commit | Issue | PullRequest>;
-
 export default function UserDashboardActivitySection() {
-    const commits: Commit[] = [];
-    for (let i = 0; i < 12; ++i) {
-        commits.push({
-            nameWithOwner: "flyetanol/Gitshboard",
-            oid: "59671a2b4c8d9e0f1234567890abcdef12345678",
-            abbreviatedOid: "59671a2",
-            messageHeadline: "feat: 새로운 커밋",
-            committedDate: "2017-09-01T00:00:00Z",
-            committedViaWeb: false,
-            url: "https://github.com/flyetanol/Gitshboard/commit/59671a2b4c8d9e0f1234567890abcdef12345678",
-        });
-    }
+    const { user } = useParams();
+    const { data, isLoading, isError } = useUserRecentActivity(user);
 
     return (
         <section className="flex min-w-sm items-start gap-6 not-lg:flex-col">
             <UserDashboardActivityArticle />
-            <UserDashboardRecentActivitySection data={commits} />
+            {isLoading && <p role="status">최근 활동을 불러오는 중입니다.</p>}
+            {isError && <p role="alert">최근 활동을 불러오지 못했습니다.</p>}
+            {data && <UserDashboardRecentActivitySection data={data.items} />}
         </section>
     );
 }

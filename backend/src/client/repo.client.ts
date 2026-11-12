@@ -27,12 +27,15 @@ export const GithubGraphqlFetch = async <T>(
 ): Promise<T> => {
     const auth = githubAccessToken || process.env.PUBLIC_API_TOKEN;
 
+    if (githubAccessToken) console.log("github Access Token으로 API 호출 중");
+    else console.warn("일반 pat token으로 호출 중");
+
     try {
         const octokit = new Octokit({ auth });
         return await octokit.graphql<T>(query, variables);
     } catch (error) {
         const status = error instanceof Error && "status" in error ? error.status : undefined;
-        console.error("GraphQL 요청 실패", { status });
+        console.error("GraphQL 요청 실패", error);
         throw error;
     }
 };

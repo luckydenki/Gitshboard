@@ -4,7 +4,7 @@ import "~/routes/user-dashboard.css";
 import { Outlet, useMatch, useParams } from "react-router";
 import { UserDashboardLayout } from "~/components/page/user-dashboard/UserDashboardLayout";
 import { CommonBackground } from "~/components/common/CommonBackground";
-import { userProfileMock } from "~/mock/home-dashboard/user-profile";
+import { useUserDashboardProfile } from "~/hooks/useUserDashboard";
 
 // const ThemeColors = {
 //     green: {
@@ -22,6 +22,7 @@ export enum EHomeDashboardMenu {
 
 export default function UserDashboard() {
     const { user } = useParams();
+    const { data: profile, isLoading, isError } = useUserDashboardProfile(user);
     const menuMatch = useMatch("/user/:user/:menu");
 
     // 관심사 화면의 구성과 추천 방식을 보여주기 위한 예시 데이터입니다.
@@ -61,7 +62,9 @@ export default function UserDashboard() {
             {/* 지금 아래 -mt-48과 같이 음수 마진 기법을 쓰면 absolute 없이도 무언가와 겹쳐지는 것을 구현할 수 있습니다. */}
 
             <UserDashboardLayout>
-                <UserDashboardProfileSection profile={userProfileMock} />
+                {isLoading && <p role="status">프로필을 불러오는 중입니다.</p>}
+                {isError && <p role="alert">프로필을 불러오지 못했습니다.</p>}
+                {profile && <UserDashboardProfileSection profile={profile} />}
                 <UserDashboardNavigationSection menus={menus} />
 
                 <Outlet />

@@ -1,6 +1,6 @@
 import Router from "express";
 import { AuthRequest } from "../types/middlewares/auth";
-import { authToken, authUser } from "../middlewares/auth.middleware";
+import { authToken, authUser, checkToken, checkUser } from "../middlewares/auth.middleware";
 import {
     CommonErrorResponse,
     CommonResponse,
@@ -9,10 +9,25 @@ import {
 import { GithubUser } from "../client/user.client";
 import { GithubGraphqlFetch } from "../client/repo.client";
 import { userHeaderQuery } from "../client/queries/github/user-header.query";
+import { userDashboardProfileQuery } from "../client/queries/github/user-dashboard-profile.query";
+import { userRecentActivityQuery } from "../client/queries/github/user-recent-activity.query";
+import { userRecentCommitsQuery } from "../client/queries/github/user-recent-commits.query";
 import type {
     GetUserQuery,
     GetUserQueryVariables,
+    GetUserDashboardProfileQuery,
+    GetUserDashboardProfileQueryVariables,
+    GetUserRecentActivityQuery,
+    GetUserRecentActivityQueryVariables,
+    GetUserRecentCommitsQuery,
+    GetUserRecentCommitsQueryVariables,
 } from "../types/github/graphql/operations.generated";
+import type { GetUserProfileDto } from "../types/response/user-profile";
+import type {
+    GetUserRecentActivityDto,
+    UserRecentActivityItem,
+} from "../types/response/user-recent-activity";
+import CommonError from "../utils/common-error";
 
 const user_router = Router();
 
@@ -171,6 +186,176 @@ user_router.get("/repos", authToken, authUser, async (req: AuthRequest, res) => 
         }
     }
 });
+
+/**
+ * @api GET /api/users/:login/profile
+ *
+ * @desc GitHub 프로필, 팔로워·팔로잉 수, 소셜 링크와 기여 캘린더를 조회합니다. 로그인한 방문자의 토큰이 있으면 해당 토큰을 사용합니다.
+ *
+ * @github backend/src/client/queries/github/user-dashboard-profile.query.ts
+ *
+ * @response backend/src/types/response/user-profile.ts
+ *
+ * @error [400] : GitHub 로그인 이름 형식이 잘못된 경우.
+ * @error [404] : GitHub 사용자를 찾을 수 없는 경우.
+ * @error [500] : 사용자 인증 처리 또는 GitHub 프로필 조회에 실패한 경우.
+ */
+user_router.get("/:login/profile", checkToken, checkUser, async (req: AuthRequest, res) => {
+    const { login } = req.params;
+    res.set("Cache-Control", "private, no-store");
+
+    try {
+        if (typeof login !== "string" || !/^[a-z\d][a-z\d-]{0,38}$/i.test(login)) {
+            throw CommonError.create400Error("GitHub 로그인 이름 형식이 올바르지 않습니다.");
+        }
+
+        const variables = { login } satisfies GetUserDashboardProfileQueryVariables;
+        const response = await GithubGraphqlFetch<GetUserDashboardProfileQuery>(
+            req.user?.githubAccessToken,
+            userDashboardProfileQuery,
+            variables,
+        );
+        if (!response.user) {
+            throw CommonError.create404Error("GitHub 사용자를 찾을 수 없습니다.");
+        }
+
+        const data: GetUserProfileDto = response;
+        const commonResponse: CommonResponse<GetUserProfileDto> = {
+            status: 200,
+            success: true,
+            data,
+        };
+        res.json(commonResponse);
+    } catch (error) {
+        const errorResponse = getPublicUserError(error, "GitHub 프로필을 조회하지 못했습니다.");
+        res.status(errorResponse.status).json(errorResponse);
+    }
+});
+
+/**
+ * @api GET /api/users/:login/recent-activity
+ *
+ * @desc 공개 이슈·PR과 최근 30일 동안 기여한 최대 100개 공개 저장소의 기본 브랜치 커밋을 최신순으로 반환합니다.
+ *
+ * @query limit (integer, 선택) - 반환할 최대 활동 수. 기본값 10, 범위 1~30.
+ *
+ * @github backend/src/client/queries/github/user-recent-activity.query.ts
+ * @github backend/src/client/queries/github/user-recent-commits.query.ts
+ *
+ * @response backend/src/types/response/user-recent-activity.ts
+ *
+ * @error [400] : GitHub 로그인 이름 또는 limit 형식이 잘못된 경우.
+ * @error [404] : GitHub 사용자를 찾을 수 없는 경우.
+ * @error [500] : GitHub 최근 활동 조회에 실패한 경우.
+ */
+user_router.get("/:login/recent-activity", async (req, res) => {
+    const { login } = req.params;
+    const { limit: requestedLimit = "10" } = req.query;
+
+    try {
+        if (!/^[a-z\d][a-z\d-]{0,38}$/i.test(login)) {
+            throw CommonError.create400Error("GitHub 로그인 이름 형식이 올바르지 않습니다.");
+        }
+        if (typeof requestedLimit !== "string" || !/^(?:[1-9]|[12]\d|30)$/.test(requestedLimit)) {
+            throw CommonError.create400Error("활동 개수는 1부터 30까지의 정수여야 합니다.");
+        }
+
+        const limit = Number(requestedLimit);
+        const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        const variables = { login, limit, since } satisfies GetUserRecentActivityQueryVariables;
+        const response = await GithubGraphqlFetch<GetUserRecentActivityQuery>(
+            undefined,
+            userRecentActivityQuery,
+            variables,
+        );
+        const { user } = response;
+        if (!user) {
+            throw CommonError.create404Error("GitHub 사용자를 찾을 수 없습니다.");
+        }
+
+        const items: UserRecentActivityItem[] = [];
+        for (const type of ["issue", "pull-request"] as const) {
+            const connection = type === "issue" ? user.issues : user.pullRequests;
+            for (const node of connection.nodes ?? []) {
+                if (node?.repository.visibility !== "PUBLIC") continue;
+                items.push({
+                    type,
+                    id: node.id,
+                    number: node.number,
+                    title: node.title,
+                    state: node.state,
+                    url: node.url,
+                    nameWithOwner: node.repository.nameWithOwner,
+                    occurredAt: node.createdAt,
+                    authorLogin: node.author?.login ?? null,
+                    commentCount: node.comments.totalCount,
+                });
+            }
+        }
+
+        const repositoryIds = user.contributionsCollection.commitContributionsByRepository
+            .map(({ repository }) => repository)
+            .filter(({ visibility }) => visibility === "PUBLIC")
+            .map(({ id }) => id);
+        if (repositoryIds.length > 0) {
+            const commitVariables = {
+                repositoryIds,
+                authorId: user.id,
+                limit,
+                since,
+            } satisfies GetUserRecentCommitsQueryVariables;
+            const commitResponse = await GithubGraphqlFetch<GetUserRecentCommitsQuery>(
+                undefined,
+                userRecentCommitsQuery,
+                commitVariables,
+            );
+
+            for (const repository of commitResponse.nodes) {
+                if (repository?.__typename !== "Repository" || repository.visibility !== "PUBLIC") {
+                    continue;
+                }
+                const commit = repository.defaultBranchRef?.target;
+                if (commit?.__typename !== "Commit") continue;
+
+                for (const node of commit.history.nodes ?? []) {
+                    if (!node) continue;
+                    items.push({
+                        ...node,
+                        type: "commit",
+                        id: `${repository.nameWithOwner}:${node.oid}`,
+                        nameWithOwner: repository.nameWithOwner,
+                        occurredAt: node.committedDate,
+                    });
+                }
+            }
+        }
+
+        items.sort((a, b) => Date.parse(b.occurredAt) - Date.parse(a.occurredAt));
+        const data: GetUserRecentActivityDto = { items: items.slice(0, limit) };
+        const commonResponse: CommonResponse<GetUserRecentActivityDto> = {
+            status: 200,
+            success: true,
+            data,
+        };
+        res.json(commonResponse);
+    } catch (error) {
+        const errorResponse = getPublicUserError(error, "GitHub 최근 활동을 조회하지 못했습니다.");
+        res.status(errorResponse.status).json(errorResponse);
+    }
+});
+
+function getPublicUserError(error: unknown, detail: string): CommonErrorResponse {
+    if (error instanceof CommonError) return error;
+    if (error instanceof Error && "errors" in error && Array.isArray(error.errors)) {
+        const userNotFound = error.errors.some(
+            (item) => item?.type === "NOT_FOUND" && item.path?.[0] === "user",
+        );
+        if (userNotFound) {
+            return CommonError.create404Error("GitHub 사용자를 찾을 수 없습니다.");
+        }
+    }
+    return CommonError.create500Error(detail);
+}
 
 // api/users/* (catch-all route for undefined routes)
 user_router.use((req, res) => {
