@@ -12,6 +12,7 @@ import { userHeaderQuery } from "../client/queries/github/user-header.query";
 import { userDashboardProfileQuery } from "../client/queries/github/user-dashboard-profile.query";
 import { userRecentActivityQuery } from "../client/queries/github/user-recent-activity.query";
 import { userRecentCommitsQuery } from "../client/queries/github/user-recent-commits.query";
+import { userPublicRepositoriesQuery } from "../client/queries/github/user-public-repositories.query";
 import type {
     GetUserQuery,
     GetUserQueryVariables,
@@ -21,7 +22,10 @@ import type {
     GetUserRecentActivityQueryVariables,
     GetUserRecentCommitsQuery,
     GetUserRecentCommitsQueryVariables,
+    GetUserPublicRepositoriesQuery,
+    GetUserPublicRepositoriesQueryVariables,
 } from "../types/github/graphql/operations.generated";
+import type { GetUserRepositoriesDto } from "../types/response/user-repositories";
 import type { GetUserProfileDto } from "../types/response/user-profile";
 import type {
     GetUserRecentActivityDto,
@@ -347,6 +351,74 @@ user_router.get("/:login/recent-activity", async (req, res) => {
         res.json(commonResponse);
     } catch (error) {
         const errorResponse = getPublicUserError(error, "GitHub 최근 활동을 조회하지 못했습니다.");
+        res.status(errorResponse.status).json(errorResponse);
+    }
+});
+
+/**
+ * @api GET /api/users/:login/repositories
+ *
+ * @desc 사용자 소유의 공개 저장소 목록과 저장소 수, 스타·포크 합계를 조회합니다.
+ *
+ * @github backend/src/client/queries/github/user-public-repositories.query.ts
+ *
+ * @response backend/src/types/response/user-repositories.ts
+ *
+ * @error [400] : GitHub 로그인 이름 형식이 잘못된 경우.
+ * @error [404] : GitHub 사용자를 찾을 수 없는 경우.
+ * @error [500] : GitHub 저장소 목록 조회에 실패한 경우.
+ */
+user_router.get("/:login/repositories", checkToken, checkUser, async (req: AuthRequest, res) => {
+    const { login } = req.params;
+
+    try {
+        if (typeof login !== "string" || !/^[a-z\d][a-z\d-]{0,38}$/i.test(login)) {
+            throw CommonError.create400Error("GitHub 로그인 이름 형식이 올바르지 않습니다.");
+        }
+
+        const data: GetUserRepositoriesDto = {
+            repositories: [],
+            totalCount: 0,
+            totalStars: 0,
+            totalForks: 0,
+        };
+        let after: string | null = null;
+
+        do {
+            const variables: GetUserPublicRepositoriesQueryVariables = { login, after };
+            const response = await GithubGraphqlFetch<GetUserPublicRepositoriesQuery>(
+                req.user?.githubAccessToken,
+                userPublicRepositoriesQuery,
+                variables,
+            );
+            if (!response.user) {
+                throw CommonError.create404Error("GitHub 사용자를 찾을 수 없습니다.");
+            }
+
+            const { nodes, pageInfo, totalCount } = response.user.repositories;
+            data.totalCount = totalCount;
+            for (const repository of nodes ?? []) {
+                if (!repository) continue;
+                data.repositories.push(repository);
+                data.totalStars += repository.stargazerCount;
+                data.totalForks += repository.forkCount;
+            }
+
+            const { hasNextPage, endCursor } = pageInfo;
+            if (hasNextPage && (!endCursor || endCursor === after)) {
+                throw CommonError.create500Error("GitHub 저장소의 다음 페이지를 찾지 못했습니다.");
+            }
+            after = hasNextPage ? endCursor ?? null : null;
+        } while (after);
+
+        const commonResponse: CommonResponse<GetUserRepositoriesDto> = {
+            status: 200,
+            success: true,
+            data,
+        };
+        res.json(commonResponse);
+    } catch (error) {
+        const errorResponse = getPublicUserError(error, "GitHub 저장소 목록을 조회하지 못했습니다.");
         res.status(errorResponse.status).json(errorResponse);
     }
 });

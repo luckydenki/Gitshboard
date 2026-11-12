@@ -79,3 +79,31 @@ export function useUserRecentActivity(login?: string) {
             ),
     });
 }
+
+interface UserDashboardRepositories {
+    repositories: Array<{
+        name: string;
+        nameWithOwner: string;
+        url: string;
+        stargazerCount: number;
+        forkCount: number;
+        primaryLanguage?: { name: string; color?: string | null } | null;
+        updatedAt: string;
+    }>;
+    totalCount: number;
+    totalStars: number;
+    totalForks: number;
+}
+
+export function useUserDashboardRepositories(login?: string) {
+    return useQuery({
+        queryKey: ["user-dashboard-repositories", login],
+        enabled: Boolean(login),
+        queryFn: ({ signal }) =>
+            fetchDashboardData<UserDashboardRepositories>(
+                `/api/users/${encodeURIComponent(login ?? "")}/repositories`,
+                signal,
+                "저장소를 불러오지 못했습니다.",
+            ),
+    });
+}

@@ -9499,6 +9499,14 @@ export type GetUserQueryVariables = Exact<{
 
 export type GetUserQuery = { __typename?: 'Query', user?: { __typename?: 'User', login: string, avatarUrl: string } | null };
 
+export type GetUserPublicRepositoriesQueryVariables = Exact<{
+  login: Scalars['String']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetUserPublicRepositoriesQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null }, nodes?: Array<{ __typename?: 'Repository', name: string, nameWithOwner: string, url: string, stargazerCount: number, forkCount: number, updatedAt: string, primaryLanguage?: { __typename?: 'Language', name: string, color?: string | null } | null } | null> | null } } | null };
+
 export type GetUserRecentActivityQueryVariables = Exact<{
   login: Scalars['String']['input'];
   limit: Scalars['Int']['input'];
