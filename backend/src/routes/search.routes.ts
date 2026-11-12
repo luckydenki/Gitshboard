@@ -1,9 +1,7 @@
 import { Router } from "express";
 import { Octokit } from "@octokit/rest";
-import { checkToken, checkUser } from "../middlewares/auth.middleware";
 import { GITHUB_REST_API_VERSION } from "../server.config";
 import CommonError from "../utils/common-error";
-import type { AuthRequest } from "../types/middlewares/auth";
 import type { CommonErrorResponse, CommonResponse } from "../types/middlewares/common";
 import { GithubGraphqlFetch } from "../client/repo.client";
 import { githubSearchUsersQuery } from "../client/queries/github/search-users.query";
@@ -39,7 +37,7 @@ search_router.get("/health", (req, res) => {
  * @error [400] : 검색어 또는 페이지 입력이 잘못됐거나 GitHub가 검색 조건을 거부한 경우.
  * @error [500] : 사용자 인증 처리 또는 GitHub 검색이 실패한 경우.
  */
-search_router.get("/", checkToken, checkUser, async (req: AuthRequest, res) => {
+search_router.get("/", async (req, res) => {
     try {
         const { q, page = "1", per_page = "12" } = req.query;
         if (typeof q !== "string" || !q.trim()) {
@@ -62,9 +60,7 @@ search_router.get("/", checkToken, checkUser, async (req: AuthRequest, res) => {
             throw CommonError.create400Error("페이지당 결과 수는 1부터 100까지의 정수여야 합니다.");
         }
 
-        const auth = req.user?.githubAccessToken;
-        const searchOctokit = auth ? new Octokit({ auth }) : octokit;
-        const { data: response } = await searchOctokit.rest.search.users({
+        const { data: response } = await octokit.rest.search.users({
             q,
             page: Number(page),
             per_page: Number(per_page),
