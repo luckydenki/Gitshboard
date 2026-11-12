@@ -85,4 +85,6 @@ const { a, b, c } = req.query;
 GitHub GraphQL을 사용하는 API에서 서버 DTO만 생략됐다면, Codegen 응답 타입을 서버 DTO 이름으로 별칭을 붙여 사용하세요. 서버 DTO가 명시됐다면 해당 계약을 따르세요. 자세한 내용은 [API 타입 가이드](./APIType-guide.md#서버-dto)를 참고하세요.
 
 
+6. 모든 API 생성 작업이 끝났다면 호출 테스트를 수행하여 응답이 정상적으로 도착하는 지만 확인하세요.
+
 
