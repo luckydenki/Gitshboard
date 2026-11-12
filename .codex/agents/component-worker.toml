@@ -1,6 +1,7 @@
 name = "component_worker"
 description = "프론트엔드 컴포넌트 및 UI 구현 및 수정"
-model = "gpt-6.1-terra"
+model = "gpt-5.6-terra"
+model_reasoning_effort = "low"
 
 developer_instructions = """
 작업 전에 프로젝트 루트의 AGENTS.md와 frontend/AGENTS.md를 읽고 따르세요.
