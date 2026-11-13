@@ -2,7 +2,9 @@ import userRepository from "../repository/user.repository";
 import userClient, { GithubUser } from "../client/user.client";
 import authClient from "../client/auth.client";
 import { User } from "@prisma/client";
-import { getEncryptionToken } from "../utils/encrypt";
+import { getEncryptionToken, getDecryptToken } from "../utils/encrypt";
+import { prisma } from "../app";
+import { redisClient } from "../infra/redis/redisClient";
 
 export type GithubUserData = {
     githubUserData: GithubUser;
@@ -42,6 +44,19 @@ class AuthService {
             //테이블 명이 User라면 prisma 멤버에서 카멜케이스로 찾을 수 있음
             //upsert는 update + insert인 메서드로, 열이 존재하면 update, 존재하지 않으면 insert를 수행
             const user = await userRepository.upsertUser(githubId, githubUsername);
+            if (!user) throw new Error("Upserting user failed");
+
+            const previousKey = await prisma.encryptionKey.findUnique({
+                where: { userId: user.id },
+            });
+
+            //이전 키가 있을 경우, 이전 토큰을 파기시켜야함
+            if (previousKey) {
+                const previousToken = getDecryptToken(previousKey, githubId);
+                if (previousToken !== accessToken) {
+                    await authClient.revokeGithubAccessToken(previousToken);
+                }
+            }
             const encryptionKey = await userRepository.upsertEncryptionKey(
                 user!.id,
                 encryptedToken,
@@ -56,6 +71,9 @@ class AuthService {
                 console.error("Error : Upserting encryption key failed");
                 throw new Error("Upserting encryption key failed");
             }
+
+            // 새 토큰이 저장된 후 기존 사용자 캐시를 무효화합니다.
+            await redisClient.del(`gitshboard:user:${user.id}`);
 
             return { githubUserData, user };
         } catch (error) {
