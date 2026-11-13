@@ -56,11 +56,10 @@ export function useUserDashboardProfile(login?: string) {
         gcTime: 0,
         queryFn: async ({ signal }) => {
             const errorMessage = "GitHub 프로필을 불러오지 못했습니다.";
-            const data = await fetchDashboardData<{ user: DashboardProfile | null; streakDays: number }>(
-                `/api/users/${encodeURIComponent(login ?? "")}/profile`,
-                signal,
-                errorMessage,
-            );
+            const data = await fetchDashboardData<{
+                user: DashboardProfile | null;
+                streakDays: number;
+            }>(`/api/users/${encodeURIComponent(login ?? "")}/profile`, signal, errorMessage);
             if (!data.user) throw new Error(errorMessage);
             return data;
         },
@@ -103,7 +102,7 @@ export function useUserCommitActivity(login: string | undefined, from: string, t
     });
 }
 
-interface UserDashboardRepositories {
+export interface UserDashboardRepositories {
     repositories: Array<{
         name: string;
         nameWithOwner: string;
