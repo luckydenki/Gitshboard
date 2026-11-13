@@ -42,6 +42,9 @@ org_router.get("/:login/profile", checkToken, checkUser, async (req: AuthRequest
         const commonResponse: CommonResponse<GetOrgProfileDto> = { status: 200, success: true, data };
         return res.json(commonResponse);
     } catch (error) {
+        if (error instanceof Error && "errors" in error && Array.isArray(error.errors)) {
+            console.error("조직 프로필 GraphQL 오류 경로:", JSON.stringify(error.errors.map((item) => item?.path ?? null)));
+        }
         const notFound = error instanceof Error && "errors" in error && Array.isArray(error.errors) &&
             error.errors.some((item) => item?.type === "NOT_FOUND" && item.path?.[0] === "organization");
         const mappedError = error instanceof CommonError ? error : notFound
