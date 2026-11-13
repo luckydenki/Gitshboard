@@ -1,5 +1,5 @@
 import UserDashboardNavigationSection from "~/components/page/user-dashboard/UserDashboardNavigationSection";
-import UserDashboardProfileSection from "~/components/page/user-dashboard/UserDashboardProfileSection";
+import UserDashboardProfileSection, { UserDashboardProfileSkeleton } from "~/components/page/user-dashboard/UserDashboardProfileSection";
 import "~/routes/user-dashboard.css";
 import { Outlet, useMatch, useParams } from "react-router";
 import { UserDashboardLayout } from "~/components/page/user-dashboard/UserDashboardLayout";
@@ -62,7 +62,7 @@ export default function UserDashboard() {
             {/* 지금 아래 -mt-48과 같이 음수 마진 기법을 쓰면 absolute 없이도 무언가와 겹쳐지는 것을 구현할 수 있습니다. */}
 
             <UserDashboardLayout>
-                {isLoading && <p role="status">프로필을 불러오는 중입니다.</p>}
+                {isLoading && <UserDashboardProfileSkeleton />}
                 {isError && <p role="alert">프로필을 불러오지 못했습니다.</p>}
                 {profile?.user && <UserDashboardProfileSection profile={profile.user} />}
                 <UserDashboardNavigationSection menus={menus} />
