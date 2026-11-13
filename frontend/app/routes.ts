@@ -19,7 +19,8 @@ export default [
         ...(import.meta.env.DEV) ? [route("test", "routes/Test.tsx")] : [],  //test
 
 
-        route("repo/:repo", "routes/repo-dashboard.tsx", [
+        route("repo/:legacy", "routes/repo-legacy.tsx"),
+        route("repo/:owner/:repo", "routes/repo-dashboard.tsx", [
             index("./components/page/repo-dashboard/menus/RepoDashboardRecentActivitySection.tsx"),
             route("readme", "./components/page/repo-dashboard/menus/RepoDashboardReadmeSection.tsx"),
             route("project", "./components/page/repo-dashboard/menus/RepoDashboardProjectStatusSection.tsx"),

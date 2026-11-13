@@ -63,7 +63,7 @@ const SearchAutoCompleteRepoItem = ({
         <button
             type="button"
             onClick={() => {
-                navigate(`../repo/${e.name.split("/")[0]}`);
+                navigate(`/repo/${encodeURIComponent(e.owner.login)}/${encodeURIComponent(e.name)}`);
             }}
             ref={refCallback}
             key={e.id}

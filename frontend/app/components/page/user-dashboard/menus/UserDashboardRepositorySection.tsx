@@ -39,7 +39,7 @@ export default function UserDashboardRepositorySection() {
                     return (
                         <li key={repo.nameWithOwner}>
                             <Link
-                                to={`/repo/${encodeURIComponent(repo.nameWithOwner)}`}
+                                to={`/repo/${repo.nameWithOwner.split("/").map(encodeURIComponent).join("/")}`}
                                 className="bg-panel flex flex-col gap-4 rounded-lg p-5 transition-colors hover:bg-primary/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:flex-row sm:items-center sm:justify-between">
                                 <div className="flex min-w-0 flex-col gap-3">
                                     <h4 className="wrap-break-words text-xl font-semibold">

@@ -9,7 +9,7 @@ export default function SearchRepoItem({ item }: { item: RepositorySearchItem })
             avatarAlt={`${item.owner.login} 프로필 사진`}
             title={item.full_name}
             badge="저장소"
-            dashboardUrl={`/repo/${encodeURIComponent(item.full_name)}`}
+            dashboardUrl={`/repo/${encodeURIComponent(item.owner.login)}/${encodeURIComponent(item.name)}`}
             githubUrl={item.html_url}
             description={item.description}
             stars={item.stargazers_count}

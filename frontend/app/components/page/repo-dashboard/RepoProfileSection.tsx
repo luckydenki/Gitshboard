@@ -1,9 +1,5 @@
-import {
-    topicsMock as topics,
-    profileStatsMock as profileStats,
-    summaryMock,
-    profileMock,
-} from "~/mock/repo-dashboard/profile";
+import { useParams } from "react-router";
+import useRepositoryProfile from "~/hooks/useRepositoryProfile";
 import {
     FiBookOpen,
     FiExternalLink,
@@ -11,40 +7,48 @@ import {
     FiGitBranch,
     FiGitCommit,
     FiStar,
-    FiUsers,
+    FiGitPullRequest,
 } from "react-icons/fi";
 import { UserDashboardProfileSectionLayout } from "../user-dashboard/UserDashboardProfileSectionLayout";
 import { PiGitFork } from "react-icons/pi";
 
-const profileStatIcons = { FiStar, PiGitFork, FiEye, FiUsers, FiGitCommit };
-
 export default function RepoProfileSection() {
+    const { owner, repo } = useParams();
+    const { data, isLoading, isError } = useRepositoryProfile(owner, repo);
+    if (!owner || !repo) return <UserDashboardProfileSectionLayout><p role="alert">올바른 저장소 주소가 아닙니다.</p></UserDashboardProfileSectionLayout>;
+    if (isLoading) return <UserDashboardProfileSectionLayout><p role="status">저장소 프로필을 불러오는 중입니다.</p></UserDashboardProfileSectionLayout>;
+    if (isError || !data) return <UserDashboardProfileSectionLayout><p role="alert">저장소 프로필을 불러오지 못했습니다.</p></UserDashboardProfileSectionLayout>;
+    const topics = (data.repositoryTopics.nodes ?? []).flatMap((node) => node ? [node.topic.name] : []);
+    const profileStats = [
+        { label: "Stars", value: data.stargazerCount, Icon: FiStar },
+        { label: "Forks", value: data.forkCount, Icon: PiGitFork },
+        { label: "Watchers", value: data.watchers.totalCount, Icon: FiEye },
+        { label: "열린 이슈", value: data.issues.totalCount, Icon: FiGitCommit },
+        { label: "열린 PR", value: data.pullRequests.totalCount, Icon: FiGitPullRequest },
+    ];
     return (
         <UserDashboardProfileSectionLayout>
             <div className="flex flex-col gap-6 divide-gray-300 pb-8">
                 <div className="flex min-w-0 items-start justify-between gap-6 not-lg:flex-col">
                     <div className="flex min-w-0 items-start gap-5 not-sm:flex-col">
                         <img
-                            src={profileMock.avatarUrl}
-                            alt={profileMock.avatarAlt}
+                            src={data.owner.avatarUrl}
+                            alt={`${data.owner.login} 프로필 사진`}
                             className="size-24 shrink-0 rounded-lg border border-gray-300 object-cover"
                         />
                         <div className="flex min-w-0 flex-col gap-3">
                             <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
-                                <span>{profileMock.owner}</span>
+                                <span>{data.owner.login}</span>
                                 <span aria-hidden="true">/</span>
                                 <span className="rounded-lg border border-gray-300 p-2 text-xs">
-                                    {profileMock.visibility}
-                                </span>
-                                <span className="rounded-lg border border-gray-300 p-2 text-xs">
-                                    예시 데이터
+                                    {data.visibility}
                                 </span>
                             </div>
                             <h1 className="wrap-break-words text-2xl leading-tight font-bold sm:text-3xl">
-                                {profileMock.name}
+                                {data.name}
                             </h1>
                             <p className="max-w-3xl text-sm leading-6 text-gray-500">
-                                {profileMock.description}
+                                {data.description || "설명이 없습니다."}
                             </p>
                             <div className="flex flex-wrap gap-2">
                                 {topics.map((topic) => (
@@ -58,19 +62,19 @@ export default function RepoProfileSection() {
                             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-500">
                                 <span className="flex items-center gap-2">
                                     <FiBookOpen aria-hidden="true" />
-                                    {profileMock.license}
+                                    {data.licenseInfo?.name ?? "라이선스 정보 없음"}
                                 </span>
                                 <span className="flex items-center gap-2">
                                     <FiGitBranch aria-hidden="true" />
-                                    {profileMock.defaultBranch}
+                                    {data.defaultBranchRef?.name ?? "기본 브랜치 없음"}
                                 </span>
-                                <span>{summaryMock.lastPush}</span>
+                                <span>마지막 푸시 {data.pushedAt ? <time dateTime={data.pushedAt}>{data.pushedAt.slice(0, 10)}</time> : "정보 없음"}</span>
                             </div>
                         </div>
                     </div>
 
                     <a
-                        href={profileMock.githubUrl}
+                        href={data.url}
                         target="_blank"
                         rel="noreferrer"
                         className="text-primary hover:border-primary flex shrink-0 items-center gap-2 rounded-lg border border-gray-300 p-3 text-sm font-semibold">
@@ -80,8 +84,7 @@ export default function RepoProfileSection() {
                 </div>
 
                 <dl className="flex flex-wrap gap-4 border-gray-300 pt-5">
-                    {profileStats.map(({ label, value, icon }) => {
-                        const Icon = profileStatIcons[icon];
+                    {profileStats.map(({ label, value, Icon }) => {
                         return (
                             <div
                                 key={label}
@@ -90,7 +93,7 @@ export default function RepoProfileSection() {
                                     <Icon aria-hidden="true" />
                                     {label}
                                 </dt>
-                                <dd className="text-xl font-bold">{value}</dd>
+                                <dd className="text-xl font-bold">{value.toLocaleString()}</dd>
                             </div>
                         );
                     })}
