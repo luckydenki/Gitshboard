@@ -15,7 +15,23 @@ export default function UserDashboardRepositorySection() {
                 <div className="bg-panel rounded-lg p-2">포크 수 {data?.totalForks.toLocaleString() ?? "—"}</div>
             </div>
             <h3 className="mb-4 text-xl">레포지토리</h3>
-            {isLoading && <p role="status">저장소를 불러오는 중입니다.</p>}
+            {isLoading && (
+                <div aria-busy="true">
+                    <p role="status" className="sr-only">저장소를 불러오는 중입니다.</p>
+                    <ul aria-hidden="true" className="flex flex-col gap-4 motion-safe:animate-pulse">
+                        {Array.from({ length: 4 }, (_, index) => (
+                            <li key={index} className="bg-panel flex flex-col gap-4 rounded-lg p-5 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex flex-col gap-3">
+                                    <span className="h-7 w-40 rounded bg-gray-200 dark:bg-gray-700" />
+                                    <span className="h-5 w-28 rounded bg-gray-200 dark:bg-gray-700" />
+                                    <span className="h-5 w-44 rounded bg-gray-200 dark:bg-gray-700" />
+                                </div>
+                                <span className="h-5 w-28 rounded bg-gray-200 dark:bg-gray-700" />
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
             {isError && <p role="alert">저장소를 불러오지 못했습니다.</p>}
             {data && repos.length === 0 && <p>공개 저장소가 없습니다.</p>}
             <ul className="flex flex-col gap-4">
