@@ -21,14 +21,21 @@ export default function Search() {
     const page = Number(params.get("page") ?? 1);
     const perPage = 12;
 
-    const { data: result, isLoading, isError } = useQuery({
+    const {
+        data: result,
+        isLoading,
+        isError,
+    } = useQuery({
         queryKey: ["search-results", params.toString()],
-        enabled: Boolean(keyword),
+        enabled: Boolean(keyword), //어떤 값이 존재해야 실행 시킬지
         queryFn: async () => {
             const form = new FormData();
             form.set("q", keyword);
 
-            const language = params.getAll("language").reverse().find((value) => value.trim());
+            const language = params
+                .getAll("language")
+                .reverse()
+                .find((value) => value.trim());
             if (language) form.set("language", language.trim());
 
             if (category === "repos") {
@@ -71,15 +78,23 @@ export default function Search() {
                 </section>
 
                 <section className="flex min-h-screen w-full flex-col gap-4 justify-self-center pb-12">
-                    {!isLoading && <SearchResultHeader total_count={result?.data.total_count ?? 0} />}
+                    {!isLoading && (
+                        <SearchResultHeader total_count={result?.data.total_count ?? 0} />
+                    )}
                     {isLoading ? (
                         <div className="flex flex-col gap-4">
-                            <p role="status" className="text-sm text-gray-500">
+                            <p
+                                role="status"
+                                className="text-sm text-gray-500">
                                 검색 결과를 불러오는 중입니다
                             </p>
-                            <div aria-hidden="true" className="flex flex-col gap-3 motion-safe:animate-pulse">
+                            <div
+                                aria-hidden="true"
+                                className="flex flex-col gap-3 motion-safe:animate-pulse">
                                 {[0, 1, 2].map((index) => (
-                                    <div key={index} className="bg-panel flex min-h-36 items-center gap-4 rounded-lg border border-gray-300 p-4">
+                                    <div
+                                        key={index}
+                                        className="bg-panel flex min-h-36 items-center gap-4 rounded-lg border border-gray-300 p-4">
                                         <div className="size-16 shrink-0 rounded-lg bg-gray-200 dark:bg-gray-700" />
                                         <div className="flex min-w-0 flex-1 flex-col gap-3">
                                             <div className="h-5 w-2/5 max-w-48 rounded bg-gray-200 dark:bg-gray-700" />
@@ -92,27 +107,31 @@ export default function Search() {
                             </div>
                         </div>
                     ) : isError ? (
-                        <p role="status" className="py-8 text-center text-gray-500">
+                        <p
+                            role="status"
+                            className="py-8 text-center text-gray-500">
                             검색 요청에 실패했습니다
                         </p>
                     ) : result && result.data.items.length > 0 ? (
                         <section className="flex flex-col gap-3">
                             {result.category === "repos"
                                 ? result.data.items.map((item) => (
-                                    <SearchRepoItem
-                                        key={`repo-${item.id}`}
-                                        item={item}
-                                    />
-                                ))
+                                      <SearchRepoItem
+                                          key={`repo-${item.id}`}
+                                          item={item}
+                                      />
+                                  ))
                                 : result.data.items.map((item) => (
-                                    <SearchUserItem
-                                        key={`user-${item.id}`}
-                                        item={item}
-                                    />
-                                ))}
+                                      <SearchUserItem
+                                          key={`user-${item.id}`}
+                                          item={item}
+                                      />
+                                  ))}
                             <SearchPagination
                                 currentPage={page}
-                                totalPages={Math.ceil(Math.min(result.data.total_count, searchResultLimit) / perPage)}
+                                totalPages={Math.ceil(
+                                    Math.min(result.data.total_count, searchResultLimit) / perPage,
+                                )}
                             />
                         </section>
                     ) : (

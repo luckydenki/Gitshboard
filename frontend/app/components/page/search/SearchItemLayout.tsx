@@ -30,7 +30,7 @@ export default function SearchItemLayout({
     children,
 }: SearchItemLayoutProps) {
     return (
-        <article className="bg-panel relative flex w-full items-center gap-4 rounded-lg border border-gray-300 p-4 hover:outline hover:outline-primary not-sm:flex-wrap not-sm:items-start">
+        <article className="bg-panel hover:outline-primary relative flex w-full items-center gap-4 rounded-lg border border-gray-300 p-4 not-sm:flex-wrap not-sm:items-start hover:outline">
             <img
                 src={avatarUrl}
                 alt={avatarAlt}

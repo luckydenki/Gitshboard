@@ -24,7 +24,7 @@ const SearchAutoCompleteUserItem = ({
             type="button"
             onClick={() => {
                 console.log("누르기");
-                navigate(`../user/${e.login ?? e.name}`);
+                navigate(`../${e.type === "User" ? "user" : "org"}/${e.login ?? e.name}`);
             }}
             ref={refCallback}
             key={e.id}
@@ -63,7 +63,9 @@ const SearchAutoCompleteRepoItem = ({
         <button
             type="button"
             onClick={() => {
-                navigate(`/repo/${encodeURIComponent(e.owner.login)}/${encodeURIComponent(e.name)}`);
+                navigate(
+                    `/repo/${encodeURIComponent(e.owner.login)}/${encodeURIComponent(e.name)}`,
+                );
             }}
             ref={refCallback}
             key={e.id}

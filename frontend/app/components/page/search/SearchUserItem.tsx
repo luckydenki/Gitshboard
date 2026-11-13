@@ -6,13 +6,17 @@ export type SearchUserCardItem = UserSearchItem & {
 };
 
 export default function SearchUserItem({ item }: { item: SearchUserCardItem }) {
+    console.log("type ", item.type);
+
+    const dashboardUrl = `/${item.type === "User" ? "user" : "org"}/${encodeURIComponent(item.login)}`;
+
     return (
         <SearchItemLayout
             avatarUrl={item.avatar_url}
             avatarAlt={`${item.login} 프로필 사진`}
             title={item.name ?? item.login}
             badge={item.type === "Organization" ? "조직" : "사용자"}
-            dashboardUrl={`/user/${encodeURIComponent(item.login)}`}
+            dashboardUrl={dashboardUrl}
             githubUrl={item.html_url}
             description={item.bio}
             stars={item.total_stars}
