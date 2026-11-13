@@ -9432,6 +9432,13 @@ export type WorkflowsParametersInput = {
   workflows: Array<WorkflowFileReferenceInput>;
 };
 
+export type GetOrgDashboardProfileQueryVariables = Exact<{
+  login: Scalars['String']['input'];
+}>;
+
+
+export type GetOrgDashboardProfileQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', login: string, name?: string | null, avatarUrl: string, url: string, description?: string | null, location?: string | null, websiteUrl?: string | null, createdAt: string } | null };
+
 export type GetCommitTimesQueryVariables = Exact<{
   login: Scalars['String']['input'];
 }>;

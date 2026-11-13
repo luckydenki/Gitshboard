@@ -5,6 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import user_router from "./routes/user.routes";
+import org_router from "./routes/org.routes";
 import auth_router from "./routes/auth.routes";
 import readme_router from "./routes/readme.routes";
 import testing_router from "./routes/testing.routes";
@@ -45,6 +46,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/users", user_router);
+app.use("/api/orgs", org_router);
 app.use("/api/auth", auth_router);
 app.use("/api/test", testing_router);
 app.use("/api/repos", repo_router);
