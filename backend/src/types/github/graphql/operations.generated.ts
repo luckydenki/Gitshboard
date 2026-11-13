@@ -9467,6 +9467,14 @@ export type GetProjectTopicsQueryVariables = Exact<{
 
 export type GetProjectTopicsQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', name: string, repositoryTopics: { __typename?: 'RepositoryTopicConnection', nodes?: Array<{ __typename?: 'RepositoryTopic', topic: { __typename?: 'Topic', name: string } } | null> | null } } | null> | null } } | null };
 
+export type GetRepositoryDashboardProfileQueryVariables = Exact<{
+  owner: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+}>;
+
+
+export type GetRepositoryDashboardProfileQuery = { __typename?: 'Query', repository?: { __typename?: 'Repository', name: string, nameWithOwner: string, description?: string | null, visibility: RepositoryVisibility, url: string, pushedAt?: string | null, stargazerCount: number, forkCount: number, owner: { __typename?: 'Organization', login: string, avatarUrl: string } | { __typename?: 'User', login: string, avatarUrl: string }, licenseInfo?: { __typename?: 'License', name: string } | null, defaultBranchRef?: { __typename?: 'Ref', name: string } | null, repositoryTopics: { __typename?: 'RepositoryTopicConnection', nodes?: Array<{ __typename?: 'RepositoryTopic', topic: { __typename?: 'Topic', name: string } } | null> | null }, watchers: { __typename?: 'UserConnection', totalCount: number }, issues: { __typename?: 'IssueConnection', totalCount: number }, pullRequests: { __typename?: 'PullRequestConnection', totalCount: number } } | null };
+
 export type SearchUsersQueryVariables = Exact<{
   searchQuery: Scalars['String']['input'];
   first: Scalars['Int']['input'];

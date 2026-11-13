@@ -1,6 +1,10 @@
 import { Router } from "express";
-import { authToken, authUser } from "../middlewares/auth.middleware";
+import { authToken, authUser, checkToken, checkUser } from "../middlewares/auth.middleware";
 import repoController from "../controllers/repo.controllers";
+import { GithubGraphqlFetch } from "../client/repo.client";
+import { repositoryDashboardProfileQuery } from "../client/queries/github/repository-dashboard-profile.query";
+import type { GetRepositoryDashboardProfileQuery, GetRepositoryDashboardProfileQueryVariables } from "../types/github/graphql/operations.generated";
+import type { AuthRequest } from "../types/middlewares/auth";
 
 const repo_router = Router();
 /*
@@ -32,5 +36,31 @@ repo_router.get("/developStats", authToken, authUser, repoController.developStat
 
 //api : api/repos/projectLiveRate
 repo_router.get("/projectLiveRate", authToken, authUser, repoController.projectLiveRate);
+
+/** 공개 저장소 또는 방문자에게 접근 권한이 있는 저장소의 프로필을 조회합니다. */
+repo_router.get("/:owner/:repo/profile", checkToken, checkUser, async (req: AuthRequest, res) => {
+    const { owner, repo } = req.params;
+    res.set("Cache-Control", "private, no-store");
+
+    if (typeof owner !== "string" || typeof repo !== "string" || !owner.trim() || !repo.trim()) {
+        return res.status(400).json({ status: 400, title: "Bad Request", detail: "저장소 소유자와 이름이 필요합니다." });
+    }
+
+    try {
+        const variables = { owner, name: repo } satisfies GetRepositoryDashboardProfileQueryVariables;
+        const { repository } = await GithubGraphqlFetch<GetRepositoryDashboardProfileQuery>(
+            req.user?.githubAccessToken,
+            repositoryDashboardProfileQuery,
+            variables,
+        );
+        if (!repository) {
+            return res.status(404).json({ status: 404, title: "Not Found", detail: "저장소를 찾을 수 없습니다." });
+        }
+        return res.json({ success: true, status: 200, data: { repository } });
+    } catch (error) {
+        console.error("GitHub 저장소 프로필 조회 실패", error);
+        return res.status(500).json({ status: 500, title: "GitHub API 요청 실패", detail: "저장소 프로필을 불러오지 못했습니다." });
+    }
+});
 
 export default repo_router;
