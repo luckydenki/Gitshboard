@@ -80,6 +80,29 @@ export function useUserRecentActivity(login?: string) {
     });
 }
 
+export interface UserCommitActivity {
+    total: number;
+    results: Array<{ repositoryName: string; occuredAt: string[]; commitCount: number[] }>;
+    commitOccuredAt: string[];
+    commitCounts: number[];
+}
+
+export function useUserCommitActivity(login: string | undefined, from: string, to: string) {
+    return useQuery({
+        queryKey: ["user-commit-activity", login, from, to],
+        enabled: Boolean(login),
+        gcTime: 0,
+        queryFn: ({ signal }) => {
+            const params = new URLSearchParams({ from, to });
+            return fetchDashboardData<UserCommitActivity>(
+                `/api/contribute/${encodeURIComponent(login ?? "")}/commitActivity?${params}`,
+                signal,
+                "커밋 활동을 불러오지 못했습니다.",
+            );
+        },
+    });
+}
+
 interface UserDashboardRepositories {
     repositories: Array<{
         name: string;

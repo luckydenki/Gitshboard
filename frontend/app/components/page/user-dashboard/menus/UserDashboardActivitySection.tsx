@@ -1,5 +1,5 @@
 import { useOutletContext, useParams } from "react-router";
-import { useUserRecentActivity } from "~/hooks/useUserDashboard";
+import { useUserCommitActivity, useUserRecentActivity } from "~/hooks/useUserDashboard";
 import UserDashboardActivityArticle from "../UserDashboardActivityArticle";
 import UserDashboardRecentActivitySection from "./UserDashboardRecentActivitySection";
 
@@ -46,6 +46,15 @@ export default function UserDashboardActivitySection() {
         isProfileError: boolean;
     }>();
     const { data, isLoading, isError } = useUserRecentActivity(user);
+    const today = new Date().toISOString().slice(0, 10);
+    const end = new Date(`${today}T23:59:59.999Z`);
+    const weekStart = new Date(`${today}T00:00:00.000Z`);
+    weekStart.setUTCDate(weekStart.getUTCDate() - 6);
+    const yearStart = new Date(`${today}T00:00:00.000Z`);
+    yearStart.setUTCFullYear(yearStart.getUTCFullYear() - 1);
+    yearStart.setUTCDate(yearStart.getUTCDate() + 1);
+    const weekly = useUserCommitActivity(user, weekStart.toISOString(), end.toISOString());
+    const yearly = useUserCommitActivity(user, yearStart.toISOString(), end.toISOString());
 
     return (
         <section className="flex min-w-sm items-start gap-6 not-lg:flex-col">
@@ -53,6 +62,13 @@ export default function UserDashboardActivitySection() {
                 streakDays={streakDays}
                 isProfileLoading={isProfileLoading}
                 isProfileError={isProfileError}
+                weekly={weekly.data}
+                weeklyLoading={weekly.isLoading}
+                weeklyError={weekly.isError}
+                yearly={yearly.data}
+                yearlyLoading={yearly.isLoading}
+                yearlyError={yearly.isError}
+                weekStart={weekStart.toISOString().slice(0, 10)}
             />
             {isLoading && <UserDashboardRecentActivitySkeleton />}
             {isError && <p role="alert">최근 활동을 불러오지 못했습니다.</p>}
