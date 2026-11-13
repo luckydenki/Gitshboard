@@ -103,6 +103,7 @@ user_router.get("/", authToken, authUser, async (req: AuthRequest, res) => {
 // api/users/userheader
 user_router.get("/userheader", authToken, authUser, async (req: AuthRequest, res) => {
     const user = req.user!;
+    res.set("Cache-Control", "private, no-store");
 
     const variables = { login: user.githubUsername } satisfies GetUserQueryVariables;
     try {
@@ -111,6 +112,9 @@ user_router.get("/userheader", authToken, authUser, async (req: AuthRequest, res
             userHeaderQuery,
             variables,
         );
+        if (!userData) {
+            return res.status(404).json({ status: 404, type: "Not Found", title: "GitHub 사용자를 찾을 수 없습니다." });
+        }
         const response: CommonResponse<typeof userData> = {
             status: 200,
             success: true,
