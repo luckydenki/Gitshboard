@@ -52,16 +52,19 @@ export default function OrgDashboard() {
             <CommonBackground />
             <DashboardLayout>
                 {isLoading && <AccountDashboardProfileSkeleton />}
+                {isError && <p role="alert">조직 프로필을 불러오지 못했습니다.</p>}
                 {profile && (
                     <OrgDashboardProfileSection
                         profile={{
-                            avatarUrl: "a",
-                            githubUrl: "b",
-                            introduce: "c",
-                            link: ["d"],
-                            location: "e",
-                            login: "REACT",
-                            name: "REACT",
+                            avatarUrl: profile.avatarUrl,
+                            githubUrl: profile.url,
+                            introduce: profile.description ?? "",
+                            link: profile.websiteUrl ? [profile.websiteUrl] : [],
+                            location: profile.location ?? "",
+                            login: profile.login,
+                            name: profile.name ?? profile.login,
+                            memberCount: profile.membersWithRole.totalCount,
+                            repositoryCount: profile.repositories.totalCount,
                         }}
                     />
                 )}

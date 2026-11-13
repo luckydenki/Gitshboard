@@ -12,6 +12,8 @@ export default function OrgDashbaordProfileSection({
         link: Array<string>;
         githubUrl: string;
         introduce: string;
+        memberCount: number;
+        repositoryCount: number;
     };
 }) {
     return (
@@ -25,6 +27,8 @@ export default function OrgDashbaordProfileSection({
                     location={profile.location}
                     login={profile.login}
                     name={profile.name}
+                    memberCount={profile.memberCount}
+                    repositoryCount={profile.repositoryCount}
                 />
 
                 <div className="h-48">그냥 빈 공간</div>

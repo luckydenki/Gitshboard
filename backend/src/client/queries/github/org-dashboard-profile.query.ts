@@ -9,6 +9,9 @@ export const orgDashboardProfileQuery = /* GraphQL */ `
             description
             location
             websiteUrl
+            twitterUsername
+            membersWithRole { totalCount }
+            repositories(privacy: PUBLIC) { totalCount }
             createdAt
         }
     }

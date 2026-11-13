@@ -1,5 +1,5 @@
-import { AccountStatsItem } from "~/components/compound/AccountStats";
-import { FaGithub } from "react-icons/fa";
+import { FiUsers, FiBook } from "react-icons/fi";
+import { AccountStats } from "~/components/compound/AccountStats";
 import { AccountDashboard } from "~/components/compound/AccountDashboardProfile";
 
 export default function OrgDashboardProfileArticle({
@@ -10,6 +10,8 @@ export default function OrgDashboardProfileArticle({
     introduce,
     githubUrl,
     avatarUrl,
+    memberCount,
+    repositoryCount,
 }: {
     login: string;
     name: string;
@@ -18,6 +20,8 @@ export default function OrgDashboardProfileArticle({
     introduce: string;
     githubUrl: string;
     avatarUrl: string;
+    memberCount: number;
+    repositoryCount: number;
 }) {
     return (
         //이렇게 하려니 관리하기 개짜증나네요 Compound 패턴이 진지하게 마려움
@@ -31,11 +35,10 @@ export default function OrgDashboardProfileArticle({
                 githubUrl={githubUrl}
                 avatarUrl={avatarUrl}
             />
-            <AccountStatsItem
-                icon={FaGithub}
-                label="인원"
-                value={1}
-            />
+            <AccountStats>
+                <AccountStats.Item icon={FiUsers} label="멤버" value={memberCount.toLocaleString()} />
+                <AccountStats.Item icon={FiBook} label="공개 저장소" value={repositoryCount.toLocaleString()} />
+            </AccountStats>
         </AccountDashboard.ArticleLayout>
     );
 }
