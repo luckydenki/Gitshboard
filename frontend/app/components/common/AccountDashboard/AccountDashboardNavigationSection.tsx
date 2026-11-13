@@ -1,5 +1,4 @@
 import { Link } from "react-router";
-import { EHomeDashboardMenu } from "~/routes/user-dashboard";
 
 const NavigationItems = ({ menu, link }: { menu: string; link: string }) => {
     return (
@@ -15,7 +14,7 @@ const NavigationItems = ({ menu, link }: { menu: string; link: string }) => {
  *
  * @returns
  */
-export default function UserDashboardNavigationSection({
+export default function AccountDashboardNavigationSection({
     menus,
 }: {
     menus: Array<{

@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useParams } from "react-router";
-import { UserDashboardLayout } from "~/components/page/user-dashboard/UserDashboardLayout";
 import RepoProfileSection from "~/components/page/repo-dashboard/RepoProfileSection";
 import { CommonBackground } from "~/components/common/CommonBackground";
+import { DashboardLayout } from "~/components/common/AccountDashboard/AccountDashboardLayout";
 const menuTabs = [
     { label: "최근 활동", to: "." },
     { label: "README", to: "readme" },
@@ -22,7 +22,7 @@ export default function RepoDashboard() {
                 content={`${nameWithOwner}의 활동, 프로젝트, 커밋, 이슈와 커뮤니케이션 통계입니다.`}
             />
             <CommonBackground />
-            <UserDashboardLayout>
+            <DashboardLayout>
                 <RepoProfileSection />
 
                 <section className="bg-panel min-w-0 overflow-x-auto px-4 py-2">
@@ -49,7 +49,7 @@ export default function RepoDashboard() {
                 </section>
 
                 <Outlet />
-            </UserDashboardLayout>
+            </DashboardLayout>
         </>
     );
 }

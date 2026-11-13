@@ -1,18 +1,24 @@
 import type { DashboardProfile } from "~/hooks/useUserDashboard";
 import UserDashboardContributionCalendarArticle from "./UserDashboardContributionCalendarArticle";
-import UserDashboardProfileArticle from "./UserDashboardProfileArticle";
-import { UserDashboardProfileSectionLayout } from "./UserDashboardProfileSectionLayout";
+import UserDashboardProfileArticle from "../../common/AccountDashboard/AccountDashboardProfileArticle";
+import { AccountDashboardProfileSectionLayout } from "~/components/common/AccountDashboard/AccountDashboardLayout";
 
 interface UserDashboardProfileSectionProps {
     profile: DashboardProfile;
 }
 
-export function UserDashboardProfileSkeleton() {
+export function AccountDashboardProfileSkeleton() {
     return (
-        <UserDashboardProfileSectionLayout>
+        <AccountDashboardProfileSectionLayout>
             <div aria-busy="true">
-                <p role="status" className="sr-only">프로필을 불러오는 중입니다.</p>
-                <div aria-hidden="true" className="motion-safe:animate-pulse">
+                <p
+                    role="status"
+                    className="sr-only">
+                    프로필을 불러오는 중입니다.
+                </p>
+                <div
+                    aria-hidden="true"
+                    className="motion-safe:animate-pulse">
                     <div className="flex flex-col gap-6 pb-8">
                         <div className="flex items-start justify-between gap-6 not-lg:flex-col">
                             <div className="flex items-start gap-5 not-sm:flex-col">
@@ -28,19 +34,21 @@ export function UserDashboardProfileSkeleton() {
                         </div>
                         <div className="grid grid-cols-2 gap-4 border-t border-gray-300 pt-6">
                             {[0, 1].map((item) => (
-                                <div key={item} className="flex flex-col gap-3">
+                                <div
+                                    key={item}
+                                    className="flex flex-col gap-3">
                                     <span className="h-4 w-16 rounded bg-gray-200 dark:bg-gray-700" />
                                     <span className="h-6 w-10 rounded bg-gray-200 dark:bg-gray-700" />
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div className="flex h-[300px] items-center px-4 sm:px-12">
+                    <div className="flex h-75 items-center px-4 sm:px-12">
                         <div className="h-36 w-full rounded-lg bg-gray-200 dark:bg-gray-700" />
                     </div>
                 </div>
             </div>
-        </UserDashboardProfileSectionLayout>
+        </AccountDashboardProfileSectionLayout>
     );
 }
 
@@ -51,7 +59,7 @@ export default function UserDashboardProfileSection({ profile }: UserDashboardPr
     ].filter((url): url is string => Boolean(url));
 
     return (
-        <UserDashboardProfileSectionLayout>
+        <AccountDashboardProfileSectionLayout>
             <UserDashboardProfileArticle
                 login={profile.login}
                 name={profile.name ?? profile.login}
@@ -66,6 +74,6 @@ export default function UserDashboardProfileSection({ profile }: UserDashboardPr
             <UserDashboardContributionCalendarArticle
                 weeks={profile.contributionsCollection.contributionCalendar.weeks}
             />
-        </UserDashboardProfileSectionLayout>
+        </AccountDashboardProfileSectionLayout>
     );
 }

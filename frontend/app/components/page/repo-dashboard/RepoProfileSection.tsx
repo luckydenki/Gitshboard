@@ -9,16 +9,34 @@ import {
     FiStar,
     FiGitPullRequest,
 } from "react-icons/fi";
-import { UserDashboardProfileSectionLayout } from "../user-dashboard/UserDashboardProfileSectionLayout";
+
 import { PiGitFork } from "react-icons/pi";
+import { AccountDashboardProfileSectionLayout } from "~/components/common/AccountDashboard/AccountDashboardLayout";
 
 export default function RepoProfileSection() {
     const { owner, repo } = useParams();
     const { data, isLoading, isError } = useRepositoryProfile(owner, repo);
-    if (!owner || !repo) return <UserDashboardProfileSectionLayout><p role="alert">올바른 저장소 주소가 아닙니다.</p></UserDashboardProfileSectionLayout>;
-    if (isLoading) return <UserDashboardProfileSectionLayout><p role="status">저장소 프로필을 불러오는 중입니다.</p></UserDashboardProfileSectionLayout>;
-    if (isError || !data) return <UserDashboardProfileSectionLayout><p role="alert">저장소 프로필을 불러오지 못했습니다.</p></UserDashboardProfileSectionLayout>;
-    const topics = (data.repositoryTopics.nodes ?? []).flatMap((node) => node ? [node.topic.name] : []);
+    if (!owner || !repo)
+        return (
+            <AccountDashboardProfileSectionLayout>
+                <p role="alert">올바른 저장소 주소가 아닙니다.</p>
+            </AccountDashboardProfileSectionLayout>
+        );
+    if (isLoading)
+        return (
+            <AccountDashboardProfileSectionLayout>
+                <p role="status">저장소 프로필을 불러오는 중입니다.</p>
+            </AccountDashboardProfileSectionLayout>
+        );
+    if (isError || !data)
+        return (
+            <AccountDashboardProfileSectionLayout>
+                <p role="alert">저장소 프로필을 불러오지 못했습니다.</p>
+            </AccountDashboardProfileSectionLayout>
+        );
+    const topics = (data.repositoryTopics.nodes ?? []).flatMap((node) =>
+        node ? [node.topic.name] : [],
+    );
     const profileStats = [
         { label: "Stars", value: data.stargazerCount, Icon: FiStar },
         { label: "Forks", value: data.forkCount, Icon: PiGitFork },
@@ -27,7 +45,7 @@ export default function RepoProfileSection() {
         { label: "열린 PR", value: data.pullRequests.totalCount, Icon: FiGitPullRequest },
     ];
     return (
-        <UserDashboardProfileSectionLayout>
+        <AccountDashboardProfileSectionLayout>
             <div className="flex flex-col gap-6 divide-gray-300 pb-8">
                 <div className="flex min-w-0 items-start justify-between gap-6 not-lg:flex-col">
                     <div className="flex min-w-0 items-start gap-5 not-sm:flex-col">
@@ -68,7 +86,16 @@ export default function RepoProfileSection() {
                                     <FiGitBranch aria-hidden="true" />
                                     {data.defaultBranchRef?.name ?? "기본 브랜치 없음"}
                                 </span>
-                                <span>마지막 푸시 {data.pushedAt ? <time dateTime={data.pushedAt}>{data.pushedAt.slice(0, 10)}</time> : "정보 없음"}</span>
+                                <span>
+                                    마지막 푸시{" "}
+                                    {data.pushedAt ? (
+                                        <time dateTime={data.pushedAt}>
+                                            {data.pushedAt.slice(0, 10)}
+                                        </time>
+                                    ) : (
+                                        "정보 없음"
+                                    )}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -99,6 +126,6 @@ export default function RepoProfileSection() {
                     })}
                 </dl>
             </div>
-        </UserDashboardProfileSectionLayout>
+        </AccountDashboardProfileSectionLayout>
     );
 }
