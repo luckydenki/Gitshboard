@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { authToken, authUser } from "../middlewares/auth.middleware";
 import contributionController from "../controllers/contribution.controllers";
+import { checkToken, checkUser } from "../middlewares/auth.middleware";
 
 const contribute_router = Router();
 
@@ -9,9 +9,9 @@ contribute_router.get("/health", (req, res) => {
 });
 
 contribute_router.get(
-    "/commitActivity",
-    authToken,
-    authUser,
+    "/:login/commitActivity",
+    checkToken,
+    checkUser,
     contributionController.getCommitActivity,
 );
 

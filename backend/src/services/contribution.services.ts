@@ -26,9 +26,10 @@ class ContributionService {
         githubUsername: string | undefined,
         from: string,
         to: string,
+        publicCache = false,
     ) => {
         try {
-            if (from > to) {
+            if (Date.parse(from) > Date.parse(to)) {
                 throw CommonError.create400Error(
                     "The 'from' date must be earlier than the 'to' date.",
                     "/graphql",
@@ -38,9 +39,12 @@ class ContributionService {
             //redis의 fromto는 yyyymmdd만 사용한다.
             const redisFrom = from.split("T")[0].replace(/-/g, "");
             const redisTo = to.split("T")[0].replace(/-/g, "");
-            const cachedData = await redisClient.get(
-                `commitActivity:${githubUsername}:${redisFrom}${redisTo}`,
-            );
+            const cacheKey = publicCache
+                ? `publicCommitActivity:${githubUsername?.toLowerCase()}:${from}:${to}`
+                : `commitActivity:${githubUsername}:${redisFrom}${redisTo}`;
+            // 사용자 토큰의 권한에 따라 결과가 달라지므로 공용 캐시를 사용하지 않는다.
+            const useCache = !(publicCache && githubAccessToken);
+            const cachedData = useCache ? await redisClient.get(cacheKey) : null;
             if (cachedData) {
                 console.log("Serving cached commit activity data");
                 return JSON.parse(cachedData) as GithubCommitActivity;
@@ -61,11 +65,9 @@ class ContributionService {
             );
             const githubCommitActivity = getGithubCommitActivity(data);
 
-            redisClient.setEx(
-                `commitActivity:${githubUsername}:${redisFrom}${redisTo}`,
-                60 * 60,
-                JSON.stringify(githubCommitActivity),
-            ); // 캐시 만료 시간: 1시간
+            if (useCache) {
+                redisClient.setEx(cacheKey, 60 * 60, JSON.stringify(githubCommitActivity));
+            }
 
             return githubCommitActivity;
         } catch (error) {
