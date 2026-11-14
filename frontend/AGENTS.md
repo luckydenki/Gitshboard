@@ -23,9 +23,17 @@
 2. 도무지 useQuery 훅을 쓸 수가 없는 fetch라면 (예를 들면 순수 js 함수에서 호출해야 하는 등인 경우, useEffect에서만 호출해야 하는 코드인 경우 등) 그냥 쓰지 말고 일반 fetch 쓰세요.
 3. 연동작업을 할 때 기존 컴포넌트 코드를 최소로 수정하세요
 4. 컴포넌트 본문에서 호출하게 되는 모든 useQuery 또는 fetch관련 코드는 반드시 커스텀 훅으로 분리하여 /hook/api 폴더 내에 작성하세요.
-5. 모든 Tanstack query의 쿼리 키는 app/types/queryKey/query-key-enum.ts 에서 관리하고 이를 돌려쓰세요. 또한 enum 위쪽에는 각 쿼리키가 무슨 api와 관련있는지도 설명 주석으로도 작성하세요
+5. 모든 Tanstack query의 쿼리 키는 `app/types/queryKey/query-key-enum.ts` 에서 관리하고 이를 돌려쓰세요. 또한 enum 위쪽에는 각 쿼리키가 무슨 api와 관련있는지도 설명 주석으로도 작성하세요.설명 주석의 예시는 다음과 같습니다.
 
+```ts
+/**
+ * - AUTH_CHECK : 인증 체크입니다.
+ *      - endpoint : /api/auth/check
+ *      - 비고(필요시) : 로그아웃 시 해당 캐시를 비우시길 바랍니다.
+/
+```
 
+자세한 건 직접 query-key-enum에서 확인해주시길 바랍니다.
 
 
 ## E2E 테스트 생성 및 수정 규칙
