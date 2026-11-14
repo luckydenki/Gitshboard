@@ -9439,6 +9439,20 @@ export type GetOrgDashboardProfileQueryVariables = Exact<{
 
 export type GetOrgDashboardProfileQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', login: string, name?: string | null, avatarUrl: string, url: string, description?: string | null, location?: string | null, websiteUrl?: string | null, twitterUsername?: string | null, createdAt: string, membersWithRole: { __typename?: 'OrganizationMemberConnection', totalCount: number }, repositories: { __typename?: 'RepositoryConnection', totalCount: number } } | null };
 
+export type OrgProfileDetailsQueryVariables = Exact<{
+  login: Scalars['String']['input'];
+}>;
+
+
+export type OrgProfileDetailsQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', login: string, name?: string | null, avatarUrl: string, url: string, description?: string | null, location?: string | null, websiteUrl?: string | null, twitterUsername?: string | null, createdAt: string, repositories: { __typename?: 'RepositoryConnection', totalCount: number } } | null };
+
+export type OrgProfileMembersQueryVariables = Exact<{
+  login: Scalars['String']['input'];
+}>;
+
+
+export type OrgProfileMembersQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', membersWithRole: { __typename?: 'OrganizationMemberConnection', totalCount: number } } | null };
+
 export type GetCommitTimesQueryVariables = Exact<{
   login: Scalars['String']['input'];
 }>;

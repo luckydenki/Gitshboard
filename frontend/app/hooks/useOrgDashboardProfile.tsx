@@ -11,7 +11,7 @@ interface OrgProfile {
     websiteUrl: string | null;
     createdAt: string;
     twitterUsername: string | null;
-    membersWithRole: { totalCount: number };
+    membersWithRole: { totalCount: number } | null;
     repositories: { totalCount: number };
 }
 

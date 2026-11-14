@@ -1,3 +1,7 @@
-import type { GetOrgDashboardProfileQuery } from "../github/graphql/operations.generated";
+import type { OrgProfileDetailsQuery, OrgProfileMembersQuery } from "../github/graphql/operations.generated";
 
-export type GetOrgProfileDto = GetOrgDashboardProfileQuery;
+export type GetOrgProfileDto = {
+    organization: (NonNullable<OrgProfileDetailsQuery["organization"]> & {
+        membersWithRole: NonNullable<OrgProfileMembersQuery["organization"]>["membersWithRole"] | null;
+    }) | null;
+};

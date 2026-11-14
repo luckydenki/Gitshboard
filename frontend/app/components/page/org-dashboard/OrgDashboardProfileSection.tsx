@@ -12,7 +12,7 @@ export default function OrgDashbaordProfileSection({
         link: Array<string>;
         githubUrl: string;
         introduce: string;
-        memberCount: number;
+        memberCount: number | null;
         repositoryCount: number;
     };
 }) {

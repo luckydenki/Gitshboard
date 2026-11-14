@@ -63,7 +63,7 @@ export default function OrgDashboard() {
                             location: profile.location ?? "",
                             login: profile.login,
                             name: profile.name ?? profile.login,
-                            memberCount: profile.membersWithRole.totalCount,
+                            memberCount: profile.membersWithRole?.totalCount ?? null,
                             repositoryCount: profile.repositories.totalCount,
                         }}
                     />
