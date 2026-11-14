@@ -1,4 +1,4 @@
-import type { CommonErrorResponse } from "~/types/common/common";
+import type { CommonErrorResponse } from "~/types/common-response/common";
 
 export const formatHour = (hour: number) =>  {
     return `${String(hour).padStart(2, "0")}:00`;

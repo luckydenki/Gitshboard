@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { CommonResponse } from "~/types/common/common";
+import type { CommonResponse } from "~/types/common-response/common";
 import type { Profile } from "~/types/profile";
 
 export type DashboardProfile = Omit<Profile, "contributionsCollection" | "socialAccounts"> & {

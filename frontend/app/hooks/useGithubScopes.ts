@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import type { CommonResponse } from "~/types/common/common";
-import type { GitHubScope } from "~/types/GithubOAuth";
+import type { CommonResponse } from "~/types/common-response/common";
+import type { GitHubScope } from "~/types/github-Oauth";
 
 export default function useGithubScopes() {
     return useQuery({

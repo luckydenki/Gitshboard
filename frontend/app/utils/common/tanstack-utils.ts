@@ -1,6 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import CommonError from "./common-error";
-import type { QueryKeys } from "~/types/query-key-enum";
+import type { QueryKeys } from "~/types/queryKey/query-key-enum";
 
 
 export class ManagedQueryClient extends QueryClient {

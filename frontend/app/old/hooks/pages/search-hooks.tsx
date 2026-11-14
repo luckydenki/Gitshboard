@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Log } from "~/utils/log_system/log";
 import { useMemo, type JSX } from "react";
-import type { CommonResponse, CommonErrorResponse } from "~/types/common/common";
+import type { CommonResponse, CommonErrorResponse } from "~/types/common-response/common";
 import type { GithubUserSearchResponse } from "~/old/types/search";
 import { useNavigate } from "react-router";
 

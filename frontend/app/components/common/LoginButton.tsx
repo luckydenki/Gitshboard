@@ -1,5 +1,5 @@
 import { SiGithub } from "@icons-pack/react-simple-icons";
-import type { GitHubScope, StrictGithubOAuthParams } from "~/types/GithubOAuth";
+import type { GitHubScope, StrictGithubOAuthParams } from "~/types/github-Oauth";
 
 export const handleOAuthLogin = (scope: Array<GitHubScope>) => {
     const ID = import.meta.env.VITE_GITHUB_CLIENT_ID;

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import type { CommonResponse } from "~/types/common/common";
+import type { CommonResponse } from "~/types/common-response/common";
 
 export interface GithubUser {
     id: number;

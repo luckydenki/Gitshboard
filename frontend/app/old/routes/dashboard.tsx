@@ -2,8 +2,8 @@ import { Loading } from "~/components/design/Loading";
 import DashboardSection from "~/components/page/dashboard/DashboardSection";
 import { useQuery } from "@tanstack/react-query";
 import { HTTPCredentials } from "dench-fetch";
-import type { GithubUser } from "~/types/GithubInfo";
-import type { CommonResponse } from "~/types/common/common";
+import type { GithubUser } from "~/types/github-info";
+import type { CommonResponse } from "~/types/common-response/common";
 
 export default function Dashboard() {
     const { data, isLoading, isError } = useQuery({
