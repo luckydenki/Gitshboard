@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router";
+import { Outlet, useParams } from "react-router";
 import { CommonBackground } from "~/components/common/CommonBackground";
 import OrgDashboardProfileSection from "~/components/page/org-dashboard/OrgDashboardProfileSection";
 import AccountDashboardNavigationSection from "~/components/common/AccountDashboard/AccountDashboardNavigationSection";
@@ -69,6 +69,8 @@ export default function OrgDashboard() {
                     />
                 )}
                 <AccountDashboardNavigationSection menus={menus} />
+
+                <Outlet />
             </DashboardLayout>
         </>
     );
