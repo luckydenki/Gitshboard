@@ -19,7 +19,8 @@ export enum EHomeDashboardMenu {
     "최근 활동" = 0,
     "개발 성향" = 1,
     레포지토리 = 2,
-    관심사 = 3,
+    조직 = 3,
+    관심사 = 4,
 }
 
 export default function UserDashboard() {
@@ -44,6 +45,10 @@ export default function UserDashboard() {
         },
         {
             menu: EHomeDashboardMenu[3],
+            link: "./organizations",
+        },
+        {
+            menu: EHomeDashboardMenu[4],
             link: "./interests",
         },
     ];

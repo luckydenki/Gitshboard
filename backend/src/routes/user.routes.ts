@@ -26,6 +26,7 @@ import type {
     GetUserPublicRepositoriesQueryVariables,
 } from "../types/github/graphql/operations.generated";
 import type { GetUserRepositoriesDto } from "../types/response/user-repositories";
+import type { GetUserOrganizationsDto, UserOrganization } from "../types/response/user-organizations";
 import type { GetUserProfileDto } from "../types/response/user-profile";
 import type {
     GetUserRecentActivityDto,
@@ -423,6 +424,84 @@ user_router.get("/:login/repositories", checkToken, checkUser, async (req: AuthR
         res.json(commonResponse);
     } catch (error) {
         const errorResponse = getPublicUserError(error, "GitHub 저장소 목록을 조회하지 못했습니다.");
+        res.status(errorResponse.status).json(errorResponse);
+    }
+});
+
+/** @api GET /api/users/:login/organizations — 사용자의 공개 조직과 조직별 공개 프로필 통계 */
+user_router.get("/:login/organizations", checkToken, checkUser, async (req: AuthRequest, res) => {
+    const { login } = req.params;
+    try {
+        if (typeof login !== "string" || !/^[a-z\d][a-z\d-]{0,38}$/i.test(login)) {
+            throw CommonError.create400Error("GitHub 로그인 이름 형식이 올바르지 않습니다.");
+        }
+
+        const headers: Record<string, string> = {
+            Accept: "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        };
+        const token = req.user?.githubAccessToken ?? process.env.PUBLIC_API_TOKEN;
+        if (token) headers.Authorization = `Bearer ${token}`;
+
+        const organizations: Array<{ login: string }> = [];
+        let page = 1;
+        while (true) {
+            const listResponse = await fetch(
+                `https://api.github.com/users/${encodeURIComponent(login)}/orgs?per_page=100&page=${page}`,
+                { headers },
+            );
+            if (listResponse.status === 404) {
+                throw CommonError.create404Error("GitHub 사용자를 찾을 수 없습니다.");
+            }
+            if (!listResponse.ok) throw CommonError.create500Error("GitHub 조직 목록을 조회하지 못했습니다.");
+            const batch = (await listResponse.json()) as Array<{ login: string }>;
+            organizations.push(...batch);
+            if (batch.length < 100) break;
+            page += 1;
+        }
+
+        const orgs: UserOrganization[] = [];
+        for (let index = 0; index < organizations.length; index += 5) {
+            const batch = organizations.slice(index, index + 5);
+            const details = await Promise.all(batch.map(async (org): Promise<UserOrganization> => {
+                const detailResponse = await fetch(
+                    `https://api.github.com/orgs/${encodeURIComponent(org.login)}`,
+                    { headers },
+                );
+                if (!detailResponse.ok) {
+                    throw CommonError.create500Error("GitHub 조직 상세 정보를 조회하지 못했습니다.");
+                }
+                const detail = (await detailResponse.json()) as {
+                    avatar_url: string;
+                    id: number;
+                    name: string | null;
+                    login: string;
+                    followers: number;
+                    public_repos: number;
+                    html_url: string;
+                    description: string | null;
+                };
+                return {
+                    avatarurl: detail.avatar_url,
+                    id: detail.id,
+                    name: detail.name,
+                    login: detail.login,
+                    followers: detail.followers,
+                    public_repo: detail.public_repos,
+                    url: detail.html_url,
+                    description: detail.description,
+                };
+            }));
+            orgs.push(...details);
+        }
+
+        const data: GetUserOrganizationsDto = { orgs, totalOrgCount: orgs.length };
+        const response: CommonResponse<GetUserOrganizationsDto> = { status: 200, success: true, data };
+        res.json(response);
+    } catch (error) {
+        const errorResponse = error instanceof CommonError
+            ? error
+            : CommonError.create500Error("GitHub 조직 목록을 조회하지 못했습니다.");
         res.status(errorResponse.status).json(errorResponse);
     }
 });
