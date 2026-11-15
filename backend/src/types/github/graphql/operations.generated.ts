@@ -9453,6 +9453,14 @@ export type OrgProfileMembersQueryVariables = Exact<{
 
 export type OrgProfileMembersQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', membersWithRole: { __typename?: 'OrganizationMemberConnection', totalCount: number } } | null };
 
+export type OrgPublicRepositoriesQueryVariables = Exact<{
+  login: Scalars['String']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type OrgPublicRepositoriesQuery = { __typename?: 'Query', organization?: { __typename?: 'Organization', repositories: { __typename?: 'RepositoryConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null }, nodes?: Array<{ __typename?: 'Repository', name: string, nameWithOwner: string, url: string, stargazerCount: number, forkCount: number, updatedAt: string, primaryLanguage?: { __typename?: 'Language', name: string, color?: string | null } | null } | null> | null } } | null };
+
 export type GetCommitTimesQueryVariables = Exact<{
   login: Scalars['String']['input'];
 }>;
