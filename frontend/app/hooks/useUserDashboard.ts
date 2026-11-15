@@ -129,3 +129,32 @@ export function useUserDashboardRepositories(login?: string) {
             ),
     });
 }
+
+export interface UserDashboardOrganization {
+    avatarurl: string;
+    id: number;
+    name: string | null;
+    login: string;
+    followers: number;
+    public_repo: number;
+    url: string;
+    description: string | null;
+}
+
+export interface UserDashboardOrganizations {
+    orgs: UserDashboardOrganization[];
+    totalOrgCount: number;
+}
+
+export function useUserDashboardOrganizations(login?: string) {
+    return useQuery({
+        queryKey: ["user-dashboard-organizations", login],
+        enabled: Boolean(login),
+        queryFn: ({ signal }) =>
+            fetchDashboardData<UserDashboardOrganizations>(
+                `/api/users/${encodeURIComponent(login ?? "")}/organizations`,
+                signal,
+                "조직을 불러오지 못했습니다.",
+            ),
+    });
+}
