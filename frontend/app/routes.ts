@@ -39,7 +39,13 @@ export default [
                 "./components/page/repo-dashboard/menus/RepoDashboardCommunicationSection.tsx",
             ),
         ]),
-        route("org/:org", "routes/org-dashboard.tsx", []),
+        route("org/:org", "routes/org-dashboard.tsx", [
+            index("./components/page/org-dashboard/menus/OrgDashboardActivitySection.tsx"),
+            route(
+                "repos",
+                "./components/page/org-dashboard/menus/OrgDashboardRepositorySection.tsx",
+            ),
+        ]),
         route("user/:user", "routes/user-dashboard.tsx", [
             index("./components/page/user-dashboard/menus/UserDashboardActivitySection.tsx"),
             route(
@@ -49,6 +55,10 @@ export default [
             route(
                 "repos",
                 "./components/page/user-dashboard/menus/UserDashboardRepositorySection.tsx",
+            ),
+            route(
+                "organizations",
+                "./components/page/user-dashboard/menus/UserDashboardOrganizationSection.tsx",
             ),
             route(
                 "interests",
