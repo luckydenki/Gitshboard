@@ -1,11 +1,16 @@
 import dotenv from "dotenv";
 import { Octokit } from "@octokit/rest";
+import type { GithubReposGetCommitDto } from "../types/github/rest/repos-get-commit";
+import CommonError from "../utils/common-error";
+import { githubRepoActivityQuery } from "./queries/github/repo-activity.query";
 import { repoLanguagesQuery } from "./queries/github/repo-languages.query";
 import { repoCommitTimesQuery } from "./queries/github/repo-commit-times.query";
 import { repoProjectTopicsQuery } from "./queries/github/repo-project-topics.query";
 import { repoDeveloperProfileQuery } from "./queries/github/repo-developer-profile.query";
 import { repoProjectHealthQuery } from "./queries/github/repo-project-health.query";
 import type {
+    RepoActivityQuery,
+    RepoActivityQueryVariables,
     GetRepoLanguagesQuery,
     GetRepoLanguagesQueryVariables,
     GetCommitTimesQuery,
@@ -40,7 +45,47 @@ export const GithubGraphqlFetch = async <T>(
     }
 };
 
-class GithubRepoAPIClient {
+class GithubRepoClient {
+    public getActivityPage = async (
+        variables: RepoActivityQueryVariables,
+        githubAccessToken?: string,
+    ): Promise<RepoActivityQuery> => {
+        try {
+            return await GithubGraphqlFetch<RepoActivityQuery>(
+                githubAccessToken,
+                githubRepoActivityQuery,
+                variables,
+            );
+        } catch (error) {
+            if (error instanceof CommonError) throw error;
+
+            const notFound = error instanceof Error && "errors" in error && Array.isArray(error.errors) &&
+                error.errors.some((item) => item?.type === "NOT_FOUND" && item.path?.[0] === "repository");
+            if (notFound) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+
+            throw CommonError.create500Error("GitHub 저장소 활동을 조회하지 못했습니다.");
+        }
+    };
+
+    public getActivityCommit = async (
+        owner: string,
+        repo: string,
+        sha: string,
+        githubAccessToken?: string,
+    ): Promise<GithubReposGetCommitDto> => {
+        try {
+            const octokit = new Octokit({ auth: githubAccessToken ?? process.env.PUBLIC_API_TOKEN });
+            const { data: response } = await octokit.rest.repos.getCommit({ owner, repo, ref: sha, per_page: 1 });
+            return response;
+        } catch (error) {
+            if (error instanceof CommonError) throw error;
+            if (error instanceof Error && "status" in error && error.status === 404) {
+                throw CommonError.create404Error("GitHub 커밋을 찾을 수 없습니다.");
+            }
+            throw CommonError.create500Error("GitHub 커밋 상세 정보를 조회하지 못했습니다.");
+        }
+    };
+
     public getLanguages = async (
         githubUsername: string,
         githubAccessToken: string | undefined,
@@ -137,5 +182,5 @@ class GithubRepoAPIClient {
     };
 }
 
-const githubRepoAPIClient = new GithubRepoAPIClient();
+const githubRepoAPIClient = new GithubRepoClient();
 export default githubRepoAPIClient;

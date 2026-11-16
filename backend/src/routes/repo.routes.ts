@@ -63,4 +63,42 @@ repo_router.get("/:owner/:repo/profile", checkToken, checkUser, async (req: Auth
     }
 });
 
+
+/**
+ * @api GET /api/repos/:owner/:repo/activity
+ *
+ * @desc 최근 7개 현지 날짜의 커밋 및 PR·이슈 활동 목록을 페이지 단위로 조회합니다.
+ *
+ * @query timezone (string, 선택) - IANA 시간대. 기본값 Asia/Seoul.
+ * @query limit (integer, 선택) - 최근 전적 페이지 크기. 기본값 6, 최대 20.
+ * @query cursor (string, 선택) - 같은 저장소와 시간대에서 받은 다음 페이지 커서.
+ *
+ * @github backend/src/client/queries/github/repo-activity.query.ts
+ * @github backend/src/types/github/rest/repos-get-commit.ts
+ *
+ * @response backend/src/types/response/repo-activity.ts
+ *
+ * @error [400] : 저장소 주소, 시간대, 페이지 크기 또는 커서가 잘못된 경우.
+ * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
+ * @error [500] : GitHub 활동 데이터를 조회하지 못한 경우.
+ */
+repo_router.get("/:owner/:repo/activity", checkToken, checkUser, repoController.activity);
+
+/**
+ * @api GET /api/repos/:owner/:repo/activity/summary
+ *
+ * @desc 최근 7개 현지 날짜의 주간 커밋, 활동 리듬 및 이슈 첫 응답을 집계합니다.
+ *
+ * @query timezone (string, 선택) - IANA 시간대. 기본값 Asia/Seoul.
+ *
+ * @github backend/src/client/queries/github/repo-activity.query.ts
+ *
+ * @response backend/src/types/response/repo-activity-summary.ts
+ *
+ * @error [400] : 저장소 주소 또는 시간대가 잘못된 경우.
+ * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
+ * @error [500] : GitHub 활동 데이터를 조회하지 못한 경우.
+ */
+repo_router.get("/:owner/:repo/activity/summary", checkToken, checkUser, repoController.activitySummary);
+
 export default repo_router;
