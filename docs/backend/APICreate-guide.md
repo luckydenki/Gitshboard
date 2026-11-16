@@ -88,3 +88,135 @@ GitHub GraphQL을 사용하는 API에서 서버 DTO만 생략됐다면, Codegen 
 6. 모든 API 생성 작업이 끝났다면 호출 테스트를 수행하여 응답이 정상적으로 도착하는 지만 확인하세요.
 
 
+
+## 분리 규칙
+
+현재 api는 크게 `routes`와 `controllers`와 `services`로 나뉩니다.
+
+1. routes는 controllers를 호출하고 더 이상 무언가를 하지 마세요
+
+2. controllers의 책임은 필요한 파라미터를 가져오고, 최종 에러와 응답을 호출하며 필요한 서비스를 호출하는 작업만 수행하면 됩니다.
+
+3. services는 controllers에 담을 수 없는 나머지 실제 서비스 로직들이 들어가면 됩니다.
+
+4. controllers와 services의 이름은 route의 도메인을 따서 만듭니다. 예를 들어, routes 파일 이름이 `repo.routes.ts`라면
+controllers는 `repo.controllers.ts` services는 `repo.services.ts`입니다.
+
+5. controllers와 services는 클래스로 만들고, `export default` 문법으로 모듈을 export 시키세요. 클래스명은 `도메인명`+Controllers 또는 `도메인명`+Services 로 짓습니다.
+
+6. 발생 가능한 에러는 그 위치에서 바로바로 `CommonErrorResponse`를 만들어서 throw 시키세요. 이후 최종 에러의 처리는 Controller에서 책임져야 합니다.
+
+7. **추가로 Github Client 로직이나 우리 서버의 Repository 로직(흔히들 DTO를 실제로 DB에서 가져오는 로직이죠!)**은 아직 분리하지마세요. 밑의 예시에서도 주석으로 놓긴 했지만, 그러한 fetch 또는 쿼리 조회 로직도 그냥 서비스 안에다가 넣어두십쇼.
+
+
+```ts
+//routes 파일 controller 호출 예시
+
+import repoController from "../controllers/repo.controllers";
+
+//언어 사용량
+//api/repos/languages
+repo_router.get("/languages", authToken, authUser, repoController.languages);
+//이런식으로 라우터가 어떤 미들웨어들의 흐름으로 작업이 이루어지는 지 알 수 있게 하면 됨
+
+```
+
+```ts
+//controller 예시
+
+//라우터 명이 repo였기에 RepoController라고 짓습니다.
+class RepoController {
+
+public languages = async (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+        const errorResponse: CommonErrorResponse = {
+            type: "https://developer.github.com/v4",
+            title: "Unauthorized",
+            status: 401,
+            detail: "인증된 사용자 정보가 없습니다.",
+        };
+        return res.status(401).json(errorResponse);     
+        //Controller 자체에서 발생 가능한 에러는 이렇게 바로 응답을 만들면 됩니다.
+    }
+
+    const data = await repoService.getLanguages(
+        req.user.githubUsername,
+        req.user.githubAccessToken,
+    );  
+
+    if (data) {
+        const responseData: CommonResponse<LanguageStat[]> = {
+            success: true,
+            status: 200,
+            data: data,
+        };
+        res.status(200).json(responseData);
+    } else {
+        const errorResponse: CommonErrorResponse = {
+            type: "https://developer.github.com/v4",
+            title: "GitHub API Error",
+            status: 500,
+            detail: "레포지토리 언어 사용량 정보를 가져오는 데 실패했습니다.",
+        };
+        res.status(500).json(errorResponse);
+      
+        }
+    };
+};
+
+
+const repoController = new RepoController();
+export default repoController;
+
+```
+
+
+```ts
+//service 예시
+
+class RepoService {
+    public getLanguages = async (githubUsername: string, githubAccessToken: string | undefined) => {
+        const cachedData = await redisRepository.get<LanguageStat[]>(
+            createRedisKey(githubUsername, "languages"),
+        );
+
+        if (cachedData) {
+            console.log("Redis hit : languages");
+            return cachedData;
+        }
+
+        try {
+            const userData = await githubRepoAPIClient.getLanguages(githubUsername, githubAccessToken);
+            //주의 : 아직 Client, Repository로직을 별도로 분리하지는 마세요 
+            //차후에 처리할 부분이니 이런 부분도 
+
+            if (!userData) {
+                throw CommonError.create404Error(
+                    "Github API 호출에 실패했습니다.",
+                    `/api/repo/${githubUsername}/languages`,
+                );  //발생가능한 에러는 그 즉시 CommonErrorReponse 형태로 throw하시면 됩니다.
+            }
+
+            const languageStats = calculateLanguageStats(userData);
+            const success = await redisRepository.set(
+                createRedisKey(githubUsername, "languages"),
+                languageStats,
+                REDIS_DATA_EXPIRATION,
+            );
+
+            if (!success) {
+                console.error("Failed to set cache for languages");
+                //redis 가 실패해도 통계 데이터는 반환합니다.
+            }
+            return languageStats;
+        } catch (err) {
+            console.error("Failed to fetch repository languages:", err);
+            return null;
+        }
+    };
+}
+
+const repoService = new RepoService();
+export default repoService;
+
+```
