@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authToken, authUser, checkToken, checkUser } from "../middlewares/auth.middleware";
+import { checkToken, checkUser } from "../middlewares/auth.middleware";
 import repoController from "../controllers/repo.controllers";
 import { GithubGraphqlFetch } from "../client/repo.client";
 import { repositoryDashboardProfileQuery } from "../client/queries/github/repository-dashboard-profile.query";
@@ -17,25 +17,6 @@ const repo_router = Router();
 repo_router.get("/health", (req, res) => {
     res.json({ message: "Repo route is working!" });
 });
-
-//언어 사용량
-//api/repos/languages
-repo_router.get("/languages", authToken, authUser, repoController.languages);
-
-// 커밋 시간
-//api/repos/commitTime
-repo_router.get("/commitTime", authToken, authUser, repoController.commitTime);
-
-// 프로젝트 토픽
-//api/repos/projectTopics
-repo_router.get("/projectTopics", authToken, authUser, repoController.projectTopics);
-
-// 실제 개발 관련 통계
-//api/repos/developStats
-repo_router.get("/developStats", authToken, authUser, repoController.developStats);
-
-//api : api/repos/projectLiveRate
-repo_router.get("/projectLiveRate", authToken, authUser, repoController.projectLiveRate);
 
 /** 공개 저장소 또는 방문자에게 접근 권한이 있는 저장소의 프로필을 조회합니다. */
 repo_router.get("/:owner/:repo/profile", checkToken, checkUser, async (req: AuthRequest, res) => {

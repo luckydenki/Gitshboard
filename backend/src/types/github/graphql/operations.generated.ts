@@ -9485,33 +9485,12 @@ export type GetCommitTimesQueryVariables = Exact<{
 
 export type GetCommitTimesQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', name: string, defaultBranchRef?: { __typename?: 'Ref', target?: { __typename?: 'Blob' } | { __typename?: 'Commit', history: { __typename?: 'CommitHistoryConnection', nodes?: Array<{ __typename?: 'Commit', committedDate: string } | null> | null } } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null } | null } | null> | null } } | null };
 
-export type GetDevelopTimeQueryVariables = Exact<{
-  login: Scalars['String']['input'];
-}>;
-
-
-export type GetDevelopTimeQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', defaultBranchRef?: { __typename?: 'Ref', target?: { __typename?: 'Blob' } | { __typename?: 'Commit', history: { __typename?: 'CommitHistoryConnection', nodes?: Array<{ __typename?: 'Commit', committedDate: string } | null> | null } } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null } | null, languages?: { __typename?: 'LanguageConnection', edges?: Array<{ __typename?: 'LanguageEdge', node: { __typename?: 'Language', name: string } } | null> | null } | null, repositoryTopics: { __typename?: 'RepositoryTopicConnection', nodes?: Array<{ __typename?: 'RepositoryTopic', topic: { __typename?: 'Topic', name: string } } | null> | null } } | null> | null } } | null };
-
 export type GetRepoLanguagesQueryVariables = Exact<{
   login: Scalars['String']['input'];
 }>;
 
 
 export type GetRepoLanguagesQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', name: string, languages?: { __typename?: 'LanguageConnection', totalSize: number, edges?: Array<{ __typename?: 'LanguageEdge', size: number, node: { __typename?: 'Language', name: string } } | null> | null } | null } | null> | null } } | null };
-
-export type GetProjectLiveRateQueryVariables = Exact<{
-  login: Scalars['String']['input'];
-}>;
-
-
-export type GetProjectLiveRateQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', createdAt: string, updatedAt: string, pushedAt?: string | null, isArchived: boolean, isFork: boolean, name: string } | null> | null } } | null };
-
-export type GetProjectTopicsQueryVariables = Exact<{
-  login: Scalars['String']['input'];
-}>;
-
-
-export type GetProjectTopicsQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', name: string, repositoryTopics: { __typename?: 'RepositoryTopicConnection', nodes?: Array<{ __typename?: 'RepositoryTopic', topic: { __typename?: 'Topic', name: string } } | null> | null } } | null> | null } } | null };
 
 export type GetRepositoryDashboardProfileQueryVariables = Exact<{
   owner: Scalars['String']['input'];

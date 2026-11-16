@@ -5,9 +5,6 @@ import CommonError from "../utils/common-error";
 import { githubRepoActivityQuery } from "./queries/github/repo-activity.query";
 import { repoLanguagesQuery } from "./queries/github/repo-languages.query";
 import { repoCommitTimesQuery } from "./queries/github/repo-commit-times.query";
-import { repoProjectTopicsQuery } from "./queries/github/repo-project-topics.query";
-import { repoDeveloperProfileQuery } from "./queries/github/repo-developer-profile.query";
-import { repoProjectHealthQuery } from "./queries/github/repo-project-health.query";
 import type {
     RepoActivityQuery,
     RepoActivityQueryVariables,
@@ -15,12 +12,6 @@ import type {
     GetRepoLanguagesQueryVariables,
     GetCommitTimesQuery,
     GetCommitTimesQueryVariables,
-    GetProjectTopicsQuery,
-    GetProjectTopicsQueryVariables,
-    GetDevelopTimeQuery,
-    GetDevelopTimeQueryVariables,
-    GetProjectLiveRateQuery,
-    GetProjectLiveRateQueryVariables,
 } from "../types/github/graphql/operations.generated";
 dotenv.config();
 
@@ -120,63 +111,6 @@ class GithubRepoClient {
             return response.user ? response : null;
         } catch (error) {
             console.error("Failed to fetch commit times from GitHub API", error);
-            return null;
-        }
-    };
-
-    public getProjectTopics = async (
-        githubUsername: string,
-        githubAccessToken: string | undefined,
-    ): Promise<GetProjectTopicsQuery | null> => {
-        const variables = { login: githubUsername } satisfies GetProjectTopicsQueryVariables;
-
-        try {
-            const response = await GithubGraphqlFetch<GetProjectTopicsQuery>(
-                githubAccessToken,
-                repoProjectTopicsQuery,
-                variables,
-            );
-            return response.user ? response : null;
-        } catch (error) {
-            console.error("Failed to fetch project topics from GitHub API", error);
-            return null;
-        }
-    };
-
-    public getDevelopStats = async (
-        githubUsername: string,
-        githubAccessToken: string | undefined,
-    ): Promise<GetDevelopTimeQuery | null> => {
-        const variables = { login: githubUsername } satisfies GetDevelopTimeQueryVariables;
-
-        try {
-            const response = await GithubGraphqlFetch<GetDevelopTimeQuery>(
-                githubAccessToken,
-                repoDeveloperProfileQuery,
-                variables,
-            );
-            return response.user ? response : null;
-        } catch (error) {
-            console.error("Failed to fetch develop stats from GitHub API", error);
-            return null;
-        }
-    };
-
-    public getProjectLiveRate = async (
-        githubUsername: string,
-        githubAccessToken: string | undefined,
-    ): Promise<GetProjectLiveRateQuery | null> => {
-        const variables = { login: githubUsername } satisfies GetProjectLiveRateQueryVariables;
-
-        try {
-            const response = await GithubGraphqlFetch<GetProjectLiveRateQuery>(
-                githubAccessToken,
-                repoProjectHealthQuery,
-                variables,
-            );
-            return response.user ? response : null;
-        } catch (error) {
-            console.error("Failed to fetch project live rate from GitHub API", error);
             return null;
         }
     };
