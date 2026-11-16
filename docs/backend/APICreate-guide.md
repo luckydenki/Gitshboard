@@ -91,7 +91,7 @@ GitHub GraphQL을 사용하는 API에서 서버 DTO만 생략됐다면, Codegen 
 
 ## 분리 규칙
 
-현재 api는 크게 `routes`와 `controllers`와 `services`로 나뉩니다.
+현재 api는 크게 `routes`와 `controllers`, `services`, `client`, `repository` 로 나뉩니다.
 
 1. routes는 controllers를 호출하고 더 이상 무언가를 하지 마세요
 
@@ -104,9 +104,17 @@ controllers는 `repo.controllers.ts` services는 `repo.services.ts`입니다.
 
 5. controllers와 services는 클래스로 만들고, `export default` 문법으로 모듈을 export 시키세요. 클래스명은 `도메인명`+Controllers 또는 `도메인명`+Services 로 짓습니다.
 
-6. 발생 가능한 에러는 그 위치에서 바로바로 `CommonErrorResponse`를 만들어서 throw 시키세요. 이후 최종 에러의 처리는 Controller에서 책임져야 합니다.
+6. client는 주로 github, 또는 우리 서버 db가 아닌 외부 api를 호출하는 로직을 담습니다. 이 프로젝트는 주로 github api를 다루고 있으니 github api 호출 관련 로직을 분리할 때 쓰면 됩니다.
 
-7. **추가로 Github Client 로직이나 우리 서버의 Repository 로직(흔히들 DTO를 실제로 DB에서 가져오는 로직이죠!)**은 아직 분리하지마세요. 밑의 예시에서도 주석으로 놓긴 했지만, 그러한 fetch 또는 쿼리 조회 로직도 그냥 서비스 안에다가 넣어두십쇼.
+7. client 로직은 딱 네 개만 지키시면 됩니다.
+- 하나의 client 메서드는 하나의 api만 호출한다.
+- 하나의 client 메서드는 반환된 api의 응답을 그대로 반환한다.
+- 하나의 client 메서드에서 발생한 에러 또한 CommonErrorResponse 형태로 바꿔 반환한다.
+- grpahql 은 GithubGraphqlFetch<T> 함수로 호출하고, REST는 ocktokit으로 호출한다.
+
+8. client의 클래스명은 github api의 경우 `Github(도메인)Client` 라고 이름을 지으세요. 
+
+9. 발생 가능한 에러는 그 위치에서 바로바로 `CommonErrorResponse`를 만들어서 throw 시키세요. 단, 하위 계층에서 이미 만들어  준 CommonErrorResponse가 있다면 이를 재가공하지말고 그냥 그대로 throw 시켜주세요. 즉 그 계층에서 생길 수 있는 에러만 추가해서 CommonErrorResponse로 바꾸시면 됩니다.이후 최종 에러 응답 처리는 Controller에서 책임지면 됩니다.
 
 
 ```ts
@@ -206,12 +214,14 @@ class RepoService {
 
             if (!success) {
                 console.error("Failed to set cache for languages");
-                //redis 가 실패해도 통계 데이터는 반환합니다.
+                //redis 가 실패해도 통계 데이터는 반환합니다.]
+                //throw new CommonError... 
             }
             return languageStats;
         } catch (err) {
-            console.error("Failed to fetch repository languages:", err);
-            return null;
+            // console.error("Failed to fetch repository languages:", err);
+            // return null;
+            //아무튼 발생 가능한 에러 던지기
         }
     };
 }
@@ -219,4 +229,31 @@ class RepoService {
 const repoService = new RepoService();
 export default repoService;
 
+```
+
+
+
+```ts
+//client 예시
+class GithubRepoAPIClient {
+    public getProjectLiveRate = async (
+        githubUsername: string,
+        githubAccessToken: string | undefined,
+    ): Promise<GetProjectLiveRateQuery | null> => {
+        const variables = { login: githubUsername } satisfies GetProjectLiveRateQueryVariables;
+
+        try {
+            const response = await GithubGraphqlFetch<GetProjectLiveRateQuery>(
+                githubAccessToken,
+                repoProjectHealthQuery,
+                variables,
+            );
+            return response;
+        } catch (error) {
+
+            //throw error...
+            //아무튼 관련된 error들을 CommonErrorResponse 형태로 던져버릴것
+        }
+    };
+}
 ```
