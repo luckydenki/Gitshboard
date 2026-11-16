@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useDebounce from "~/hooks/useDebounce";
 import { searchAutoComplete } from "~/utils/search/AutoComplete";
 import type { ISearchFilterCategory } from "./SearchBar";
@@ -17,13 +17,22 @@ export default function SearchInputField({
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
     const categoryRef = useRef<typeof category>(category);
+    const [perPage, setPerpage] = useState(10);
+    const page = useRef<number>(1);
 
     const [isVisible, setIsVisible] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [isLoadingMax, setIsLoadingMax] = useState(false);
+    const isLoadingFull = useMemo(() => {
+        if (category.value === "users" && searchResult.user) {
+            console.log(searchResult.user?.total_count, page.current * perPage);
+            return searchResult.user?.total_count < page.current * perPage;
+        } else if (category.value === "repos" && searchResult.repo) {
+            return searchResult.repo?.total_count < page.current * perPage;
+        }
 
-    const [perPage, setPerpage] = useState(10);
-    const page = useRef<number>(1);
+        return false;
+    }, [searchResult, category, page.current, perPage]);
 
     const runSearch = useCallback(
         //검색어가 있는 input 태그, 요청 카테고리, 페이지
@@ -50,7 +59,7 @@ export default function SearchInputField({
     const debounce = useDebounce(runSearch, 500);
 
     //category가 변화할 때 지금 입력값을 기준으로 searchResult를 바꾸는 로직
-    useMemo(() => {
+    useEffect(() => {
         //이전 카테고리와 설정이 다르다면, 이전 카테고리로 검색한 내용들은 지워야 지워야 합니다.
         // 1. searchResult의 초기화
         // 2. loadingMax (최대 로딩 한도 UI 상태) 초기화
@@ -71,6 +80,10 @@ export default function SearchInputField({
     const loadMore = useCallback(async () => {
         page.current++;
 
+        if (isLoadingFull) {
+            console.log("모든 데이터를 다 불렀습니다.");
+            return;
+        }
         if (page.current > maxPage) {
             console.log("더이상 호출은 불가능합니다.");
             setIsLoadingMax(true);
@@ -117,6 +130,7 @@ export default function SearchInputField({
                     searchResult={searchResult}
                     isLoadingMax={isLoadingMax}
                     isLoadingMore={isLoadingMore}
+                    isLoadingFull={isLoadingFull}
                     onLoadMore={loadMore}
                 />
             )}
