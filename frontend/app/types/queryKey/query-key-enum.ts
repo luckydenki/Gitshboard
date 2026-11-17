@@ -15,6 +15,18 @@
  *      - endpoint : /api/repos/:owner/:repo/activity/branches?cursor={cursor}
  * - REPO_DASHBOARD_ACTIVITY_SUMMARY : 저장소 최근 활동의 사이드바 집계입니다.
  *      - endpoint : /api/repos/:owner/:repo/activity/summary?branch={branch}
+ * - REPO_DASHBOARD_PROJECT_OVERVIEW : 프로젝트 현황의 언어, 용량, 이슈·PR 집계입니다.
+ *      - endpoint : /api/repos/:owner/:repo/project/overview
+ * - REPO_DASHBOARD_PROJECT_FILES : 프로젝트 현황의 파일, 프레임워크, 건강도입니다.
+ *      - endpoint : /api/repos/:owner/:repo/project/files
+ * - REPO_DASHBOARD_PROJECT_BRANCHES : 프로젝트 현황의 브랜치 집계입니다.
+ *      - endpoint : /api/repos/:owner/:repo/project/branches
+ * - REPO_DASHBOARD_PROJECT_HISTORY : 프로젝트 현황의 월별 파일·용량 이력입니다.
+ *      - endpoint : /api/repos/:owner/:repo/project/history
+ * - REPO_DASHBOARD_PROJECT_PARTICIPATION : 프로젝트 현황의 월별 참여자 이력입니다.
+ *      - endpoint : /api/repos/:owner/:repo/project/participation
+ * - REPO_DASHBOARD_PROJECT_DEPLOYMENTS : 프로젝트 현황의 배포 결과와 시간대 분포입니다.
+ *      - endpoint : /api/repos/:owner/:repo/project/deployments
  *
  *
  */
@@ -26,4 +38,10 @@ export enum QueryKeys {
     REPO_DASHBOARD_PR_ISSUE_ACTIVITY = "repo-dashboard-pr-issue-activity",
     REPO_DASHBOARD_ACTIVITY_BRANCHES = "repo-dashboard-activity-branches",
     REPO_DASHBOARD_ACTIVITY_SUMMARY = "repo-dashboard-activity-summary",
+    REPO_DASHBOARD_PROJECT_OVERVIEW = "repo-dashboard-project-overview",
+    REPO_DASHBOARD_PROJECT_FILES = "repo-dashboard-project-files",
+    REPO_DASHBOARD_PROJECT_BRANCHES = "repo-dashboard-project-branches",
+    REPO_DASHBOARD_PROJECT_HISTORY = "repo-dashboard-project-history",
+    REPO_DASHBOARD_PROJECT_PARTICIPATION = "repo-dashboard-project-participation",
+    REPO_DASHBOARD_PROJECT_DEPLOYMENTS = "repo-dashboard-project-deployments",
 }
