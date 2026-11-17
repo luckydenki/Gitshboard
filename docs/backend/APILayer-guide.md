@@ -52,7 +52,7 @@ controllers는 `repo.controllers.ts` services는 `repo.services.ts`입니다.
 10. util은 말 그대로 구현 중 반복 사용되는 조건 확인 정규식이나 너무 긴 기능 로직을 분리할 때 사용합니다.
 - controller, service 등 계층을 구분하지 않고 모아둡니다
 - 특정 도메인 안에서만 존재하는 함수라면 `/backend/src/utils/routes` 폴더 아래에 도메인 별로 모아두세요
-- 특정 도메인을 떠나서 범용적으로 쓰이는 함수라면 `/backend/src/utils` 바로 아래에 작성하세요.
-- 특정 도메인에서만 쓰이는 유틸이라면 도메인 명을 함수의 prefix로 추가하세요.
+- 특정 도메인을 떠나서 범용적으로 쓰이는 함수라면 `/backend/src/utils` 바로 아래에 작성하세요. 파일명은 `(도메인명).utils.ts`입니다.
+- 특정 도메인에서만 쓰는 util들은 `도메인명 + Utils` 이라는 클래스로 묶어서 관리하고 export default 하여 export 시키세요
 - util 함수는 의존적이지 않는 순수 함수여야 합니다.
 - util 함수는 반드시 각 함수가 무슨 동작을 하고 어떤 파라미터를 받고 어떤 걸 반환하는지 설명 주석을 추가해야 합니다.
