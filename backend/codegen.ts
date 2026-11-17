@@ -9,6 +9,7 @@ export default {
             config: {
                 onlyOperationTypes: true,
                 useTypeImports: true,
+                typesPrefix: "GithubGQL",
                 scalars: { DateTime: "string", URI: "string" },
             },
         },
