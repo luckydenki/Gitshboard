@@ -9473,7 +9473,7 @@ export type GithubGQLGetRepoActivityBranchesQuery = { __typename?: 'Query', repo
 export type GithubGQLGetRepoActivityQueryVariables = Exact<{
   owner: Scalars['String']['input'];
   name: Scalars['String']['input'];
-  since: Scalars['GitTimestamp']['input'];
+  since?: InputMaybe<Scalars['GitTimestamp']['input']>;
   until: Scalars['GitTimestamp']['input'];
   includeSummary: Scalars['Boolean']['input'];
   readDefaultBranch: Scalars['Boolean']['input'];

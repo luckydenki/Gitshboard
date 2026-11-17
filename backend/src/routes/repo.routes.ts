@@ -31,7 +31,7 @@ repo_router.get("/:owner/:repo/profile", checkToken, checkUser, repoController.p
 /**
  * @api GET /api/repos/:owner/:repo/activity/commits
  *
- * @desc 선택한 브랜치의 최근 7개 현지 날짜 커밋을 페이지 단위로 조회합니다.
+ * @desc 선택한 브랜치의 커밋을 최신순 최대 100건까지 페이지 단위로 조회합니다.
  *
  * @query timezone (string, 선택) - IANA 시간대. 기본값 Asia/Seoul.
  * @query branch (string, 선택) - 생략하면 기본 브랜치를 조회합니다.
@@ -52,7 +52,7 @@ repo_router.get("/:owner/:repo/activity/commits", checkToken, checkUser, repoCon
 /**
  * @api GET /api/repos/:owner/:repo/activity/pull-requests-issues
  *
- * @desc 저장소 전체에서 최근 7개 현지 날짜의 PR·이슈 활동을 페이지 단위로 조회합니다.
+ * @desc 저장소 전체의 PR·이슈 활동을 최신순 최대 100건까지 페이지 단위로 조회합니다.
  *
  * @query timezone (string, 선택) - IANA 시간대. 기본값 Asia/Seoul.
  * @query limit (integer, 선택) - 최근 전적 페이지 크기. 기본값 6, 최대 20.

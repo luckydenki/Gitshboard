@@ -18,6 +18,8 @@ import {
 import CommonError from "../utils/common-error";
 import RepoUtils from "../utils/routes/repo.utils";
 
+const MAX_RECENT_ACTIVITY_EVENTS = 100;
+
 const REDIS_DATA_EXPIRATION = 300; // 5분 동안 유지
 
 const createRedisKey = (githubUsername: string, dataType: string) => {
@@ -60,7 +62,7 @@ class RepoServices {
         }
 
         const selectedBranch = source === "commits" ? this.parseBranch(branch) : undefined;
-        const scope = JSON.stringify([location.owner.toLowerCase(), location.repo.toLowerCase(), location.timezone, source, selectedBranch]);
+        const scope = JSON.stringify([location.owner.toLowerCase(), location.repo.toLowerCase(), location.timezone, source, selectedBranch, "latest"]);
         const now = Date.now();
         const previous = RepoUtils.decodeActivityCursor(cursor, scope, now);
         if (cursor !== undefined && !previous) {
@@ -71,13 +73,10 @@ class RepoServices {
         const githubAccessToken = token || undefined;
         const { events, counts, window, truncatedSources, canonicalOwner, canonicalRepo } =
             await this.scanActivity(location.owner, location.repo, location.timezone, githubAccessToken, asOf, source, selectedBranch);
-        const sorted = events.sort((a, b) =>
-            b.occurredAt.localeCompare(a.occurredAt) || a.id.localeCompare(b.id),
-        );
-        const remaining = previous ? sorted.filter((event) =>
+        const remaining = previous ? events.filter((event) =>
             event.occurredAt < previous.occurredAt ||
             (event.occurredAt === previous.occurredAt && event.id.localeCompare(previous.id) > 0),
-        ) : sorted;
+        ) : events;
         const pageEvents = remaining.slice(0, Number(limit));
         const last = pageEvents[pageEvents.length - 1];
         const nextCursor = last && remaining.length > pageEvents.length ? RepoUtils.encodeActivityCursor(scope, {
@@ -192,8 +191,11 @@ class RepoServices {
         }
 
         const { dates, lastDate, since, dateKey, inWindow } = RepoUtils.getActivityWindow(asOf, clock);
+        const isSummary = source === "summary";
+        const snapshotTime = Date.parse(asOf);
+        const includeEvent = (value: string) => isSummary ? inWindow(value) : Date.parse(value) <= snapshotTime;
         const variables: GithubGQLGetRepoActivityQueryVariables = {
-            owner, name: repo, since, until: asOf, includeSummary: source === "summary",
+            owner, name: repo, since: isSummary ? since : undefined, until: asOf, includeSummary: isSummary,
             qualifiedBranch: branch ? `refs/heads/${branch}` : "",
             readDefaultBranch: source !== "pull-requests-issues" && branch === undefined,
             readSelectedBranch: source !== "pull-requests-issues" && branch !== undefined,
@@ -223,7 +225,7 @@ class RepoServices {
             const { pullRequests, issues } = repository;
 
             for (const commit of commits?.nodes ?? []) {
-                if (!commit || !inWindow(commit.committedDate)) continue;
+                if (!commit || !includeEvent(commit.committedDate)) continue;
                 const occurredAt = new Date(commit.committedDate).toISOString();
                 const id = `commit:${commit.oid}:committed:${occurredAt}`;
                 events.set(id, {
@@ -237,7 +239,7 @@ class RepoServices {
             for (const pr of pullRequests?.nodes ?? []) {
                 if (!pr) continue;
                 for (const [action, timestamp] of [["opened", pr.createdAt], ["merged", pr.mergedAt]] as const) {
-                    if (!timestamp || !inWindow(timestamp)) continue;
+                    if (!timestamp || !includeEvent(timestamp)) continue;
                     const occurredAt = new Date(timestamp).toISOString();
                     const id = `pull-request:${pr.id}:${action}:${occurredAt}`;
                     events.set(id, {
@@ -254,7 +256,7 @@ class RepoServices {
                 if (!issue) continue;
                 const labels = (issue.labels?.nodes ?? []).flatMap((label) => label ? [label.name] : []);
                 for (const [action, timestamp] of [["opened", issue.createdAt], ["closed", issue.closedAt]] as const) {
-                    if (!timestamp || !inWindow(timestamp)) continue;
+                    if (!timestamp || !includeEvent(timestamp)) continue;
                     const occurredAt = new Date(timestamp).toISOString();
                     const id = `issue:${issue.id}:${action}:${occurredAt}`;
                     const closer = issue.timelineItems?.nodes?.find((event) =>
@@ -273,18 +275,33 @@ class RepoServices {
             variables.commitAfter = commits?.pageInfo.endCursor;
             variables.pullRequestAfter = pullRequests?.pageInfo.endCursor;
             variables.issueAfter = issues?.pageInfo.endCursor;
-            const hasMoreCommits = Boolean(commits?.pageInfo.hasNextPage && variables.commitAfter);
+            const hasMoreCommits = isSummary && Boolean(commits?.pageInfo.hasNextPage && variables.commitAfter);
             variables.readDefaultBranch = variables.readDefaultBranch && hasMoreCommits;
             variables.readSelectedBranch = variables.readSelectedBranch && hasMoreCommits;
+            // Each list is ordered by updatedAt. Once its updates are older than the
+            // last eligible event, unseen items cannot enter the newest 100.
+            let cutoffTime = isSummary ? Date.parse(since) : Number.NEGATIVE_INFINITY;
+            if (!isSummary && events.size >= MAX_RECENT_ACTIVITY_EVENTS) {
+                const eventDates = [...events.values()].map(({ occurredAt }) => occurredAt).sort();
+                cutoffTime = Date.parse(eventDates[eventDates.length - MAX_RECENT_ACTIVITY_EVENTS]);
+            }
             variables.readPullRequests = Boolean(pullRequests?.pageInfo.hasNextPage && variables.pullRequestAfter &&
-                !pullRequests.nodes?.some((pr) => pr && Date.parse(pr.updatedAt) < Date.parse(since)));
+                !pullRequests.nodes?.some((pr) => pr && Date.parse(pr.updatedAt) < cutoffTime));
             variables.readIssues = Boolean(issues?.pageInfo.hasNextPage && variables.issueAfter &&
-                !issues.nodes?.some((issue) => issue && Date.parse(issue.updatedAt) < Date.parse(since)));
+                !issues.nodes?.some((issue) => issue && Date.parse(issue.updatedAt) < cutoffTime));
             if (!variables.readDefaultBranch && !variables.readSelectedBranch && !variables.readPullRequests && !variables.readIssues) break;
         }
 
+        const orderedEvents = [...events.values()];
+        if (!isSummary) {
+            orderedEvents.sort((a, b) =>
+                b.occurredAt.localeCompare(a.occurredAt) || a.id.localeCompare(b.id),
+            );
+            orderedEvents.length = Math.min(orderedEvents.length, MAX_RECENT_ACTIVITY_EVENTS);
+        }
+
         const counts: RepoActivityCounts = { commit: 0, "pull-request": 0, issue: 0 };
-        for (const event of events.values()) counts[event.type]++;
+        for (const event of orderedEvents) counts[event.type]++;
 
         const truncatedSources: GetRepoActivityData["coverage"]["truncatedSources"] = [];
         if (variables.readDefaultBranch || variables.readSelectedBranch) truncatedSources.push("commit");
@@ -292,8 +309,12 @@ class RepoServices {
         if (variables.readIssues) truncatedSources.push("issue");
 
         return {
-            events: [...events.values()], counts, dates, dateKey, branchName,
-            window: { firstDate: dates[0], lastDate, timezone },
+            events: orderedEvents, counts, dates, dateKey, branchName,
+            window: {
+                firstDate: isSummary ? dates[0] : dateKey(orderedEvents[orderedEvents.length - 1]?.occurredAt ?? asOf),
+                lastDate,
+                timezone,
+            },
             truncatedSources, canonicalOwner, canonicalRepo,
         };
     }

@@ -3,7 +3,7 @@ export const githubGetRepoActivityQuery = /* GraphQL */ `
     query GetRepoActivity(
         $owner: String!
         $name: String!
-        $since: GitTimestamp!
+        $since: GitTimestamp
         $until: GitTimestamp!
         $includeSummary: Boolean!
         $readDefaultBranch: Boolean!
@@ -61,16 +61,16 @@ export const githubGetRepoActivityQuery = /* GraphQL */ `
         target {
             ... on Commit {
                 history(first: 100, after: $commitAfter, since: $since, until: $until) {
-                pageInfo { endCursor hasNextPage }
-                nodes {
-                    oid
-                    abbreviatedOid
-                    committedDate
-                    messageHeadline
-                    url
-                    changedFilesIfAvailable @skip(if: $includeSummary)
-                    author { name user { login } }
-                }
+                    pageInfo { endCursor hasNextPage }
+                    nodes {
+                        oid
+                        abbreviatedOid
+                        committedDate
+                        messageHeadline
+                        url
+                        changedFilesIfAvailable @skip(if: $includeSummary)
+                        author { name user { login } }
+                    }
                 }
             }
         }
