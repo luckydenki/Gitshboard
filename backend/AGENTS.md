@@ -14,6 +14,11 @@ API를 만들어달라는 개설 요청시 `(프로젝트루트)/docs/backend/AP
 API와 관련된 모든 타입관련 규칙은 `(프로젝트루트)/docs/backend/APIType-guide.md`를 참고하세요.
 
 
+## API 분리 규칙
+
+API와 관련되어 router, controller, service 등으로 레이어를 나누는 방법에 대한 규칙은 `(프로젝트루트)/docs/backend/APILayer-guide.md`를 참고하세요.
+
+
 ## API 개설 시 기본 문서화 규칙
 
 API 개설 시 라우터 코드 바로 위쪽에 다음과 같은 주석 (/** */문법) 을 추가하세요.
