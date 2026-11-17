@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { checkToken, checkUser } from "../middlewares/auth.middleware";
 import repoController from "../controllers/repo.controllers";
+import repoProjectController from "../controllers/repo-project.controllers";
 
 const repo_router = Router();
 
@@ -102,5 +103,102 @@ repo_router.get("/:owner/:repo/activity/branches", checkToken, checkUser, repoCo
  * @error [500] : 사용자 인증 처리 또는 GitHub 활동 데이터 조회에 실패한 경우.
  */
 repo_router.get("/:owner/:repo/activity/summary", checkToken, checkUser, repoController.activitySummary);
+
+/**
+ * @api GET /api/repos/:owner/:repo/project/overview
+ *
+ * @desc 현재 언어, 저장소 용량, 이슈와 PR 합계를 조회합니다.
+ *
+ * @github backend/src/client/queries/github/repo-project-overview.query.ts
+ *
+ * @response backend/src/types/controllers/repo-project.ts (GetRepoProjectOverviewData)
+ *
+ * @error [400] : 저장소 주소가 올바르지 않은 경우.
+ * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
+ * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
+ */
+repo_router.get("/:owner/:repo/project/overview", checkToken, checkUser, repoProjectController.overview);
+
+/**
+ * @api GET /api/repos/:owner/:repo/project/files
+ *
+ * @desc 기본 브랜치의 파일, 프레임워크, 커뮤니티 문서 현황을 조회합니다.
+ *
+ * @github backend/src/client/queries/github/repo-project-overview.query.ts
+ * @github backend/src/types/github/rest/git-get-tree.ts
+ * @github backend/src/types/github/rest/git-get-blob.ts
+ *
+ * @response backend/src/types/controllers/repo-project.ts (GetRepoProjectFilesData)
+ *
+ * @error [400] : 저장소 주소가 올바르지 않은 경우.
+ * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
+ * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
+ */
+repo_router.get("/:owner/:repo/project/files", checkToken, checkUser, repoProjectController.files);
+
+/**
+ * @api GET /api/repos/:owner/:repo/project/branches
+ *
+ * @desc 브랜치와 최신 커밋 시각을 집계합니다.
+ *
+ * @github backend/src/client/queries/github/repo-project-branches.query.ts
+ *
+ * @response backend/src/types/controllers/repo-project.ts (GetRepoProjectBranchesData)
+ *
+ * @error [400] : 저장소 주소가 올바르지 않은 경우.
+ * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
+ * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
+ */
+repo_router.get("/:owner/:repo/project/branches", checkToken, checkUser, repoProjectController.branches);
+
+/**
+ * @api GET /api/repos/:owner/:repo/project/history
+ *
+ * @desc 최근 월별 파일 수와 관측된 저장소 용량을 조회합니다.
+ *
+ * @github backend/src/types/github/rest/repos-get.ts
+ * @github backend/src/types/github/rest/repos-list-commits.ts
+ * @github backend/src/types/github/rest/git-get-tree.ts
+ *
+ * @response backend/src/types/controllers/repo-project.ts (GetRepoProjectHistoryData)
+ *
+ * @error [400] : 저장소 주소가 올바르지 않은 경우.
+ * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
+ * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
+ */
+repo_router.get("/:owner/:repo/project/history", checkToken, checkUser, repoProjectController.history);
+
+/**
+ * @api GET /api/repos/:owner/:repo/project/participation
+ *
+ * @desc 월별 이슈·PR 작성자와 누적 커밋 작성자를 집계합니다.
+ *
+ * @github backend/src/types/github/rest/repos-get.ts
+ * @github backend/src/types/github/rest/issues-list-for-repo.ts
+ * @github backend/src/types/github/rest/repos-list-commits.ts
+ *
+ * @response backend/src/types/controllers/repo-project.ts (GetRepoProjectParticipationData)
+ *
+ * @error [400] : 저장소 주소가 올바르지 않은 경우.
+ * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
+ * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
+ */
+repo_router.get("/:owner/:repo/project/participation", checkToken, checkUser, repoProjectController.participation);
+
+/**
+ * @api GET /api/repos/:owner/:repo/project/deployments
+ *
+ * @desc 최근 90일 production 배포 현황을 집계합니다.
+ *
+ * @github backend/src/client/queries/github/repo-project-deployments.query.ts
+ * @github backend/src/client/queries/github/repo-project-deployment-statuses.query.ts
+ *
+ * @response backend/src/types/controllers/repo-project.ts (GetRepoProjectDeploymentsData)
+ *
+ * @error [400] : 저장소 주소가 올바르지 않은 경우.
+ * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
+ * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
+ */
+repo_router.get("/:owner/:repo/project/deployments", checkToken, checkUser, repoProjectController.deployments);
 
 export default repo_router;
