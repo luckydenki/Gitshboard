@@ -1,4 +1,4 @@
-import type { GetCommitActivityQuery } from "../types/github/graphql/operations.generated";
+import type { GithubGQLGetCommitActivityQuery as GetCommitActivityQuery } from "../types/github/graphql/operations.generated";
 import type { GithubCommitActivity } from "../types/contribution";
 
 /**

@@ -1,4 +1,4 @@
-import type { OrgPublicRepositoriesQuery } from "../github/graphql/operations.generated";
+import type { GithubGQLOrgPublicRepositoriesQuery as OrgPublicRepositoriesQuery } from "../github/graphql/operations.generated";
 
 type RepositoryConnection = NonNullable<OrgPublicRepositoriesQuery["organization"]>["repositories"];
 type RepositoryItem = NonNullable<NonNullable<RepositoryConnection["nodes"]>[number]>;

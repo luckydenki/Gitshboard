@@ -1,4 +1,4 @@
-import type { OrgProfileDetailsQuery, OrgProfileMembersQuery } from "../github/graphql/operations.generated";
+import type { GithubGQLOrgProfileDetailsQuery as OrgProfileDetailsQuery, GithubGQLOrgProfileMembersQuery as OrgProfileMembersQuery } from "../github/graphql/operations.generated";
 
 export type GetOrgProfileDto = {
     organization: (NonNullable<OrgProfileDetailsQuery["organization"]> & {

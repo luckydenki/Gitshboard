@@ -14,16 +14,16 @@ import { userRecentActivityQuery } from "../client/queries/github/user-recent-ac
 import { userRecentCommitsQuery } from "../client/queries/github/user-recent-commits.query";
 import { userPublicRepositoriesQuery } from "../client/queries/github/user-public-repositories.query";
 import type {
-    GetUserQuery,
-    GetUserQueryVariables,
-    GetUserDashboardProfileQuery,
-    GetUserDashboardProfileQueryVariables,
-    GetUserRecentActivityQuery,
-    GetUserRecentActivityQueryVariables,
-    GetUserRecentCommitsQuery,
-    GetUserRecentCommitsQueryVariables,
-    GetUserPublicRepositoriesQuery,
-    GetUserPublicRepositoriesQueryVariables,
+    GithubGQLGetUserQuery as GetUserQuery,
+    GithubGQLGetUserQueryVariables as GetUserQueryVariables,
+    GithubGQLGetUserDashboardProfileQuery as GetUserDashboardProfileQuery,
+    GithubGQLGetUserDashboardProfileQueryVariables as GetUserDashboardProfileQueryVariables,
+    GithubGQLGetUserRecentActivityQuery as GetUserRecentActivityQuery,
+    GithubGQLGetUserRecentActivityQueryVariables as GetUserRecentActivityQueryVariables,
+    GithubGQLGetUserRecentCommitsQuery as GetUserRecentCommitsQuery,
+    GithubGQLGetUserRecentCommitsQueryVariables as GetUserRecentCommitsQueryVariables,
+    GithubGQLGetUserPublicRepositoriesQuery as GetUserPublicRepositoriesQuery,
+    GithubGQLGetUserPublicRepositoriesQueryVariables as GetUserPublicRepositoriesQueryVariables,
 } from "../types/github/graphql/operations.generated";
 import type { GetUserRepositoriesDto } from "../types/response/user-repositories";
 import type { GetUserOrganizationsDto, UserOrganization } from "../types/response/user-organizations";

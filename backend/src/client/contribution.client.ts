@@ -3,8 +3,8 @@ import CommonError from "../utils/common-error";
 import { GithubGraphqlFetch } from "./repo.client";
 import { userCommitActivityQuery } from "./queries/github/user-commit-activity.query";
 import type {
-    GetCommitActivityQuery,
-    GetCommitActivityQueryVariables,
+    GithubGQLGetCommitActivityQuery as GetCommitActivityQuery,
+    GithubGQLGetCommitActivityQueryVariables as GetCommitActivityQueryVariables,
 } from "../types/github/graphql/operations.generated";
 
 class ContributionClient {

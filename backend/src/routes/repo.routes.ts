@@ -1,84 +1,105 @@
 import { Router } from "express";
 import { checkToken, checkUser } from "../middlewares/auth.middleware";
 import repoController from "../controllers/repo.controllers";
-import { GithubGraphqlFetch } from "../client/repo.client";
-import { repositoryDashboardProfileQuery } from "../client/queries/github/repository-dashboard-profile.query";
-import type { GetRepositoryDashboardProfileQuery, GetRepositoryDashboardProfileQueryVariables } from "../types/github/graphql/operations.generated";
-import type { AuthRequest } from "../types/middlewares/auth";
 
 const repo_router = Router();
-/*
-    graphql은 etag를 지원하지 않음
-    만약 github api에서 일반 rest api를 사용해서 etag를 쓰고 싶다면 다음 내용을 헤더에 추가할 것
-    1. 'Accept' : 'application/vnd.github+json',    //github api에서 json 형식으로 응답을 받기 위해 필요함.
-    2. 'X-GitHub-Api-Version' : '2022-11-28'        //github api 버전.
-*/
-// api/repos/health
-repo_router.get("/health", (req, res) => {
-    res.json({ message: "Repo route is working!" });
-});
-
-/** 공개 저장소 또는 방문자에게 접근 권한이 있는 저장소의 프로필을 조회합니다. */
-repo_router.get("/:owner/:repo/profile", checkToken, checkUser, async (req: AuthRequest, res) => {
-    const { owner, repo } = req.params;
-    res.set("Cache-Control", "private, no-store");
-
-    if (typeof owner !== "string" || typeof repo !== "string" || !owner.trim() || !repo.trim()) {
-        return res.status(400).json({ status: 400, title: "Bad Request", detail: "저장소 소유자와 이름이 필요합니다." });
-    }
-
-    try {
-        const variables = { owner, name: repo } satisfies GetRepositoryDashboardProfileQueryVariables;
-        const { repository } = await GithubGraphqlFetch<GetRepositoryDashboardProfileQuery>(
-            req.user?.githubAccessToken,
-            repositoryDashboardProfileQuery,
-            variables,
-        );
-        if (!repository) {
-            return res.status(404).json({ status: 404, title: "Not Found", detail: "저장소를 찾을 수 없습니다." });
-        }
-        return res.json({ success: true, status: 200, data: { repository } });
-    } catch (error) {
-        console.error("GitHub 저장소 프로필 조회 실패", error);
-        return res.status(500).json({ status: 500, title: "GitHub API 요청 실패", detail: "저장소 프로필을 불러오지 못했습니다." });
-    }
-});
-
 
 /**
- * @api GET /api/repos/:owner/:repo/activity
+ * @api GET /api/repos/health
  *
- * @desc 최근 7개 현지 날짜의 커밋 및 PR·이슈 활동 목록을 페이지 단위로 조회합니다.
+ * @desc 저장소 라우트의 응답 여부를 확인합니다.
+ *
+ * @response backend/src/types/controllers/repo.ts (GetRepoHealthData)
+ */
+repo_router.get("/health", repoController.health);
+
+/**
+ * @api GET /api/repos/:owner/:repo/profile
+ *
+ * @desc 공개 저장소 또는 방문자에게 접근 권한이 있는 저장소의 프로필을 조회합니다.
+ *
+ * @github backend/src/client/queries/github/repository-dashboard-profile.query.ts
+ *
+ * @response backend/src/types/controllers/repo.ts (GetRepoProfileData)
+ *
+ * @error [400] : 저장소 소유자나 이름이 잘못된 경우.
+ * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
+ * @error [500] : 사용자 인증 처리 또는 GitHub 프로필 조회에 실패한 경우.
+ */
+repo_router.get("/:owner/:repo/profile", checkToken, checkUser, repoController.profile);
+
+/**
+ * @api GET /api/repos/:owner/:repo/activity/commits
+ *
+ * @desc 선택한 브랜치의 최근 7개 현지 날짜 커밋을 페이지 단위로 조회합니다.
+ *
+ * @query timezone (string, 선택) - IANA 시간대. 기본값 Asia/Seoul.
+ * @query branch (string, 선택) - 생략하면 기본 브랜치를 조회합니다.
+ * @query limit (integer, 선택) - 최근 전적 페이지 크기. 기본값 6, 최대 20.
+ * @query cursor (string, 선택) - 같은 브랜치와 시간대에서 받은 다음 페이지 커서.
+ *
+ * @github backend/src/client/queries/github/repo-activity.query.ts
+ * @github backend/src/types/github/rest/repos-get-commit.ts
+ *
+ * @response backend/src/types/controllers/repo.ts (GetRepoActivityData)
+ *
+ * @error [400] : 저장소 주소, 시간대, 페이지 크기 또는 커서가 잘못된 경우.
+ * @error [404] : 조회할 수 있는 저장소 또는 브랜치를 찾지 못한 경우.
+ * @error [500] : 사용자 인증 처리 또는 GitHub 활동 데이터 조회에 실패한 경우.
+ */
+repo_router.get("/:owner/:repo/activity/commits", checkToken, checkUser, repoController.activityCommits);
+
+/**
+ * @api GET /api/repos/:owner/:repo/activity/pull-requests-issues
+ *
+ * @desc 저장소 전체에서 최근 7개 현지 날짜의 PR·이슈 활동을 페이지 단위로 조회합니다.
  *
  * @query timezone (string, 선택) - IANA 시간대. 기본값 Asia/Seoul.
  * @query limit (integer, 선택) - 최근 전적 페이지 크기. 기본값 6, 최대 20.
  * @query cursor (string, 선택) - 같은 저장소와 시간대에서 받은 다음 페이지 커서.
  *
  * @github backend/src/client/queries/github/repo-activity.query.ts
- * @github backend/src/types/github/rest/repos-get-commit.ts
  *
- * @response backend/src/types/response/repo-activity.ts
+ * @response backend/src/types/controllers/repo.ts (GetRepoActivityData)
  *
  * @error [400] : 저장소 주소, 시간대, 페이지 크기 또는 커서가 잘못된 경우.
  * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
- * @error [500] : GitHub 활동 데이터를 조회하지 못한 경우.
+ * @error [500] : 사용자 인증 처리 또는 GitHub 활동 데이터 조회에 실패한 경우.
  */
-repo_router.get("/:owner/:repo/activity", checkToken, checkUser, repoController.activity);
+repo_router.get("/:owner/:repo/activity/pull-requests-issues", checkToken, checkUser, repoController.activityPullRequestsIssues);
+
+/**
+ * @api GET /api/repos/:owner/:repo/activity/branches
+ *
+ * @desc 기본 브랜치와 선택 가능한 브랜치 이름을 조회합니다.
+ *
+ * @query cursor (string, 선택) - 같은 저장소에서 반환된 다음 브랜치 페이지 커서.
+ *
+ * @github backend/src/client/queries/github/repo-activity-branches.query.ts
+ *
+ * @response backend/src/types/controllers/repo.ts (GetRepoActivityBranchesData)
+ *
+ * @error [400] : 저장소 주소 또는 브랜치 커서 형식이 잘못된 경우.
+ * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
+ * @error [500] : 사용자 인증 처리 또는 GitHub 브랜치 조회에 실패한 경우.
+ */
+repo_router.get("/:owner/:repo/activity/branches", checkToken, checkUser, repoController.activityBranches);
 
 /**
  * @api GET /api/repos/:owner/:repo/activity/summary
  *
- * @desc 최근 7개 현지 날짜의 주간 커밋, 활동 리듬 및 이슈 첫 응답을 집계합니다.
+ * @desc 선택한 브랜치의 주간 커밋과 저장소 활동이 가장 활발한 날을 집계합니다.
  *
  * @query timezone (string, 선택) - IANA 시간대. 기본값 Asia/Seoul.
+ * @query branch (string, 선택) - 생략하면 기본 브랜치를 조회합니다.
  *
  * @github backend/src/client/queries/github/repo-activity.query.ts
  *
- * @response backend/src/types/response/repo-activity-summary.ts
+ * @response backend/src/types/controllers/repo.ts (GetRepoActivitySummaryData)
  *
  * @error [400] : 저장소 주소 또는 시간대가 잘못된 경우.
- * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
- * @error [500] : GitHub 활동 데이터를 조회하지 못한 경우.
+ * @error [404] : 조회할 수 있는 저장소 또는 브랜치를 찾지 못한 경우.
+ * @error [500] : 사용자 인증 처리 또는 GitHub 활동 데이터 조회에 실패한 경우.
  */
 repo_router.get("/:owner/:repo/activity/summary", checkToken, checkUser, repoController.activitySummary);
 

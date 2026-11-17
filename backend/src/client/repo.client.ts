@@ -1,17 +1,24 @@
 import dotenv from "dotenv";
 import { Octokit } from "@octokit/rest";
-import type { GithubReposGetCommitDto } from "../types/github/rest/repos-get-commit";
+import type { GithubReposDto } from "../types/services/repo";
 import CommonError from "../utils/common-error";
-import { githubRepoActivityQuery } from "./queries/github/repo-activity.query";
+import RepoUtils from "../utils/routes/repo.utils";
+import { githubGetRepoActivityBranchesQuery } from "./queries/github/repo-activity-branches.query";
+import { githubGetRepoActivityQuery } from "./queries/github/repo-activity.query";
+import { repositoryDashboardProfileQuery } from "./queries/github/repository-dashboard-profile.query";
 import { repoLanguagesQuery } from "./queries/github/repo-languages.query";
 import { repoCommitTimesQuery } from "./queries/github/repo-commit-times.query";
 import type {
-    RepoActivityQuery,
-    RepoActivityQueryVariables,
-    GetRepoLanguagesQuery,
-    GetRepoLanguagesQueryVariables,
-    GetCommitTimesQuery,
-    GetCommitTimesQueryVariables,
+    GithubGQLGetRepoActivityQuery,
+    GithubGQLGetRepoActivityQueryVariables,
+    GithubGQLGetRepoActivityBranchesQuery,
+    GithubGQLGetRepoActivityBranchesQueryVariables,
+    GithubGQLGetRepositoryDashboardProfileQuery as GetRepositoryDashboardProfileQuery,
+    GithubGQLGetRepositoryDashboardProfileQueryVariables as GetRepositoryDashboardProfileQueryVariables,
+    GithubGQLGetRepoLanguagesQuery as GetRepoLanguagesQuery,
+    GithubGQLGetRepoLanguagesQueryVariables as GetRepoLanguagesQueryVariables,
+    GithubGQLGetCommitTimesQuery as GetCommitTimesQuery,
+    GithubGQLGetCommitTimesQueryVariables as GetCommitTimesQueryVariables,
 } from "../types/github/graphql/operations.generated";
 dotenv.config();
 
@@ -37,24 +44,55 @@ export const GithubGraphqlFetch = async <T>(
 };
 
 class GithubRepoClient {
-    public getActivityPage = async (
-        variables: RepoActivityQueryVariables,
+    public getProfile = async (
+        variables: GetRepositoryDashboardProfileQueryVariables,
         githubAccessToken?: string,
-    ): Promise<RepoActivityQuery> => {
+    ): Promise<GetRepositoryDashboardProfileQuery> => {
         try {
-            return await GithubGraphqlFetch<RepoActivityQuery>(
+            return await GithubGraphqlFetch<GetRepositoryDashboardProfileQuery>(
                 githubAccessToken,
-                githubRepoActivityQuery,
+                repositoryDashboardProfileQuery,
+                variables,
+            );
+        } catch (error) {
+            if (error instanceof CommonError) throw error;
+            if (RepoUtils.isRepositoryNotFound(error)) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+
+            throw CommonError.create500Error("저장소 프로필을 불러오지 못했습니다.");
+        }
+    };
+
+    public getActivityPage = async (
+        variables: GithubGQLGetRepoActivityQueryVariables,
+        githubAccessToken?: string,
+    ): Promise<GithubGQLGetRepoActivityQuery> => {
+        try {
+            return await GithubGraphqlFetch<GithubGQLGetRepoActivityQuery>(
+                githubAccessToken,
+                githubGetRepoActivityQuery,
                 variables,
             );
         } catch (error) {
             if (error instanceof CommonError) throw error;
 
-            const notFound = error instanceof Error && "errors" in error && Array.isArray(error.errors) &&
-                error.errors.some((item) => item?.type === "NOT_FOUND" && item.path?.[0] === "repository");
-            if (notFound) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+            if (RepoUtils.isRepositoryNotFound(error)) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
 
             throw CommonError.create500Error("GitHub 저장소 활동을 조회하지 못했습니다.");
+        }
+    };
+
+    public getActivityBranches = async (
+        variables: GithubGQLGetRepoActivityBranchesQueryVariables,
+        githubAccessToken?: string,
+    ): Promise<GithubGQLGetRepoActivityBranchesQuery> => {
+        try {
+            return await GithubGraphqlFetch<GithubGQLGetRepoActivityBranchesQuery>(
+                githubAccessToken, githubGetRepoActivityBranchesQuery, variables,
+            );
+        } catch (error) {
+            if (error instanceof CommonError) throw error;
+            if (RepoUtils.isRepositoryNotFound(error)) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+            throw CommonError.create500Error("GitHub 브랜치 목록을 조회하지 못했습니다.");
         }
     };
 
@@ -63,7 +101,7 @@ class GithubRepoClient {
         repo: string,
         sha: string,
         githubAccessToken?: string,
-    ): Promise<GithubReposGetCommitDto> => {
+    ): Promise<GithubReposDto> => {
         try {
             const octokit = new Octokit({ auth: githubAccessToken ?? process.env.PUBLIC_API_TOKEN });
             const { data: response } = await octokit.rest.repos.getCommit({ owner, repo, ref: sha, per_page: 1 });

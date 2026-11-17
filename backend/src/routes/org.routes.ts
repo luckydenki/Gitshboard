@@ -5,12 +5,12 @@ import { githubOrgProfileDetailsQuery } from "../client/queries/github/org-profi
 import { githubOrgProfileMembersQuery } from "../client/queries/github/org-profile-members.query";
 import { githubOrgPublicRepositoriesQuery } from "../client/queries/github/org-public-repositories.query";
 import type {
-    OrgProfileDetailsQuery,
-    OrgProfileDetailsQueryVariables,
-    OrgProfileMembersQuery,
-    OrgProfileMembersQueryVariables,
-    OrgPublicRepositoriesQuery,
-    OrgPublicRepositoriesQueryVariables,
+    GithubGQLOrgProfileDetailsQuery as OrgProfileDetailsQuery,
+    GithubGQLOrgProfileDetailsQueryVariables as OrgProfileDetailsQueryVariables,
+    GithubGQLOrgProfileMembersQuery as OrgProfileMembersQuery,
+    GithubGQLOrgProfileMembersQueryVariables as OrgProfileMembersQueryVariables,
+    GithubGQLOrgPublicRepositoriesQuery as OrgPublicRepositoriesQuery,
+    GithubGQLOrgPublicRepositoriesQueryVariables as OrgPublicRepositoriesQueryVariables,
 } from "../types/github/graphql/operations.generated";
 import type { AuthRequest } from "../types/middlewares/auth";
 import type { CommonResponse } from "../types/middlewares/common";

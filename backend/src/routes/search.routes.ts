@@ -6,8 +6,8 @@ import type { CommonErrorResponse, CommonResponse } from "../types/middlewares/c
 import { GithubGraphqlFetch } from "../client/repo.client";
 import { githubSearchUsersQuery } from "../client/queries/github/search-users.query";
 import type {
-    SearchUsersQuery,
-    SearchUsersQueryVariables,
+    GithubGQLSearchUsersQuery as SearchUsersQuery,
+    GithubGQLSearchUsersQueryVariables as SearchUsersQueryVariables,
 } from "../types/github/graphql/operations.generated";
 import type { GetSearchDto } from "../types/response/search";
 import type { GetSearchUsersDto } from "../types/response/search-users";

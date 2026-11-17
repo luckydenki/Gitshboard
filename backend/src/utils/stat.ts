@@ -1,6 +1,6 @@
 import type {
-    GetCommitTimesQuery,
-    GetRepoLanguagesQuery,
+    GithubGQLGetCommitTimesQuery as GetCommitTimesQuery,
+    GithubGQLGetRepoLanguagesQuery as GetRepoLanguagesQuery,
 } from "../types/github/graphql/operations.generated";
 
 const languageColors: Record<string, string> = {
