@@ -1,5 +1,5 @@
-import type { SearchResult } from "../../components/page/home/SearchAutocompleteList";
-import type { ISearchFilterCategory } from "../../components/page/home/SearchBar";
+import type { SearchResult } from "../../../components/page/home/SearchAutocompleteList";
+import type { ISearchFilterCategory } from "../../../components/page/home/SearchBar";
 import type { CommonResponse } from "~/types/common-response/common";
 import type { UserSearchData } from "~/types/search/user-search";
 import type { RepositorySearchData } from "~/types/search/repository-search";

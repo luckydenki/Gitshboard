@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { searchRepo, searchUser } from "~/utils/search/AutoComplete";
+import { searchRepo, searchUser } from "~/utils/page/search/AutoComplete";
 
 export default function useSearchResults(
     params: URLSearchParams,

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useDebounce from "~/hooks/useDebounce";
-import { searchAutoComplete } from "~/utils/search/AutoComplete";
+import { searchAutoComplete } from "~/utils/page/search/AutoComplete";
 import type { ISearchFilterCategory } from "./SearchBar";
 import SearchAutocompleteList, { type SearchResult } from "./SearchAutocompleteList";
 
