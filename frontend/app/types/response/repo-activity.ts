@@ -49,15 +49,16 @@ export interface GetRepoActivityDto {
 }
 
 export interface GetRepoActivitySummaryDto extends Pick<GetRepoActivityDto, "asOf" | "window" | "counts"> {
+    branch: string | null;
     dailyCommits: Array<{ date: string; count: number }>; // (derived)
     peakDay: { date: string; total: number; counts: RepoActivityCounts } | null; // (derived)
-    peakHours: { fromHour: number; toHour: number; count: number } | null; // (derived)
-    weekdayShare: number | null; // (derived)
-    activeCommitDays: number; // (derived)
-    firstResponseMedianSeconds: number | null; // (derived)
-    badges: Array<"active-project" | "steady-commits" | "fast-issue-response">; // (derived)
     coverage: {
         truncatedSources: GetRepoActivityDto["coverage"]["truncatedSources"];
-        issueResponseSamplePartial: boolean;
     }; // (derived)
+}
+
+export interface GetRepoActivityBranchesDto {
+    defaultBranch: string | null;
+    branches: string[];
+    nextCursor: string | null;
 }

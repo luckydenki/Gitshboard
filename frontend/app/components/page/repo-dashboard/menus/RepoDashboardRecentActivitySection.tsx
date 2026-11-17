@@ -1,15 +1,15 @@
+import { useMemo, useState } from "react";
 import { useParams } from "react-router";
 import DashboardRecentActivityList, {
     type DashboardActivityEvent,
 } from "~/components/common/DashboardRecentActivityList";
 import {
     useRepoDashboardActivity,
+    useRepoDashboardActivityBranches,
     useRepoDashboardActivitySummary,
+    type RepoDashboardActivityMode,
 } from "~/hooks/api/useRepoDashboardActivity";
-import type {
-    GetRepoActivitySummaryDto,
-    RepoActivityEvent,
-} from "~/types/response/repo-activity";
+import type { RepoActivityEvent } from "~/types/response/repo-activity";
 
 const weekdayFormatter = new Intl.DateTimeFormat("ko-KR", { weekday: "short" });
 
@@ -48,22 +48,30 @@ const toDashboardEvent = (event: RepoActivityEvent): DashboardActivityEvent => (
     url: event.url,
 });
 
-const getRhythm = (summary: GetRepoActivitySummaryDto) => {
-    if (summary.weekdayShare === null) return "활동 정보 없음";
-    if (summary.weekdayShare >= 0.7) return "평일 집중형";
-    if (summary.weekdayShare <= 0.3) return "주말 집중형";
-    return "고른 활동형";
-};
-
-const getRhythmInsight = (summary: GetRepoActivitySummaryDto) => {
-    if (summary.peakHours === null || summary.weekdayShare === null) return "최근 활동 기록이 충분하지 않아요.";
-    return `전체 활동의 ${Math.round(summary.weekdayShare * 100)}%가 평일에 기록되며 ${summary.peakHours.fromHour}시부터 ${summary.peakHours.toHour}시 사이가 가장 활발해요.`;
-};
-
 export default function RepoDashboardRecentActivitySection() {
     const { owner, repo } = useParams();
-    const activityQuery = useRepoDashboardActivity(owner, repo);
-    const summaryQuery = useRepoDashboardActivitySummary(owner, repo);
+    const [mode, setMode] = useState<RepoDashboardActivityMode>("commits");
+    const [branchSelection, setBranchSelection] = useState<{
+        owner?: string;
+        repo?: string;
+        name: string | null;
+    }>({ owner, repo, name: null });
+    const branchesQuery = useRepoDashboardActivityBranches(owner, repo);
+    const defaultBranch = branchesQuery.data?.pages[0]?.defaultBranch ?? null;
+    const branches = useMemo(
+        () => [...new Set([
+            ...(defaultBranch ? [defaultBranch] : []),
+            ...(branchesQuery.data?.pages.flatMap((page) => page.branches) ?? []),
+        ])],
+        [branchesQuery.data, defaultBranch],
+    );
+    const explicitBranch = branchSelection.owner === owner && branchSelection.repo === repo
+        ? branchSelection.name
+        : null;
+    const selectedBranch = explicitBranch ?? defaultBranch;
+
+    const activityQuery = useRepoDashboardActivity(owner, repo, mode, explicitBranch);
+    const summaryQuery = useRepoDashboardActivitySummary(owner, repo, explicitBranch);
     const summary = summaryQuery.data;
     const events = activityQuery.data?.pages.flatMap((page) => page.events) ?? [];
     const maxActivity = Math.max(...(summary?.dailyCommits.map(({ count }) => count) ?? [0]), 1);
@@ -72,7 +80,7 @@ export default function RepoDashboardRecentActivitySection() {
         .join(" ");
 
     return (
-        <section aria-labelledby="recent-activity-title" className="flex min-w-sm items-start gap-6 not-lg:flex-col">
+        <section aria-labelledby="recent-activity-title" className="flex min-w-0 w-full items-start gap-6 not-lg:flex-col">
             <h2 id="recent-activity-title" className="sr-only">최근 활동</h2>
 
             <aside className="flex w-80 shrink-0 flex-col gap-4 not-lg:w-full">
@@ -85,35 +93,16 @@ export default function RepoDashboardRecentActivitySection() {
                     </article>
                 ) : (
                     <>
-                        <article className="bg-panel flex flex-col gap-4 rounded-lg border border-gray-300 p-5">
-                            <h3 className="font-bold">현재 상태</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {summary.badges.map((badge) => (
-                                    <span key={badge} className="rounded-lg bg-gray-100 p-2 text-xs font-semibold text-gray-500">
-                                        {badge === "active-project" ? "활발한 프로젝트" : badge === "steady-commits" ? "꾸준한 커밋" : "빠른 이슈 응답"}
-                                    </span>
-                                ))}
-                                {summary.badges.length === 0 && <span className="text-xs text-gray-500">표시할 활동 배지가 없습니다.</span>}
-                            </div>
-                            <p className="text-xs leading-5 text-gray-500">{Object.values(summary.counts).every((count) => count > 0) ? "최근 7일 동안 커밋, PR, Issue 활동이 모두 확인됐어요." : "최근 7일 동안 확인된 활동을 표시하고 있어요."}</p>
-                        </article>
-
-                        <article className="bg-panel flex flex-col gap-4 rounded-lg border border-gray-300 p-5">
-                            <p className="text-xs text-gray-500">활동 리듬</p>
-                            <strong className="text-xl">{getRhythm(summary)}</strong>
-                            <p className="text-xs leading-5 text-gray-500">{getRhythmInsight(summary)}</p>
-                        </article>
-
                         <article className="bg-panel flex flex-col gap-5 rounded-lg border border-gray-300 p-5">
                             <div className="flex items-end justify-between gap-3">
                                 <div className="flex flex-col gap-1">
                                     <h3 className="font-bold">주간 커밋</h3>
-                                    <p className="text-xs text-gray-500">최근 7일 기준</p>
+                                    <p className="text-xs text-gray-500">최근 7일 · {summary.branch ?? "기본 브랜치"} 기준</p>
                                 </div>
                                 <strong className="text-xl">{summary.counts.commit}</strong>
                             </div>
                             <div className="overflow-x-auto">
-                                <svg role="img" aria-label="월요일부터 일요일까지의 주간 커밋 꺾은선 그래프" viewBox="0 0 504 180" className="h-40 w-full min-w-70 text-gray-500">
+                                <svg role="img" aria-label="최근 7일의 주간 커밋 꺾은선 그래프" viewBox="0 0 504 180" className="h-40 w-full min-w-70 text-gray-500">
                                     <line x1="24" y1="150" x2="480" y2="150" className="stroke-gray-300" strokeWidth="1" />
                                     <polyline points={linePoints} fill="none" stroke="currentColor" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" />
                                     {summary.dailyCommits.map(({ date, count }, index) => {
@@ -168,13 +157,59 @@ export default function RepoDashboardRecentActivitySection() {
                         <h3 id="activity-record-title" className="text-xl font-bold sm:text-2xl">최근 전적</h3>
                         <p className="text-sm text-gray-500">저장소에서 발생한 주요 활동을 시간순으로 보여줘요.</p>
                     </div>
-                    {activityQuery.data && (
+                    {summary && (
                         <div className="flex gap-4 text-right text-xs text-gray-500">
-                            <span><strong className="block text-base text-inherit">{activityQuery.data.pages[0]?.counts.commit ?? 0}</strong>Commit</span>
-                            <span><strong className="block text-base text-inherit">{activityQuery.data.pages[0]?.counts["pull-request"] ?? 0}</strong>PR</span>
-                            <span><strong className="block text-base text-inherit">{activityQuery.data.pages[0]?.counts.issue ?? 0}</strong>Issue</span>
+                            <span><strong className="block text-base text-inherit">{summary.counts.commit}</strong>Commit</span>
+                            <span><strong className="block text-base text-inherit">{summary.counts["pull-request"]}</strong>PR</span>
+                            <span><strong className="block text-base text-inherit">{summary.counts.issue}</strong>Issue</span>
                         </div>
                     )}
+                </div>
+
+                <div className="flex flex-wrap items-end justify-between gap-3 pb-5">
+                    <div className="flex flex-col gap-1">
+                        <label className="flex flex-col gap-1 text-sm font-semibold">
+                            브랜치
+                            <select
+                                aria-label="커밋 브랜치 선택"
+                                value={mode === "commits" ? selectedBranch ?? "" : ""}
+                                disabled={mode !== "commits" || branchesQuery.isLoading}
+                                onChange={(event) => setBranchSelection({
+                                    owner,
+                                    repo,
+                                    name: event.target.value === defaultBranch ? null : event.target.value || null,
+                                })}
+                                className="cursor-pointer rounded-lg border border-gray-300 bg-panel p-2 text-sm font-normal disabled:cursor-default disabled:text-gray-500"
+                            >
+                                {mode !== "commits" && <option value="">저장소 전체</option>}
+                                {mode === "commits" && !selectedBranch && <option value="">기본 브랜치</option>}
+                                {branches.map((branch) => <option key={branch} value={branch}>{branch}</option>)}
+                            </select>
+                        </label>
+                        {branchesQuery.hasNextPage && mode === "commits" && (
+                            <button
+                                type="button"
+                                onClick={() => branchesQuery.fetchNextPage()}
+                                disabled={branchesQuery.isFetchingNextPage}
+                                className="cursor-pointer self-start text-xs font-semibold text-primary hover:underline disabled:cursor-default disabled:opacity-60"
+                            >
+                                {branchesQuery.isFetchingNextPage ? "브랜치를 불러오는 중입니다." : "브랜치 더 보기"}
+                            </button>
+                        )}
+                    </div>
+
+                    <label className="flex flex-col gap-1 text-sm font-semibold">
+                        전적 종류
+                        <select
+                            aria-label="최근 전적 종류 선택"
+                            value={mode}
+                            onChange={(event) => setMode(event.target.value as RepoDashboardActivityMode)}
+                            className="cursor-pointer rounded-lg border border-gray-300 bg-panel p-2 text-sm font-normal"
+                        >
+                            <option value="commits">Commit</option>
+                            <option value="pull-requests-issues">PR+Issue</option>
+                        </select>
+                    </label>
                 </div>
 
                 {activityQuery.isLoading ? <p role="status" className="py-5 text-sm text-gray-500">최근 전적을 불러오는 중입니다.</p>
