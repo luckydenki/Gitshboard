@@ -8,7 +8,7 @@
 
 ## Storybook 테스트
 
-스토리북을 만들거나 수정하는 모든 상황에서는 `storybook-worker` 서브에이전트를 호출하여 위임하세요.
+스토리북을 만들거나 수정하는 모든 상황에서는 `/docs/frontend/Storybook-guide.md` 를 숙지하여 작성하세요
 
 
 
@@ -22,7 +22,7 @@
 
 ## E2E 테스트 생성 및 수정 규칙
 
-E2E 테스트 코드 생성, 수정, 점검 등을 요청받을 경우 `/docs/frontend/E2E-guide.md`를 참고하세요
+E2E 테스트 코드 생성, 수정, 점검 등을 요청받을 경우 `/docs/frontend/E2E-guide.md`를 숙지하여 작성하세요
 
 
 
