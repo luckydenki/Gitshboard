@@ -12,8 +12,8 @@ description: 컴포넌트 및 UI 변경이나 컴포넌트 추가를 요구한 �
 
 워크플로우는 간단하다.
 
-1. `/docs/frontend/Component-guide.md`를 참고하여 컴포넌트를 구현한다.
-2. 컴포넌트 구현이 완료되었다면 `/docs/BasicUIUX-guide.md`를 참고하여 기본적인 UIUX를 점검한다.
+1. `/docs/frontend/Component-guide.md` 가이드에 따라 컴포넌트를 구현한다.
+2. 컴포넌트 구현이 완료되었다면 `/docs/BasicUIUX-guide.md`가이드에 따라 기본적인 UIUX를 점검한다.
 3. 점검 후 필요하면 컴포넌트 수정 후 재점검을 시도한다.
 
 
