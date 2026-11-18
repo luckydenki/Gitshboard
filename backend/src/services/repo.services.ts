@@ -6,7 +6,6 @@ import type {
     GetRepoActivityData,
     GetRepoActivitySummaryData,
     GetRepoProfileData,
-    RepoActivityCounts,
     RepoActivityEvent,
 } from "../types/controllers/repo";
 import {
@@ -146,6 +145,7 @@ class RepoServices {
         const selectedBranch = this.parseBranch(branch);
         const { events, counts, window, dates, dateKey, truncatedSources, branchName } =
             await this.scanActivity(location.owner, location.repo, location.timezone, token || undefined, asOf, "summary", selectedBranch);
+        // Processor 책임: 활동 이벤트를 현지 날짜별로 집계합니다.
         const days = dates.map((date) => ({ date, total: 0, counts: { commit: 0, "pull-request": 0, issue: 0 } }));
         for (const event of events) {
             const day = days.find(({ date }) => date === dateKey(event.occurredAt));
@@ -190,6 +190,7 @@ class RepoServices {
             throw CommonError.create400Error("올바른 IANA 시간대가 필요합니다.");
         }
 
+        // Processor 책임: 조회 기간과 이벤트 포함 조건을 계산합니다.
         const { dates, lastDate, since, dateKey, inWindow } = RepoUtils.getActivityWindow(asOf, clock);
         const isSummary = source === "summary";
         const snapshotTime = Date.parse(asOf);
@@ -201,11 +202,13 @@ class RepoServices {
             readSelectedBranch: source !== "pull-requests-issues" && branch !== undefined,
             readPullRequests: source !== "commits", readIssues: source !== "commits",
         };
+        // Processor 책임: 페이지별 이벤트를 ID로 중복 제거해 누적합니다.
         const events = new Map<string, RepoActivityEvent>();
         let branchName: string | null = null;
         let canonicalOwner = owner;
         let canonicalRepo = repo;
 
+        // Service 책임: API 호출, 조회 결과 확인, 최대 페이지 수와 반복을 조율합니다.
         // A bounded scan keeps the synchronous endpoint usable on busy repositories.
         for (let page = 0; page < 10; page++) {
             const response = await githubRepoAPIClient.getActivityPage(variables, token);
@@ -224,54 +227,14 @@ class RepoServices {
             const commits = commitTarget && "history" in commitTarget ? commitTarget.history : undefined;
             const { pullRequests, issues } = repository;
 
-            for (const commit of commits?.nodes ?? []) {
-                if (!commit || !includeEvent(commit.committedDate)) continue;
-                const occurredAt = new Date(commit.committedDate).toISOString();
-                const id = `commit:${commit.oid}:committed:${occurredAt}`;
-                events.set(id, {
-                    id, type: "commit", action: "committed", title: commit.messageHeadline,
-                    actor: commit.author?.user?.login ?? commit.author?.name ?? null,
-                    reference: commit.abbreviatedOid, url: commit.url, occurredAt,
-                    sha: commit.oid, changedFiles: commit.changedFilesIfAvailable ?? null,
-                });
+            // Mapper 책임: GitHub 응답을 공통 활동 이벤트로 변환합니다.
+            // 현재 Mapper 내부의 includeEvent 필터는 Processor 성격의 조건입니다.
+            for (const event of RepoUtils.toActivityEvents(repository, commits, includeEvent)) {
+                events.set(event.id, event);
             }
 
-            for (const pr of pullRequests?.nodes ?? []) {
-                if (!pr) continue;
-                for (const [action, timestamp] of [["opened", pr.createdAt], ["merged", pr.mergedAt]] as const) {
-                    if (!timestamp || !includeEvent(timestamp)) continue;
-                    const occurredAt = new Date(timestamp).toISOString();
-                    const id = `pull-request:${pr.id}:${action}:${occurredAt}`;
-                    events.set(id, {
-                        id, type: "pull-request", action, title: pr.title,
-                        actor: (action === "merged" ? pr.mergedBy : pr.author)?.login ?? null,
-                        reference: `#${pr.number}`, url: pr.url, occurredAt,
-                        baseBranch: pr.baseRefName, reviewCount: pr.reviews?.totalCount ?? null,
-                        checkState: pr.statusCheckRollup?.state ?? null, draft: pr.isDraft,
-                    });
-                }
-            }
-
-            for (const issue of issues?.nodes ?? []) {
-                if (!issue) continue;
-                const labels = (issue.labels?.nodes ?? []).flatMap((label) => label ? [label.name] : []);
-                for (const [action, timestamp] of [["opened", issue.createdAt], ["closed", issue.closedAt]] as const) {
-                    if (!timestamp || !includeEvent(timestamp)) continue;
-                    const occurredAt = new Date(timestamp).toISOString();
-                    const id = `issue:${issue.id}:${action}:${occurredAt}`;
-                    const closer = issue.timelineItems?.nodes?.find((event) =>
-                        event && "createdAt" in event && Date.parse(event.createdAt) === Date.parse(timestamp),
-                    );
-                    events.set(id, {
-                        id, type: "issue", action, title: issue.title,
-                        actor: action === "opened" ? issue.author?.login ?? null
-                            : closer && "actor" in closer ? closer.actor?.login ?? null : null,
-                        reference: `#${issue.number}`, url: issue.url, occurredAt, labels,
-                        closeReason: action === "closed" ? issue.stateReason ?? null : null,
-                    });
-                }
-            }
-
+            // Processor 책임: cutoff와 다음 페이지 조회 필요 여부를 계산합니다.
+            // Service 책임: 계산 결과를 요청 변수에 반영하고 반복을 종료합니다.
             variables.commitAfter = commits?.pageInfo.endCursor;
             variables.pullRequestAfter = pullRequests?.pageInfo.endCursor;
             variables.issueAfter = issues?.pageInfo.endCursor;
@@ -292,17 +255,12 @@ class RepoServices {
             if (!variables.readDefaultBranch && !variables.readSelectedBranch && !variables.readPullRequests && !variables.readIssues) break;
         }
 
-        const orderedEvents = [...events.values()];
-        if (!isSummary) {
-            orderedEvents.sort((a, b) =>
-                b.occurredAt.localeCompare(a.occurredAt) || a.id.localeCompare(b.id),
-            );
-            orderedEvents.length = Math.min(orderedEvents.length, MAX_RECENT_ACTIVITY_EVENTS);
-        }
+        // Processor 책임: 정렬, 최근 활동 개수 제한, 유형별 건수 집계.
+        const { orderedEvents, counts } = RepoUtils.summarizeActivityEvents(
+            events, isSummary, MAX_RECENT_ACTIVITY_EVENTS,
+        );
 
-        const counts: RepoActivityCounts = { commit: 0, "pull-request": 0, issue: 0 };
-        for (const event of orderedEvents) counts[event.type]++;
-
+        // Processor 책임: 조회 제한으로 끝까지 읽지 못한 활동 종류를 계산합니다.
         const truncatedSources: GetRepoActivityData["coverage"]["truncatedSources"] = [];
         if (variables.readDefaultBranch || variables.readSelectedBranch) truncatedSources.push("commit");
         if (variables.readPullRequests) truncatedSources.push("pull-request");

@@ -1,3 +1,10 @@
+import type { RepoActivityCounts, RepoActivityEvent } from "../../types/controllers/repo";
+import type { GithubGQLGetRepoActivityQuery } from "../../types/github/graphql/operations.generated";
+
+type ActivityRepository = NonNullable<GithubGQLGetRepoActivityQuery["repository"]>;
+type ActivityTarget = NonNullable<NonNullable<ActivityRepository["defaultBranchRef"]>["target"]>;
+type ActivityCommits = Extract<ActivityTarget, { history: unknown }>["history"];
+
 /** 활동 커서가 가리키는 스냅샷과 마지막 이벤트입니다. */
 interface RepoActivityCursor {
     asOf: string;
@@ -6,6 +13,88 @@ interface RepoActivityCursor {
 }
 
 class RepoUtils {
+    /**
+     * Mapper 책임: GitHub 저장소 활동 페이지의 커밋, PR, 이슈를 공통 이벤트로 변환합니다.
+     * 현재 포함 범위 필터는 Processor 성격의 조건이며 추후 분리할 수 있습니다.
+     * @param repository 조회한 저장소 활동 데이터.
+     * @param commits 선택한 브랜치의 커밋 기록.
+     * @param includeEvent 이벤트 시각의 조회 범위 포함 여부를 판별하는 함수.
+     * @returns 조회 범위에 포함되는 활동 이벤트 목록.
+     */
+    public static toActivityEvents(
+        repository: ActivityRepository,
+        commits: ActivityCommits | undefined,
+        includeEvent: (value: string) => boolean,
+    ): RepoActivityEvent[] {
+        const events: RepoActivityEvent[] = [];
+        for (const commit of commits?.nodes ?? []) {
+            if (!commit || !includeEvent(commit.committedDate)) continue;
+            const occurredAt = new Date(commit.committedDate).toISOString();
+            const id = `commit:${commit.oid}:committed:${occurredAt}`;
+            events.push({
+                id, type: "commit", action: "committed", title: commit.messageHeadline,
+                actor: commit.author?.user?.login ?? commit.author?.name ?? null,
+                reference: commit.abbreviatedOid, url: commit.url, occurredAt,
+                sha: commit.oid, changedFiles: commit.changedFilesIfAvailable ?? null,
+            });
+        }
+        for (const pr of repository.pullRequests?.nodes ?? []) {
+            if (!pr) continue;
+            for (const [action, timestamp] of [["opened", pr.createdAt], ["merged", pr.mergedAt]] as const) {
+                if (!timestamp || !includeEvent(timestamp)) continue;
+                const occurredAt = new Date(timestamp).toISOString();
+                const id = `pull-request:${pr.id}:${action}:${occurredAt}`;
+                events.push({
+                    id, type: "pull-request", action, title: pr.title,
+                    actor: (action === "merged" ? pr.mergedBy : pr.author)?.login ?? null,
+                    reference: `#${pr.number}`, url: pr.url, occurredAt,
+                    baseBranch: pr.baseRefName, reviewCount: pr.reviews?.totalCount ?? null,
+                    checkState: pr.statusCheckRollup?.state ?? null, draft: pr.isDraft,
+                });
+            }
+        }
+        for (const issue of repository.issues?.nodes ?? []) {
+            if (!issue) continue;
+            const labels = (issue.labels?.nodes ?? []).flatMap((label) => label ? [label.name] : []);
+            for (const [action, timestamp] of [["opened", issue.createdAt], ["closed", issue.closedAt]] as const) {
+                if (!timestamp || !includeEvent(timestamp)) continue;
+                const occurredAt = new Date(timestamp).toISOString();
+                const id = `issue:${issue.id}:${action}:${occurredAt}`;
+                const closer = issue.timelineItems?.nodes?.find((event) =>
+                    event && "createdAt" in event && Date.parse(event.createdAt) === Date.parse(timestamp),
+                );
+                events.push({
+                    id, type: "issue", action, title: issue.title,
+                    actor: action === "opened" ? issue.author?.login ?? null
+                        : closer && "actor" in closer ? closer.actor?.login ?? null : null,
+                    reference: `#${issue.number}`, url: issue.url, occurredAt, labels,
+                    closeReason: action === "closed" ? issue.stateReason ?? null : null,
+                });
+            }
+        }
+        return events;
+    }
+
+    /**
+     * Processor 책임: 중복 제거된 활동을 정렬·제한하고 유형별 건수를 계산합니다.
+     * @param events 식별자를 키로 중복 제거한 활동 이벤트.
+     * @param isSummary 요약 조회 여부. 요약 조회에서는 정렬과 개수 제한을 생략합니다.
+     * @param limit 최근 활동 조회의 최대 이벤트 수.
+     * @returns 정리된 이벤트 목록과 유형별 건수.
+     */
+    public static summarizeActivityEvents(events: ReadonlyMap<string, RepoActivityEvent>, isSummary: boolean, limit: number) {
+        const orderedEvents = [...events.values()];
+        if (!isSummary) {
+            orderedEvents.sort((a, b) =>
+                b.occurredAt.localeCompare(a.occurredAt) || a.id.localeCompare(b.id),
+            );
+            orderedEvents.length = Math.min(orderedEvents.length, limit);
+        }
+        const counts: RepoActivityCounts = { commit: 0, "pull-request": 0, issue: 0 };
+        for (const event of orderedEvents) counts[event.type]++;
+        return { orderedEvents, counts };
+    }
+
     /**
      * GitHub GraphQL 오류에서 조회 대상 저장소를 찾을 수 없는지 확인합니다.
      * @param error GitHub 요청에서 발생한 오류.
