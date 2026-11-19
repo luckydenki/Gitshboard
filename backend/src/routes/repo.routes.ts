@@ -2,8 +2,50 @@ import { Router } from "express";
 import { checkToken, checkUser } from "../middlewares/auth.middleware";
 import repoController from "../controllers/repo.controllers";
 import repoProjectController from "../controllers/repo-project.controllers";
+import repoCommitStatusController from "../controllers/repo-commit-status.controllers";
 
 const repo_router = Router();
+
+/**
+ * @api GET /api/repos/:owner/:repo/commit-status/overview
+ *
+ * @desc 기본 브랜치의 완료된 최근 기간 커밋, 주별 코드 변화량과 시간대 분포를 조회합니다.
+ *
+ * @query timezone (IANA string, 선택) - 집계 시간대. 기본값 Asia/Seoul.
+ *
+ * @github backend/src/client/queries/github/repo-commit-status.query.ts
+ *
+ * @response backend/src/types/controllers/repo-commit-status.ts (GetRepoCommitStatusOverviewData)
+ *
+ * @error [400] : 저장소 주소 또는 시간대가 잘못된 경우.
+ * @error [401] : GitHub 인증이 필요한 경우.
+ * @error [403] : 저장소 접근 권한이 없거나 GitHub 조회 제한이 적용된 경우.
+ * @error [404] : 조회할 수 있는 저장소가 없는 경우.
+ * @error [429] : GitHub 조회 제한으로 재시도가 필요한 경우.
+ * @error [500] : GitHub 커밋 조회 또는 집계에 실패한 경우.
+ */
+repo_router.get("/:owner/:repo/commit-status/overview", checkToken, checkUser, repoCommitStatusController.overview);
+
+/**
+ * @api GET /api/repos/:owner/:repo/commit-status/records
+ *
+ * @desc 기본 브랜치의 완료된 최근 1년 또는 명시적 전체 기간 커밋 전적을 조회합니다.
+ *
+ * @query timezone (IANA string, 선택) - 집계 시간대. 기본값 Asia/Seoul.
+ * @query scope (rolling_year | all, 선택) - 전적 범위. 기본값 rolling_year.
+ *
+ * @github backend/src/client/queries/github/repo-commit-status.query.ts
+ *
+ * @response backend/src/types/controllers/repo-commit-status.ts (GetRepoCommitStatusRecordsData)
+ *
+ * @error [400] : 저장소 주소, 시간대 또는 범위가 잘못된 경우.
+ * @error [401] : GitHub 인증이 필요한 경우.
+ * @error [403] : 저장소 접근 권한이 없거나 GitHub 조회 제한이 적용된 경우.
+ * @error [404] : 조회할 수 있는 저장소가 없는 경우.
+ * @error [429] : GitHub 조회 제한으로 재시도가 필요한 경우.
+ * @error [500] : GitHub 커밋 조회 또는 집계에 실패한 경우.
+ */
+repo_router.get("/:owner/:repo/commit-status/records", checkToken, checkUser, repoCommitStatusController.records);
 
 /**
  * @api GET /api/repos/health

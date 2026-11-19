@@ -9491,6 +9491,17 @@ export type GithubGQLGetRepoActivityQuery = { __typename?: 'Query', repository?:
 
 export type GithubGQLRepoActivityBranchFragment = { __typename?: 'Ref', name: string, target?: { __typename?: 'Blob' } | { __typename?: 'Commit', history: { __typename?: 'CommitHistoryConnection', pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean }, nodes?: Array<{ __typename?: 'Commit', oid: any, abbreviatedOid: string, committedDate: string, messageHeadline: string, url: string, changedFilesIfAvailable?: number | null, author?: { __typename?: 'GitActor', name?: string | null, user?: { __typename?: 'User', login: string } | null } | null } | null> | null } } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null };
 
+export type GithubGQLGetRepoCommitStatusQueryVariables = Exact<{
+  owner: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  since?: InputMaybe<Scalars['GitTimestamp']['input']>;
+  until?: InputMaybe<Scalars['GitTimestamp']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GithubGQLGetRepoCommitStatusQuery = { __typename?: 'Query', repository?: { __typename?: 'Repository', visibility: GithubGQLRepositoryVisibility, defaultBranchRef?: { __typename?: 'Ref', name: string, target?: { __typename?: 'Blob' } | { __typename?: 'Commit', oid: any, history: { __typename?: 'CommitHistoryConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null }, nodes?: Array<{ __typename?: 'Commit', oid: any, committedDate: string, additions: number, deletions: number } | null> | null } } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null } | null } | null };
+
 export type GithubGQLGetCommitTimesQueryVariables = Exact<{
   login: Scalars['String']['input'];
 }>;
