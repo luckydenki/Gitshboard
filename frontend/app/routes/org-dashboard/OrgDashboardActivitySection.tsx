@@ -1,3 +1,3 @@
 export default function OrgDashboardActivitySection() {
-    return <></>;
+    return <>우하하</>;
 }

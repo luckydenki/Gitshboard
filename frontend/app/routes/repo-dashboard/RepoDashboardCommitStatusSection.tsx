@@ -9,11 +9,11 @@ import {
     formatCommitNumber,
     formatCommitPeriod,
 } from "~/utils/page/repo-commit-status";
-import RepoCommitStatusCodeChangeChart from "../RepoCommitStatusCodeChangeChart";
-import RepoCommitStatusQueryState from "../RepoCommitStatusQueryState";
-import RepoCommitStatusRecordsList from "../RepoCommitStatusRecordsList";
-import RepoCommitStatusTimeChart from "../RepoCommitStatusTimeChart";
-import RepoCommitStatusWeeklyChart from "../RepoCommitStatusWeeklyChart";
+import RepoCommitStatusCodeChangeChart from "../../components/page/repo-dashboard/RepoCommitStatusCodeChangeChart";
+import RepoCommitStatusQueryState from "../../components/page/repo-dashboard/RepoCommitStatusQueryState";
+import RepoCommitStatusRecordsList from "../../components/page/repo-dashboard/RepoCommitStatusRecordsList";
+import RepoCommitStatusTimeChart from "../../components/page/repo-dashboard/RepoCommitStatusTimeChart";
+import RepoCommitStatusWeeklyChart from "../../components/page/repo-dashboard/RepoCommitStatusWeeklyChart";
 
 /** 저장소 기본 브랜치의 완료된 최근 기간 커밋 현황입니다. */
 export default function RepoDashboardCommitStatusSection() {

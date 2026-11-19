@@ -1,6 +1,6 @@
 import { useOutletContext, useParams } from "react-router";
+import UserDashboardActivityArticle from "~/components/page/user-dashboard/UserDashboardActivityArticle";
 import { useUserCommitActivity, useUserRecentActivity } from "~/hooks/useUserDashboard";
-import UserDashboardActivityArticle from "../UserDashboardActivityArticle";
 import UserDashboardRecentActivitySection from "./UserDashboardRecentActivitySection";
 
 const UserDashboardRecentActivitySkeleton = () => (
@@ -8,8 +8,14 @@ const UserDashboardRecentActivitySkeleton = () => (
         aria-label="최근 활동 내역"
         aria-busy="true"
         className="bg-panel min-w-0 flex-1 p-6 not-lg:w-full">
-        <p role="status" className="sr-only">최근 활동을 불러오는 중입니다.</p>
-        <div aria-hidden="true" className="motion-safe:animate-pulse">
+        <p
+            role="status"
+            className="sr-only">
+            최근 활동을 불러오는 중입니다.
+        </p>
+        <div
+            aria-hidden="true"
+            className="motion-safe:animate-pulse">
             <div className="flex flex-wrap items-end justify-between gap-4 pb-5">
                 <div className="flex flex-col gap-1">
                     <h3 className="text-xl font-bold sm:text-2xl">최근 활동 내역</h3>
@@ -21,7 +27,9 @@ const UserDashboardRecentActivitySkeleton = () => (
             </div>
             <ol className="flex flex-col divide-y divide-gray-300">
                 {Array.from({ length: 10 }, (_, index) => (
-                    <li key={index} className="flex gap-4 py-5">
+                    <li
+                        key={index}
+                        className="flex gap-4 py-5">
                         <span className="size-10 shrink-0 rounded-lg bg-gray-200" />
                         <div className="flex min-w-0 flex-1 flex-col gap-4">
                             <div className="flex justify-between gap-2">

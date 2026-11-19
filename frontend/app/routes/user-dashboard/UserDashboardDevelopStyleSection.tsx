@@ -6,9 +6,9 @@ import {
     developStyleSummaryMock,
 } from "~/mock/home-dashboard/dashboard-develop-style";
 import { useRef, useState } from "react";
-import UserDashboardDevelopStyleActivityRhythm from "../UserDashboardDevelopStyleActivityRhythm";
-import UserDashboardDevelopStyleCodeStyle from "../UserDashboardDevelopStyleCodeStyle";
-import UserDashboardDevelopStyleCollaborationStyle from "../UserDashboardDevelopStyleCollaborationStyle";
+import UserDashboardDevelopStyleActivityRhythm from "../../components/page/user-dashboard/UserDashboardDevelopStyleActivityRhythm";
+import UserDashboardDevelopStyleCodeStyle from "../../components/page/user-dashboard/UserDashboardDevelopStyleCodeStyle";
+import UserDashboardDevelopStyleCollaborationStyle from "../../components/page/user-dashboard/UserDashboardDevelopStyleCollaborationStyle";
 import { useGridDrag } from "~/hooks/useGridDrag";
 import { useParams } from "react-router";
 

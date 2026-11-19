@@ -17,53 +17,23 @@ export default [
 
         route("repo/:legacy", "routes/repo-legacy.tsx"),
         route("repo/:owner/:repo", "routes/repo-dashboard.tsx", [
-            index("./components/page/repo-dashboard/menus/RepoDashboardRecentActivitySection.tsx"),
-            route(
-                "readme",
-                "./components/page/repo-dashboard/menus/RepoDashboardReadmeSection.tsx",
-            ),
-            route(
-                "project",
-                "./components/page/repo-dashboard/menus/RepoDashboardProjectStatusSection.tsx",
-            ),
-            route(
-                "commit",
-                "./components/page/repo-dashboard/menus/RepoDashboardCommitStatusSection.tsx",
-            ),
-            route(
-                "prissue",
-                "./components/page/repo-dashboard/menus/RepoDashboardPullRequestIssueSection.tsx",
-            ),
-            route(
-                "communication",
-                "./components/page/repo-dashboard/menus/RepoDashboardCommunicationSection.tsx",
-            ),
+            index("./routes/repo-dashboard/RepoDashboardRecentActivitySection.tsx"),
+            route("readme", "./routes/repo-dashboard/RepoDashboardReadmeSection.tsx"),
+            route("project", "./routes/repo-dashboard/RepoDashboardProjectStatusSection.tsx"),
+            route("commit", "./routes/repo-dashboard/RepoDashboardCommitStatusSection.tsx"),
+            route("prissue", "./routes/repo-dashboard/RepoDashboardPullRequestIssueSection.tsx"),
+            route("communication", "./routes/repo-dashboard/RepoDashboardCommunicationSection.tsx"),
         ]),
         route("org/:org", "routes/org-dashboard.tsx", [
-            index("./components/page/org-dashboard/menus/OrgDashboardActivitySection.tsx"),
-            route(
-                "repos",
-                "./components/page/org-dashboard/menus/OrgDashboardRepositorySection.tsx",
-            ),
+            index("./routes/org-dashboard/OrgDashboardActivitySection.tsx"),
+            route("repos", "./routes/org-dashboard/OrgDashboardRepositorySection.tsx"),
         ]),
         route("user/:user", "routes/user-dashboard.tsx", [
-            index("./components/page/user-dashboard/menus/UserDashboardActivitySection.tsx"),
-            route(
-                "devStyle",
-                "./components/page/user-dashboard/menus/UserDashboardDevelopStyleSection.tsx",
-            ),
-            route(
-                "repos",
-                "./components/page/user-dashboard/menus/UserDashboardRepositorySection.tsx",
-            ),
-            route(
-                "organizations",
-                "./components/page/user-dashboard/menus/UserDashboardOrganizationSection.tsx",
-            ),
-            route(
-                "interests",
-                "./components/page/user-dashboard/menus/UserDashboardInterestsSection.tsx",
-            ),
+            index("./routes/user-dashboard/UserDashboardActivitySection.tsx"),
+            route("devStyle", "./routes/user-dashboard/UserDashboardDevelopStyleSection.tsx"),
+            route("repos", "./routes/user-dashboard/UserDashboardRepositorySection.tsx"),
+            route("organizations", "./routes/user-dashboard/UserDashboardOrganizationSection.tsx"),
+            route("interests", "./routes/user-dashboard/UserDashboardInterestsSection.tsx"),
         ]),
         route("500", "routes/error/server-error-page.tsx"),
         route("503", "routes/error/service-unavailable-page.tsx"),
