@@ -16,6 +16,8 @@ import {
 } from "../utils/stat";
 import CommonError from "../utils/common-error";
 import RepoUtils from "../utils/routes/repo.utils";
+import RepoActivityMapper from "../mapper/repo-activity.mapper";
+import RepoActivityProcessor from "../processor/repo-activity.processor";
 
 const MAX_RECENT_ACTIVITY_EVENTS = 100;
 
@@ -26,12 +28,21 @@ const createRedisKey = (githubUsername: string, dataType: string) => {
 };
 
 class RepoServices {
-    public getProfile = async ({ owner, repo, token }: {
+    public getProfile = async ({
+        owner,
+        repo,
+        token,
+    }: {
         owner: unknown;
         repo: unknown;
         token?: string;
     }): Promise<GetRepoProfileData> => {
-        if (typeof owner !== "string" || typeof repo !== "string" || !owner.trim() || !repo.trim()) {
+        if (
+            typeof owner !== "string" ||
+            typeof repo !== "string" ||
+            !owner.trim() ||
+            !repo.trim()
+        ) {
             throw CommonError.create400Error("저장소 소유자와 이름이 필요합니다.");
         }
 
@@ -44,7 +55,14 @@ class RepoServices {
     };
 
     public getActivity = async ({
-        owner, repo, timezone = "Asia/Seoul", limit = "6", cursor, token, branch, source,
+        owner,
+        repo,
+        timezone = "Asia/Seoul",
+        limit = "6",
+        cursor,
+        token,
+        branch,
+        source,
     }: {
         source: "commits" | "pull-requests-issues";
         branch?: unknown;
@@ -57,11 +75,20 @@ class RepoServices {
     }): Promise<GetRepoActivityData> => {
         const location = RepoUtils.parseActivityLocation(owner, repo, timezone);
         if (!location || typeof limit !== "string" || !/^(?:[1-9]|1\d|20)$/.test(limit)) {
-            throw CommonError.create400Error("저장소 주소, 시간대 또는 페이지 크기를 확인해 주세요.");
+            throw CommonError.create400Error(
+                "저장소 주소, 시간대 또는 페이지 크기를 확인해 주세요.",
+            );
         }
 
         const selectedBranch = source === "commits" ? this.parseBranch(branch) : undefined;
-        const scope = JSON.stringify([location.owner.toLowerCase(), location.repo.toLowerCase(), location.timezone, source, selectedBranch, "latest"]);
+        const scope = JSON.stringify([
+            location.owner.toLowerCase(),
+            location.repo.toLowerCase(),
+            location.timezone,
+            source,
+            selectedBranch,
+            "latest",
+        ]);
         const now = Date.now();
         const previous = RepoUtils.decodeActivityCursor(cursor, scope, now);
         if (cursor !== undefined && !previous) {
@@ -71,23 +98,43 @@ class RepoServices {
         const asOf = previous?.asOf ?? new Date(now).toISOString();
         const githubAccessToken = token || undefined;
         const { events, counts, window, truncatedSources, canonicalOwner, canonicalRepo } =
-            await this.scanActivity(location.owner, location.repo, location.timezone, githubAccessToken, asOf, source, selectedBranch);
-        const remaining = previous ? events.filter((event) =>
-            event.occurredAt < previous.occurredAt ||
-            (event.occurredAt === previous.occurredAt && event.id.localeCompare(previous.id) > 0),
-        ) : events;
+            await this.scanActivity(
+                location.owner,
+                location.repo,
+                location.timezone,
+                githubAccessToken,
+                asOf,
+                source,
+                selectedBranch,
+            );
+        const remaining = previous
+            ? events.filter(
+                  (event) =>
+                      event.occurredAt < previous.occurredAt ||
+                      (event.occurredAt === previous.occurredAt &&
+                          event.id.localeCompare(previous.id) > 0),
+              )
+            : events;
         const pageEvents = remaining.slice(0, Number(limit));
         const last = pageEvents[pageEvents.length - 1];
-        const nextCursor = last && remaining.length > pageEvents.length ? RepoUtils.encodeActivityCursor(scope, {
-            asOf, occurredAt: last.occurredAt, id: last.id,
-        }) : null;
+        const nextCursor =
+            last && remaining.length > pageEvents.length
+                ? RepoUtils.encodeActivityCursor(scope, {
+                      asOf,
+                      occurredAt: last.occurredAt,
+                      id: last.id,
+                  })
+                : null;
 
         let commitDetailsPartial = false;
         for (const event of pageEvents) {
             if (event.type !== "commit" || event.changedFiles === 0) continue;
             try {
                 const commit_response = await githubRepoAPIClient.getActivityCommit(
-                    canonicalOwner, canonicalRepo, event.sha, githubAccessToken,
+                    canonicalOwner,
+                    canonicalRepo,
+                    event.sha,
+                    githubAccessToken,
                 );
                 event.representativePath = commit_response.files?.[0]?.filename;
             } catch {
@@ -98,13 +145,20 @@ class RepoServices {
         }
 
         return {
-            asOf, window, counts, events: pageEvents, nextCursor,
+            asOf,
+            window,
+            counts,
+            events: pageEvents,
+            nextCursor,
             coverage: { truncatedSources, commitDetailsPartial },
         };
     };
 
     public getActivityBranches = async ({
-        owner, repo, cursor, token,
+        owner,
+        repo,
+        cursor,
+        token,
     }: {
         owner: unknown;
         repo: unknown;
@@ -112,25 +166,40 @@ class RepoServices {
         token?: string;
     }): Promise<GetRepoActivityBranchesData> => {
         const location = RepoUtils.parseActivityLocation(owner, repo, "UTC");
-        if (!location || (cursor !== undefined &&
-            (typeof cursor !== "string" || cursor.length === 0 || cursor.length > 4096))) {
+        if (
+            !location ||
+            (cursor !== undefined &&
+                (typeof cursor !== "string" || cursor.length === 0 || cursor.length > 4096))
+        ) {
             throw CommonError.create400Error("저장소 주소 또는 브랜치 커서를 확인해 주세요.");
         }
-        const { repository } = await githubRepoAPIClient.getActivityBranches({
-            owner: location.owner, name: location.repo, after: cursor,
-        }, token || undefined);
+        const { repository } = await githubRepoAPIClient.getActivityBranches(
+            {
+                owner: location.owner,
+                name: location.repo,
+                after: cursor,
+            },
+            token || undefined,
+        );
         if (!repository || (!token && repository.visibility !== "PUBLIC")) {
             throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
         }
         return {
             defaultBranch: repository.defaultBranchRef?.name ?? null,
-            branches: repository.refs?.nodes?.flatMap((branch) => branch ? [branch.name] : []) ?? [],
-            nextCursor: repository.refs?.pageInfo.hasNextPage ? repository.refs.pageInfo.endCursor ?? null : null,
+            branches:
+                repository.refs?.nodes?.flatMap((branch) => (branch ? [branch.name] : [])) ?? [],
+            nextCursor: repository.refs?.pageInfo.hasNextPage
+                ? (repository.refs.pageInfo.endCursor ?? null)
+                : null,
         };
     };
 
     public getActivitySummary = async ({
-        owner, repo, timezone = "Asia/Seoul", token, branch,
+        owner,
+        repo,
+        timezone = "Asia/Seoul",
+        token,
+        branch,
     }: {
         owner: unknown;
         repo: unknown;
@@ -144,28 +213,40 @@ class RepoServices {
         const asOf = new Date().toISOString();
         const selectedBranch = this.parseBranch(branch);
         const { events, counts, window, dates, dateKey, truncatedSources, branchName } =
-            await this.scanActivity(location.owner, location.repo, location.timezone, token || undefined, asOf, "summary", selectedBranch);
-        // Processor 책임: 활동 이벤트를 현지 날짜별로 집계합니다.
-        const days = dates.map((date) => ({ date, total: 0, counts: { commit: 0, "pull-request": 0, issue: 0 } }));
-        for (const event of events) {
-            const day = days.find(({ date }) => date === dateKey(event.occurredAt));
-            if (!day) continue;
-            day.total++;
-            day.counts[event.type]++;
-        }
+            await this.scanActivity(
+                location.owner,
+                location.repo,
+                location.timezone,
+                token || undefined,
+                asOf,
+                "summary",
+                selectedBranch,
+            );
+        const { dailyCommits, peakDay } = RepoActivityProcessor.summarizeByDay(
+            events,
+            dates,
+            dateKey,
+        );
 
         return {
-            asOf, window, counts, branch: branchName,
-            dailyCommits: days.map(({ date, counts }) => ({ date, count: counts.commit })),
-            peakDay: events.length ? days.reduce((peak, day) => day.total > peak.total ? day : peak) : null,
+            asOf,
+            window,
+            counts,
+            branch: branchName,
+            dailyCommits,
+            peakDay,
             coverage: { truncatedSources },
         };
     };
 
     private parseBranch(branch: unknown): string | undefined {
         if (branch === undefined) return undefined;
-        if (typeof branch !== "string" || !branch || branch.length > 1024 ||
-            /[\s\x00-\x1f\x7f]/.test(branch)) {
+        if (
+            typeof branch !== "string" ||
+            !branch ||
+            branch.length > 1024 ||
+            /[\s\x00-\x1f\x7f]/.test(branch)
+        ) {
             throw CommonError.create400Error("브랜치 이름을 확인해 주세요.");
         }
         return branch;
@@ -181,7 +262,10 @@ class RepoServices {
         branch?: string,
     ) {
         const clockOptions: Intl.DateTimeFormatOptions = {
-            timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit",
+            timeZone: timezone,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
         };
         let clock: Intl.DateTimeFormat;
         try {
@@ -190,26 +274,33 @@ class RepoServices {
             throw CommonError.create400Error("올바른 IANA 시간대가 필요합니다.");
         }
 
-        // Processor 책임: 조회 기간과 이벤트 포함 조건을 계산합니다.
-        const { dates, lastDate, since, dateKey, inWindow } = RepoUtils.getActivityWindow(asOf, clock);
+        const { dates, lastDate, since, dateKey, inWindow } = RepoActivityProcessor.getWindow(
+            asOf,
+            clock,
+        );
         const isSummary = source === "summary";
         const snapshotTime = Date.parse(asOf);
-        const includeEvent = (value: string) => isSummary ? inWindow(value) : Date.parse(value) <= snapshotTime;
-        const variables: GithubGQLGetRepoActivityQueryVariables = {
-            owner, name: repo, since: isSummary ? since : undefined, until: asOf, includeSummary: isSummary,
+        const includeEvent = (value: string) =>
+            isSummary ? inWindow(value) : Date.parse(value) <= snapshotTime;
+        let variables: GithubGQLGetRepoActivityQueryVariables = {
+            owner,
+            name: repo,
+            since: isSummary ? since : undefined,
+            until: asOf,
+            includeSummary: isSummary,
             qualifiedBranch: branch ? `refs/heads/${branch}` : "",
             readDefaultBranch: source !== "pull-requests-issues" && branch === undefined,
             readSelectedBranch: source !== "pull-requests-issues" && branch !== undefined,
-            readPullRequests: source !== "commits", readIssues: source !== "commits",
+            readPullRequests: source !== "commits",
+            readIssues: source !== "commits",
         };
-        // Processor 책임: 페이지별 이벤트를 ID로 중복 제거해 누적합니다.
-        const events = new Map<string, RepoActivityEvent>();
+        let events = new Map<string, RepoActivityEvent>();
         let branchName: string | null = null;
         let canonicalOwner = owner;
         let canonicalRepo = repo;
 
-        // Service 책임: API 호출, 조회 결과 확인, 최대 페이지 수와 반복을 조율합니다.
         // A bounded scan keeps the synchronous endpoint usable on busy repositories.
+        //TODO : N+1 문제로 fetch를 매번 해서 성능 박는 문제 주의
         for (let page = 0; page < 10; page++) {
             const response = await githubRepoAPIClient.getActivityPage(variables, token);
             const repository = response.repository;
@@ -218,62 +309,63 @@ class RepoServices {
             }
             canonicalOwner = repository.owner.login;
             canonicalRepo = repository.name;
-            const branchRef = variables.readSelectedBranch ? repository.selectedBranch : repository.defaultBranchRef;
+            const branchRef = variables.readSelectedBranch
+                ? repository.selectedBranch
+                : repository.defaultBranchRef;
             if (variables.readSelectedBranch && !branchRef) {
                 throw CommonError.create404Error("브랜치를 찾을 수 없습니다.");
             }
             branchName = branchRef?.name ?? branchName;
             const commitTarget = branchRef?.target;
-            const commits = commitTarget && "history" in commitTarget ? commitTarget.history : undefined;
-            const { pullRequests, issues } = repository;
-
-            // Mapper 책임: GitHub 응답을 공통 활동 이벤트로 변환합니다.
-            // 현재 Mapper 내부의 includeEvent 필터는 Processor 성격의 조건입니다.
-            for (const event of RepoUtils.toActivityEvents(repository, commits, includeEvent)) {
-                events.set(event.id, event);
-            }
-
-            // Processor 책임: cutoff와 다음 페이지 조회 필요 여부를 계산합니다.
-            // Service 책임: 계산 결과를 요청 변수에 반영하고 반복을 종료합니다.
-            variables.commitAfter = commits?.pageInfo.endCursor;
-            variables.pullRequestAfter = pullRequests?.pageInfo.endCursor;
-            variables.issueAfter = issues?.pageInfo.endCursor;
-            const hasMoreCommits = isSummary && Boolean(commits?.pageInfo.hasNextPage && variables.commitAfter);
-            variables.readDefaultBranch = variables.readDefaultBranch && hasMoreCommits;
-            variables.readSelectedBranch = variables.readSelectedBranch && hasMoreCommits;
-            // Each list is ordered by updatedAt. Once its updates are older than the
-            // last eligible event, unseen items cannot enter the newest 100.
-            let cutoffTime = isSummary ? Date.parse(since) : Number.NEGATIVE_INFINITY;
-            if (!isSummary && events.size >= MAX_RECENT_ACTIVITY_EVENTS) {
-                const eventDates = [...events.values()].map(({ occurredAt }) => occurredAt).sort();
-                cutoffTime = Date.parse(eventDates[eventDates.length - MAX_RECENT_ACTIVITY_EVENTS]);
-            }
-            variables.readPullRequests = Boolean(pullRequests?.pageInfo.hasNextPage && variables.pullRequestAfter &&
-                !pullRequests.nodes?.some((pr) => pr && Date.parse(pr.updatedAt) < cutoffTime));
-            variables.readIssues = Boolean(issues?.pageInfo.hasNextPage && variables.issueAfter &&
-                !issues.nodes?.some((issue) => issue && Date.parse(issue.updatedAt) < cutoffTime));
-            if (!variables.readDefaultBranch && !variables.readSelectedBranch && !variables.readPullRequests && !variables.readIssues) break;
+            const commits =
+                commitTarget && "history" in commitTarget ? commitTarget.history : undefined;
+            events = RepoActivityProcessor.collectEvents(
+                events,
+                RepoActivityMapper.toEvents(repository, commits),
+                includeEvent,
+            );
+            variables = RepoActivityProcessor.nextPageVariables(
+                variables,
+                repository,
+                commits,
+                events,
+                isSummary,
+                since,
+                MAX_RECENT_ACTIVITY_EVENTS,
+            );
+            if (
+                !variables.readDefaultBranch &&
+                !variables.readSelectedBranch &&
+                !variables.readPullRequests &&
+                !variables.readIssues
+            )
+                break;
         }
 
-        // Processor 책임: 정렬, 최근 활동 개수 제한, 유형별 건수 집계.
-        const { orderedEvents, counts } = RepoUtils.summarizeActivityEvents(
-            events, isSummary, MAX_RECENT_ACTIVITY_EVENTS,
+        const { orderedEvents, counts } = RepoActivityProcessor.summarize(
+            events,
+            isSummary,
+            MAX_RECENT_ACTIVITY_EVENTS,
         );
 
-        // Processor 책임: 조회 제한으로 끝까지 읽지 못한 활동 종류를 계산합니다.
-        const truncatedSources: GetRepoActivityData["coverage"]["truncatedSources"] = [];
-        if (variables.readDefaultBranch || variables.readSelectedBranch) truncatedSources.push("commit");
-        if (variables.readPullRequests) truncatedSources.push("pull-request");
-        if (variables.readIssues) truncatedSources.push("issue");
+        const truncatedSources = RepoActivityProcessor.truncatedSources(variables);
 
         return {
-            events: orderedEvents, counts, dates, dateKey, branchName,
+            events: orderedEvents,
+            counts,
+            dates,
+            dateKey,
+            branchName,
             window: {
-                firstDate: isSummary ? dates[0] : dateKey(orderedEvents[orderedEvents.length - 1]?.occurredAt ?? asOf),
+                firstDate: isSummary
+                    ? dates[0]
+                    : dateKey(orderedEvents[orderedEvents.length - 1]?.occurredAt ?? asOf),
                 lastDate,
                 timezone,
             },
-            truncatedSources, canonicalOwner, canonicalRepo,
+            truncatedSources,
+            canonicalOwner,
+            canonicalRepo,
         };
     }
 
@@ -288,11 +380,12 @@ class RepoServices {
         }
 
         try {
-            const userData = await githubRepoAPIClient.getLanguages(githubUsername, githubAccessToken);
+            const userData = await githubRepoAPIClient.getLanguages(
+                githubUsername,
+                githubAccessToken,
+            );
             if (!userData) {
-                throw CommonError.create404Error(
-                    "Github API 호출에 실패했습니다.",
-                );
+                throw CommonError.create404Error("Github API 호출에 실패했습니다.");
             }
 
             const languageStats = calculateLanguageStats(userData);
@@ -328,7 +421,10 @@ class RepoServices {
         }
 
         try {
-            const userData = await githubRepoAPIClient.getCommitTime(githubUsername, githubAccessToken);
+            const userData = await githubRepoAPIClient.getCommitTime(
+                githubUsername,
+                githubAccessToken,
+            );
             if (!userData) {
                 throw new Error("Failed to fetch commit time from GitHub API");
             }

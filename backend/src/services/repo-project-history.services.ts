@@ -5,16 +5,9 @@ import type {
     GetRepoProjectParticipationData,
 } from "../types/controllers/repo-project";
 import CommonError from "../utils/common-error";
+import RepoProjectHistoryProcessor, { type HistoryMonth } from "../processor/repo-project-history.processor";
 
 const PAGE_LIMIT = 15;
-
-function completedMonths(now: Date) {
-    return Array.from({ length: 6 }, (_, index) => {
-        const start = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 6 + index, 1);
-        const end = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5 + index, 1);
-        return { month: new Date(start).toISOString().slice(0, 7), start, end };
-    });
-}
 
 function hasNextPage(link?: string): boolean {
     return Boolean(link?.includes('rel="next"'));
@@ -39,7 +32,7 @@ class RepoProjectHistoryServices {
     public async getHistory(owner: string, repo: string, token?: string): Promise<GetRepoProjectHistoryData> {
         const client = new GithubRepoProjectHistoryClient(token);
         const metadata = await this.getAuthorizedRepository(client, owner, repo, token);
-        const months = completedMonths(new Date());
+        const months = RepoProjectHistoryProcessor.completedMonths(new Date());
         const isPublic = metadata.visibility === "public";
         await this.observeDiskUsage(metadata.node_id, metadata.size, isPublic);
         const canonicalOwner = metadata.owner.login;
@@ -76,19 +69,13 @@ class RepoProjectHistoryServices {
             }
             return { month, fileCount: await fileCount, diskUsageKb };
         }));
-        const missingFileCountMonths = results.filter(({ fileCount }) => fileCount === null).map(({ month }) => month);
-        const unobservedDiskUsageMonths = results.filter(({ diskUsageKb }) => diskUsageKb === null).map(({ month }) => month);
-        return {
-            months: results,
-            coverage: { missingFileCountMonths, unobservedDiskUsageMonths },
-            partial: missingFileCountMonths.length > 0 || unobservedDiskUsageMonths.length > 0,
-        };
+        return RepoProjectHistoryProcessor.summarizeHistory(results);
     }
 
     public async getParticipation(owner: string, repo: string, token?: string): Promise<GetRepoProjectParticipationData> {
         const client = new GithubRepoProjectHistoryClient(token);
         const metadata = await this.getAuthorizedRepository(client, owner, repo, token);
-        const months = completedMonths(new Date());
+        const months = RepoProjectHistoryProcessor.completedMonths(new Date());
         const canonicalOwner = metadata.owner.login;
         const canonicalRepo = metadata.name;
 
@@ -98,55 +85,31 @@ class RepoProjectHistoryServices {
         ]);
 
         const createdAt = Date.parse(metadata.created_at ?? "");
-        const results = months.map(({ month, start, end }, index) => {
-            const repositoryExisted = !(createdAt >= end);
-            const workItemsComplete = workItems.complete || start > workItems.oldest;
-            return {
-                month,
-                issueAuthors: repositoryExisted && workItemsComplete ? workItems.issueAuthors[index].size : null,
-                prAuthors: repositoryExisted && workItemsComplete ? workItems.prAuthors[index].size : null,
-                contributors: repositoryExisted && commits.complete
-                    ? [...commits.firstCommitByAuthor.values()].filter((date) => date < end).length
-                    : null,
-            };
-        });
-        const latestContributor = [...results].reverse().find(({ contributors }) => contributors !== null);
-        return {
-            months: results,
-            latestContributorCount: latestContributor?.contributors ?? null,
-            latestContributorMonth: latestContributor?.month ?? null,
-            partial: results.some(({ issueAuthors, prAuthors, contributors }) =>
-                issueAuthors === null || prAuthors === null || contributors === null,
-            ),
-        };
+        return RepoProjectHistoryProcessor.summarizeParticipation(months, createdAt, workItems, commits);
     }
 
     private async getWorkItemAuthors(
-        client: GithubRepoProjectHistoryClient, owner: string, repo: string, months: ReturnType<typeof completedMonths>,
+        client: GithubRepoProjectHistoryClient, owner: string, repo: string, months: HistoryMonth[],
     ) {
-        const issueAuthors = months.map(() => new Set<number>());
-        const prAuthors = months.map(() => new Set<number>());
-        let oldest = Number.POSITIVE_INFINITY;
+        let authors = {
+            issueAuthors: months.map(() => new Set<number>()),
+            prAuthors: months.map(() => new Set<number>()),
+            oldest: Number.POSITIVE_INFINITY,
+        };
         for (let page = 1; page <= PAGE_LIMIT; page++) {
             const response = await client.listWorkItems(owner, repo, page);
-            for (const item of response.data) {
-                const date = Date.parse(item.created_at);
-                oldest = Math.min(oldest, date);
-                if (!item.user) continue;
-                const index = months.findIndex(({ start, end }) => date >= start && date < end);
-                if (index >= 0) (item.pull_request ? prAuthors : issueAuthors)[index].add(item.user.id);
-            }
-            if (!hasNextPage(response.headers.link) || oldest < months[0].start) {
-                return { issueAuthors, prAuthors, complete: true, oldest };
+            authors = RepoProjectHistoryProcessor.collectWorkItemAuthors(authors, response.data, months);
+            if (!hasNextPage(response.headers.link) || authors.oldest < months[0].start) {
+                return { ...authors, complete: true };
             }
         }
-        return { issueAuthors, prAuthors, complete: false, oldest };
+        return { ...authors, complete: false };
     }
 
     private async getCommitAuthors(
         client: GithubRepoProjectHistoryClient, owner: string, repo: string, branch: string, end: number,
     ) {
-        const firstCommitByAuthor = new Map<number, number>();
+        let firstCommitByAuthor = new Map<number, number>();
         const current = await client.listCommits({ owner, repo, sha: branch, per_page: 1 });
         const sha = current?.data[0]?.sha;
         if (!sha) return { firstCommitByAuthor, complete: true };
@@ -155,13 +118,7 @@ class RepoProjectHistoryServices {
             const response = await client.listCommits({
                 owner, repo, sha, until: new Date(end - 1000).toISOString(), page, per_page: 100,
             });
-            for (const commit of response?.data ?? []) {
-                const id = commit.author?.id;
-                const date = Date.parse(commit.commit.committer?.date ?? "");
-                if (id === undefined || !Number.isFinite(date)) continue;
-                const first = firstCommitByAuthor.get(id);
-                if (first === undefined || date < first) firstCommitByAuthor.set(id, date);
-            }
+            if (response) firstCommitByAuthor = RepoProjectHistoryProcessor.collectCommitAuthors(firstCommitByAuthor, response.data);
             if (!response || !hasNextPage(response.headers.link)) return { firstCommitByAuthor, complete: true };
         }
         return { firstCommitByAuthor, complete: false };
