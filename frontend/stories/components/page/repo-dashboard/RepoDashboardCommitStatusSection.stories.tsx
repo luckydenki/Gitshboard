@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import type { ComponentType } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
-import RepoDashboardCommitStatusSection from "../../../../app/components/page/repo-dashboard/menus/RepoDashboardCommitStatusSection";
+import RepoDashboardCommitStatusSection from "../../../../app/routes/repo-dashboard/RepoDashboardCommitStatusSection";
 import { commitOverview, commitRecords } from "../../../../mock/storybook/repo-commit-status";
 import { QueryKeys } from "../../../../app/types/queryKey/query-key-enum";
 
