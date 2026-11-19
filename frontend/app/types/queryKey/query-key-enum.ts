@@ -27,6 +27,10 @@
  *      - endpoint : /api/repos/:owner/:repo/project/participation
  * - REPO_DASHBOARD_PROJECT_DEPLOYMENTS : 프로젝트 현황의 배포 결과와 시간대 분포입니다.
  *      - endpoint : /api/repos/:owner/:repo/project/deployments
+ * - REPO_DASHBOARD_COMMIT_STATUS_OVERVIEW : 기본 브랜치의 커밋 현황 개요입니다.
+ *      - endpoint : /api/repos/:owner/:repo/commit-status/overview
+ * - REPO_DASHBOARD_COMMIT_STATUS_RECORDS : 기본 브랜치의 최근 1년 커밋 전적입니다.
+ *      - endpoint : /api/repos/:owner/:repo/commit-status/records
  *
  *
  */
@@ -44,4 +48,6 @@ export enum QueryKeys {
     REPO_DASHBOARD_PROJECT_HISTORY = "repo-dashboard-project-history",
     REPO_DASHBOARD_PROJECT_PARTICIPATION = "repo-dashboard-project-participation",
     REPO_DASHBOARD_PROJECT_DEPLOYMENTS = "repo-dashboard-project-deployments",
+    REPO_DASHBOARD_COMMIT_STATUS_OVERVIEW = "repo-dashboard-commit-status-overview",
+    REPO_DASHBOARD_COMMIT_STATUS_RECORDS = "repo-dashboard-commit-status-records",
 }
