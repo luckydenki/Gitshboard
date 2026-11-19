@@ -1,0 +1,40 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./RepoCommitStatusQueryState.stories";
+
+<Meta of={Stories} />
+
+# RepoCommitStatusQueryState
+
+커밋 현황 API의 로딩, 오류, 빈 결과, 부분 수집 상태를 표시합니다.
+
+## Props
+
+| 이름 | 타입 | 설명 |
+| --- | --- | --- |
+| `state` | `"loading" \| "error" \| "empty" \| "partial"` | 표시할 조회 상태입니다. |
+| `onRetry` | `() => void` | 오류나 부분 수집 상태에서 다시 시도할 때 호출합니다. |
+
+## 사용 예시
+
+```tsx
+<RepoCommitStatusQueryState state="error" onRetry={() => refetch()} />
+```
+
+<Canvas of={Stories.Loading} />
+<Canvas of={Stories.Error} />
+<Canvas of={Stories.Empty} />
+<Canvas of={Stories.Partial} />
+
+### 기본 평가
+
+7/9 — Chrome Storybook에서 기본·경계 상태를 확인했고, 320px 화면에서 가로 넘침을 수정해 재확인했습니다.
+
+1. 로딩 UI: O (서버 조회가 없는 차트는 해당 없음)
+2. 오류·재시도: O (서버 조회가 없는 차트는 해당 없음)
+3. 빈 데이터 UI: O
+4. 데이터 표시: O
+5. 반응형 화면: O (320px 및 기본 화면)
+6. Lighthouse 접근성 90점 이상: 미확인
+7. Storybook 작성: O
+8. CSS 가이드 준수: O
+9. Chrome·Safari·Firefox 일관성: 미확인
