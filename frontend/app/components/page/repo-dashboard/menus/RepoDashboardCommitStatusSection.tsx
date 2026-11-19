@@ -40,7 +40,7 @@ export default function RepoDashboardCommitStatusSection() {
     return (
         <section
             aria-label="커밋 현황"
-            className="flex min-w-sm flex-col gap-6">
+            className="flex min-w-0 flex-col gap-6">
             {overviewQuery.isLoading ? (
                 <RepoCommitStatusQueryState state="loading" />
             ) : overviewQuery.isError || !overview ? (
