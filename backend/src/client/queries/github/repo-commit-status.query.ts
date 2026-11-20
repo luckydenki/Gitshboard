@@ -1,6 +1,12 @@
 /** 기본 브랜치의 커밋 이력과 줄 수를 조회합니다. link : https://docs.github.com/en/graphql/reference/commits */
 export const repoCommitStatusQuery = /* GraphQL */ `
-    query GetRepoCommitStatus($owner: String!, $name: String!, $since: GitTimestamp, $until: GitTimestamp, $after: String) {
+    query GetRepoCommitStatus(
+        $owner: String!
+        $name: String!
+        $since: GitTimestamp
+        $until: GitTimestamp
+        $after: String
+    ) {
         repository(owner: $owner, name: $name) {
             visibility
             defaultBranchRef {
@@ -10,8 +16,41 @@ export const repoCommitStatusQuery = /* GraphQL */ `
                         oid
                         history(first: 100, after: $after, since: $since, until: $until) {
                             totalCount
-                            pageInfo { hasNextPage endCursor }
-                            nodes { oid committedDate additions deletions }
+                            pageInfo {
+                                hasNextPage
+                                endCursor
+                            }
+                            nodes {
+                                oid
+                                committedDate
+                                additions
+                                deletions
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+`;
+
+export const repoCommitStatusPageInfoQuery = /* GraphQL */ `
+    query GetRepoCommitStatusPageInfo(
+        $owner: String!
+        $name: String!
+        $since: GitTimestamp
+        $until: GitTimestamp
+        $after: String
+    ) {
+        repository(owner: $owner, name: $name) {
+            defaultBranchRef {
+                target {
+                    ... on Commit {
+                        history(first: 100, after: $after, since: $since, until: $until) {
+                            pageInfo {
+                                hasNextPage
+                                endCursor
+                            }
                         }
                     }
                 }

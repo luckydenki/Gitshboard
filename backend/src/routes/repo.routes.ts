@@ -7,47 +7,6 @@ import repoCommitStatusController from "../controllers/repo-commit-status.contro
 const repo_router = Router();
 
 /**
- * @api GET /api/repos/:owner/:repo/commit-status/overview
- *
- * @desc 기본 브랜치의 완료된 최근 기간 커밋, 주별 코드 변화량과 시간대 분포를 조회합니다.
- *
- * @query timezone (IANA string, 선택) - 집계 시간대. 기본값 Asia/Seoul.
- *
- * @github backend/src/client/queries/github/repo-commit-status.query.ts
- *
- * @response backend/src/types/controllers/repo-commit-status.ts (GetRepoCommitStatusOverviewData)
- *
- * @error [400] : 저장소 주소 또는 시간대가 잘못된 경우.
- * @error [401] : GitHub 인증이 필요한 경우.
- * @error [403] : 저장소 접근 권한이 없거나 GitHub 조회 제한이 적용된 경우.
- * @error [404] : 조회할 수 있는 저장소가 없는 경우.
- * @error [429] : GitHub 조회 제한으로 재시도가 필요한 경우.
- * @error [500] : GitHub 커밋 조회 또는 집계에 실패한 경우.
- */
-repo_router.get("/:owner/:repo/commit-status/overview", checkToken, checkUser, repoCommitStatusController.overview);
-
-/**
- * @api GET /api/repos/:owner/:repo/commit-status/records
- *
- * @desc 기본 브랜치의 완료된 최근 1년 또는 명시적 전체 기간 커밋 전적을 조회합니다.
- *
- * @query timezone (IANA string, 선택) - 집계 시간대. 기본값 Asia/Seoul.
- * @query scope (rolling_year | all, 선택) - 전적 범위. 기본값 rolling_year.
- *
- * @github backend/src/client/queries/github/repo-commit-status.query.ts
- *
- * @response backend/src/types/controllers/repo-commit-status.ts (GetRepoCommitStatusRecordsData)
- *
- * @error [400] : 저장소 주소, 시간대 또는 범위가 잘못된 경우.
- * @error [401] : GitHub 인증이 필요한 경우.
- * @error [403] : 저장소 접근 권한이 없거나 GitHub 조회 제한이 적용된 경우.
- * @error [404] : 조회할 수 있는 저장소가 없는 경우.
- * @error [429] : GitHub 조회 제한으로 재시도가 필요한 경우.
- * @error [500] : GitHub 커밋 조회 또는 집계에 실패한 경우.
- */
-repo_router.get("/:owner/:repo/commit-status/records", checkToken, checkUser, repoCommitStatusController.records);
-
-/**
  * @api GET /api/repos/health
  *
  * @desc 저장소 라우트의 응답 여부를 확인합니다.
@@ -90,7 +49,12 @@ repo_router.get("/:owner/:repo/profile", checkToken, checkUser, repoController.p
  * @error [404] : 조회할 수 있는 저장소 또는 브랜치를 찾지 못한 경우.
  * @error [500] : 사용자 인증 처리 또는 GitHub 활동 데이터 조회에 실패한 경우.
  */
-repo_router.get("/:owner/:repo/activity/commits", checkToken, checkUser, repoController.activityCommits);
+repo_router.get(
+    "/:owner/:repo/activity/commits",
+    checkToken,
+    checkUser,
+    repoController.activityCommits,
+);
 
 /**
  * @api GET /api/repos/:owner/:repo/activity/pull-requests-issues
@@ -109,7 +73,12 @@ repo_router.get("/:owner/:repo/activity/commits", checkToken, checkUser, repoCon
  * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
  * @error [500] : 사용자 인증 처리 또는 GitHub 활동 데이터 조회에 실패한 경우.
  */
-repo_router.get("/:owner/:repo/activity/pull-requests-issues", checkToken, checkUser, repoController.activityPullRequestsIssues);
+repo_router.get(
+    "/:owner/:repo/activity/pull-requests-issues",
+    checkToken,
+    checkUser,
+    repoController.activityPullRequestsIssues,
+);
 
 /**
  * @api GET /api/repos/:owner/:repo/activity/branches
@@ -126,7 +95,12 @@ repo_router.get("/:owner/:repo/activity/pull-requests-issues", checkToken, check
  * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
  * @error [500] : 사용자 인증 처리 또는 GitHub 브랜치 조회에 실패한 경우.
  */
-repo_router.get("/:owner/:repo/activity/branches", checkToken, checkUser, repoController.activityBranches);
+repo_router.get(
+    "/:owner/:repo/activity/branches",
+    checkToken,
+    checkUser,
+    repoController.activityBranches,
+);
 
 /**
  * @api GET /api/repos/:owner/:repo/activity/summary
@@ -144,7 +118,12 @@ repo_router.get("/:owner/:repo/activity/branches", checkToken, checkUser, repoCo
  * @error [404] : 조회할 수 있는 저장소 또는 브랜치를 찾지 못한 경우.
  * @error [500] : 사용자 인증 처리 또는 GitHub 활동 데이터 조회에 실패한 경우.
  */
-repo_router.get("/:owner/:repo/activity/summary", checkToken, checkUser, repoController.activitySummary);
+repo_router.get(
+    "/:owner/:repo/activity/summary",
+    checkToken,
+    checkUser,
+    repoController.activitySummary,
+);
 
 /**
  * @api GET /api/repos/:owner/:repo/project/overview
@@ -159,7 +138,12 @@ repo_router.get("/:owner/:repo/activity/summary", checkToken, checkUser, repoCon
  * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
  * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
  */
-repo_router.get("/:owner/:repo/project/overview", checkToken, checkUser, repoProjectController.overview);
+repo_router.get(
+    "/:owner/:repo/project/overview",
+    checkToken,
+    checkUser,
+    repoProjectController.overview,
+);
 
 /**
  * @api GET /api/repos/:owner/:repo/project/files
@@ -191,7 +175,12 @@ repo_router.get("/:owner/:repo/project/files", checkToken, checkUser, repoProjec
  * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
  * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
  */
-repo_router.get("/:owner/:repo/project/branches", checkToken, checkUser, repoProjectController.branches);
+repo_router.get(
+    "/:owner/:repo/project/branches",
+    checkToken,
+    checkUser,
+    repoProjectController.branches,
+);
 
 /**
  * @api GET /api/repos/:owner/:repo/project/history
@@ -208,7 +197,12 @@ repo_router.get("/:owner/:repo/project/branches", checkToken, checkUser, repoPro
  * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
  * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
  */
-repo_router.get("/:owner/:repo/project/history", checkToken, checkUser, repoProjectController.history);
+repo_router.get(
+    "/:owner/:repo/project/history",
+    checkToken,
+    checkUser,
+    repoProjectController.history,
+);
 
 /**
  * @api GET /api/repos/:owner/:repo/project/participation
@@ -225,7 +219,12 @@ repo_router.get("/:owner/:repo/project/history", checkToken, checkUser, repoProj
  * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
  * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
  */
-repo_router.get("/:owner/:repo/project/participation", checkToken, checkUser, repoProjectController.participation);
+repo_router.get(
+    "/:owner/:repo/project/participation",
+    checkToken,
+    checkUser,
+    repoProjectController.participation,
+);
 
 /**
  * @api GET /api/repos/:owner/:repo/project/deployments
@@ -241,6 +240,62 @@ repo_router.get("/:owner/:repo/project/participation", checkToken, checkUser, re
  * @error [404] : 조회할 수 있는 저장소를 찾지 못한 경우.
  * @error [500] : GitHub 또는 프로젝트 현황 데이터를 조회하지 못한 경우.
  */
-repo_router.get("/:owner/:repo/project/deployments", checkToken, checkUser, repoProjectController.deployments);
+repo_router.get(
+    "/:owner/:repo/project/deployments",
+    checkToken,
+    checkUser,
+    repoProjectController.deployments,
+);
+
+/**
+ * @api GET /api/repos/:owner/:repo/commit-status/overview
+ *
+ * @desc 기본 브랜치의 완료된 최근 기간 커밋, 주별 코드 변화량과 시간대 분포를 조회합니다.
+ *
+ * @query timezone (IANA string, 선택) - 집계 시간대. 기본값 Asia/Seoul.
+ *
+ * @github backend/src/client/queries/github/repo-commit-status.query.ts
+ *
+ * @response backend/src/types/controllers/repo-commit-status.ts (GetRepoCommitStatusOverviewData)
+ *
+ * @error [400] : 저장소 주소 또는 시간대가 잘못된 경우.
+ * @error [401] : GitHub 인증이 필요한 경우.
+ * @error [403] : 저장소 접근 권한이 없거나 GitHub 조회 제한이 적용된 경우.
+ * @error [404] : 조회할 수 있는 저장소가 없는 경우.
+ * @error [429] : GitHub 조회 제한으로 재시도가 필요한 경우.
+ * @error [500] : GitHub 커밋 조회 또는 집계에 실패한 경우.
+ */
+repo_router.get(
+    "/:owner/:repo/commit-status/overview",
+    checkToken,
+    checkUser,
+    repoCommitStatusController.getOverview,
+);
+
+/**
+ * @api GET /api/repos/:owner/:repo/commit-status/records
+ *
+ * @desc 기본 브랜치의 완료된 최근 1년 또는 명시적 전체 기간 커밋 전적을 조회합니다.
+ *
+ * @query timezone (IANA string, 선택) - 집계 시간대. 기본값 Asia/Seoul.
+ * @query scope (rolling_year | all, 선택) - 전적 범위. 기본값 rolling_year.
+ *
+ * @github backend/src/client/queries/github/repo-commit-status.query.ts
+ *
+ * @response backend/src/types/controllers/repo-commit-status.ts (GetRepoCommitStatusRecordsData)
+ *
+ * @error [400] : 저장소 주소, 시간대 또는 범위가 잘못된 경우.
+ * @error [401] : GitHub 인증이 필요한 경우.
+ * @error [403] : 저장소 접근 권한이 없거나 GitHub 조회 제한이 적용된 경우.
+ * @error [404] : 조회할 수 있는 저장소가 없는 경우.
+ * @error [429] : GitHub 조회 제한으로 재시도가 필요한 경우.
+ * @error [500] : GitHub 커밋 조회 또는 집계에 실패한 경우.
+ */
+repo_router.get(
+    "/:owner/:repo/commit-status/records",
+    checkToken,
+    checkUser,
+    repoCommitStatusController.getRecords,
+);
 
 export default repo_router;
