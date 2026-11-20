@@ -44,6 +44,31 @@ export const GithubGraphqlFetch = async <T>(
 };
 
 class GithubRepoClient {
+    /** 기본 브랜치와 저장소 접근 가능 여부를 조회합니다. */
+    public getReadmeRepository = async (owner: string, repo: string, token?: string) => {
+        const octokit = new Octokit({ auth: token ?? process.env.PUBLIC_API_TOKEN });
+        const { data: response } = await octokit.rest.repos.get({ owner, repo });
+        return response;
+    };
+
+    /** 기본 브랜치의 전체 파일 트리를 조회합니다. */
+    public getReadmeTree = async (owner: string, repo: string, branch: string, token?: string) => {
+        const octokit = new Octokit({ auth: token ?? process.env.PUBLIC_API_TOKEN });
+        const { data: response } = await octokit.rest.git.getTree({
+            owner,
+            repo,
+            tree_sha: branch,
+            recursive: "true",
+        });
+        return response;
+    };
+
+    /** 선택한 README blob을 조회합니다. */
+    public getReadmeBlob = async (owner: string, repo: string, sha: string, token?: string) => {
+        const octokit = new Octokit({ auth: token ?? process.env.PUBLIC_API_TOKEN });
+        const { data: response } = await octokit.rest.git.getBlob({ owner, repo, file_sha: sha });
+        return response;
+    };
     public getProfile = async (
         variables: GetRepositoryDashboardProfileQueryVariables,
         githubAccessToken?: string,
@@ -56,7 +81,8 @@ class GithubRepoClient {
             );
         } catch (error) {
             if (error instanceof CommonError) throw error;
-            if (RepoUtils.isRepositoryNotFound(error)) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+            if (RepoUtils.isRepositoryNotFound(error))
+                throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
 
             throw CommonError.create500Error("저장소 프로필을 불러오지 못했습니다.");
         }
@@ -75,7 +101,8 @@ class GithubRepoClient {
         } catch (error) {
             if (error instanceof CommonError) throw error;
 
-            if (RepoUtils.isRepositoryNotFound(error)) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+            if (RepoUtils.isRepositoryNotFound(error))
+                throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
 
             throw CommonError.create500Error("GitHub 저장소 활동을 조회하지 못했습니다.");
         }
@@ -87,11 +114,14 @@ class GithubRepoClient {
     ): Promise<GithubGQLGetRepoActivityBranchesQuery> => {
         try {
             return await GithubGraphqlFetch<GithubGQLGetRepoActivityBranchesQuery>(
-                githubAccessToken, githubGetRepoActivityBranchesQuery, variables,
+                githubAccessToken,
+                githubGetRepoActivityBranchesQuery,
+                variables,
             );
         } catch (error) {
             if (error instanceof CommonError) throw error;
-            if (RepoUtils.isRepositoryNotFound(error)) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+            if (RepoUtils.isRepositoryNotFound(error))
+                throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
             throw CommonError.create500Error("GitHub 브랜치 목록을 조회하지 못했습니다.");
         }
     };
@@ -103,8 +133,15 @@ class GithubRepoClient {
         githubAccessToken?: string,
     ): Promise<GithubReposDto> => {
         try {
-            const octokit = new Octokit({ auth: githubAccessToken ?? process.env.PUBLIC_API_TOKEN });
-            const { data: response } = await octokit.rest.repos.getCommit({ owner, repo, ref: sha, per_page: 1 });
+            const octokit = new Octokit({
+                auth: githubAccessToken ?? process.env.PUBLIC_API_TOKEN,
+            });
+            const { data: response } = await octokit.rest.repos.getCommit({
+                owner,
+                repo,
+                ref: sha,
+                per_page: 1,
+            });
             return response;
         } catch (error) {
             if (error instanceof CommonError) throw error;

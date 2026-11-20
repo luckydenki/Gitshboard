@@ -16,6 +16,52 @@ const repo_router = Router();
 repo_router.get("/health", repoController.health);
 
 /**
+ * @api GET /api/repos/:owner/:repo/readmes
+ *
+ * @desc 기본 브랜치의 README 파일 목록을 조회합니다.
+ *
+ * @github backend/src/types/github/rest/repos-get.ts
+ * @github backend/src/types/github/rest/git-get-tree.ts
+ *
+ * @response backend/src/types/controllers/repo.ts (GetRepoReadmesData)
+ *
+ * @error [400] : 저장소 이름이 올바르지 않은 경우.
+ * @error [401] : 인증이 필요한 경우.
+ * @error [403] : 접근 권한이나 GitHub 호출 제한이 적용된 경우.
+ * @error [404] : 저장소를 찾지 못한 경우.
+ * @error [429] : GitHub 호출 제한이 적용된 경우.
+ * @error [503] : GitHub 조회 실패 또는 트리가 일부만 반환된 경우.
+ */
+repo_router.get("/:owner/:repo/readmes", checkToken, checkUser, repoController.readmes);
+
+/**
+ * @api GET /api/repos/:owner/:repo/readmes/content
+ *
+ * @desc 선택한 README의 Markdown 원문을 조회합니다.
+ *
+ * @query path (string, 필수) - 기본 브랜치의 README 상대 경로.
+ *
+ * @github backend/src/types/github/rest/repos-get.ts
+ * @github backend/src/types/github/rest/git-get-tree.ts
+ * @github backend/src/types/github/rest/git-get-blob.ts
+ *
+ * @response backend/src/types/controllers/repo.ts (GetRepoReadmeContentData)
+ *
+ * @error [400] : 저장소 이름 또는 파일 경로가 올바르지 않은 경우.
+ * @error [401] : 인증이 필요한 경우.
+ * @error [403] : 접근 권한이나 GitHub 호출 제한이 적용된 경우.
+ * @error [404] : 저장소나 README 파일을 찾지 못한 경우.
+ * @error [429] : GitHub 호출 제한이 적용된 경우.
+ * @error [503] : GitHub 조회 실패, 부분 트리 또는 파일 크기 제한인 경우.
+ */
+repo_router.get(
+    "/:owner/:repo/readmes/content",
+    checkToken,
+    checkUser,
+    repoController.readmeContent,
+);
+
+/**
  * @api GET /api/repos/:owner/:repo/profile
  *
  * @desc 공개 저장소 또는 방문자에게 접근 권한이 있는 저장소의 프로필을 조회합니다.

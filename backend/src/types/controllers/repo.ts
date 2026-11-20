@@ -5,6 +5,20 @@ export interface GetRepoHealthData {
     message: string;
 }
 
+/** 기본 브랜치에서 발견한 README 경로입니다. */
+export interface GetRepoReadmesData {
+    defaultBranch: string | null;
+    documents: Array<{ path: string; sha: string }>;
+}
+
+/** 선택한 README의 Markdown 원문입니다. */
+export interface GetRepoReadmeContentData {
+    path: string;
+    markdown: string;
+    htmlUrl: string;
+    defaultBranch: string;
+}
+
 /** 저장소 대시보드 프로필 조회 데이터입니다. */
 export interface GetRepoProfileData {
     repository: NonNullable<GetRepositoryDashboardProfileQuery["repository"]>;

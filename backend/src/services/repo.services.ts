@@ -2,6 +2,8 @@ import redisRepository from "../repository/redis.repository";
 import githubRepoAPIClient from "../client/repo.client";
 import type { GithubGQLGetRepoActivityQueryVariables } from "../types/github/graphql/operations.generated";
 import type {
+    GetRepoReadmesData,
+    GetRepoReadmeContentData,
     GetRepoActivityBranchesData,
     GetRepoActivityData,
     GetRepoActivitySummaryData,
@@ -28,6 +30,153 @@ const createRedisKey = (githubUsername: string, dataType: string) => {
 };
 
 class RepoServices {
+    private getReadmeLocation(owner: unknown, repo: unknown) {
+        if (
+            typeof owner !== "string" ||
+            !/^[\w-]{1,39}$/.test(owner) ||
+            typeof repo !== "string" ||
+            !/^[\w.-]{1,100}$/.test(repo) ||
+            repo === "." ||
+            repo === ".."
+        ) {
+            throw CommonError.create400Error("저장소 소유자 또는 이름이 올바르지 않습니다.");
+        }
+        return { owner, repo };
+    }
+
+    private async getReadmeTree(
+        owner: string,
+        repo: string,
+        token?: string,
+    ): Promise<GetRepoReadmesData> {
+        try {
+            const repository = await githubRepoAPIClient.getReadmeRepository(owner, repo, token);
+            if (!repository.default_branch)
+                return { defaultBranch: null, documents: [] } as GetRepoReadmesData;
+            const tree = await githubRepoAPIClient.getReadmeTree(
+                owner,
+                repo,
+                repository.default_branch,
+                token,
+            );
+            if (tree.truncated)
+                throw new CommonError({
+                    status: 503,
+                    title: "Service Unavailable",
+                    type: "https://docs.github.com/en/rest/git/trees",
+                    detail: "README 목록이 일부만 조회되었습니다.",
+                });
+            const documents = tree.tree
+                .filter(
+                    (entry) =>
+                        entry.type === "blob" &&
+                        typeof entry.path === "string" &&
+                        typeof entry.sha === "string" &&
+                        /(?:^|\/)readme(?:\.md|\.markdown)?$/i.test(entry.path),
+                )
+                .map((entry) => ({ path: entry.path!, sha: entry.sha! }))
+                .sort(
+                    (a, b) =>
+                        a.path.split("/").length - b.path.split("/").length ||
+                        a.path.localeCompare(b.path),
+                );
+            return { defaultBranch: repository.default_branch, documents } as GetRepoReadmesData;
+        } catch (error) {
+            if (error instanceof CommonError) throw error;
+            const status = error instanceof Error && "status" in error ? Number(error.status) : 0;
+            if (status === 409) return { defaultBranch: null, documents: [] };
+            if (status === 401) throw CommonError.create401Error("GitHub 인증이 필요합니다.");
+            if (status === 404) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+            if (status === 403 || status === 429)
+                throw new CommonError({
+                    status: status as 403 | 429,
+                    title: "GitHub request limited",
+                    type: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api",
+                    detail: "GitHub 접근 권한 또는 호출 제한으로 README를 조회하지 못했습니다.",
+                });
+            throw new CommonError({
+                status: 503,
+                title: "Service Unavailable",
+                type: "https://docs.github.com/en/rest/git/trees",
+                detail: "GitHub README 목록을 조회하지 못했습니다.",
+            });
+        }
+    }
+
+    public getReadmes = async (
+        owner: unknown,
+        repo: unknown,
+        token?: string,
+    ): Promise<GetRepoReadmesData> => {
+        const location = this.getReadmeLocation(owner, repo);
+        return this.getReadmeTree(location.owner, location.repo, token);
+    };
+
+    public getReadmeContent = async (
+        owner: unknown,
+        repo: unknown,
+        path: unknown,
+        token?: string,
+    ): Promise<GetRepoReadmeContentData> => {
+        const location = this.getReadmeLocation(owner, repo);
+        if (
+            typeof path !== "string" ||
+            path.length > 4096 ||
+            path.startsWith("/") ||
+            path.includes("\\") ||
+            path.split("/").some((part) => !part || part === "." || part === "..")
+        ) {
+            throw CommonError.create400Error("README 파일 경로가 올바르지 않습니다.");
+        }
+        const { defaultBranch, documents } = await this.getReadmeTree(
+            location.owner,
+            location.repo,
+            token,
+        );
+        const document = documents.find((item) => item.path === path);
+        if (!document || !defaultBranch)
+            throw CommonError.create404Error("README 파일을 찾을 수 없습니다.");
+        try {
+            const response = await githubRepoAPIClient.getReadmeBlob(
+                location.owner,
+                location.repo,
+                document.sha,
+                token,
+            );
+            if (
+                response.size === null ||
+                response.size > 1024 * 1024 ||
+                response.encoding !== "base64"
+            )
+                throw new CommonError({
+                    status: 503,
+                    title: "Service Unavailable",
+                    type: "https://docs.github.com/en/rest/git/blobs",
+                    detail: "README 파일을 표시할 수 없습니다.",
+                });
+            const markdown = Buffer.from(response.content, "base64").toString("utf8");
+            const htmlUrl = `https://github.com/${location.owner}/${location.repo}/blob/${encodeURIComponent(defaultBranch)}/${path.split("/").map(encodeURIComponent).join("/")}`;
+            return { path, markdown, htmlUrl, defaultBranch };
+        } catch (error) {
+            if (error instanceof CommonError) throw error;
+            const status = error instanceof Error && "status" in error ? Number(error.status) : 0;
+            if (status === 404) throw CommonError.create404Error("README 파일을 찾을 수 없습니다.");
+            if (status === 401) throw CommonError.create401Error("GitHub 인증이 필요합니다.");
+            if (status === 403 || status === 429)
+                throw new CommonError({
+                    status: status as 403 | 429,
+                    title: "GitHub request limited",
+                    type: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api",
+                    detail: "GitHub 접근 권한 또는 호출 제한으로 README를 조회하지 못했습니다.",
+                });
+            throw new CommonError({
+                status: 503,
+                title: "Service Unavailable",
+                type: "https://docs.github.com/en/rest/git/blobs",
+                detail: "README 파일 내용을 조회하지 못했습니다.",
+            });
+        }
+    };
     public getProfile = async ({
         owner,
         repo,
