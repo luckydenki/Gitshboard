@@ -1,0 +1,37 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./RepoDashboardReadmeArticle.stories";
+
+<Meta of={Stories} />
+
+# RepoDashboardReadmeArticle
+
+선택한 README 원문을 GFM과 제한된 HTML로 렌더링합니다. 상대 링크는 GitHub 파일 경로에 맞춥니다.
+
+## Props
+
+- `content`: 경로, Markdown, 기본 브랜치, GitHub 파일 URL을 담은 `GetRepoReadmeContentDto`입니다.
+
+## 사용 예시
+
+```tsx
+<RepoDashboardReadmeArticle content={readmeContent} />
+```
+
+<Canvas of={Stories.Default} />
+<Canvas of={Stories.UnsafeHtml} />
+<Canvas of={Stories.WideContent} />
+<Canvas of={Stories.Mobile} />
+
+### 기본 평가
+
+8/9 — Chrome에서 HTML 이미지, 상대 링크, GFM 표와 위험한 HTML 제거를 확인했습니다. 페이지 Lighthouse 접근성은 98점입니다.
+
+1. 로딩 UI: O (이 컴포넌트는 서버 상태를 조회하지 않음)
+2. 오류·재시도: O (서버 상태를 조회하지 않음)
+3. 빈 데이터 UI: O (본문 선택 상태에서만 렌더링)
+4. 데이터 표시: O
+5. 반응형 화면: O (모바일 스토리)
+6. Lighthouse 접근성 90점 이상: O (페이지 98점)
+7. Storybook 작성: O
+8. CSS 가이드 준수: O
+9. Chrome·Safari·Firefox 일관성: 미확인

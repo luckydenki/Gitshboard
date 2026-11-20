@@ -1,0 +1,46 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./RepoDashboardReadmeSection.stories";
+
+<Meta of={Stories} />
+
+# RepoDashboardReadmeSection
+
+저장소 기본 브랜치의 README 목록과 선택한 Markdown 원문을 표시합니다. GFM 표와 안전한 HTML 이미지를 지원합니다.
+
+## Props
+
+없습니다. 라우트의 `owner`, `repo` 매개변수와 `QueryClientProvider`가 필요합니다.
+
+## 사용 예시
+
+```tsx
+<Route path="/repo/:owner/:repo/readme" element={<RepoDashboardReadmeSection />} />
+```
+
+<Canvas of={Stories.Default} />
+
+## 선택과 상태
+
+<Canvas of={Stories.SwitchDocument} />
+<Canvas of={Stories.Empty} />
+<Canvas of={Stories.LongPath} />
+<Canvas of={Stories.Loading} />
+<Canvas of={Stories.ListError} />
+<Canvas of={Stories.ContentError} />
+<Canvas of={Stories.Mobile} />
+
+### 기본 평가
+
+8/9 — Chrome에서 실제 저장소와 Storybook 상태를 확인했습니다. README의 HTML 이미지가 태그 문자열로 보이던 문제를 수정했습니다. Lighthouse 접근성 98점, Storybook 접근성 검사 위반 0건입니다.
+
+1. 로딩 UI: O (목록·본문 스켈레톤)
+2. 오류·재시도: O (목록·본문 오류)
+3. 빈 데이터 UI: O
+4. 데이터 표시: O (실제 README 목록·본문·파일 전환)
+5. 반응형 화면: O (Storybook 375px 모바일과 데스크톱)
+6. Lighthouse 접근성 90점 이상: O (98점)
+7. Storybook 작성: O (정상·경계·예외·상호작용)
+8. CSS 가이드 준수: O
+9. Chrome·Safari·Firefox 일관성: 미확인 (이 환경에서는 Chrome만 사용 가능)
+
+README 원문이 `h1` 뒤에 `h3`을 두면 Lighthouse에서 제목 단계 경고가 남습니다. 저장소 원문의 제목 계층은 변경하지 않았습니다.
