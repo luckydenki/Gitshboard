@@ -9502,6 +9502,17 @@ export type GithubGQLGetRepoCommitStatusQueryVariables = Exact<{
 
 export type GithubGQLGetRepoCommitStatusQuery = { __typename?: 'Query', repository?: { __typename?: 'Repository', visibility: GithubGQLRepositoryVisibility, defaultBranchRef?: { __typename?: 'Ref', name: string, target?: { __typename?: 'Blob' } | { __typename?: 'Commit', oid: any, history: { __typename?: 'CommitHistoryConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null }, nodes?: Array<{ __typename?: 'Commit', oid: any, committedDate: string, additions: number, deletions: number } | null> | null } } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null } | null } | null };
 
+export type GithubGQLGetRepoCommitStatusPageInfoQueryVariables = Exact<{
+  owner: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  since?: InputMaybe<Scalars['GitTimestamp']['input']>;
+  until?: InputMaybe<Scalars['GitTimestamp']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GithubGQLGetRepoCommitStatusPageInfoQuery = { __typename?: 'Query', repository?: { __typename?: 'Repository', defaultBranchRef?: { __typename?: 'Ref', target?: { __typename?: 'Blob' } | { __typename?: 'Commit', history: { __typename?: 'CommitHistoryConnection', pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null } } } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null } | null } | null };
+
 export type GithubGQLGetCommitTimesQueryVariables = Exact<{
   login: Scalars['String']['input'];
 }>;
