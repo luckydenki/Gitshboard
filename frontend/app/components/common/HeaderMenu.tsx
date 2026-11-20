@@ -107,6 +107,9 @@ export default function HeaderMenu({ logoRedirect }: HeaderMenuProps) {
             />
 
             <button
+                type="button"
+                aria-label="메뉴 열기"
+                aria-expanded={isHeaderMenuOpen}
                 className="relative z-1 cursor-pointer *:sm:hidden"
                 onBlur={() => setIsHeaderMenuOpen(false)}
                 onClick={() => setIsHeaderMenuOpen(!isHeaderMenuOpen)}>
