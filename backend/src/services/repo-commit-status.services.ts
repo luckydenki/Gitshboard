@@ -84,6 +84,7 @@ class RepoCommitStatusServices {
             today,
         };
 
+        //TODO : N+1 문제 해결 필요
         const result = await SnapshotNormal(input.token, MAX_PAGES, params);
 
         //const result = await SnapshotCursorFirst(input.token, MAX_PAGES, params);
@@ -91,64 +92,6 @@ class RepoCommitStatusServices {
         console.log(`${log} execution time :`, performance.now() - start);
 
         return result;
-
-        //TODO : N+1 쿼리 문제 해결 필요
-        // for (let page = 0; page < MAX_PAGES; page++) {
-        //     const start = performance.now();
-        //     const response = await githubRepoCommitStatusClient.getPage(
-        //         {
-        //             owner: location.owner,
-        //             name: location.repo,
-        //             since,
-        //             until,
-        //             after,
-        //         },
-        //         input.token,
-        //     );
-        //     const repository = response.repository;
-
-        //     if (!repository || (!input.token && repository.visibility !== "PUBLIC")) {
-        //         throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
-        //     }
-        //     const ref = repository.defaultBranchRef;
-        //     const target = ref?.target;
-        //     if (!ref || !target || !("history" in target)) {
-        //         return {
-        //             asOf,
-        //             timezone,
-        //             today,
-        //             branch: null,
-        //             headSha: null,
-        //             commits: [],
-        //             complete: true,
-        //         };
-        //     }
-        //     if (headSha && headSha !== target.oid) {
-        //         return { asOf, timezone, today, branch, headSha, commits, complete: false };
-        //     }
-        //     branch = ref.name;
-        //     headSha = target.oid;
-        //     const history = target.history;
-        //     if (!history.nodes || history.nodes.some((node) => !node)) missingNode = true;
-        //     for (const node of history.nodes ?? []) {
-        //         if (!node) continue;
-        //         commits.push({
-        //             sha: node.oid,
-        //             committedAt: node.committedDate,
-        //             additions: node.additions,
-        //             deletions: node.deletions,
-        //         });
-        //     }
-        //     if (!history.pageInfo.hasNextPage) {
-        //         complete = !missingNode;
-        //         break;
-        //     }
-        //     const cursor = history.pageInfo.endCursor;
-        //     if (!cursor || cursor === after) break;
-        //     after = cursor;
-        // }
-
-        // return { asOf, timezone, today, branch, headSha, commits, complete };
     }
 
     /** 최근 완료된 1년의 그래프와 기간 비교를 반환합니다. */
