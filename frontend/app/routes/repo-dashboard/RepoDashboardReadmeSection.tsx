@@ -1,154 +1,124 @@
-import {
-    readmeDocumentsMock as readmeDocuments,
-    readmeBaseUrlMock,
-} from "~/mock/repo-dashboard/readme";
 import { useState } from "react";
 import { FiBookOpen, FiExternalLink } from "react-icons/fi";
+import { useParams } from "react-router";
+import RepoDashboardReadmeArticle from "~/components/page/repo-dashboard/RepoDashboardReadmeArticle";
+import RepoDashboardReadmeQueryState from "~/components/page/repo-dashboard/RepoDashboardReadmeQueryState";
+import {
+    useRepoDashboardReadmeContent,
+    useRepoDashboardReadmes,
+} from "~/hooks/api/useRepoDashboardReadme";
 
 export default function RepoDashboardReadmeSection() {
-    const [selectedPath, setSelectedPath] = useState(readmeDocuments[0].path);
-    const selectedReadme =
-        readmeDocuments.find((document) => document.path === selectedPath) ?? readmeDocuments[0];
-    const githubUrl = `${readmeBaseUrlMock}/${selectedReadme.path
-        .split("/")
-        .map(encodeURIComponent)
-        .join("/")}`;
+    const { owner, repo } = useParams();
+    const [selectedPath, setSelectedPath] = useState<string | null>(null);
+    const listQuery = useRepoDashboardReadmes(owner, repo);
+    const documents = listQuery.data?.documents ?? [];
+    const activePath =
+        documents.find((item) => item.path === selectedPath)?.path ?? documents[0]?.path;
+    const contentQuery = useRepoDashboardReadmeContent(owner, repo, activePath);
+    const content = contentQuery.data;
 
     return (
         <section
             aria-label="README 내용"
             className="bg-panel flex min-w-0 flex-col divide-y divide-gray-300 rounded-lg border border-gray-300 md:flex-row md:divide-x md:divide-y-0">
-            <div className="flex flex-col gap-3 border-gray-300 p-4 md:hidden">
-                <label
-                    htmlFor="readme-path"
-                    className="text-sm font-semibold">
-                    README 파일{" "}
-                    <span className="text-xs font-normal text-gray-500">
-                        · 예시 {readmeDocuments.length}개
-                    </span>
-                </label>
-                <select
-                    id="readme-path"
-                    value={selectedPath}
-                    onChange={(event) => setSelectedPath(event.target.value)}
-                    className="bg-panel w-full cursor-pointer rounded-lg border border-gray-300 p-3 text-sm">
-                    {readmeDocuments.map((document) => (
-                        <option
-                            key={document.path}
-                            value={document.path}>
-                            {document.path}
-                        </option>
-                    ))}
-                </select>
-            </div>
-            <aside className="hidden min-w-0 divide-y divide-gray-300 border-gray-300 md:block md:w-64 md:shrink-0">
-                <div className="flex items-center justify-between gap-2 border-gray-300 p-4">
-                    <span className="flex items-center gap-2 text-sm font-semibold">
-                        <FiBookOpen
-                            aria-hidden="true"
-                            className="text-gray-500"
-                        />
-                        README 파일
-                    </span>
-                    <span className="text-xs text-gray-500">예시 {readmeDocuments.length}개</span>
-                </div>
-                <nav
-                    aria-label="README 파일 목록"
-                    className="p-2">
-                    <ul className="flex flex-col divide-y divide-gray-300">
-                        {readmeDocuments.map((document) => {
-                            const isSelected = selectedPath === document.path;
-
-                            return (
-                                <li
+            {listQuery.isPending ? (
+                <RepoDashboardReadmeQueryState kind="listLoading" />
+            ) : listQuery.isError ? (
+                <RepoDashboardReadmeQueryState
+                    kind="listError"
+                    onRetry={() => void listQuery.refetch()}
+                />
+            ) : documents.length === 0 ? (
+                <RepoDashboardReadmeQueryState kind="empty" />
+            ) : (
+                <>
+                    <div className="flex flex-col gap-3 p-4 md:hidden">
+                        <label
+                            htmlFor="readme-path"
+                            className="text-sm font-semibold">
+                            README 파일{" "}
+                            <span className="text-xs font-normal text-gray-500">
+                                · {documents.length}개
+                            </span>
+                        </label>
+                        <select
+                            id="readme-path"
+                            value={activePath}
+                            onChange={(event) => setSelectedPath(event.target.value)}
+                            className="bg-panel w-full cursor-pointer rounded-lg border border-gray-300 p-3 text-sm">
+                            {documents.map((document) => (
+                                <option
                                     key={document.path}
-                                    className="py-2">
-                                    <button
-                                        type="button"
-                                        aria-pressed={isSelected}
-                                        onClick={() => setSelectedPath(document.path)}
-                                        className={`w-full cursor-pointer rounded-lg p-3 text-left text-sm break-all ${
-                                            isSelected
-                                                ? "bg-primary font-semibold text-white"
-                                                : "text-gray-500 hover:bg-gray-200"
-                                        }`}>
-                                        {document.path}
-                                    </button>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </nav>
-            </aside>
-
-            <div className="min-w-0 flex-1 divide-y divide-gray-300 md:w-0">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-gray-300 p-4">
-                    <span className="flex min-w-0 items-center gap-2 text-sm font-semibold break-all">
-                        <FiBookOpen
-                            aria-hidden="true"
-                            className="shrink-0 text-gray-500"
-                        />
-                        {selectedReadme.path}
-                    </span>
-                    <a
-                        href={githubUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-primary flex items-center gap-2 text-sm font-semibold">
-                        GitHub에서 보기
-                        <FiExternalLink aria-hidden="true" />
-                    </a>
-                </div>
-
-                <article
-                    key={selectedReadme.path}
-                    className="flex min-w-0 flex-col gap-8 divide-y divide-gray-300 p-4 md:p-8">
-                    <header className="flex flex-col gap-4 border-gray-300 pb-4">
-                        <h2 className="text-3xl font-bold">{selectedReadme.title}</h2>
-                        <p className="max-w-4xl text-base leading-7 text-gray-500">
-                            {selectedReadme.description}
-                        </p>
-                        {selectedReadme.highlights && (
-                            <div className="flex flex-wrap gap-2">
-                                {selectedReadme.highlights.map((highlight) => (
-                                    <span
-                                        key={highlight}
-                                        className="rounded-lg bg-gray-100 p-2 text-xs font-semibold text-gray-500">
-                                        {highlight}
-                                    </span>
+                                    value={document.path}>
+                                    {document.path}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <aside className="hidden min-w-0 divide-y divide-gray-300 md:block md:w-64 md:shrink-0">
+                        <div className="flex items-center justify-between gap-2 p-4 text-sm font-semibold">
+                            <span className="flex items-center gap-2">
+                                <FiBookOpen aria-hidden="true" />
+                                README 파일
+                            </span>
+                            <span className="text-xs font-normal text-gray-500">
+                                {documents.length}개
+                            </span>
+                        </div>
+                        <nav
+                            aria-label="README 파일 목록"
+                            className="p-2">
+                            <ul className="flex flex-col divide-y divide-gray-300">
+                                {documents.map((document) => (
+                                    <li
+                                        key={document.path}
+                                        className="py-2">
+                                        <button
+                                            type="button"
+                                            aria-pressed={activePath === document.path}
+                                            onClick={() => setSelectedPath(document.path)}
+                                            className={`w-full cursor-pointer rounded-lg p-3 text-left text-sm break-all ${activePath === document.path ? "bg-primary font-semibold text-white" : "text-gray-500 hover:bg-gray-200"}`}>
+                                            {document.path}
+                                        </button>
+                                    </li>
                                 ))}
-                            </div>
-                        )}
-                    </header>
-
-                    {selectedReadme.sections.map((section) => (
-                        <section
-                            key={section.heading}
-                            className="flex flex-col gap-3 py-4">
-                            <h3 className="text-xl font-bold sm:text-2xl">{section.heading}</h3>
-                            <p className="text-sm leading-6 text-gray-500">{section.body}</p>
-                            {section.code && (
-                                <pre className="max-w-full overflow-x-auto rounded-lg border border-gray-300 bg-gray-100 p-4 text-sm leading-6">
-                                    <code>{section.code}</code>
-                                </pre>
+                            </ul>
+                        </nav>
+                    </aside>
+                    <div className="min-w-0 flex-1 divide-y divide-gray-300 md:w-0">
+                        <div className="flex flex-wrap items-center justify-between gap-3 p-4">
+                            <span className="flex min-w-0 items-center gap-2 text-sm font-semibold break-all">
+                                <FiBookOpen
+                                    aria-hidden="true"
+                                    className="shrink-0 text-gray-500"
+                                />
+                                {activePath}
+                            </span>
+                            {content && (
+                                <a
+                                    href={content.htmlUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-primary flex cursor-pointer items-center gap-2 text-sm font-semibold hover:underline">
+                                    GitHub에서 보기
+                                    <FiExternalLink aria-hidden="true" />
+                                </a>
                             )}
-                            {section.links && (
-                                <ul className="flex flex-col gap-2 text-sm">
-                                    {section.links.map((link) => (
-                                        <li key={link.href}>
-                                            <a
-                                                href={link.href}
-                                                className="text-primary font-semibold">
-                                                {link.label}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </section>
-                    ))}
-                </article>
-            </div>
+                        </div>
+                        {contentQuery.isPending ? (
+                            <RepoDashboardReadmeQueryState kind="contentLoading" />
+                        ) : contentQuery.isError ? (
+                            <RepoDashboardReadmeQueryState
+                                kind="contentError"
+                                onRetry={() => void contentQuery.refetch()}
+                            />
+                        ) : content ? (
+                            <RepoDashboardReadmeArticle content={content} />
+                        ) : null}
+                    </div>
+                </>
+            )}
         </section>
     );
 }

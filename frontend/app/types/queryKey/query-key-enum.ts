@@ -31,10 +31,16 @@
  *      - endpoint : /api/repos/:owner/:repo/commit-status/overview
  * - REPO_DASHBOARD_COMMIT_STATUS_RECORDS : 기본 브랜치의 최근 1년 커밋 전적입니다.
  *      - endpoint : /api/repos/:owner/:repo/commit-status/records
+ * - REPO_DASHBOARD_READMES : 기본 브랜치의 README 목록입니다.
+ *      - endpoint : /api/repos/:owner/:repo/readmes
+ * - REPO_DASHBOARD_README_CONTENT : 선택한 README의 Markdown 원문입니다.
+ *      - endpoint : /api/repos/:owner/:repo/readmes/content
  *
  *
  */
 export enum QueryKeys {
+    REPO_DASHBOARD_READMES = "repo-dashboard-readmes",
+    REPO_DASHBOARD_README_CONTENT = "repo-dashboard-readme-content",
     AUTH_CHECK = "auth-check",
     SEARCH_RESULT = "search-results",
     ORG_DASHBOARD_REPOSITORIES = "org-dashboard-repositories",
