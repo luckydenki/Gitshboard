@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 const client = vi.hoisted(() => ({
     repository: vi.fn(),
-    contributors: vi.fn(),
+    commits: vi.fn(),
     issues: vi.fn(),
     releases: vi.fn(),
     discussions: vi.fn(),
@@ -17,17 +17,13 @@ vi.mock("../client/repo-communication.client", () => ({
 import RepoCommunicationServices from "../services/repo-communication.services";
 beforeEach(() => vi.resetAllMocks());
 describe("communication services", () => {
-    it("includes anonymous contributions in share denominator", async () => {
-        client.contributors.mockResolvedValue({
-            data: [
-                { login: "a", contributions: 3, avatar_url: "avatar", html_url: "url" },
-                { contributions: 1 },
-            ],
-            headers: {},
-        });
+    it("requests only commits in the seven day window", async () => {
+        client.commits.mockResolvedValue({ data: [], headers: {} });
         const r = await new RepoCommunicationServices("owner", "repo").get("contributors");
-        expect(r.contributors?.value?.top[0]?.sharePercent).toBe(75);
-        expect(r.contributors?.value?.totalEntries).toBe(2);
+        const period = r.contributors?.value?.period;
+        expect(client.commits).toHaveBeenCalledWith(1, period);
+        expect(Date.parse(period!.to) - Date.parse(period!.from)).toBe(7 * 86400000);
+        expect(r.contributors?.value?.top).toEqual([]);
     });
     it("excludes PRs from open issue labels and returns null for empty denominator", async () => {
         client.issues.mockResolvedValue({
@@ -47,7 +43,7 @@ describe("communication services", () => {
         await expect(
             new RepoCommunicationServices("o", "r", "token", true).get("contributors"),
         ).rejects.toMatchObject({ status: 404 });
-        expect(client.contributors).not.toHaveBeenCalled();
+        expect(client.commits).not.toHaveBeenCalled();
     });
     it("distinguishes disabled discussions from empty results", async () => {
         client.discussions.mockResolvedValue({ repository: { hasDiscussionsEnabled: false } });

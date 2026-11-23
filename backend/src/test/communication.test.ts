@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { activityStats, releaseStats } from "../utils/repo-communication";
+import {
+    activityStats,
+    releaseStats,
+    recentContributorPeriod,
+    recentContributorStats,
+} from "../utils/repo-communication";
 describe("communication aggregates", () => {
     it("excludes today, counts seven dates and caps each author per day", () => {
         const comment = (id: string, createdAt: string, authorId = "other", type = "User") => ({
@@ -43,4 +48,48 @@ describe("communication aggregates", () => {
             ).count,
         ).toBe(1);
     });
+});
+
+describe("recent contributors", () => {
+    const commit = (sha: string, date: string, id: number | null = 1) => ({
+        sha,
+        author:
+            id === null ? null : { id, login: `user${id}`, avatar_url: "avatar", html_url: "url" },
+        commit: { committer: { date } },
+    });
+    it("uses seven whole UTC dates excluding today", () =>
+        expect(recentContributorPeriod("2026-11-24T18:00:00Z")).toEqual({
+            from: "2026-11-17T00:00:00.000Z",
+            to: "2026-11-24T00:00:00.000Z",
+        }));
+    it("filters boundaries, deduplicates SHAs, ranks authors and includes anonymous commits in shares", () => {
+        const result = recentContributorStats(
+            [
+                commit("a", "2026-11-17T00:00:00Z"),
+                commit("b", "2026-11-23T23:59:59Z"),
+                commit("b", "2026-11-23T23:59:59Z"),
+                commit("c", "2026-11-20T00:00:00Z", 2),
+                commit("d", "2026-11-20T00:00:00Z", null),
+                commit("old", "2026-11-16T23:59:59Z"),
+                commit("today", "2026-11-24T00:00:00Z"),
+            ],
+            "2026-11-24T18:00:00Z",
+        );
+        expect(result.totalEntries).toBe(2);
+        expect(result.top.map((c) => [c.login, c.commits, c.sharePercent])).toEqual([
+            ["user1", 2, 50],
+            ["user2", 1, 25],
+        ]);
+    });
+    it("returns an empty rank for a quiet week", () =>
+        expect(recentContributorStats([], "2026-11-24T00:00:00Z").top).toEqual([]));
+});
+
+it("handles commits with an empty author object as anonymous", () => {
+    const result = recentContributorStats(
+        [{ sha: "unknown", author: {}, commit: { committer: { date: "2026-11-20T00:00:00Z" } } }],
+        "2026-11-24T00:00:00Z",
+    );
+    expect(result.totalEntries).toBe(0);
+    expect(result.top).toEqual([]);
 });

@@ -4,7 +4,7 @@ import type {
     GetRepoCommunicationData,
     CommunicationDiscussion,
 } from "../types/controllers/repo-communication";
-import { activityStats, releaseStats, type ActivityComment } from "../utils/repo-communication";
+import { activityStats, releaseStats, recentContributorPeriod, recentContributorStats, type ActivityComment } from "../utils/repo-communication";
 import CommonError from "../utils/common-error";
 export default class RepoCommunicationServices {
     private client: GithubRepoCommunicationClient;
@@ -43,23 +43,10 @@ export default class RepoCommunicationServices {
         }
         const data: GetRepoCommunicationData = { asOf: this.asOf };
         if (endpoint === "contributors") {
-            const result = await this.restPages((p) => this.client.contributors(p));
-            const total = result.items.reduce((n, c) => n + c.contributions, 0);
+            const period = recentContributorPeriod(this.asOf);
+            const result = await this.restPages((p) => this.client.commits(p, period));
             data.contributors = result.complete
-                ? this.complete({
-                      totalEntries: result.items.length,
-                      top: result.items
-                          .filter((c) => c.login)
-                          .sort((a, b) => b.contributions - a.contributions)
-                          .slice(0, 4)
-                          .map((c) => ({
-                              login: c.login!,
-                              avatarUrl: c.avatar_url!,
-                              url: c.html_url!,
-                              commits: c.contributions,
-                              sharePercent: total ? (100 * c.contributions) / total : null,
-                          })),
-                  })
+                ? this.complete(recentContributorStats(result.items, this.asOf))
                 : this.partial();
         } else if (endpoint === "onboarding") {
             const result = await this.restPages((p) => this.client.issues(p));

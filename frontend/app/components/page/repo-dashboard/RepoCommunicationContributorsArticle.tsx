@@ -11,7 +11,7 @@ export default function RepoCommunicationContributorsArticle() {
                 <div className="flex flex-col gap-1">
                     <h3 className="text-lg font-bold">상위 기여자</h3>
                     <p className="text-sm text-gray-500">
-                        전체 기간의 커밋 기여를 기준으로 했어요.
+                        오늘을 제외한 최근 7일의 커밋 기여를 기준으로 했어요. (UTC)
                     </p>
                 </div>
                 <span className="flex items-center gap-2 text-xs text-gray-500">
@@ -30,7 +30,7 @@ export default function RepoCommunicationContributorsArticle() {
                     <>
                         {value.top.length === 0 ? (
                             <p className="min-h-24 text-sm text-gray-500">
-                                표시할 기여자가 없습니다.
+                                최근 7일간 표시할 기여자가 없습니다.
                             </p>
                         ) : (
                             <ol className="flex flex-col divide-y divide-gray-300">

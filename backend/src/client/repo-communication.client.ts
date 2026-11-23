@@ -21,14 +21,22 @@ export default class GithubRepoCommunicationClient {
     repository() {
         return this.api.rest.repos.get({ owner: this.owner, repo: this.repo });
     }
-    contributors(page: number) {
-        return this.api.rest.repos.listContributors({
-            owner: this.owner,
-            repo: this.repo,
-            anon: "1",
-            per_page: 100,
-            page,
-        });
+    async commits(page: number, period: { from: string; to: string }) {
+        try {
+            return await this.api.rest.repos.listCommits({
+                owner: this.owner,
+                repo: this.repo,
+                per_page: 100,
+                page,
+                since: new Date(Date.parse(period.from) - 1000).toISOString(),
+                until: new Date(Date.parse(period.to) - 1000).toISOString(),
+            });
+        } catch (error) {
+            const failure = error as { status?: number; message?: string };
+            if (failure.status === 409 && /empty/i.test(failure.message ?? ""))
+                return { data: [], headers: {} };
+            throw error;
+        }
     }
     issues(page: number) {
         return this.api.rest.issues.listForRepo({

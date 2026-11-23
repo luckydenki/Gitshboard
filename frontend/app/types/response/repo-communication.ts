@@ -25,7 +25,11 @@ export interface CommunicationDiscussion {
 }
 export interface GetRepoCommunicationData {
     asOf: string;
-    contributors?: CommunicationMetric<{ totalEntries: number; top: CommunicationContributor[] }>;
+    contributors?: CommunicationMetric<{
+        period: { from: string; to: string };
+        totalEntries: number;
+        top: CommunicationContributor[];
+    }>;
     openIssues?: CommunicationMetric<{
         total: number;
         goodFirstIssueCount: number;

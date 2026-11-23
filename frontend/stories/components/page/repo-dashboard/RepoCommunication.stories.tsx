@@ -11,6 +11,7 @@ const fixtures: Record<string, GetRepoCommunicationData> = {
         contributors: {
             status: "complete",
             value: {
+                period: { from: "2026-11-16T00:00:00Z", to: "2026-11-23T00:00:00Z" },
                 totalEntries: 1,
                 top: [
                     {
@@ -93,7 +94,11 @@ function scenario(mode = "default") {
             let data = structuredClone(fixture);
             if (mode === "empty") {
                 if (data.contributors?.value)
-                    data.contributors.value = { totalEntries: 0, top: [] };
+                    data.contributors.value = {
+                        period: { from: "2026-11-16T00:00:00Z", to: "2026-11-23T00:00:00Z" },
+                        totalEntries: 0,
+                        top: [],
+                    };
                 if (data.distribution?.value)
                     data.distribution.value = { total: 0, categories: [] };
                 if (data.popular) data.popular.value = [];
@@ -143,6 +148,9 @@ export const Default: Story = {
     decorators: [scenario()],
     play: async ({ canvas }) => {
         await expect(canvas.getByText("@octocat")).toBeVisible();
+        await expect(
+            canvas.getByText("오늘을 제외한 최근 7일의 커밋 기여를 기준으로 했어요. (UTC)"),
+        ).toBeVisible();
         await expect(canvas.getByText("기여 시작 난이도")).toBeVisible();
         // 원래의 개별 지표 카드와 담당자 막대 위치를 유지합니다.
         const firstIssue = canvas.getByRole("heading", { name: "good first issue", exact: true });
