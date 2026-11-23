@@ -1,0 +1,30 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./RepoDashboardPullRequestIssueStats.stories";
+
+<Meta of={Stories} />
+
+# 저장소 PR 및 Issue 통계
+
+저장소의 Issue 처리 흐름과 마일스톤, PR 리뷰와 협업 통계를 표시합니다.
+
+`RepoDashboardIssueStatsSection`과 `RepoDashboardPullRequestStatsSection`은 각 API의 `data`를 받습니다. `loading`은 진행 중, `error`는 표시할 오류, `onRetry`는 다시 조회하는 동작입니다. Issue 섹션의 `popular`에는 별도로 조회하는 인기 Issue 카드를 전달합니다. 내부 통계 카드는 `metric`의 수집 상태를 읽고, 값이 있을 때만 각 지표를 렌더링합니다.
+
+```tsx
+<RepoDashboardIssueStatsSection data={issues} onRetry={reloadIssues} />
+<RepoDashboardPullRequestStatsSection data={pullRequests} onRetry={reloadPullRequests} />
+```
+
+<Canvas of={Stories.Default} />
+<Canvas of={Stories.Loading} />
+<Canvas of={Stories.Empty} />
+<Canvas of={Stories.Partial} />
+<Canvas of={Stories.Failure} />
+<Canvas of={Stories.Mobile} />
+
+## 기본 평가
+
+- 로딩·오류·빈 상태와 재시도 [o]
+- 스토리북과 반응형 스토리 [o]
+- CSS 및 컴포넌트 구조 [o]
+- 실제 Chrome에서 기본·로딩·빈 결과·부분 수집·오류·320px 화면 확인 [o]
+- Storybook MCP 테스트 러너는 Windows에서 프로세스 연결에 실패해 브라우저로 확인했습니다.

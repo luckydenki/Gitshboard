@@ -1,4 +1,6 @@
 import { Router } from "express";
+import repoPrIssueController from "../controllers/repo-pr-issue.controllers";
+import { getRepoPopularIssues } from "../controllers/repo-popular-issues.controllers";
 import { checkToken, checkUser } from "../middlewares/auth.middleware";
 import repoController from "../controllers/repo.controllers";
 import repoProjectController from "../controllers/repo-project.controllers";
@@ -342,6 +344,74 @@ repo_router.get(
     checkToken,
     checkUser,
     repoCommitStatusController.getRecords,
+);
+
+/**
+ * @api GET /api/repos/:owner/:repo/pr-issue/popular
+ *
+ * @desc 열린 Issue의 댓글·반응·활동 시각을 기준으로 인기 Issue 최대 5개를 조회합니다.
+ *
+ * @github backend/src/types/github/rest/issues-list-for-repo.ts
+ * @github backend/src/types/github/rest/reactions-list-for-issue.ts
+ * @github backend/src/client/queries/github/repo-popular-issue-page.query.ts
+ *
+ * @response backend/src/types/controllers/repo-popular-issues.ts
+ *
+ * @error [400] : 저장소 주소나 쿼리가 잘못된 경우.
+ * @error [401] : 인증이 잘못된 경우.
+ * @error [403] : 권한이 없거나 GitHub 호출 제한인 경우.
+ * @error [404] : 저장소를 찾지 못한 경우.
+ * @error [429] : GitHub 호출 제한인 경우.
+ * @error [503] : GitHub 조회 실패인 경우.
+ */
+repo_router.get("/:owner/:repo/pr-issue/popular", checkToken, checkUser, getRepoPopularIssues);
+
+/**
+ * @api GET /api/repos/:owner/:repo/pr-issue/issues
+ *
+ * @desc Issue 통계와 진행 중인 마일스톤을 조회합니다.
+ *
+ * @query timezone (IANA string, 선택) - 집계 시간대. 기본값 Asia/Seoul.
+ *
+ * @github backend/src/types/github/rest/repo-pr-issue.ts
+ *
+ * @github backend/src/client/queries/github/repo-issue-stats-page.query.ts
+ *
+ * @response backend/src/types/controllers/repo-pr-issue.ts (GetRepoIssueStatsData)
+ *
+ * @error [400] : 경로 또는 쿼리가 잘못된 경우.
+ * @error [401, 403, 404, 429] : GitHub 인증·권한·저장소 조회·요청 제한 오류.
+ * @error [500, 503] : 사용자 인증 처리 또는 GitHub 조회 실패.
+ */
+repo_router.get(
+    "/:owner/:repo/pr-issue/issues",
+    checkToken,
+    checkUser,
+    repoPrIssueController.getIssues,
+);
+
+/**
+ * @api GET /api/repos/:owner/:repo/pr-issue/pull-requests
+ *
+ * @desc PR 상태와 최근 28일에 생성된 PR의 리뷰·병합·협업 통계를 조회합니다.
+ *
+ * @query timezone (IANA string, 선택) - 집계 시간대. 기본값 Asia/Seoul.
+ *
+ * @github backend/src/types/github/rest/repo-pr-issue.ts
+ * @github backend/src/client/queries/github/repo-pull-closing-issues.query.ts
+ * @github backend/src/client/queries/github/repo-pull-totals.query.ts
+ *
+ * @response backend/src/types/controllers/repo-pr-issue.ts (GetRepoPullRequestStatsData)
+ *
+ * @error [400] : 경로 또는 쿼리가 잘못된 경우.
+ * @error [401, 403, 404, 429] : GitHub 인증·권한·저장소 조회·요청 제한 오류.
+ * @error [500, 503] : 사용자 인증 처리 또는 GitHub 조회 실패.
+ */
+repo_router.get(
+    "/:owner/:repo/pr-issue/pull-requests",
+    checkToken,
+    checkUser,
+    repoPrIssueController.getPullRequests,
 );
 
 export default repo_router;

@@ -31,6 +31,12 @@
  *      - endpoint : /api/repos/:owner/:repo/commit-status/overview
  * - REPO_DASHBOARD_COMMIT_STATUS_RECORDS : 기본 브랜치의 최근 1년 커밋 전적입니다.
  *      - endpoint : /api/repos/:owner/:repo/commit-status/records
+ * - REPO_DASHBOARD_ISSUE_STATS : 저장소 Issue 및 마일스톤 통계입니다.
+ *      - endpoint : /api/repos/:owner/:repo/pr-issue/issues
+ * - REPO_DASHBOARD_PULL_REQUEST_STATS : 저장소 PR 통계입니다.
+ *      - endpoint : /api/repos/:owner/:repo/pr-issue/pull-requests
+ * - REPO_DASHBOARD_POPULAR_ISSUES : 열린 Issue 인기 순위입니다.
+ *      - endpoint : /api/repos/:owner/:repo/pr-issue/popular
  * - REPO_DASHBOARD_READMES : 기본 브랜치의 README 목록입니다.
  *      - endpoint : /api/repos/:owner/:repo/readmes
  * - REPO_DASHBOARD_README_CONTENT : 선택한 README의 Markdown 원문입니다.
@@ -39,6 +45,9 @@
  *
  */
 export enum QueryKeys {
+    REPO_DASHBOARD_ISSUE_STATS = "repo-dashboard-issue-stats",
+    REPO_DASHBOARD_PULL_REQUEST_STATS = "repo-dashboard-pull-request-stats",
+    REPO_DASHBOARD_POPULAR_ISSUES = "repo-dashboard-popular-issues",
     REPO_DASHBOARD_READMES = "repo-dashboard-readmes",
     REPO_DASHBOARD_README_CONTENT = "repo-dashboard-readme-content",
     AUTH_CHECK = "auth-check",

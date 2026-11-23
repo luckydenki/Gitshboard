@@ -9520,12 +9520,31 @@ export type GithubGQLGetCommitTimesQueryVariables = Exact<{
 
 export type GithubGQLGetCommitTimesQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', name: string, defaultBranchRef?: { __typename?: 'Ref', target?: { __typename?: 'Blob' } | { __typename?: 'Commit', history: { __typename?: 'CommitHistoryConnection', nodes?: Array<{ __typename?: 'Commit', committedDate: string } | null> | null } } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null } | null } | null> | null } } | null };
 
+export type GithubGQLGetRepoIssueStatsPageQueryVariables = Exact<{
+  owner: Scalars['String']['input'];
+  repo: Scalars['String']['input'];
+  state: GithubGQLIssueState;
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GithubGQLGetRepoIssueStatsPageQuery = { __typename?: 'Query', repository?: { __typename?: 'Repository', issues: { __typename?: 'IssueConnection', nodes?: Array<{ __typename?: 'Issue', state: GithubGQLIssueState, stateReason?: GithubGQLIssueStateReason | null, createdAt: string, closedAt?: string | null, comments: { __typename?: 'IssueCommentConnection', totalCount: number }, assignees: { __typename?: 'UserConnection', totalCount: number }, labels?: { __typename?: 'LabelConnection', nodes?: Array<{ __typename?: 'Label', name: string } | null> | null, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean } } | null, issueType?: { __typename?: 'IssueType', name: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean } } } | null };
+
 export type GithubGQLGetRepoLanguagesQueryVariables = Exact<{
   login: Scalars['String']['input'];
 }>;
 
 
 export type GithubGQLGetRepoLanguagesQuery = { __typename?: 'Query', user?: { __typename?: 'User', repositories: { __typename?: 'RepositoryConnection', nodes?: Array<{ __typename?: 'Repository', name: string, languages?: { __typename?: 'LanguageConnection', totalSize: number, edges?: Array<{ __typename?: 'LanguageEdge', size: number, node: { __typename?: 'Language', name: string } } | null> | null } | null } | null> | null } } | null };
+
+export type GithubGQLGetRepoPopularIssuePageQueryVariables = Exact<{
+  owner: Scalars['String']['input'];
+  repo: Scalars['String']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GithubGQLGetRepoPopularIssuePageQuery = { __typename?: 'Query', repository?: { __typename?: 'Repository', issues: { __typename?: 'IssueConnection', nodes?: Array<{ __typename?: 'Issue', number: number, title: string, url: string, updatedAt: string, comments: { __typename?: 'IssueCommentConnection', totalCount: number }, reactionGroups?: Array<{ __typename?: 'ReactionGroup', content: GithubGQLReactionContent, reactors: { __typename?: 'ReactorConnection', totalCount: number } }> | null, reactions: { __typename?: 'ReactionConnection', totalCount: number, nodes?: Array<{ __typename?: 'Reaction', createdAt: string } | null> | null } } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean } } } | null };
 
 export type GithubGQLGetRepoProjectBranchesQueryVariables = Exact<{
   owner: Scalars['String']['input'];
@@ -9560,6 +9579,24 @@ export type GithubGQLGetRepoProjectOverviewQueryVariables = Exact<{
 
 
 export type GithubGQLGetRepoProjectOverviewQuery = { __typename?: 'Query', repository?: { __typename?: 'Repository', id: string, name: string, visibility: GithubGQLRepositoryVisibility, diskUsage?: number | null, owner: { __typename?: 'Organization', login: string } | { __typename?: 'User', login: string }, defaultBranchRef?: { __typename?: 'Ref', target?: { __typename?: 'Blob' } | { __typename?: 'Commit', tree: { __typename?: 'Tree', oid: any } } | { __typename?: 'Tag' } | { __typename?: 'Tree' } | null } | null, languages?: { __typename?: 'LanguageConnection', totalSize: number, edges?: Array<{ __typename?: 'LanguageEdge', size: number, node: { __typename?: 'Language', name: string } } | null> | null } | null, openIssues: { __typename?: 'IssueConnection', totalCount: number }, closedIssues: { __typename?: 'IssueConnection', totalCount: number }, openPullRequests: { __typename?: 'PullRequestConnection', totalCount: number }, mergedPullRequests: { __typename?: 'PullRequestConnection', totalCount: number } } | null };
+
+export type GithubGQLGetRepoPullClosingIssuesQueryVariables = Exact<{
+  owner: Scalars['String']['input'];
+  repo: Scalars['String']['input'];
+  number: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GithubGQLGetRepoPullClosingIssuesQuery = { __typename?: 'Query', repository?: { __typename?: 'Repository', pullRequest?: { __typename?: 'PullRequest', closingIssuesReferences?: { __typename?: 'IssueConnection', nodes?: Array<{ __typename?: 'Issue', id: string, repository: { __typename?: 'Repository', nameWithOwner: string } } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: string | null, hasNextPage: boolean } } | null } | null } | null };
+
+export type GithubGQLGetRepoPullTotalsQueryVariables = Exact<{
+  owner: Scalars['String']['input'];
+  repo: Scalars['String']['input'];
+}>;
+
+
+export type GithubGQLGetRepoPullTotalsQuery = { __typename?: 'Query', repository?: { __typename?: 'Repository', open: { __typename?: 'PullRequestConnection', totalCount: number }, merged: { __typename?: 'PullRequestConnection', totalCount: number }, closed: { __typename?: 'PullRequestConnection', totalCount: number } } | null };
 
 export type GithubGQLGetRepositoryDashboardProfileQueryVariables = Exact<{
   owner: Scalars['String']['input'];
