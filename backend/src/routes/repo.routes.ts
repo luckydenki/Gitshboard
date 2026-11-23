@@ -1,3 +1,4 @@
+import repoCommunicationController from "../controllers/repo-communication.controllers";
 import { Router } from "express";
 import repoPrIssueController from "../controllers/repo-pr-issue.controllers";
 import { getRepoPopularIssues } from "../controllers/repo-popular-issues.controllers";
@@ -7,6 +8,30 @@ import repoProjectController from "../controllers/repo-project.controllers";
 import repoCommitStatusController from "../controllers/repo-commit-status.controllers";
 
 const repo_router = Router();
+/**
+ * @api GET /api/repos/:owner/:repo/communication/:endpoint
+ *
+ * @desc 기여자, 열린 Issue 안내, Discussion, 실제 Release 집계를 조회합니다. endpoint: contributors | onboarding | discussions | releases.
+ *
+ * @github backend/src/client/queries/github/communication-discussions.query.ts
+ * @github backend/src/client/queries/github/communication-comments.query.ts
+ * @github backend/src/types/github/rest/communication.ts
+ *
+ * @response backend/src/types/controllers/repo-communication.ts
+ *
+ * @error [400] : 잘못된 저장소 주소 또는 쿼리.
+ * @error [401] : 인증 만료.
+ * @error [403] : 접근 권한 부족.
+ * @error [404] : 저장소 또는 조회 항목 없음.
+ * @error [429] : GitHub 호출 제한.
+ * @error [503] : GitHub 조회 실패.
+ */
+repo_router.get(
+    "/:owner/:repo/communication/:endpoint",
+    checkToken,
+    checkUser,
+    repoCommunicationController.get,
+);
 
 /**
  * @api GET /api/repos/health
