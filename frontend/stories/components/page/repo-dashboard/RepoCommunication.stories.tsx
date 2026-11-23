@@ -143,7 +143,7 @@ const meta = {
 } satisfies Meta<typeof RepoDashboardCommunicationSection>;
 export default meta;
 type Story = StoryObj<typeof meta>;
-// 실제 집계와 유지된 C 예시를 함께 보여준다.
+// 실제 집계와 미구현 항목의 업데이트 안내를 함께 보여준다.
 export const Default: Story = {
     decorators: [scenario()],
     play: async ({ canvas }) => {
@@ -152,6 +152,18 @@ export const Default: Story = {
             canvas.getByText("오늘을 제외한 최근 7일의 커밋 기여를 기준으로 했어요. (UTC)"),
         ).toBeVisible();
         await expect(canvas.getByText("기여 시작 난이도")).toBeVisible();
+        // 미구현 카드의 위치를 유지하고 예시 수치를 실제 통계처럼 노출하지 않습니다.
+        await expect(
+            canvas.getByRole("heading", { name: "신규 기여자 PR 병합률" }).closest("article"),
+        ).toHaveTextContent("추후 업데이트 예정");
+        await expect(
+            canvas.getByRole("heading", { name: "기여 시작 난이도" }).closest("article"),
+        ).toHaveTextContent("추후 업데이트 예정");
+        await expect(
+            canvas.getByRole("heading", { name: "반복되는 질문과 주제" }).closest("article"),
+        ).toHaveTextContent("추후 업데이트 예정");
+        await expect(canvas.queryByText("72%", { exact: true })).toBeNull();
+        await expect(canvas.queryByText("71건", { exact: true })).toBeNull();
         // 원래의 개별 지표 카드와 담당자 막대 위치를 유지합니다.
         const firstIssue = canvas.getByRole("heading", { name: "good first issue", exact: true });
         const helpWanted = canvas.getByRole("heading", { name: "help wanted", exact: true });
