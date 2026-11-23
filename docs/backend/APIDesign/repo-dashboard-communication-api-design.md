@@ -9,8 +9,8 @@ A는 GitHub 직접 제공, B는 단순 통계·사칙연산, C는 규칙·의미
 
 | 화면·mock 필드                                       | 분류             | 필요한 원본·판정                                                                                                                                |
 | ---------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| 상위 기여자 `contributors.login/commits`             | A                | contributors의 login, contributions, avatar_url, html_url                                                                                       |
-| `contributors.share`, `summary.contributorTotal`     | B                | 전체 contributor 페이지의 contributions 합계와 레코드 수. 상위 4명만으로 분모를 만들지 않는다                                                   |
+| 상위 기여자 `contributors.login/commits`             | B                | 기본 브랜치의 오늘 제외 직전 7일 커밋을 author.id별 집계. 커밋 수 내림차순 상위 4명                                                             |
+| `contributors.share`, `summary.contributorTotal`     | B                | 기간 내 익명 포함 고유 커밋 수를 분모로 비율 계산. 총수는 식별된 기여 계정 수                                                                   |
 | good first issue, help wanted 건수                   | B                | 현재 열린 Issue의 정확한 라벨명 일치 건수, PR 제외                                                                                              |
 | 신규 기여자 PR 병합률                                | C                | 신규·첫 PR 정의와 저장소 전체 PR 작성자 이력 필요. FIRST_TIME_CONTRIBUTOR만으로 최초 PR을 보장하지 않음                                         |
 | 첫 PR 유지관리자 리뷰 댓글 평균                      | C                | 최초 PR 식별, 유지관리자 및 댓글 종류·권한 시점 정의 필요                                                                                       |
@@ -34,25 +34,25 @@ A는 GitHub 직접 제공, B는 단순 통계·사칙연산, C는 규칙·의미
 
 ## 집계 기준 제안
 
-- 현재 상태와 전체 기간: 기여자 전체, 현재 열린 Issue, Discussion 카테고리 분포.
+- 기여자는 UTC 오늘 제외 직전 7일 `[from,to)`이다. 현재 열린 Issue는 현재 상태, Discussion 카테고리는 전체 기간이다.
 - 응답 통계·인기 목록: 수집 시작 시각 `asOf`까지 최근 90일 생성 Discussion `[from,to)`. 기간과 모집단을 응답에 포함한다.
 - 릴리스: `asOf`에서 UTC 기준 6개월 전(해당 월에 같은 날짜가 없으면 말일)부터 `[from,to)`, `publishedAt` 기준, draft 제외, prerelease 포함. 월평균 = 건수 / 6. 태그 수가 아니다.
 - 답변 완료율은 현재 카테고리의 isAnswerable 기준, 미답변 포함 분모다. 첫 답변 중앙값과 관련 표본·시간 필드는 제공하지 않는다.
 - 인기 순위는 아래 사용자 지정 시간 감쇠 공식을 따른다. 최근 활동은 오늘을 제외한 직전 7일의 작성자별 활동일 수로 집계한다. 상위 3건 제안과 최근 90일 생성 후보 범위는 유지하며, 동률 정렬은 별도 확정이 필요하다.
 - 비율은 0~100 숫자, 시간은 초, 시각은 UTC ISO 8601. 분모 0과 표본 없음은 null. 숫자 0은 실제 0건에만 사용한다.
-- 기여자는 GitHub contributors endpoint가 식별한 레코드 단위이며 실제 사람 수와 다르다. `anon=1`로 익명 레코드도 분모에 포함하고 로그인 없는 항목의 이름·이메일은 전달하지 않는다. 봇은 포함. 상위 로그인 사용자 4명, 비율 분모는 익명 포함 전체 contributions 합계다.
-- contributors는 캐시 지연과 최초 500개 author email의 사용자 연결 한계가 있다. GitHub 제공 커밋 기여 집계이며 모든 ref의 고유 커밋 수나 정확한 사람 수를 보장하지 않는다. 화면 '총 N명'은 'GitHub 집계 기여자 N개' 등으로 조정 검토한다.
+- 기여자는 기본 브랜치 이력에서 commit.committer.date가 기간에 속한 커밋의 주 작성자 author.id로 집계한다. SHA 중복을 제거하고 봇·merge commit도 포함한다. 공동 작성자 별도 분배는 하지 않는다. 익명 커밋은 비율 분모에만 포함하며 이름·이메일을 반환하지 않는다. totalEntries는 식별된 계정 수이며 전체 기여자 수가 아니다.
+- 기여 순위는 커밋 수 내림차순, 동률 login 오름차순으로 상위 4명을 표시한다. 기간은 응답 contributors.value.period에 제공한다. 모든 브랜치 기여나 실제 사람 수를 의미하지 않는다.
 
 ## GitHub 조회·최소 비용·권한
 
 `page(X)=max(1,ceil(X/100))`. 다음은 캐시 미스·재시도 없음·전체 정확 수집의 하한이다. GraphQL 각 요청은 최소 1점이며 HTTP 1회와 1점은 동일하지 않다.
 
-| 대상                                | REST: 인자와 최소 호출                                                                                                                   | GraphQL: 인자·필드와 최소 점수                                                                                                                                                                                                                                                                                           | 최소 저장소 권한  |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- |
-| 기여자                              | `GET /repos/{owner}/{repo}/contributors?anon=1&per_page=100&page=…`: `page(C)`회, 전체 페이지 필요                                       | 동일 contributors 집계 connection 없음. history의 author를 수집해 재구성하는 방법은 GitHub 집계와 의미·비용이 달라 대체하지 않음                                                                                                                                                                                         | Metadata: read    |
-| 열린 Issue 라벨·담당자              | `GET /repos/{owner}/{repo}/issues?state=open&per_page=100&page=…`: `page(I+Popen)`회, pull_request 있는 항목 제외, assignees·labels 사용 | `repository(owner,name).issues(states:[OPEN],first:100,after)`에서 `assignees{totalCount}`, `labels(first:100){nodes{name} pageInfo{…}}`: `page(I)`회, 각 최소 1점. 라벨 중첩 초과 페이지 추가                                                                                                                           | Issues: read      |
-| Discussion 전체 분포·기간 응답·인기 | 동일 기능의 공식 REST 목록 API 없음                                                                                                      | `discussionCategories(first:100,after)`와 `discussions(first:100,after,orderBy:{field:CREATED_AT,direction:DESC})`에서 `id number title url createdAt category{id name isAnswerable} answer{id} comments{totalCount}`. 전체 D건 `page(D)`회, 카테고리 목록은 첫 요청에 합칠 수 있어 추가 HTTP 최소 0회. 각 요청 최소 1점 | Discussions: read |
-| 실제 릴리스                         | `GET /repos/{owner}/{repo}/releases?per_page=100&page=…`: 전체 R건 `page(R)`회. draft·published_at으로 필터                              | `releases(first:100,after){nodes{isDraft isPrerelease publishedAt} pageInfo{…}}`: `page(R)`회, 각 최소 1점                                                                                                                                                                                                               | Contents: read    |
+| 대상                                | REST: 인자와 최소 호출                                                                                                                                                                                        | GraphQL: 인자·필드와 최소 점수                                                                                                                                                                                                                                                                                           | 최소 저장소 권한  |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- |
+| 기여자                              | `GET /repos/{owner}/{repo}/commits?since=…&until=…&per_page=100&page=…`: 최근 7일 커밋 K건에 `page(K)`회. 시작 경계 포함을 위해 since는 from 1초 전, until은 to 1초 전을 요청하고 서버에서 `[from,to)` 재검증 | 대안은 기본 브랜치 commit history(since,until)의 author를 전체 페이지 수집하여 집계. 이번 구현은 REST 사용                                                                                                                                                                                                               | Contents: read    |
+| 열린 Issue 라벨·담당자              | `GET /repos/{owner}/{repo}/issues?state=open&per_page=100&page=…`: `page(I+Popen)`회, pull_request 있는 항목 제외, assignees·labels 사용                                                                      | `repository(owner,name).issues(states:[OPEN],first:100,after)`에서 `assignees{totalCount}`, `labels(first:100){nodes{name} pageInfo{…}}`: `page(I)`회, 각 최소 1점. 라벨 중첩 초과 페이지 추가                                                                                                                           | Issues: read      |
+| Discussion 전체 분포·기간 응답·인기 | 동일 기능의 공식 REST 목록 API 없음                                                                                                                                                                           | `discussionCategories(first:100,after)`와 `discussions(first:100,after,orderBy:{field:CREATED_AT,direction:DESC})`에서 `id number title url createdAt category{id name isAnswerable} answer{id} comments{totalCount}`. 전체 D건 `page(D)`회, 카테고리 목록은 첫 요청에 합칠 수 있어 추가 HTTP 최소 0회. 각 요청 최소 1점 | Discussions: read |
+| 실제 릴리스                         | `GET /repos/{owner}/{repo}/releases?per_page=100&page=…`: 전체 R건 `page(R)`회. draft·published_at으로 필터                                                                                                   | `releases(first:100,after){nodes{isDraft isPrerelease publishedAt} pageInfo{…}}`: `page(R)`회, 각 최소 1점                                                                                                                                                                                                               | Contents: read    |
 
 공통 REST path 인자 owner/repo, GraphQL repository 인자 owner/name 필수. 커서마다 pageInfo를 확인한다. Discussions 전체 분포가 필요하므로 최근 90일 이전에서 수집을 중단하지 않는다. 릴리스 목록의 생성 순서와 publishedAt 순서를 동일시하지 않고 전체를 확인한다. Issue 라벨은 소문자 변환 후 `good first issue`, `help wanted` 정확 일치로 각각 카운트하며 중복 Issue는 각 항목에 포함된다.
 
@@ -79,26 +79,26 @@ GraphQL 점수는 공식 계산법에 따라 connection을 채우는 내부 요�
 
 ```ts
 type Metric<T> = {
-    status: "complete" | "partial" | "unavailable";
-    value: T | null;
-    reason:
-        | null
-        | "collection_limit"
-        | "upstream_partial"
-        | "forbidden"
-        | "disabled"
-        | "definition_required"
-        | "upstream_unavailable";
-    coverage: {
-        collected: number;
-        total: number | null;
-        hasNextPage: boolean | null;
-    };
-    period: { from: string; to: string } | null;
+  status: "complete" | "partial" | "unavailable";
+  value: T | null;
+  reason:
+    | null
+    | "collection_limit"
+    | "upstream_partial"
+    | "forbidden"
+    | "disabled"
+    | "definition_required"
+    | "upstream_unavailable";
+  coverage: {
+    collected: number;
+    total: number | null;
+    hasNextPage: boolean | null;
+  };
+  period: { from: string; to: string } | null;
 };
 ```
 
-- `contributors: Metric<{ totalEntries: number; identifiedEntries: number; anonymousEntries: number; totalContributions: number; top: { login: string; avatarUrl: string; url: string; commits: number; sharePercent: number | null }[] }>`. 익명을 포함한 전체 페이지가 모이지 않으면 순위·비율·총수를 반환하지 않는다.
+- `contributors: Metric<{ period: { from: string; to: string }; totalEntries: number; top: { login: string; avatarUrl: string; url: string; commits: number; sharePercent: number | null }[] }>`. 기간 커밋 페이지가 모두 모이지 않으면 순위·비율·계정 수를 반환하지 않는다.
 - `openIssues: Metric<{ total: number; goodFirstIssueCount: number; helpWantedCount: number; assignedCount: number; assignedPercent: number | null }>`.
 - `distribution: Metric<{ total: number; categories: { id: string; name: string; count: number; percent: number | null }[] }>`. 0건인 카테고리도 포함한다.
 - `responses: Metric<{ answerableCount: number; answeredCount: number; answeredPercent: number | null }>`.
@@ -207,3 +207,5 @@ elapsedTime = UTC 날짜(asOf) - UTC 날짜(createdAt)  // 정수 일수
 - 로컬 백엔드에서 `octocat/Hello-World` 대상으로 네 엔드포인트를 실제 호출하여 모두 HTTP 200을 확인했다. contributors/releases는 complete, onboarding은 수집 상한에 따른 partial/value=null, discussions는 비활성화에 따른 unavailable/disabled로 반환됐다. 이 검증이 대규모 목록 전체 수집 성공이나 활성 Discussion의 실제 순위 정확성까지 보장하지는 않는다.
 
 - 원래 디자인을 유지하도록 화면 연결을 수정했다. good first issue/help wanted 개별 카드, Issue 안내의 담당자 막대, Discussion 카테고리·답변·인기 카드의 기존 너비와 배치를 복원했다. C 항목은 원래 위치에 유지하고 첫 답변 중앙값·공지사항의 명시적인 제외 결정만 유지한다. 실제 페이지 시각 확인과 원래 카드 위치에 대한 Storybook 회귀 검사를 완료했다.
+
+- 기여자 순위를 전체 기간에서 오늘 제외 UTC 직전 7일로 변경했다. 전체 contributors 조회를 기간 지정 commits 조회로 교체했고 화면 문구도 갱신했다. 커밋 없는 주는 complete/빈 배열이며, 빈 Git 저장소의 명시적 empty 409도 같은 상태로 처리한다. 조회 권한은 Metadata:read에서 Contents:read로 변경된다.
