@@ -1,0 +1,45 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./PanelError.stories";
+
+<Meta of={Stories} />
+
+# PanelError
+
+통계 패널 안에 넣어 사용하는 범용 오류 안내입니다. 패널 제목·카드 테두리는 부모에서 유지하고, 오류 메시지와 선택적인 재시도 버튼만 표시합니다. 내부에서 API를 호출하거나 자동 재시도하지 않습니다.
+
+## Props
+
+| 이름       | 기본값                                                    | 설명                                          |
+| ---------- | --------------------------------------------------------- | --------------------------------------------- |
+| title      | 문제가 발생했어요                                         | 오류 안내 제목                                |
+| message    | 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요. | 사용자에게 보여줄 설명                        |
+| onRetry    | 없음                                                      | 수동 재시도 함수. 없으면 버튼을 표시하지 않음 |
+| retryLabel | 다시 시도                                                 | 재시도 버튼 문구                              |
+
+## 사용 예시
+
+```tsx
+import PanelError from "~/components/common/PanelError";
+
+<article>
+    <h3>기여자 통계</h3>
+    <PanelError onRetry={() => void query.refetch()} />
+</article>;
+```
+
+`role="alert"`로 오류를 알리고, 아이콘은 장식으로 처리합니다. 기본 버튼은 키보드로 접근할 수 있습니다. 네트워크나 서버 원본 오류는 사용하는 화면에서 사용자용 메시지로 바꿔 전달합니다.
+
+<Canvas of={Stories.Default} />
+<Canvas of={Stories.WithRetry} />
+<Canvas of={Stories.CustomMessage} />
+<Canvas of={Stories.NarrowPanel} />
+
+## 기본 평가
+
+1. 로딩 UI [해당 없음: 오류 상태만 담당]
+2. 오류·선택적 수동 재시도 [o]
+3. 빈 데이터 [해당 없음]
+4. 상태별 스토리 및 재시도 상호작용 [o]
+5. CSS 지침 [o]
+6. 공통 컴포넌트 지침 [o]
+7. 브라우저 렌더링 [o: Chromium 스토리 4건 통과, 재시도 클릭·키보드 동작 및 좁은 패널 넘침 검증]
