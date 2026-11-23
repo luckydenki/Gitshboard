@@ -1,7 +1,7 @@
+import UpcomingBackdrop from "~/components/common/UpcomingBackdrop";
 import { useParams } from "react-router";
 import { useRepoCommunication } from "~/hooks/api/useRepoCommunication";
 import RepoCommunicationQueryState from "./RepoCommunicationQueryState";
-import { summaryMock } from "~/mock/repo-dashboard/communication";
 export default function RepoCommunicationDiscussionStats() {
     const { owner, repo } = useParams();
     const query = useRepoCommunication(owner, repo, "discussions");
@@ -84,12 +84,13 @@ export default function RepoCommunicationDiscussionStats() {
                         </dd>
                     </div>
 
-                    <div className="flex items-center justify-between gap-3 py-4">
+                    <div className="flex flex-col gap-3 py-4">
                         <dt className="text-sm text-gray-500">Discussion에서 해결</dt>
-                        <dd className="text-xl font-bold">{summaryMock.resolvedDiscussions}</dd>
+                        <dd>
+                            <UpcomingBackdrop />
+                        </dd>
                     </div>
                 </dl>
-                <p className="text-xs leading-5 text-gray-500">{summaryMock.resolvedPeriod}</p>
             </article>
         </>
     );

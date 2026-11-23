@@ -1,10 +1,7 @@
+import UpcomingBackdrop from "~/components/common/UpcomingBackdrop";
 import { useParams } from "react-router";
 import { useRepoCommunication } from "~/hooks/api/useRepoCommunication";
 import RepoCommunicationQueryState from "./RepoCommunicationQueryState";
-import {
-    summaryMock,
-    recurringTopicsMock as recurringTopics,
-} from "~/mock/repo-dashboard/communication";
 export default function RepoCommunicationDiscussionExampleSection() {
     const { owner, repo } = useParams();
     const query = useRepoCommunication(owner, repo, "discussions");
@@ -54,17 +51,7 @@ export default function RepoCommunicationDiscussionExampleSection() {
             </article>
             <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                 <h3 className="text-lg font-bold">반복되는 질문과 주제</h3>
-                <p className="text-sm text-gray-500">{summaryMock.recurringTopicsPeriod}</p>
-                <ul className="flex flex-col divide-y divide-gray-300">
-                    {recurringTopics.map((item) => (
-                        <li
-                            key={item.topic}
-                            className="flex justify-between gap-3 py-3 text-sm">
-                            <span>{item.topic}</span>
-                            <span className="shrink-0 text-gray-500">{item.count}회</span>
-                        </li>
-                    ))}
-                </ul>
+                <UpcomingBackdrop />
             </article>
         </>
     );

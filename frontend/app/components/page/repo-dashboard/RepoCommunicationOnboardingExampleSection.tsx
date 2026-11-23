@@ -1,10 +1,10 @@
+import UpcomingBackdrop from "~/components/common/UpcomingBackdrop";
 import { useParams } from "react-router";
 import { useRepoCommunication } from "~/hooks/api/useRepoCommunication";
 import RepoCommunicationQueryState from "./RepoCommunicationQueryState";
 import {
     contributorMetricsMock as contributorMetrics,
     issueReadinessMock as issueReadiness,
-    summaryMock,
 } from "~/mock/repo-dashboard/communication";
 export default function RepoCommunicationOnboardingExampleSection() {
     const { owner, repo } = useParams();
@@ -19,27 +19,29 @@ export default function RepoCommunicationOnboardingExampleSection() {
                         key={item.label}
                         className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-5 md:w-[calc(50%-0.5rem)] xl:w-[calc(33.333333%-0.666667rem)]">
                         <h3 className="text-sm text-gray-500">{item.label}</h3>
-                        <strong className="block text-2xl">
-                            {index < 2 ? (
-                                <RepoCommunicationQueryState
-                                    pending={query.isPending}
-                                    error={query.isError}
-                                    metric={query.data?.openIssues}
-                                    onRetry={() => void query.refetch()}>
-                                    {(value) => (
-                                        <>
-                                            {index === 0
-                                                ? value.goodFirstIssueCount
-                                                : value.helpWantedCount}
-                                            건
-                                        </>
-                                    )}
-                                </RepoCommunicationQueryState>
-                            ) : (
-                                item.value
-                            )}
-                        </strong>
-                        <p className="text-xs text-gray-500">{item.detail}</p>
+                        {index < 2 ? (
+                            <>
+                                <strong className="block text-2xl">
+                                    <RepoCommunicationQueryState
+                                        pending={query.isPending}
+                                        error={query.isError}
+                                        metric={query.data?.openIssues}
+                                        onRetry={() => void query.refetch()}>
+                                        {(value) => (
+                                            <>
+                                                {index === 0
+                                                    ? value.goodFirstIssueCount
+                                                    : value.helpWantedCount}
+                                                건
+                                            </>
+                                        )}
+                                    </RepoCommunicationQueryState>
+                                </strong>
+                                <p className="text-xs text-gray-500">{item.detail}</p>
+                            </>
+                        ) : (
+                            <UpcomingBackdrop />
+                        )}
                     </article>
                 ))}
             </div>
@@ -83,59 +85,23 @@ export default function RepoCommunicationOnboardingExampleSection() {
                                 </RepoCommunicationQueryState>
                             ) : (
                                 <>
-                                    <div className="flex justify-between gap-3 text-sm">
-                                        <span>{item.label}</span>
-                                        <span className="font-semibold">{item.value}%</span>
-                                    </div>
-                                    <div className="h-2 rounded-lg bg-gray-200">
-                                        <div
-                                            className="h-full rounded-lg bg-gray-500"
-                                            style={{ width: `${item.value}%` }}
-                                        />
-                                    </div>
+                                    <span className="text-sm">{item.label}</span>
+                                    <UpcomingBackdrop />
                                 </>
                             )}
                         </li>
                     ))}
                 </ul>
-                <p className="border-gray-300 pt-4 text-xs leading-5 text-gray-500">
-                    {summaryMock.readinessInsight}
-                </p>
             </article>
 
             <article className="bg-panel flex w-full flex-col gap-4 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
                 <h3 className="text-lg font-bold">최근 병합된 첫 기여</h3>
-                <p className="text-sm text-gray-500">새 기여자의 PR 사례 · 예시 데이터</p>
-                <div className="flex flex-col gap-3 rounded-lg border border-gray-300 p-4">
-                    <span className="text-xs font-semibold text-gray-500">첫 PR 병합</span>
-                    <strong className="text-base leading-6">
-                        {summaryMock.firstContributionTitle}
-                    </strong>
-                    <p className="text-xs text-gray-500">
-                        {summaryMock.firstContributionReference}
-                    </p>
-                    <div className="flex flex-wrap gap-3 border-gray-300 pt-3 text-xs text-gray-500">
-                        <span>{summaryMock.firstContributionReviews}</span>
-                        <span>{summaryMock.firstContributionMergeTime}</span>
-                    </div>
-                </div>
-                <p className="text-xs leading-5 text-gray-500">
-                    {summaryMock.firstContributionDescription}
-                </p>
+                <UpcomingBackdrop />
             </article>
 
             <article className="bg-panel flex w-full flex-col gap-5 rounded-lg border border-gray-300 p-6 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333333%-1rem)]">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="text-lg font-bold">기여 시작 난이도</h3>
-                    <span className="rounded-lg bg-gray-100 p-2 text-xs font-semibold text-gray-500">
-                        AI 요약 · 예시
-                    </span>
-                </div>
-                <strong className="block text-2xl">{summaryMock.difficulty}</strong>
-                <p className="text-sm leading-6 text-gray-500">{summaryMock.difficultyInsight}</p>
-                <p className="border-gray-300 pt-4 text-xs leading-5 text-gray-500">
-                    {summaryMock.difficultyEvidence}
-                </p>
+                <h3 className="text-lg font-bold">기여 시작 난이도</h3>
+                <UpcomingBackdrop />
             </article>
         </section>
     );
