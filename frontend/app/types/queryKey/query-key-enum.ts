@@ -44,7 +44,9 @@
  *
  *
  */
+/** REPO_COMMUNICATION: /api/repos/:owner/:repo/communication/:endpoint 집계. */
 export enum QueryKeys {
+    REPO_COMMUNICATION = "repo-communication",
     REPO_DASHBOARD_ISSUE_STATS = "repo-dashboard-issue-stats",
     REPO_DASHBOARD_PULL_REQUEST_STATS = "repo-dashboard-pull-request-stats",
     REPO_DASHBOARD_POPULAR_ISSUES = "repo-dashboard-popular-issues",
