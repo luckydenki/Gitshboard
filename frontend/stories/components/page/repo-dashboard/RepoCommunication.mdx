@@ -1,0 +1,33 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./RepoCommunication.stories";
+
+<Meta of={Stories} />
+
+# RepoDashboardCommunicationSection
+
+기여자·열린 Issue·Discussion·Release API를 표시하고 C 항목의 예시 UI를 유지합니다.
+
+## Props 및 사용 예시
+
+Props 없음. QueryClientProvider와 `/repo/:owner/:repo` 라우트 안에서 `<RepoDashboardCommunicationSection />`을 렌더링합니다.
+
+원래 카드 구성과 배치를 유지하며 각 영역에서 API를 조회합니다. RepoCommunicationQueryState의 props는 pending, error, metric, onRetry와 값 렌더링용 children입니다. 신규 기여자 섹션은 A·B 실데이터와 기존 C 예시를 원래 위치에 함께 표시합니다.
+
+<Canvas of={Stories.Default} />
+<Canvas of={Stories.Loading} />
+<Canvas of={Stories.Error} />
+<Canvas of={Stories.Empty} />
+<Canvas of={Stories.Partial} />
+<Canvas of={Stories.Mobile} />
+
+## 기본 평가
+
+점검 7/7. Chromium 브라우저에서 기본·빈 결과·로딩·오류/재시도·부분 수집·모바일 스토리 6개가 모두 통과했습니다. 실제 페이지에서도 개별 카드·담당자 막대·기존 C 항목의 배치를 시각 확인했습니다.
+
+1. 로딩 스켈레톤 [o]
+2. 오류·재시도 [o]
+3. 빈 결과·부분 수집 [o]
+4. Storybook 상태별 스토리·재시도 상호작용 [o]
+5. CSS 지침 [o]
+6. 컴포넌트 분리 지침 [o]
+7. 실제 페이지 카드·막대 위치 시각 점검 [o] — Chromium 렌더링·상호작용·원래 배치 회귀 검사 6/6 통과
