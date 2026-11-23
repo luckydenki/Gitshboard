@@ -1,10 +1,17 @@
+import RepoCommunicationCollection from "./repo-communication.collection";
+import RepoCommunicationProcessor from "../processor/repo-communication.processor";
 import GithubRepoCommunicationClient from "../client/repo-communication.client";
 import type {
     CommunicationMetric,
     GetRepoCommunicationData,
     CommunicationDiscussion,
 } from "../types/controllers/repo-communication";
-import { activityStats, releaseStats, recentContributorPeriod, recentContributorStats, type ActivityComment } from "../utils/repo-communication";
+import {
+    activityStats,
+    releaseStats,
+    recentContributorPeriod,
+    recentContributorStats,
+} from "../utils/repo-communication";
 import CommonError from "../utils/common-error";
 export default class RepoCommunicationServices {
     private client: GithubRepoCommunicationClient;
@@ -75,35 +82,6 @@ export default class RepoCommunicationServices {
         } else await this.discussions(data);
         return data;
     }
-    private async collectComments(id: string, replies = false): Promise<ActivityComment[]> {
-        const items: ActivityComment[] = [];
-        let after: string | undefined;
-        for (let page = 0; page < 60 && Date.now() < this.deadline; page++) {
-            const response = await this.client.comments(id, after);
-            const node = response.node;
-            const connection =
-                node &&
-                ("comments" in node ? node.comments : "replies" in node ? node.replies : null);
-            if (!connection) throw new Error("upstream_partial");
-            for (const c of connection.nodes ?? [])
-                if (c) {
-                    items.push(c);
-                    if (
-                        !replies &&
-                        "replies" in c &&
-                        typeof c.replies === "object" &&
-                        c.replies !== null &&
-                        "totalCount" in c.replies &&
-                        typeof c.replies.totalCount === "number" &&
-                        c.replies.totalCount > 0
-                    )
-                        items.push(...(await this.collectComments(c.id, true)));
-                }
-            if (!connection.pageInfo.hasNextPage) return items;
-            after = connection.pageInfo.endCursor ?? undefined;
-        }
-        throw new Error("collection_limit");
-    }
     private async discussions(data: GetRepoCommunicationData) {
         if (!this.token) {
             data.distribution = {
@@ -115,35 +93,14 @@ export default class RepoCommunicationServices {
             data.popular = { status: "unavailable", value: null, reason: "인증이 필요합니다." };
             return;
         }
-        type Result = Awaited<ReturnType<GithubRepoCommunicationClient["discussions"]>>;
-        type Discussion = NonNullable<
-            NonNullable<NonNullable<Result["repository"]>["discussions"]["nodes"]>[number]
-        >;
-        const items: Discussion[] = [];
-        let after: string | undefined;
-        let complete = false;
-        let categories: { id: string; name: string; isAnswerable: boolean }[] = [];
-        for (let page = 0; page < 60 && Date.now() < this.deadline; page++) {
-            const r = (await this.client.discussions(after)).repository;
-            if (!r) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
-            if (!r.hasDiscussionsEnabled) {
-                const disabled = {
-                    status: "unavailable" as const,
-                    value: null,
-                    reason: "disabled",
-                };
-                data.distribution = disabled;
-                data.responses = disabled;
-                data.popular = disabled;
-                return;
-            }
-            categories = (r.discussionCategories.nodes ?? []).filter((c) => c !== null);
-            items.push(...(r.discussions.nodes ?? []).filter((d) => d !== null));
-            if (!r.discussions.pageInfo.hasNextPage) {
-                complete = true;
-                break;
-            }
-            after = r.discussions.pageInfo.endCursor ?? undefined;
+        const collection = new RepoCommunicationCollection(this.client, this.deadline);
+        const { items, categories, complete, disabled } = await collection.discussions();
+        if (disabled) {
+            const unavailable = { status: "unavailable" as const, value: null, reason: "disabled" };
+            data.distribution = unavailable;
+            data.responses = unavailable;
+            data.popular = unavailable;
+            return;
         }
         if (!complete) {
             data.distribution = this.partial();
@@ -151,35 +108,17 @@ export default class RepoCommunicationServices {
             data.popular = this.partial();
             return;
         }
-        data.distribution = this.complete({
-            total: items.length,
-            categories: categories.map((c) => {
-                const count = items.filter((d) => d.category.id === c.id).length;
-                return {
-                    id: c.id,
-                    name: c.name,
-                    count,
-                    percent: items.length ? (100 * count) / items.length : null,
-                };
-            }),
-        });
-        const cohort = items.filter(
-            (d) =>
-                Date.parse(d.createdAt) >= Date.parse(this.asOf) - 90 * 86400000 &&
-                Date.parse(d.createdAt) < Date.parse(this.asOf),
+        const { distribution, responses, cohort } = RepoCommunicationProcessor.overview(
+            items,
+            categories,
+            this.asOf,
         );
-        const answerable = cohort.filter((d) => d.category.isAnswerable),
-            answered = answerable.filter((d) => d.answer);
-        data.responses = this.complete({
-            answerableCount: answerable.length,
-            answeredCount: answered.length,
-            answeredPercent: answerable.length ? (100 * answered.length) / answerable.length : null,
-        });
+        data.distribution = this.complete(distribution);
+        data.responses = this.complete(responses);
         try {
             const ranked: CommunicationDiscussion[] = [];
             for (const d of cohort) {
-                const comments =
-                    d.comments.totalCount === 0 ? [] : await this.collectComments(d.id);
+                const comments = d.comments.totalCount === 0 ? [] : await collection.comments(d.id);
                 ranked.push({
                     number: d.number,
                     title: d.title,
@@ -196,8 +135,7 @@ export default class RepoCommunicationServices {
                     ),
                 });
             }
-            ranked.sort((a, b) => b.score - a.score || b.number - a.number);
-            data.popular = this.complete(ranked.slice(0, 3));
+            data.popular = this.complete(RepoCommunicationProcessor.rank(ranked));
         } catch (error) {
             const upstream = error as { status?: number; message?: string };
             data.popular =
