@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { BiMenu } from "react-icons/bi";
 import SideTitleLogo from "~/components/common/SideTitleLogo";
 import { tv, type VariantProps } from "tailwind-variants";
@@ -59,11 +59,18 @@ const MenuList = ({ menuData, menuItemType }: MenuListProps) => {
 
 const MenuListItem = ({ name, href, menuItemType }: MenuListItemProps) => {
     const { a, li } = tv_MenuListItem(menuItemType);
+    const OnClickHandler = (event: MouseEvent<HTMLAnchorElement>) => {
+        if (href === RouteURL.trend) {
+            event.preventDefault();
+            window.alert("추후 업데이트 예정입니다");
+        }
+    };
     return (
         <li className={li()}>
             <a
                 className={a()}
-                href={href}>
+                href={href}
+                onClick={OnClickHandler}>
                 {name}
             </a>
         </li>
