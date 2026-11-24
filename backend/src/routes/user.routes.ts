@@ -1,11 +1,8 @@
+import UserDevelopStyleControllers from "../controllers/user-develop-style.controllers";
 import Router from "express";
 import { AuthRequest } from "../types/middlewares/auth";
 import { authToken, authUser, checkToken, checkUser } from "../middlewares/auth.middleware";
-import {
-    CommonErrorResponse,
-    CommonResponse,
-    ErrorStatus,
-} from "../types/middlewares/common";
+import { CommonErrorResponse, CommonResponse, ErrorStatus } from "../types/middlewares/common";
 import { GithubUser } from "../client/user.client";
 import { GithubGraphqlFetch } from "../client/repo.client";
 import { userHeaderQuery } from "../client/queries/github/user-header.query";
@@ -26,7 +23,10 @@ import type {
     GithubGQLGetUserPublicRepositoriesQueryVariables as GetUserPublicRepositoriesQueryVariables,
 } from "../types/github/graphql/operations.generated";
 import type { GetUserRepositoriesDto } from "../types/response/user-repositories";
-import type { GetUserOrganizationsDto, UserOrganization } from "../types/response/user-organizations";
+import type {
+    GetUserOrganizationsDto,
+    UserOrganization,
+} from "../types/response/user-organizations";
 import type { GetUserProfileDto } from "../types/response/user-profile";
 import type {
     GetUserRecentActivityDto,
@@ -114,7 +114,13 @@ user_router.get("/userheader", authToken, authUser, async (req: AuthRequest, res
             variables,
         );
         if (!userData) {
-            return res.status(404).json({ status: 404, type: "Not Found", title: "GitHub 사용자를 찾을 수 없습니다." });
+            return res
+                .status(404)
+                .json({
+                    status: 404,
+                    type: "Not Found",
+                    title: "GitHub 사용자를 찾을 수 없습니다.",
+                });
         }
         const response: CommonResponse<typeof userData> = {
             status: 200,
@@ -413,7 +419,7 @@ user_router.get("/:login/repositories", checkToken, checkUser, async (req: AuthR
             if (hasNextPage && (!endCursor || endCursor === after)) {
                 throw CommonError.create500Error("GitHub 저장소의 다음 페이지를 찾지 못했습니다.");
             }
-            after = hasNextPage ? endCursor ?? null : null;
+            after = hasNextPage ? (endCursor ?? null) : null;
         } while (after);
 
         const commonResponse: CommonResponse<GetUserRepositoriesDto> = {
@@ -423,7 +429,10 @@ user_router.get("/:login/repositories", checkToken, checkUser, async (req: AuthR
         };
         res.json(commonResponse);
     } catch (error) {
-        const errorResponse = getPublicUserError(error, "GitHub 저장소 목록을 조회하지 못했습니다.");
+        const errorResponse = getPublicUserError(
+            error,
+            "GitHub 저장소 목록을 조회하지 못했습니다.",
+        );
         res.status(errorResponse.status).json(errorResponse);
     }
 });
@@ -453,7 +462,8 @@ user_router.get("/:login/organizations", checkToken, checkUser, async (req: Auth
             if (listResponse.status === 404) {
                 throw CommonError.create404Error("GitHub 사용자를 찾을 수 없습니다.");
             }
-            if (!listResponse.ok) throw CommonError.create500Error("GitHub 조직 목록을 조회하지 못했습니다.");
+            if (!listResponse.ok)
+                throw CommonError.create500Error("GitHub 조직 목록을 조회하지 못했습니다.");
             const batch = (await listResponse.json()) as Array<{ login: string }>;
             organizations.push(...batch);
             if (batch.length < 100) break;
@@ -463,45 +473,54 @@ user_router.get("/:login/organizations", checkToken, checkUser, async (req: Auth
         const orgs: UserOrganization[] = [];
         for (let index = 0; index < organizations.length; index += 5) {
             const batch = organizations.slice(index, index + 5);
-            const details = await Promise.all(batch.map(async (org): Promise<UserOrganization> => {
-                const detailResponse = await fetch(
-                    `https://api.github.com/orgs/${encodeURIComponent(org.login)}`,
-                    { headers },
-                );
-                if (!detailResponse.ok) {
-                    throw CommonError.create500Error("GitHub 조직 상세 정보를 조회하지 못했습니다.");
-                }
-                const detail = (await detailResponse.json()) as {
-                    avatar_url: string;
-                    id: number;
-                    name: string | null;
-                    login: string;
-                    followers: number;
-                    public_repos: number;
-                    html_url: string;
-                    description: string | null;
-                };
-                return {
-                    avatarurl: detail.avatar_url,
-                    id: detail.id,
-                    name: detail.name,
-                    login: detail.login,
-                    followers: detail.followers,
-                    public_repo: detail.public_repos,
-                    url: detail.html_url,
-                    description: detail.description,
-                };
-            }));
+            const details = await Promise.all(
+                batch.map(async (org): Promise<UserOrganization> => {
+                    const detailResponse = await fetch(
+                        `https://api.github.com/orgs/${encodeURIComponent(org.login)}`,
+                        { headers },
+                    );
+                    if (!detailResponse.ok) {
+                        throw CommonError.create500Error(
+                            "GitHub 조직 상세 정보를 조회하지 못했습니다.",
+                        );
+                    }
+                    const detail = (await detailResponse.json()) as {
+                        avatar_url: string;
+                        id: number;
+                        name: string | null;
+                        login: string;
+                        followers: number;
+                        public_repos: number;
+                        html_url: string;
+                        description: string | null;
+                    };
+                    return {
+                        avatarurl: detail.avatar_url,
+                        id: detail.id,
+                        name: detail.name,
+                        login: detail.login,
+                        followers: detail.followers,
+                        public_repo: detail.public_repos,
+                        url: detail.html_url,
+                        description: detail.description,
+                    };
+                }),
+            );
             orgs.push(...details);
         }
 
         const data: GetUserOrganizationsDto = { orgs, totalOrgCount: orgs.length };
-        const response: CommonResponse<GetUserOrganizationsDto> = { status: 200, success: true, data };
+        const response: CommonResponse<GetUserOrganizationsDto> = {
+            status: 200,
+            success: true,
+            data,
+        };
         res.json(response);
     } catch (error) {
-        const errorResponse = error instanceof CommonError
-            ? error
-            : CommonError.create500Error("GitHub 조직 목록을 조회하지 못했습니다.");
+        const errorResponse =
+            error instanceof CommonError
+                ? error
+                : CommonError.create500Error("GitHub 조직 목록을 조회하지 못했습니다.");
         res.status(errorResponse.status).json(errorResponse);
     }
 });
@@ -518,6 +537,23 @@ function getPublicUserError(error: unknown, detail: string): CommonErrorResponse
     }
     return CommonError.create500Error(detail);
 }
+
+/**
+ * @api GET /api/users/:login/develop-style
+ *
+ * @desc 공개 저장소 최대 30개와 최근 30일 공개 이벤트 최대 300건의 개발 성향 표본.
+ *
+ * @query timezone 선택 IANA 시간대. 기본 Asia/Seoul. 그 외 쿼리와 body 없음.
+ *
+ * @github backend/src/types/github/rest/user-develop-style.ts
+ *
+ * @response backend/src/types/response/user-develop-style.ts
+ *
+ * @error [400] : 사용자명·시간대·쿼리 오류. [401] : 서버 GitHub 인증 실패.
+ * @error [403] : 권한 또는 호출 제한. [404] : 사용자·저장소 없음. [429] : 호출 제한.
+ * @error [500] : GitHub 요청 실패.
+ */
+user_router.get("/:login/develop-style", new UserDevelopStyleControllers().getOverview);
 
 // api/users/* (catch-all route for undefined routes)
 user_router.use((req, res) => {
