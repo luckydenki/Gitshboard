@@ -2,9 +2,6 @@
 
 해당 문서는 API를 개설해달라고 하는 모든 요청에 대한 지침입니다.
 
-(임시 규칙입니다. 이 규칙은 변경될 수 있으며, 우선은 controller나 service 파일로 분리시키지 말고 routes 파일 안에 모두 작성하세요)
-
-
 ## 공통 규칙
 - 모든 최종 응답은 `CommonResponse<T>` 타입으로 작성됩니다. 해당 타입에 대한 설명은 CommonResponse 파일에서 직접 확인하세요
 - 모든 최종 에러 응답은 `CommonErrorResponse` 타입으로 작성됩니다. 이를 위한 헬퍼 클래스 `CommonError` 도 존재하며, 필요한 경우에 사용해보세요.
