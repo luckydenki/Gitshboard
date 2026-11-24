@@ -1,0 +1,46 @@
+import {Meta,Canvas} from "@storybook/addon-docs/blocks";
+import * as Stories from "./UserDashboardDevelopStyleQueryState.stories";
+
+<Meta of={Stories}/>
+
+# UserDashboardDevelopStyleQueryState
+
+6개 패널의 제목·부제목과 반응형 배치를 유지하면서 공용 LoadingSpinner 또는 PanelError를 표시합니다.
+재시도는 공유 API 전체를 다시 조회하며, 진행 중 버튼 대신 스피너가 표시됩니다.
+캐시 데이터가 있으면 재조회 도중에도 기존 콘텐츠를 유지합니다.
+
+## Props
+
+| 이름 | 타입 | 설명 |
+| --- | --- | --- |
+| state | "loading" 또는 "error" | 표시할 상태 |
+| onRetry | () => void | 전체 조회 재시도 |
+
+## 사용 예시
+
+```tsx
+<UserDashboardDevelopStyleQueryState state="error" onRetry={refetch}/>
+```
+
+<Canvas of={Stories.Loading}/>
+<Canvas of={Stories.Error}/>
+<Canvas of={Stories.Retry}/>
+<Canvas of={Stories.MobileError}/>
+
+## 기본 평가
+
+7/7 통과. Chrome Storybook에서 오류·재시도 전환과 390px 화면을 확인했습니다.
+
+1. 로딩 UI: O — 5개 조회 패널 각각 LoadingSpinner, 제목·부제목 유지.
+2. 오류·재시도: O — PanelError 및 재시도 콜백. Error 스토리는 5개 버튼의 호출, Retry 스토리는 오류 → 로딩 전환과 버튼 제거를 검증했습니다. 브라우저 오류 로그 없음.
+3. 빈 데이터: O — 실제 페이지에서 언어·토픽·시간대·요일별 빈 상태 안내. 협업 수치는 0으로 표시하며 공개 활동 없음 안내를 제공합니다. 작업 목적은 미지원 안내.
+4. Storybook: O — Loading, Error, Retry, MobileError 사례와 상호작용 테스트 작성.
+5. CSS 가이드: O — 공통 PanelLayout, PanelError, LoadingSpinner 재사용.
+6. 컴포넌트 가이드: O — 페이지 전용 조회 상태 컴포넌트로 분리하고 로딩·오류를 함께 관리. 사용자 요청에 따라 스켈레톤 대신 공용 스피너 사용.
+7. 브라우저: O — 넓은 화면에서 상단 2열·하단 전체 너비, 390px에서 1열·오류 안내 줄바꿈·가로 넘침 없음 확인. 로딩 status 5개와 오류 alert 5개 확인.
+
+단일 API를 공유하므로 어느 패널에서 재시도해도 전체 조회가 실행됩니다. 캐시 데이터가 있으면 갱신 중 기존 내용을 유지합니다.
+
+
+작업 유형 패널은 미구현이므로 조회 상태와 관계없이 UpcomingBackdrop을 표시합니다. 제목과 부제목은 백드롭 밖에 유지합니다. 해당 변경에 맞춰 상호작용 테스트의 조회 패널 수를 5개로 수정했습니다.
+
