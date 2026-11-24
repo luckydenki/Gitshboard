@@ -1,0 +1,64 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./RepoDashboardProjectStatusSection.stories";
+
+<Meta of={Stories} />
+
+# RepoDashboardProjectStatusSection
+
+프로젝트 현황의 12개 패널을 표시합니다. 현재 라우트의 `owner`, `repo`와 `QueryClientProvider`가 필요하며 별도 props는 없습니다.
+
+모든 패널은 `DashboardPanelLayout`을 사용합니다. 로딩은 요청에 따라 `LoadingSpinner`, 오류는 재시도 버튼이 있는 `PanelError`로 통일했습니다. 재시도는 해당 패널이 사용하는 API만 다시 요청합니다. 캐시 데이터가 남아 있는 재조회 오류도 표시합니다.
+
+## 분리한 컴포넌트와 props
+
+`components/page/repo-dashboard/project-status` 아래에 다음 컴포넌트를 관리합니다.
+
+| 컴포넌트                                        | 내용                 | Props                             |
+| ----------------------------------------------- | -------------------- | --------------------------------- |
+| RepoDashboardProjectStatusLanguagePanel         | 언어 구성            | status                            |
+| RepoDashboardProjectStatusFilesPanel            | 전체 파일            | status                            |
+| RepoDashboardProjectStatusFrameworksPanel       | 발견한 프레임워크    | status                            |
+| RepoDashboardProjectStatusStoragePanel          | Git 저장소 용량      | status                            |
+| RepoDashboardProjectStatusFileTypesPanel        | 파일 구성            | status                            |
+| RepoDashboardProjectStatusIssuePrPanel          | 이슈와 PR            | status                            |
+| RepoDashboardProjectStatusHealthPanel           | 커뮤니티 건강도      | status                            |
+| RepoDashboardProjectStatusBranchesPanel         | 브랜치 현황          | status                            |
+| RepoDashboardProjectStatusDeploymentsPanel      | 배포 결과            | status                            |
+| RepoDashboardProjectStatusParticipationPanel    | Issue·PR 참여자 추이 | status                            |
+| RepoDashboardProjectStatusContributorsPanel     | 기여자 증가 추이     | status                            |
+| RepoDashboardProjectStatusDeploymentRhythmPanel | 배포 리듬            | status                            |
+| RepoDashboardProjectStatusChart                 | ECharts 표시         | option, className?, style?        |
+| RepoDashboardProjectStatusQueryState            | 로딩·오류·성공 분기  | loading, error, onRetry, children |
+
+`status`는 `useRepoDashboardProjectStatusPanels`의 반환값입니다. 서버 조회 및 차트 데이터 가공은 이 훅에서 관리합니다. `RepoDashboardProjectStatusLoading`, `RepoDashboardProjectStatusError`는 상태 컴포넌트 파일에 함께 관리하며 오류 컴포넌트는 `onRetry`를 받습니다. 새 variant props는 없습니다.
+
+## 사용 예시
+
+```tsx
+<Route
+    path="/repos/:owner/:repo"
+    element={<RepoDashboardProjectStatusSection />}
+/>
+```
+
+<Canvas of={Stories.Default} />
+
+## 경계 상태
+
+<Canvas of={Stories.Loading} />
+<Canvas of={Stories.Error} />
+<Canvas of={Stories.Empty} />
+<Canvas of={Stories.Partial} />
+<Canvas of={Stories.Mobile} />
+
+## 기본 평가
+
+6/7 — 코드 점검 완료. 브라우저 점검은 실행 환경 문제로 완료하지 못했습니다. Storybook 개발 서버는 시작 로그를 출력했으나 브라우저에서 localhost 연결이 시간 초과되었고, 로컬 브라우저 자동화도 실행되지 않았습니다. 아래 스토리의 실제 렌더링 및 play 테스트 결과는 미확인입니다.
+
+1. [코드] 로딩 UI [o] — 패널별 공통 스피너 및 최소 높이.
+2. [코드] 에러·재시도 [o] — 공통 오류 UI와 패널별 refetch 연결.
+3. [코드] 빈 데이터 UI [o] — 데이터 없음 안내 유지.
+4. [코드] Storybook 작성 [o] — 정상·로딩·오류 복구·빈 데이터·부분 데이터·모바일.
+5. [코드] CSS 가이드 [o] — 공통 패널, flex 배치, 지정 색상. 스켈레톤 지침은 사용자 요청으로 스피너 적용.
+6. [코드] 컴포넌트 가이드 [o] — 패널별 분리, 파일당 200줄 미만, 차트와 조회 훅 분리.
+7. [브라우저] 실제 화면 표시 [x] — 실행 환경으로 미확인.
