@@ -2,19 +2,23 @@ import type { EChartsOption } from "echarts";
 import EChartsReact from "echarts-for-react";
 import { hourlyActivityMock } from "~/mock/home-dashboard/dashboard-develop-style";
 
-export default function UserDashboardDevelopStyleHourlyChart() {
+export default function UserDashboardDevelopStyleHourlyChart({
+    points = hourlyActivityMock,
+}: {
+    points?: { hour: number; count: number }[];
+}) {
     const option: EChartsOption = {
         animation: false,
         aria: {
             enabled: true,
-            description: "예시 데이터로 표시한 0시부터 23시까지의 시간대별 활동 건수 선 그래프",
+            description: "0시부터 23시까지의 시간대별 활동 건수 선 그래프",
         },
         grid: { left: 40, right: 18, top: 36, bottom: 36 },
         tooltip: { trigger: "axis", valueFormatter: (value) => `${value}건` },
         xAxis: {
             type: "category",
             boundaryGap: false,
-            data: hourlyActivityMock.map(({ hour }) => `${hour}시`),
+            data: points.map(({ hour }) => `${hour}시`),
             axisLabel: {
                 color: "#6b7280",
                 hideOverlap: true,
@@ -34,7 +38,7 @@ export default function UserDashboardDevelopStyleHourlyChart() {
             {
                 name: "활동",
                 type: "line",
-                data: hourlyActivityMock.map(({ count }) => count),
+                data: points.map(({ count }) => count),
                 itemStyle: { color: "#076BFF" },
                 symbolSize: 6,
             },

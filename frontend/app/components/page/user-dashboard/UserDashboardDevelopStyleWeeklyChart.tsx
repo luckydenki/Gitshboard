@@ -2,12 +2,16 @@ import type { EChartsOption } from "echarts";
 import EChartsReact from "echarts-for-react";
 import { weeklyActivityMock } from "~/mock/home-dashboard/dashboard-develop-style";
 
-export default function UserDashboardDevelopStyleWeeklyChart() {
+export default function UserDashboardDevelopStyleWeeklyChart({
+    points = weeklyActivityMock,
+}: {
+    points?: { day: string; count: number }[];
+}) {
     const option: EChartsOption = {
         animation: false,
         aria: {
             enabled: true,
-            description: "예시 데이터로 표시한 월요일부터 일요일까지의 활동 건수 막대그래프",
+            description: "월요일부터 일요일까지의 활동 건수 막대그래프",
         },
         grid: { left: 40, right: 18, top: 36, bottom: 36 },
         tooltip: {
@@ -17,7 +21,7 @@ export default function UserDashboardDevelopStyleWeeklyChart() {
         },
         xAxis: {
             type: "category",
-            data: weeklyActivityMock.map(({ day }) => day),
+            data: points.map(({ day }) => day),
             axisLabel: { interval: 0, color: "#6b7280" },
         },
         yAxis: {
@@ -32,7 +36,7 @@ export default function UserDashboardDevelopStyleWeeklyChart() {
             {
                 name: "활동",
                 type: "bar",
-                data: weeklyActivityMock.map(({ count }) => count),
+                data: points.map(({ count }) => count),
                 barMaxWidth: 36,
                 itemStyle: { color: "#076BFF", borderRadius: [4, 4, 0, 0] },
             },

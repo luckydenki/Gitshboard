@@ -2,13 +2,18 @@ import type { EChartsOption } from "echarts";
 import EChartsReact from "echarts-for-react";
 import { languageUsageMock } from "~/mock/home-dashboard/dashboard-develop-style";
 
-export default function UserDashboardDevelopStyleLanguageChart() {
+export default function UserDashboardDevelopStyleLanguageChart({
+    languages = languageUsageMock,
+    otherPercentage = 4,
+}: {
+    languages?: { language: string; percentage: number; color: string }[];
+    otherPercentage?: number;
+}) {
     const option: EChartsOption = {
         animation: false,
         aria: {
             enabled: true,
-            description:
-                "예시 코드 구성 비율: TypeScript 42%, JavaScript 25%, Python 15%, CSS 8%, HTML 6%. 기타 4%.",
+            description: "언어별 코드 구성 비율 가로 막대그래프",
         },
         grid: { left: 90, right: 40, top: 12, bottom: 28 },
         tooltip: {
@@ -26,7 +31,7 @@ export default function UserDashboardDevelopStyleLanguageChart() {
         yAxis: {
             type: "category",
             inverse: true,
-            data: languageUsageMock.map(({ language }) => language),
+            data: languages.map(({ language }) => language),
             axisLine: { show: false },
             axisTick: { show: false },
             axisLabel: { color: "#6b7280" },
@@ -37,7 +42,7 @@ export default function UserDashboardDevelopStyleLanguageChart() {
                 name: "코드 구성 비율",
                 barMaxWidth: 16,
                 label: { show: true, position: "right", formatter: "{c}%", color: "#6b7280" },
-                data: languageUsageMock.map(({ percentage, color }) => ({
+                data: languages.map(({ percentage, color }) => ({
                     value: percentage,
                     itemStyle: { color, borderRadius: [0, 4, 4, 0] },
                 })),
@@ -51,7 +56,9 @@ export default function UserDashboardDevelopStyleLanguageChart() {
                 opts={{ renderer: "svg" }}
                 style={{ height: 208, width: "100%" }}
             />
-            <p className="text-xs text-gray-500">예시 코드 구성 비율 · 전체 언어 기준 · 기타 4%</p>
+            <p className="text-xs text-gray-500">
+                코드 구성 비율 · 전체 언어 기준 · 기타 {otherPercentage}%
+            </p>
         </div>
     );
 }

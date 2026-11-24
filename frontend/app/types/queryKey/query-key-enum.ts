@@ -45,7 +45,9 @@
  *
  */
 /** REPO_COMMUNICATION: /api/repos/:owner/:repo/communication/:endpoint 집계. */
+/** USER_DEVELOP_STYLE: GET /api/users/:login/develop-style 공개 개발 성향. */
 export enum QueryKeys {
+    USER_DEVELOP_STYLE = "user-develop-style",
     REPO_COMMUNICATION = "repo-communication",
     REPO_DASHBOARD_ISSUE_STATS = "repo-dashboard-issue-stats",
     REPO_DASHBOARD_PULL_REQUEST_STATS = "repo-dashboard-pull-request-stats",
