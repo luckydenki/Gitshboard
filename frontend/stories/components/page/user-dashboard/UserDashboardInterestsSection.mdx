@@ -1,0 +1,39 @@
+import {Meta,Canvas} from "@storybook/addon-docs/blocks";
+import * as Stories from "./UserDashboardInterestsSection.stories";
+
+<Meta of={Stories}/>
+
+# UserDashboardInterestsSection
+
+공통 DashboardPanelLayout으로 탐색 요약·조회 저장소·조회 개발자·추천 프로젝트를 표시합니다.
+배경 panel, rounded-lg, p-4, 테두리 없음, h3 text-xl font-semibold 및 회색 부제목·바닥글을 공유합니다.
+내부 중첩 카드와 강조 배지를 제거했으며, 주제별 조회 수는 ECharts 가로 막대그래프로 표시합니다.
+데이터는 기존 목업이며 실제 조회 기록이나 추천 결과가 아닙니다.
+
+## Props
+
+없음. 기존 목업 데이터와 GitHub 링크를 유지합니다.
+
+## 사용 예시
+
+```tsx
+<UserDashboardInterestsSection/>
+```
+
+<Canvas of={Stories.Default}/>
+<Canvas of={Stories.Mobile}/>
+
+## 기본 평가
+
+7/7 통과. Chrome Storybook의 기본 화면 및 390px에서 확인했습니다.
+
+1. 로딩 UI: 해당 없음 — 기존 고정 목업을 유지하는 디자인 변경이며 서버 조회 없음.
+2. 오류·재시도: 해당 없음 — 서버 조회 없음.
+3. 빈 데이터: 해당 없음 — 기존 고정 목업 유지. 실제 데이터 연동 시 별도 점검 필요.
+4. Storybook: O — Default, Mobile 및 패널 4개·GitHub 링크 9개·예시 안내 검증 추가.
+5. CSS 가이드: O — 공통 패널·색상·여백 재사용, 중첩 테두리 제거, 링크 hover 및 focus 표시.
+6. 컴포넌트 가이드: O — 조회 목록·추천·ECharts 차트를 분리. 이 컴포넌트는 기존 main 내부의 하위 섹션입니다.
+7. 브라우저: O — 넓은 화면과 390px에서 차트·제목·목록 줄바꿈 정상, 가로 넘침 없음. 브라우저 오류 로그 없음.
+
+조회 목록은 kind="repositories" 또는 kind="users"로 재사용하며, 추천 섹션과 주제 차트는 Props 없이 기존 목업 데이터를 사용합니다.
+
