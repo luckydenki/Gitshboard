@@ -9,15 +9,18 @@ import * as Stories from "./RepoCommitStatusQueryState.stories";
 
 ## Props
 
-| 이름 | 타입 | 설명 |
-| --- | --- | --- |
-| `state` | `"loading" \| "error" \| "empty" \| "partial"` | 표시할 조회 상태입니다. |
-| `onRetry` | `() => void` | 오류나 부분 수집 상태에서 다시 시도할 때 호출합니다. |
+| 이름      | 타입                                           | 설명                                                 |
+| --------- | ---------------------------------------------- | ---------------------------------------------------- |
+| `state`   | `"loading" \| "error" \| "empty" \| "partial"` | 표시할 조회 상태입니다.                              |
+| `onRetry` | `() => void`                                   | 오류나 부분 수집 상태에서 다시 시도할 때 호출합니다. |
 
 ## 사용 예시
 
 ```tsx
-<RepoCommitStatusQueryState state="error" onRetry={() => refetch()} />
+<RepoCommitStatusQueryState
+    state="error"
+    onRetry={() => refetch()}
+/>
 ```
 
 <Canvas of={Stories.Loading} />
@@ -27,14 +30,11 @@ import * as Stories from "./RepoCommitStatusQueryState.stories";
 
 ### 기본 평가
 
-7/9 — Chrome Storybook에서 기본·경계 상태를 확인했고, 320px 화면에서 가로 넘침을 수정해 재확인했습니다.
+6/6 — 코드 기준 점검. 사용자 요청에 따라 Storybook 실행과 브라우저 검증은 수행하지 않았습니다.
 
-1. 로딩 UI: O (서버 조회가 없는 차트는 해당 없음)
-2. 오류·재시도: O (서버 조회가 없는 차트는 해당 없음)
-3. 빈 데이터 UI: O
-4. 데이터 표시: O
-5. 반응형 화면: O (320px 및 기본 화면)
-6. Lighthouse 접근성 90점 이상: 미확인
-7. Storybook 작성: O
-8. CSS 가이드 준수: O
-9. Chrome·Safari·Firefox 일관성: 미확인
+1. 로딩 UI: O (`LoadingSpinner` 사용)
+2. 오류·재시도: O (`PanelError`와 기존 refetch 연결)
+3. 빈 데이터 UI: O (커밋 기록 없음 표시)
+4. Storybook 작성·수정: O (기존 상태 스토리 유지 및 문서 갱신)
+5. CSS 가이드: O (공통 패널 규격, 수치 카드는 기존 구조 유지)
+6. 컴포넌트 가이드: O (섹션 분리, 조회 훅 유지, 공통 상태 UI 사용)

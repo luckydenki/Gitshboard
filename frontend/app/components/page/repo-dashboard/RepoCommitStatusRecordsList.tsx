@@ -121,10 +121,10 @@ export default function RepoCommitStatusRecordsList({ records, loading, error, o
                     {cards.map((card) => (
                         <div
                             key={card.label}
-                            className="bg-panel flex flex-col gap-3 rounded-lg border border-gray-300 p-5 md:w-[calc(50%-0.5rem)] xl:w-[calc(25%-0.75rem)]">
+                            className="bg-panel flex flex-col gap-3 rounded-lg p-4 md:w-[calc(50%-0.5rem)] xl:w-[calc(25%-0.75rem)]">
                             <dt className="text-sm text-gray-500">{card.label}</dt>
                             <dd className="text-xl font-bold">{card.value}</dd>
-                            <p className="text-xs text-gray-500">{card.detail}</p>
+                            <dd className="text-xs text-gray-500">{card.detail}</dd>
                         </div>
                     ))}
                 </dl>
