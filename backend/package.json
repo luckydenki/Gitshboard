@@ -41,6 +41,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.6.0",
+    "@types/xml2js": "^0.4.14",
     "prettier": "^3.9.7",
     "prisma": "^6.19.3",
     "ts-node": "^10.9.2",
