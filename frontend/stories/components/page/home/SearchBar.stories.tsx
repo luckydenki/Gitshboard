@@ -1,11 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, userEvent } from "storybook/test";
+import { MemoryRouter } from "react-router";
+import { expect, fn, userEvent } from "storybook/test";
 import SearchBar from "../../../../app/components/page/home/SearchBar";
 import { searchRepo, searchUser } from "../../../../mock/storybook/search";
 
 const meta = {
     title: "Components/Page/Home/SearchBar",
     component: SearchBar,
+    // 자동완성 항목의 useNavigate에 라우터 컨텍스트를 제공합니다.
+    decorators: [
+        (Story) => (
+            <MemoryRouter>
+                <Story />
+            </MemoryRouter>
+        ),
+    ],
     args: { enableFilter: false, variant: { wsize: "md" } },
     beforeEach: () => {
         const originalFetch = globalThis.fetch;
@@ -35,7 +44,20 @@ export const Default: Story = {
         const input = canvas.getByPlaceholderText("검색...");
         await userEvent.type(input, "octocat");
         await expect(input).toHaveValue("octocat");
-        await userEvent.click(canvas.getByRole("button", { name: "검색 버튼" }));
+        const form = input.closest("form")!;
+        // 실제 페이지 이동으로 Vitest 연결이 끊기지 않도록 제출만 검증합니다.
+        const onSubmit = fn((event: Event) => event.preventDefault());
+        form.addEventListener("submit", onSubmit);
+        try {
+            await userEvent.click(canvas.getByRole("button", { name: "검색 버튼" }));
+            await expect(onSubmit).toHaveBeenCalledOnce();
+            const formData = new FormData(form);
+            await expect(formData.get("q")).toBe("octocat");
+            await expect(formData.get("category")).toBe("users");
+            await expect(formData.get("page")).toBe("1");
+        } finally {
+            form.removeEventListener("submit", onSubmit);
+        }
     },
 };
 // 작은 너비에 검색 필터를 표시하는 사례입니다.

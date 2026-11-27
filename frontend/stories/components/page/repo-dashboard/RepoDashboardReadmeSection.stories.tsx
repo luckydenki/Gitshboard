@@ -152,8 +152,11 @@ export const ContentError: Story = { decorators: [withScenario("contentError")] 
 // 작은 화면에서 파일 선택 메뉴를 표시합니다.
 export const Mobile: Story = {
     decorators: [withScenario("default")],
-    parameters: { viewport: { defaultViewport: "mobile1" } },
+    globals: { viewport: { value: "mobile1", isRotated: false } },
     play: async ({ canvas }) => {
-        await expect(canvas.getByLabelText("README 파일")).toBeVisible();
+        const select = canvas.getByRole("combobox", { name: /README 파일/ });
+        await expect(select).toBeVisible();
+        await userEvent.selectOptions(select, secondPath);
+        await expect(canvas.getByRole("heading", { name: "Nested README" })).toBeVisible();
     },
 };

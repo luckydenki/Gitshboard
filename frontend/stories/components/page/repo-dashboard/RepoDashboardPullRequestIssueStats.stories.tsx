@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, fn, userEvent } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 import RepoDashboardIssueStatsSection from "../../../../app/components/page/repo-dashboard/RepoDashboardIssueStatsSection";
 import RepoDashboardPullRequestStatsSection from "../../../../app/components/page/repo-dashboard/RepoDashboardPullRequestStatsSection";
 import type {
@@ -106,11 +106,15 @@ export const Default: Story = {
     },
 };
 
-// 서버 데이터 대기 중 각 카드의 로딩 상태를 표시합니다.
+// 서버 데이터 대기 중 Issue와 Pull Request 섹션의 로딩 상태를 표시합니다.
 export const Loading: Story = {
     args: { loading: true },
     play: async ({ canvas }) => {
-        await expect(canvas.getAllByRole("status").length).toBeGreaterThan(2);
+        for (const name of ["Issue 통계", "Pull Request 통계"]) {
+            const section = within(canvas.getByRole("region", { name }));
+            await expect(section.getByRole("status")).toBeVisible();
+            await expect(section.getByRole("status")).toHaveTextContent("통계를 불러오는 중");
+        }
     },
 };
 
