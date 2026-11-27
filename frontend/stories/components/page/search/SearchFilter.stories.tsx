@@ -30,17 +30,20 @@ type Story = StoryObj<typeof meta>;
 // 필터를 열어 라디오와 직접 입력값의 선택 결과를 확인합니다.
 export const Default: Story = {
     play: async ({ canvas }) => {
+        const languageInput = canvas.getByPlaceholderText("language");
+
         await userEvent.click(canvas.getByRole("button", { name: /검색 필터/ }));
         await userEvent.click(canvas.getByLabelText("개인"));
         await expect(canvas.getByText("type:user")).toBeVisible();
         await userEvent.click(canvas.getByLabelText("Python"));
         await expect(canvas.getByText("language:Python")).toBeVisible();
-        await userEvent.type(canvas.getByPlaceholderText("languages"), "Rust");
+        await userEvent.type(languageInput, "Rust");
         await expect(canvas.getByText("language:Rust")).toBeVisible();
-        await userEvent.type(canvas.getByPlaceholderText("지역을 입력하세요"), "Seoul");
-        await expect(canvas.getByText("location:Seoul")).toBeVisible();
+        await userEvent.clear(languageInput);
+        await userEvent.type(languageInput, "Seoul");
+        await expect(canvas.getByText("language:Seoul")).toBeVisible();
         await userEvent.click(canvas.getByRole("button", { name: /검색 필터/ }));
-        await expect(canvas.getByPlaceholderText("languages")).not.toBeVisible();
+        await expect(canvas.getByPlaceholderText("language")).not.toBeVisible();
     },
 };
 // 모든 선택값이 이미 존재하는 상태입니다.

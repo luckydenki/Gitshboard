@@ -10,6 +10,8 @@ const meta = {
     args: { item: searchRepo },
     decorators: [
         (Story) => (
+            //스토리를 감싸서 공통 실행 환경을 제공하는 설정
+            //MemoryRouter : 주소와 이동 기록을 메모리에 저장하는 라우터
             <MemoryRouter initialEntries={["/"]}>
                 <Routes>
                     <Route
@@ -17,7 +19,7 @@ const meta = {
                         element={<Story />}
                     />
                     <Route
-                        path="/repo/:name"
+                        path="/repo/:owner/:name"
                         element={<p>Repository dashboard</p>}
                     />
                 </Routes>
