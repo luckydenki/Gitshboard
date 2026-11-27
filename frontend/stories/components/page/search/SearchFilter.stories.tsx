@@ -4,16 +4,21 @@ import { expect, userEvent } from "storybook/test";
 import type { SearchChoiceOptions, SearchChoiceOptionsKeyType } from "../../../../app/components/page/home/SearchBar";
 import SearchFilter from "../../../../app/components/page/search/SearchFilter";
 
+//meta는 한 컴포넌트의 스토리에 대한 메타정보를 적을 수 있다.
 const meta = {
-    title: "Components/Page/Search/SearchFilter", component: SearchFilter,
+    title: "Components/Page/Search/SearchFilter", 
+    component: SearchFilter,
     args: { choice: {}, choiceHandler: () => {} },
     render: function Render(args) {
         const [choice, setChoice] = useState<SearchChoiceOptions>(args.choice);
         const choiceHandler = (key: SearchChoiceOptionsKeyType, value: string) => setChoice((previous) => ({ ...previous, [key]: value }));
-        return <SearchFilter choice={choice} choiceHandler={choiceHandler} />;
-    },
+        return <SearchFilter choice={choice} choiceHandler={choiceHandler}/>;
+    }, // 무엇을 렌더링 시킬지 설정할 수 있다.
+
 } satisfies Meta<typeof SearchFilter>;
 export default meta;
+
+
 type Story = StoryObj<typeof meta>;
 // 필터를 열어 라디오와 직접 입력값의 선택 결과를 확인합니다.
 export const Default: Story = { play: async ({ canvas }) => {
@@ -30,6 +35,6 @@ export const Default: Story = { play: async ({ canvas }) => {
     await expect(canvas.getByPlaceholderText("languages")).not.toBeVisible();
 } };
 // 모든 선택값이 이미 존재하는 상태입니다.
-export const SelectedFilters: Story = { args: { choice: { type: "org", languages: "TypeScript", location: "Seoul" } } };
+export const SelectedFilters: Story = { args: { choice: { type: "org", language: "TypeScript", location: "Seoul" } } };
 // 긴 사용자 입력을 표시합니다.
-export const LongValues: Story = { args: { choice: { languages: "language".repeat(12), location: "location".repeat(12) } } };
+export const LongValues: Story = { args: { choice: { language: "language".repeat(12), location: "location".repeat(12) } } };

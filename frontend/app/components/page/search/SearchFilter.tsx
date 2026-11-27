@@ -86,11 +86,14 @@ const FilterOptionRadio = ({
 
 export default function SearchFilter({
     choice,
-    category,
+    category = {
+        name: "사용자",
+        value: "repos",
+    },
     choiceHandler,
 }: {
     choice: SearchChoiceOptions;
-    category: ISearchFilterCategory;
+    category?: ISearchFilterCategory;
     choiceHandler: (key: SearchChoiceOptionsKeyType, value: string) => void;
 }) {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
