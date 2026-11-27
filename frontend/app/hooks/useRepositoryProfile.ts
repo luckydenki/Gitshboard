@@ -24,10 +24,14 @@ export default function useRepositoryProfile(owner?: string, repo?: string) {
         enabled: Boolean(owner && repo),
         gcTime: 0,
         queryFn: async ({ signal }) => {
-            const response = await fetch(`/api/repos/${encodeURIComponent(owner!)}/${encodeURIComponent(repo!)}/profile`, { credentials: "include", signal });
+            const response = await fetch(
+                `/api/repos/${encodeURIComponent(owner!)}/${encodeURIComponent(repo!)}/profile`,
+                { credentials: "include", signal },
+            );
             if (!response.ok) throw new Error("저장소 프로필을 불러오지 못했습니다.");
             const result = await response.json();
-            if (!result.success || !result.data?.repository) throw new Error("저장소 프로필을 불러오지 못했습니다.");
+            if (!result.success || !result.data?.repository)
+                throw new Error("저장소 프로필을 불러오지 못했습니다.");
             return result.data.repository as RepositoryProfile;
         },
     });

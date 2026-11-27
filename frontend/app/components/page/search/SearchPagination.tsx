@@ -15,7 +15,10 @@ export default function SearchPagination({ currentPage, totalPages }: SearchPagi
     const navigate = useNavigate();
     const firstPage = Math.floor((currentPage - 1) / pagesPerGroup) * pagesPerGroup + 1;
     const lastPage = Math.min(firstPage + pagesPerGroup - 1, totalPages);
-    const pageNumbers = Array.from({ length: lastPage - firstPage + 1 }, (_, index) => firstPage + index);
+    const pageNumbers = Array.from(
+        { length: lastPage - firstPage + 1 },
+        (_, index) => firstPage + index,
+    );
 
     const goToPage = (page: number) => {
         const nextParams = new URLSearchParams(params);
@@ -33,7 +36,10 @@ export default function SearchPagination({ currentPage, totalPages }: SearchPagi
                 aria-label="이전 페이지 묶음"
                 disabled={firstPage === 1}
                 onClick={() => goToPage(firstPage - pagesPerGroup)}>
-                <FiChevronLeft size={16} aria-hidden="true" />
+                <FiChevronLeft
+                    size={16}
+                    aria-hidden="true"
+                />
             </button>
 
             <ol className="flex min-w-0 flex-wrap items-center justify-center gap-1">
@@ -57,7 +63,10 @@ export default function SearchPagination({ currentPage, totalPages }: SearchPagi
                 aria-label="다음 페이지 묶음"
                 disabled={lastPage >= totalPages}
                 onClick={() => goToPage(lastPage + 1)}>
-                <FiChevronRight size={16} aria-hidden="true" />
+                <FiChevronRight
+                    size={16}
+                    aria-hidden="true"
+                />
             </button>
         </footer>
     );

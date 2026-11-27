@@ -265,7 +265,7 @@ export default function Trend() {
                                     </div>
                                     <div className="ml-8 h-2 overflow-hidden rounded-lg bg-gray-200">
                                         <div
-                                            className="h-full rounded-lg bg-primary"
+                                            className="bg-primary h-full rounded-lg"
                                             style={{ width: `${language.share}%` }}
                                         />
                                     </div>
@@ -302,7 +302,7 @@ export default function Trend() {
                                     <span className="text-xs text-gray-500">
                                         {topic.repositories}개 프로젝트
                                     </span>
-                                    <span className="rounded-lg bg-primary/10 p-2 text-xs font-semibold text-primary">
+                                    <span className="bg-primary/10 text-primary rounded-lg p-2 text-xs font-semibold">
                                         {topic.change}
                                     </span>
                                 </li>
@@ -337,14 +337,14 @@ export default function Trend() {
                                                 href={repository.url}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="font-bold break-words hover:text-primary">
+                                                className="hover:text-primary font-bold break-words">
                                                 {repository.name}
                                             </a>
                                             <p className="mt-1 text-sm leading-6 text-gray-500">
                                                 {repository.description}
                                             </p>
                                         </div>
-                                        <span className="rounded-lg bg-primary/10 p-2 text-xs font-medium text-primary">
+                                        <span className="bg-primary/10 text-primary rounded-lg p-2 text-xs font-medium">
                                             {repository.discoveredAt}
                                         </span>
                                     </div>
@@ -354,7 +354,7 @@ export default function Trend() {
                                             href={repository.url}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="ml-auto flex items-center gap-1 font-medium text-primary">
+                                            className="text-primary ml-auto flex items-center gap-1 font-medium">
                                             GitHub에서 보기
                                             <FiExternalLink aria-hidden="true" />
                                         </a>
@@ -384,14 +384,14 @@ export default function Trend() {
                                     key={issue.repository}
                                     className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0">
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-xs font-semibold text-primary">
+                                        <span className="text-primary text-xs font-semibold">
                                             {issue.repository}
                                         </span>
                                         <a
                                             href={issue.url}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="text-sm font-bold leading-6 hover:text-primary">
+                                            className="hover:text-primary text-sm leading-6 font-bold">
                                             {issue.title}
                                         </a>
                                     </div>
@@ -399,7 +399,7 @@ export default function Trend() {
                                         {issue.labels.map((label) => (
                                             <span
                                                 key={label}
-                                                className="rounded-lg border-1 border-gray-300 bg-panel p-2 text-xs text-gray-500">
+                                                className="bg-panel rounded-lg border-1 border-gray-300 p-2 text-xs text-gray-500">
                                                 {label}
                                             </span>
                                         ))}
@@ -411,7 +411,7 @@ export default function Trend() {
                                             target="_blank"
                                             rel="noreferrer"
                                             aria-label={`${issue.repository} 이슈를 GitHub에서 보기`}
-                                            className="flex items-center gap-1 text-xs font-medium text-primary">
+                                            className="text-primary flex items-center gap-1 text-xs font-medium">
                                             GitHub에서 보기
                                             <FiExternalLink aria-hidden="true" />
                                         </a>

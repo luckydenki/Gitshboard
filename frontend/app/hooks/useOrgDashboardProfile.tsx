@@ -27,7 +27,8 @@ export default function useOrgDashboardProfile(login?: string) {
                 signal,
             });
             if (!response.ok) throw new Error(message);
-            const result: CommonResponse<{ organization: OrgProfile | null }> = await response.json();
+            const result: CommonResponse<{ organization: OrgProfile | null }> =
+                await response.json();
             if (!result.success || !result.data?.organization) throw new Error(message);
             return result.data.organization;
         },

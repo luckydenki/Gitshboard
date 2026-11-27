@@ -48,7 +48,9 @@ export default function UserDashboardRecentActivitySection({
             <div className="flex flex-wrap items-end justify-between gap-4 pb-5">
                 <div className="flex flex-col gap-1">
                     <h3 className="text-xl font-bold sm:text-2xl">최근 활동 내역</h3>
-                    <p className="text-sm text-gray-500">최근 활동 최대 10건을 보여주며, 분류는 이 활동 내에서 적용됩니다.</p>
+                    <p className="text-sm text-gray-500">
+                        최근 활동 최대 10건을 보여주며, 분류는 이 활동 내에서 적용됩니다.
+                    </p>
                 </div>
                 <label className="flex items-center gap-2 text-sm">
                     <span>분류</span>

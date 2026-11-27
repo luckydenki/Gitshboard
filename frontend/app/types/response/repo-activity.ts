@@ -48,7 +48,10 @@ export interface GetRepoActivityDto {
     }; // (derived)
 }
 
-export interface GetRepoActivitySummaryDto extends Pick<GetRepoActivityDto, "asOf" | "window" | "counts"> {
+export interface GetRepoActivitySummaryDto extends Pick<
+    GetRepoActivityDto,
+    "asOf" | "window" | "counts"
+> {
     branch: string | null;
     dailyCommits: Array<{ date: string; count: number }>; // (derived)
     peakDay: { date: string; total: number; counts: RepoActivityCounts } | null; // (derived)

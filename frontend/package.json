@@ -17,9 +17,9 @@
     "docker-list": "docker compose ps",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "format": "prettier --write .",
+    "prettier": "prettier --write .",
     "preview": "vite preview",
-    "format:check": "prettier --check .",
+    "prettier:check": "prettier --check .",
     "chromatic": "npx chromatic"
   },
   "dependencies": {

@@ -1,7 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import SearchResultHeader from "../../../../app/components/page/search/SearchResultHeader";
 
-const meta = { title: "Components/Page/Search/SearchResultHeader", component: SearchResultHeader, args: { total_count: 42 } } satisfies Meta<typeof SearchResultHeader>;
+const meta = {
+    title: "Components/Page/Search/SearchResultHeader",
+    component: SearchResultHeader,
+    args: { total_count: 42 },
+} satisfies Meta<typeof SearchResultHeader>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 // 일반 검색 결과 건수입니다.

@@ -12,6 +12,10 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 // 모바일 화면에서 텍스트 로고를 표시하는 사례입니다.
 export const Mobile: Story = {
-    parameters: { viewport: { options: { narrow: { name: "모바일", styles: { width: "375px", height: "667px" } } } } },
+    parameters: {
+        viewport: {
+            options: { narrow: { name: "모바일", styles: { width: "375px", height: "667px" } } },
+        },
+    },
     globals: { viewport: { value: "narrow", isRotated: false } },
 };

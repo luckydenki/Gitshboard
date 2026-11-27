@@ -36,8 +36,16 @@ export default function OrgDashboardProfileArticle({
                 avatarUrl={avatarUrl}
             />
             <AccountStats>
-                <AccountStats.Item icon={FiUsers} label="멤버" value={memberCount?.toLocaleString() ?? "조회 불가"} />
-                <AccountStats.Item icon={FiBook} label="공개 저장소" value={repositoryCount.toLocaleString()} />
+                <AccountStats.Item
+                    icon={FiUsers}
+                    label="멤버"
+                    value={memberCount?.toLocaleString() ?? "조회 불가"}
+                />
+                <AccountStats.Item
+                    icon={FiBook}
+                    label="공개 저장소"
+                    value={repositoryCount.toLocaleString()}
+                />
             </AccountStats>
         </AccountDashboard.ArticleLayout>
     );

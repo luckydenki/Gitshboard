@@ -5,4 +5,3 @@ export default function SearchResultHeader({ total_count }: { total_count: numbe
         </header>
     );
 }
-

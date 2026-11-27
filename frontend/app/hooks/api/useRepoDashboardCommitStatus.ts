@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import type { CommonResponse } from "~/types/common-response/common";
 import { QueryKeys } from "~/types/queryKey/query-key-enum";
-import type { RepoCommitStatusOverviewDto, RepoCommitStatusRecordsDto } from "~/types/response/repo-commit-status";
+import type {
+    RepoCommitStatusOverviewDto,
+    RepoCommitStatusRecordsDto,
+} from "~/types/response/repo-commit-status";
 
 const staleTime = 5 * 60 * 1000;
 
@@ -13,27 +16,39 @@ async function getCommitStatus<T>(url: string, signal: AbortSignal): Promise<T> 
     return result.data;
 }
 
-function useCommitStatusQuery<T>(key: QueryKeys, endpoint: "overview" | "records", owner?: string, repo?: string) {
+function useCommitStatusQuery<T>(
+    key: QueryKeys,
+    endpoint: "overview" | "records",
+    owner?: string,
+    repo?: string,
+) {
     return useQuery({
         queryKey: [key, owner, repo],
         enabled: Boolean(owner && repo),
         staleTime,
         retry: 3,
-        queryFn: ({ signal }) => getCommitStatus<T>(
-            `/api/repos/${encodeURIComponent(owner ?? "")}/${encodeURIComponent(repo ?? "")}/commit-status/${endpoint}`,
-            signal,
-        ),
+        queryFn: ({ signal }) =>
+            getCommitStatus<T>(
+                `/api/repos/${encodeURIComponent(owner ?? "")}/${encodeURIComponent(repo ?? "")}/commit-status/${endpoint}`,
+                signal,
+            ),
     });
 }
 
 export function useRepoDashboardCommitStatusOverview(owner?: string, repo?: string) {
     return useCommitStatusQuery<RepoCommitStatusOverviewDto>(
-        QueryKeys.REPO_DASHBOARD_COMMIT_STATUS_OVERVIEW, "overview", owner, repo,
+        QueryKeys.REPO_DASHBOARD_COMMIT_STATUS_OVERVIEW,
+        "overview",
+        owner,
+        repo,
     );
 }
 
 export function useRepoDashboardCommitStatusRecords(owner?: string, repo?: string) {
     return useCommitStatusQuery<RepoCommitStatusRecordsDto>(
-        QueryKeys.REPO_DASHBOARD_COMMIT_STATUS_RECORDS, "records", owner, repo,
+        QueryKeys.REPO_DASHBOARD_COMMIT_STATUS_RECORDS,
+        "records",
+        owner,
+        repo,
     );
 }

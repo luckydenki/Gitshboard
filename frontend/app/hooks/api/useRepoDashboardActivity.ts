@@ -26,9 +26,10 @@ export function useRepoDashboardActivity(
     mode: RepoDashboardActivityMode = "commits",
     branch?: string | null,
 ) {
-    const queryKey = mode === "commits"
-        ? QueryKeys.REPO_DASHBOARD_COMMIT_ACTIVITY
-        : QueryKeys.REPO_DASHBOARD_PR_ISSUE_ACTIVITY;
+    const queryKey =
+        mode === "commits"
+            ? QueryKeys.REPO_DASHBOARD_COMMIT_ACTIVITY
+            : QueryKeys.REPO_DASHBOARD_PR_ISSUE_ACTIVITY;
 
     return useInfiniteQuery({
         queryKey: [queryKey, owner, repo, mode === "commits" ? branch : null],
@@ -45,14 +46,20 @@ export function useRepoDashboardActivity(
             const query = params.size ? `?${params.toString()}` : "";
             const url = `/api/repos/${encodeURIComponent(owner ?? "")}/${encodeURIComponent(repo ?? "")}/activity/${endpoint}`;
             return getActivityData<GetRepoActivityDto>(
-                url + query, signal, "최근 전적을 불러오지 못했습니다.",
+                url + query,
+                signal,
+                "최근 전적을 불러오지 못했습니다.",
             );
         },
         getNextPageParam: (lastPage) => lastPage.nextCursor,
     });
 }
 
-export function useRepoDashboardActivitySummary(owner?: string, repo?: string, branch?: string | null) {
+export function useRepoDashboardActivitySummary(
+    owner?: string,
+    repo?: string,
+    branch?: string | null,
+) {
     return useQuery({
         queryKey: [QueryKeys.REPO_DASHBOARD_ACTIVITY_SUMMARY, owner, repo, branch],
         enabled: Boolean(owner && repo),

@@ -81,7 +81,9 @@ export default function HomeBoardList({ boardTitle, data, isLoading = false }: H
                         aria-hidden="true"
                         className="flex flex-col gap-3 divide-y divide-gray-200 motion-safe:animate-pulse">
                         {[0, 1].map((index) => (
-                            <div key={index} className="flex flex-col gap-2 first:pb-3">
+                            <div
+                                key={index}
+                                className="flex flex-col gap-2 first:pb-3">
                                 <div className="h-4 w-2/5 rounded bg-gray-200 dark:bg-gray-700" />
                                 <div className="h-3 w-4/5 rounded bg-gray-200 dark:bg-gray-700" />
                                 <div className="h-3 w-16 self-end rounded bg-gray-200 dark:bg-gray-700" />

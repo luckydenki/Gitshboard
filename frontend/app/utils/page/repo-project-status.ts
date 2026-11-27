@@ -8,7 +8,12 @@ import type {
 } from "~/types/response/repo-project-status";
 
 export const chartColors = ["#4B5563", "#9CA3AF", "#D1D5DB", "#076BFF"];
-export const fileTypeLabels = { source: "소스", test: "테스트", docs: "문서", config: "설정" } as const;
+export const fileTypeLabels = {
+    source: "소스",
+    test: "테스트",
+    docs: "문서",
+    config: "설정",
+} as const;
 
 export function formatCount(value: number | null | undefined) {
     return typeof value === "number" && Number.isFinite(value)
@@ -37,7 +42,10 @@ export function formatDate(value: string) {
         ? "날짜 정보 없음"
         : new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium" }).format(date);
 }
-export function makePieOption(name: string, data: Array<{ name: string; value: number }>): EChartsOption {
+export function makePieOption(
+    name: string,
+    data: Array<{ name: string; value: number }>,
+): EChartsOption {
     return {
         color: chartColors,
         tooltip: { trigger: "item", formatter: "{b}<br/>{d}%" },
@@ -128,7 +136,10 @@ export function makeParticipationOption(
 }
 
 export function getProjectChartData({
-    overview, files, history, participation,
+    overview,
+    files,
+    history,
+    participation,
 }: {
     overview?: RepoProjectOverviewDto;
     files?: RepoProjectFilesDto;
@@ -196,7 +207,11 @@ export function getDeploymentMetrics(deployments: RepoProjectDeploymentsDto) {
     return [
         ["배포 소요 시간", formatDuration(medianDurationSeconds), "시작부터 완료까지 중앙값"],
         ["커밋 → 배포", formatDuration(medianLeadTimeSeconds), "푸시 기록이 있는 배포의 중앙값"],
-        ["가장 활발한 배포 시간", peakHour === null ? "정보 없음" : formatHour(peakHour), "한국 표준시 기준"],
+        [
+            "가장 활발한 배포 시간",
+            peakHour === null ? "정보 없음" : formatHour(peakHour),
+            "한국 표준시 기준",
+        ],
     ] as const;
 }
 

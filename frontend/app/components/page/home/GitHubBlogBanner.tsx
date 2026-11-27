@@ -43,7 +43,11 @@ export const GitHubBlogPagination = ({
 
 export default function GitHubBlogBanner() {
     const [pageIndex, setPageIndex] = useState(0);
-    const { data: blogPosts, isLoading: isBlogLoading, isError: isBlogError } = useBlogFeedRSS(true);
+    const {
+        data: blogPosts,
+        isLoading: isBlogLoading,
+        isError: isBlogError,
+    } = useBlogFeedRSS(true);
     const {
         data: thumbnails,
         isLoading: isThumbnailLoading,

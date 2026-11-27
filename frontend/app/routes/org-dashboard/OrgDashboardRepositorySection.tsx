@@ -11,14 +11,18 @@ export default function OrgDashboardRepositorySection() {
     const repositories = data?.repositories ?? [];
 
     return (
-        <section className="min-h-[50vh]" aria-labelledby="organization-repositories-heading">
+        <section
+            className="min-h-[50vh]"
+            aria-labelledby="organization-repositories-heading">
             <AccountDashboardRepositoryStatsSection
                 totalCount={data?.totalCount.toLocaleString()}
                 totalForks={data?.totalForks.toLocaleString()}
                 totalStars={data?.totalStars.toLocaleString()}
             />
 
-            <h2 id="organization-repositories-heading" className="mb-2 text-xl">
+            <h2
+                id="organization-repositories-heading"
+                className="mb-2 text-xl">
                 레포지토리
             </h2>
             {isLoading && <AccountDashboardRepositoryListSkleton />}

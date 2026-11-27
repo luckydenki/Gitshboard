@@ -1,6 +1,5 @@
 import type { CommonErrorResponse, ErrorStatus } from "~/types/common-response/common";
 
-
 class CommonError extends Error implements CommonErrorResponse {
     status: ErrorStatus;
     title: string;
@@ -16,7 +15,6 @@ class CommonError extends Error implements CommonErrorResponse {
         this.detail = detail || "";
         this.instance = instance;
     }
-
 }
 
 export default CommonError;

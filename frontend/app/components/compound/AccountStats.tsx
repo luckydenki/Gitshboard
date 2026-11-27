@@ -12,11 +12,7 @@ export interface AccountStatsItemProps {
     label: string;
     value: string | number;
 }
-export const AccountStatsItem = ({
-    icon: Icon,
-    label,
-    value,
-}: AccountStatsItemProps) => {
+export const AccountStatsItem = ({ icon: Icon, label, value }: AccountStatsItemProps) => {
     return (
         <div className="flex min-w-28 flex-1 flex-col gap-2 p-2">
             <dt className="flex items-center gap-2 text-xs text-gray-500">

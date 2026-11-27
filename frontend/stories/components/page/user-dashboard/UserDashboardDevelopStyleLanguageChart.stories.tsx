@@ -11,5 +11,11 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 // 모바일 패널 너비에서 언어명과 비율을 확인하는 스토리입니다.
 export const Mobile: Story = {
-    decorators: [(Story) => <div style={{ width: 288 }}><Story /></div>],
+    decorators: [
+        (Story) => (
+            <div style={{ width: 288 }}>
+                <Story />
+            </div>
+        ),
+    ],
 };

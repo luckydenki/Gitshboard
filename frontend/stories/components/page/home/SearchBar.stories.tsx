@@ -20,7 +20,9 @@ const meta = {
                   };
             return Response.json({ success: true, status: 200, data });
         };
-        return () => { globalThis.fetch = originalFetch; };
+        return () => {
+            globalThis.fetch = originalFetch;
+        };
     },
 } satisfies Meta<typeof SearchBar>;
 export default meta;

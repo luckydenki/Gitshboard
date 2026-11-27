@@ -4,12 +4,18 @@ import { useUserDashboardOrganizations } from "~/hooks/useUserDashboard";
 function OrganizationListSkeleton() {
     return (
         <div aria-busy="true">
-            <p role="status" className="sr-only">조직을 불러오는 중입니다.</p>
+            <p
+                role="status"
+                className="sr-only">
+                조직을 불러오는 중입니다.
+            </p>
             <ul
                 aria-hidden="true"
                 className="grid grid-cols-1 gap-4 motion-safe:animate-pulse md:grid-cols-2 xl:grid-cols-4">
                 {Array.from({ length: 4 }, (_, index) => (
-                    <li key={index} className="bg-panel overflow-hidden rounded-lg">
+                    <li
+                        key={index}
+                        className="bg-panel overflow-hidden rounded-lg">
                         <span className="block aspect-video w-full bg-gray-200 dark:bg-gray-700" />
                         <div className="flex flex-col gap-3 p-4">
                             <span className="h-6 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
@@ -28,7 +34,9 @@ export default function UserDashboardOrganizationSection() {
     const { data, isLoading, isError } = useUserDashboardOrganizations(user);
 
     return (
-        <section className="min-h-[50vh]" aria-labelledby="organizations-heading">
+        <section
+            className="min-h-[50vh]"
+            aria-labelledby="organizations-heading">
             <div className="bg-panel mb-8 flex items-center justify-between rounded-lg p-4">
                 <h2 id="organizations-heading">가입된 조직</h2>
                 <span className="text-primary text-2xl font-semibold">
@@ -41,7 +49,9 @@ export default function UserDashboardOrganizationSection() {
             {data && data.orgs.length === 0 && (
                 <div className="bg-panel flex min-h-48 flex-col items-center justify-center gap-2 rounded-lg p-6 text-center">
                     <h3 className="text-lg font-semibold">표시할 조직이 없습니다</h3>
-                    <p className="text-sm text-gray-500">공개된 소속 조직이 없거나, 조직 소속 정보가 공개되지 않았습니다.</p>
+                    <p className="text-sm text-gray-500">
+                        공개된 소속 조직이 없거나, 조직 소속 정보가 공개되지 않았습니다.
+                    </p>
                 </div>
             )}
 
@@ -59,10 +69,16 @@ export default function UserDashboardOrganizationSection() {
                                     loading="lazy"
                                 />
                                 <div className="flex min-w-0 flex-1 flex-col p-4">
-                                    <h3 className="text-lg font-semibold">{org.name || org.login}</h3>
-                                    {org.name && <p className="text-sm text-gray-500">@{org.login}</p>}
+                                    <h3 className="text-lg font-semibold">
+                                        {org.name || org.login}
+                                    </h3>
+                                    {org.name && (
+                                        <p className="text-sm text-gray-500">@{org.login}</p>
+                                    )}
                                     {org.description && (
-                                        <p className="mt-2 line-clamp-3 wrap-break-words">{org.description}</p>
+                                        <p className="wrap-break-words mt-2 line-clamp-3">
+                                            {org.description}
+                                        </p>
                                     )}
                                     <div className="mt-auto flex flex-wrap gap-4 pt-3 text-sm text-gray-500">
                                         <span>공개 레포 {org.public_repo.toLocaleString()}개</span>

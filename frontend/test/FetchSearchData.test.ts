@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fetchSearchData } from "~/old/components/page/home/SearchForm";
 
-
 /**
  * fetchSearchData 요구사항
  *
@@ -16,8 +15,8 @@ import { fetchSearchData } from "~/old/components/page/home/SearchForm";
  *    백엔드를 호출하지 않고 즉시 throw한다.
  *
  * 5. fallback 백엔드 요청도 실패하면 throw한다.
- * @param urlParams 
- * @returns 
+ * @param urlParams
+ * @returns
  */
 
 describe("fetchSearchData", () => {
@@ -25,25 +24,21 @@ describe("fetchSearchData", () => {
         vi.restoreAllMocks();
     });
 
-
     it("public API 호출이 성공하면 백엔드 API를 호출하지 않고 결과를 반환한다.", async () => {
         const mockData = {
             total_count: 1,
             incomplete_results: false,
-            items: [{ login: "octocat" }]
+            items: [{ login: "octocat" }],
         };
 
-        const fetchMock = vi.spyOn(globalThis, "fetch")
-            .mockResolvedValueOnce(
-                new Response(JSON.stringify(mockData), {
-                    status: 200,
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                })
-            );
-
-
+        const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+            new Response(JSON.stringify(mockData), {
+                status: 200,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }),
+        );
 
         const urlParams = new URLSearchParams({
             q: "octocat",
@@ -53,56 +48,45 @@ describe("fetchSearchData", () => {
 
         // Add assertions based on the expected structure of the data
         expect(data).toEqual(mockData);
-            expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
 
+        expect(fetchMock.mock.calls[0][0]).toContain("https://api.github.com/search/users");
 
-        expect(fetchMock.mock.calls[0][0])
-            .toContain("https://api.github.com/search/users");
-
-        expect(fetchMock.mock.calls[0][1]?.credentials)
-            .toBeUndefined();
-
+        expect(fetchMock.mock.calls[0][1]?.credentials).toBeUndefined();
     });
 
     it("public API가 rate limit 이외의 이유로 실패하면 백엔드를 호출하지 않고 throw한다.", async () => {
-        const fetchMock = vi
-            .spyOn(globalThis, "fetch")
-            .mockResolvedValueOnce(
-                new Response(
-                    JSON.stringify({
-                        message: "Validation Failed"
-                    }),
-                    {
-                        status: 422,
-                        headers: {
-                            "x-ratelimit-remaining": "9"
-                        }
-                    }
-                )
-            );
+        const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+            new Response(
+                JSON.stringify({
+                    message: "Validation Failed",
+                }),
+                {
+                    status: 422,
+                    headers: {
+                        "x-ratelimit-remaining": "9",
+                    },
+                },
+            ),
+        );
 
         const params = new URLSearchParams({
-            q: "octocat"
+            q: "octocat",
         });
 
-        await expect(
-            fetchSearchData(params)
-        ).rejects.toThrow();
+        await expect(fetchSearchData(params)).rejects.toThrow();
 
         // backend fallback이 발생하면 안 됨
         expect(fetchMock).toHaveBeenCalledTimes(1);
     });
 
-
-
-
     it("public API의 rate limit이 소진되면 백엔드 인증 API를 호출한다.", async () => {
         const mockData = {
-            data : {
+            data: {
                 total_count: 1,
                 incomplete_results: false,
-                items: []
-            }
+                items: [],
+            },
         };
 
         const fetchMock = vi
@@ -112,84 +96,69 @@ describe("fetchSearchData", () => {
             .mockResolvedValueOnce(
                 new Response(
                     JSON.stringify({
-                        message: "API rate limit exceeded"
+                        message: "API rate limit exceeded",
                     }),
                     {
                         status: 403,
                         headers: {
-                            "x-ratelimit-remaining": "0"
-                        }
-                    }
-                )
-            )      
+                            "x-ratelimit-remaining": "0",
+                        },
+                    },
+                ),
+            )
 
             // 2. 우리 백엔드 인증 API
             .mockResolvedValueOnce(
-                new Response(
-                    JSON.stringify(mockData),
-                    {
-                        status: 200
-                    }
-                )
+                new Response(JSON.stringify(mockData), {
+                    status: 200,
+                }),
             );
 
         const params = new URLSearchParams({
-            q: "octocat"
+            q: "octocat",
         });
 
         const result = await fetchSearchData(params);
 
         expect(result).toEqual(mockData.data);
         expect(fetchMock).toHaveBeenCalledTimes(2);
-
-
     });
-
 
     it("public rate limit 소진 후 백엔드 인증 요청도 실패하면 throw한다.", async () => {
         const fetchMock = vi
             .spyOn(globalThis, "fetch")
 
-
             .mockResolvedValueOnce(
                 new Response(
                     JSON.stringify({
-                        message: "API rate limit exceeded"
+                        message: "API rate limit exceeded",
                     }),
                     {
                         status: 403,
                         headers: {
-                            "x-ratelimit-remaining": "0"
-                        }
-                    }
-                )
+                            "x-ratelimit-remaining": "0",
+                        },
+                    },
+                ),
             )
-
 
             .mockResolvedValueOnce(
                 new Response(
                     JSON.stringify({
-                        message: "Unauthorized"
+                        message: "Unauthorized",
                     }),
                     {
-                        status: 401
-                    }
-                )
+                        status: 401,
+                    },
+                ),
             );
 
-
         const params = new URLSearchParams({
-            q: "octocat"
+            q: "octocat",
         });
 
-
-        await expect(
-            fetchSearchData(params)
-        ).rejects.toThrow();
-
+        await expect(fetchSearchData(params)).rejects.toThrow();
 
         expect(fetchMock).toHaveBeenCalledTimes(2);
     });
-
-
 });

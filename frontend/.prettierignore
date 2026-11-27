@@ -7,8 +7,6 @@ public
 *.min.js
 package.json
 package-lock.json
-*.test.*
-*.stories.*
 *.md
 *.json
 *.config.*

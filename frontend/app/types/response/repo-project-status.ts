@@ -12,7 +12,11 @@ export interface RepoProjectOverviewDto {
 
 export interface RepoProjectFilesDto {
     fileCount: number | null;
-    fileTypes: Array<{ type: "source" | "test" | "docs" | "config"; count: number; sharePercent: number | null }>;
+    fileTypes: Array<{
+        type: "source" | "test" | "docs" | "config";
+        count: number;
+        sharePercent: number | null;
+    }>;
     frameworks: Array<{ name: string; paths: string[] }>;
     healthScore: { present: number; total: number }; // (derived)
     health: Array<{ name: string; present: boolean }>;
