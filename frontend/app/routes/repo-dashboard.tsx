@@ -1,7 +1,7 @@
-import { NavLink, Outlet } from "react-router";
-import { UserDashboardLayout } from "~/components/page/user-dashboard/UserDashboardLayout";
+import { NavLink, Outlet, useParams } from "react-router";
 import RepoProfileSection from "~/components/page/repo-dashboard/RepoProfileSection";
 import { CommonBackground } from "~/components/common/CommonBackground";
+import { DashboardLayout } from "~/components/common/AccountDashboard/AccountDashboardLayout";
 const menuTabs = [
     { label: "최근 활동", to: "." },
     { label: "README", to: "readme" },
@@ -12,15 +12,17 @@ const menuTabs = [
 ] as const;
 
 export default function RepoDashboard() {
+    const { owner, repo } = useParams();
+    const nameWithOwner = owner && repo ? `${owner}/${repo}` : "저장소";
     return (
         <>
-            <title>facebook/react 저장소 통계 - Gitshboard</title>
+            <title>{`${nameWithOwner} 통계 - Gitshboard`}</title>
             <meta
                 name="description"
-                content="facebook/react 저장소의 활동, 프로젝트, 커밋, 이슈와 커뮤니케이션 통계입니다."
+                content={`${nameWithOwner}의 활동, 프로젝트, 커밋, 이슈와 커뮤니케이션 통계입니다.`}
             />
             <CommonBackground />
-            <UserDashboardLayout>
+            <DashboardLayout>
                 <RepoProfileSection />
 
                 <section className="bg-panel min-w-0 overflow-x-auto px-4 py-2">
@@ -47,7 +49,7 @@ export default function RepoDashboard() {
                 </section>
 
                 <Outlet />
-            </UserDashboardLayout>
+            </DashboardLayout>
         </>
     );
 }

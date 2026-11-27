@@ -1,11 +1,12 @@
 import CommonError from "../utils/common-error";
 
-const escapeXml = (value: string) => value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+const escapeXml = (value: string) =>
+    value
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&apos;");
 
 const wrapText = (value: string, maxCharacters: number) => {
     const words = value.trim().split(/\s+/);
@@ -33,16 +34,23 @@ const wrapText = (value: string, maxCharacters: number) => {
 /** Returns a readable SVG error card for README image endpoints. */
 export default function ErrorSVG(error: CommonError, width: number, height: number): string {
     const padding = 32;
-    const cardWidth = Math.max(0, width - (padding * 2));
-    const cardHeight = Math.max(0, height - (padding * 2));
+    const cardWidth = Math.max(0, width - padding * 2);
+    const cardHeight = Math.max(0, height - padding * 2);
     const isBadRequest = error.status === 400;
-    const title = error.title || (isBadRequest ? "Invalid request parameters" : "Unable to generate this chart");
-    const detail = error.detail || (isBadRequest
-        ? "Check the required parameter values and request the SVG again."
-        : "Please try again in a moment.");
+    const title =
+        error.title ||
+        (isBadRequest ? "Invalid request parameters" : "Unable to generate this chart");
+    const detail =
+        error.detail ||
+        (isBadRequest
+            ? "Check the required parameter values and request the SVG again."
+            : "Please try again in a moment.");
     const detailLines = wrapText(detail, Math.max(28, Math.floor((cardWidth - 112) / 7.5)));
     const detailMarkup = detailLines
-        .map((line, index) => `<tspan x="${padding + 44}" dy="${index === 0 ? 0 : 24}">${escapeXml(line)}</tspan>`)
+        .map(
+            (line, index) =>
+                `<tspan x="${padding + 44}" dy="${index === 0 ? 0 : 24}">${escapeXml(line)}</tspan>`,
+        )
         .join("");
     const helperText = isBadRequest
         ? "Review the query parameters and their expected values, then try again."

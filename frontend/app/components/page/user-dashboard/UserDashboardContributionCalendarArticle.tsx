@@ -1,13 +1,28 @@
 import type { EChartsOption } from "echarts";
 import EChartsReact from "echarts-for-react";
 
-export default function UserDashboardContributionCalendarArticle() {
+interface UserDashboardContributionCalendarArticleProps {
+    weeks: Array<{
+        contributionDays: Array<{ date: string; contributionCount: number }>;
+    }>;
+}
+
+export default function UserDashboardContributionCalendarArticle({
+    weeks,
+}: UserDashboardContributionCalendarArticleProps) {
     const ThemeColors = {
         green: {
             heatMapRange: ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"],
         },
     };
     const heatMapColorRange = ThemeColors.green.heatMapRange;
+    const days = weeks.flatMap((week) => week.contributionDays);
+    const firstDate = days[0]?.date;
+    const lastDate = days[days.length - 1]?.date;
+
+    if (!firstDate || !lastDate) {
+        return <article className="text-sm text-gray-500">표시할 기여 내역이 없습니다.</article>;
+    }
 
     const option: EChartsOption = {
         visualMap: {
@@ -20,7 +35,7 @@ export default function UserDashboardContributionCalendarArticle() {
         },
 
         calendar: {
-            range: "2026",
+            range: [firstDate, lastDate],
             splitLine: {
                 show: false,
             },
@@ -34,14 +49,7 @@ export default function UserDashboardContributionCalendarArticle() {
         series: {
             type: "heatmap",
             coordinateSystem: "calendar",
-            data: [
-                ["2026-01-01", 3],
-                ["2026-01-02", 7],
-                ["2026-01-03", 15],
-                ["2026-01-04", 10],
-                ["2026-10-06", 8],
-                // ...
-            ],
+            data: days.map((day) => [day.date, day.contributionCount]),
             emphasis: {
                 itemStyle: {
                     borderWidth: 2,

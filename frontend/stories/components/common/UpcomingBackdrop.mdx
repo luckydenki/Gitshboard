@@ -1,0 +1,24 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./UpcomingBackdrop.stories";
+
+<Meta of={Stories} />
+
+# UpcomingBackdrop
+
+미구현 콘텐츠를 반투명 배경과 블러로 덮고 중앙에 “추후 업데이트 예정”을 표시합니다. 제목은 컴포넌트 밖에 표시합니다.
+
+## Props
+
+없음.
+
+## 사용 예시
+
+```tsx
+<article>
+    <h3>기여 시작 난이도</h3>
+    <UpcomingBackdrop />
+</article>
+```
+
+<Canvas of={Stories.Default} />
+<Canvas of={Stories.Mobile} />

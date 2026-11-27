@@ -1,0 +1,160 @@
+import { useQuery } from "@tanstack/react-query";
+import type { CommonResponse } from "~/types/common-response/common";
+import type { Profile } from "~/types/profile";
+
+export type DashboardProfile = Omit<Profile, "contributionsCollection" | "socialAccounts"> & {
+    socialAccounts: { nodes?: Profile["socialAccounts"]["nodes"] | null };
+    contributionsCollection: {
+        contributionCalendar: {
+            totalContributions: number;
+            weeks: Array<{
+                contributionDays: Array<{ date: string; contributionCount: number }>;
+            }>;
+        };
+    };
+};
+
+interface RecentActivityItem {
+    id: string;
+    url: string;
+    nameWithOwner: string;
+    occurredAt: string;
+}
+
+export type UserRecentActivityItem = RecentActivityItem &
+    (
+        | {
+              type: "issue" | "pull-request";
+              number: number;
+              title: string;
+              state: "OPEN" | "CLOSED" | "MERGED";
+              authorLogin: string | null;
+              commentCount: number;
+          }
+        | {
+              type: "commit";
+              oid: string;
+              abbreviatedOid: string;
+              messageHeadline: string;
+              committedViaWeb: boolean;
+          }
+    );
+
+async function fetchDashboardData<T>(url: string, signal: AbortSignal, errorMessage: string) {
+    const response = await fetch(url, { credentials: "include", signal });
+    if (!response.ok) throw new Error(errorMessage);
+
+    const result: CommonResponse<T> = await response.json();
+    if (!result.success || result.data == null) throw new Error(errorMessage);
+    return result.data;
+}
+
+export function useUserDashboardProfile(login?: string) {
+    return useQuery({
+        queryKey: ["user-dashboard-profile", login],
+        enabled: Boolean(login),
+        gcTime: 0,
+        queryFn: async ({ signal }) => {
+            const errorMessage = "GitHub 프로필을 불러오지 못했습니다.";
+            const data = await fetchDashboardData<{
+                user: DashboardProfile | null;
+                streakDays: number;
+            }>(`/api/users/${encodeURIComponent(login ?? "")}/profile`, signal, errorMessage);
+            if (!data.user) throw new Error(errorMessage);
+            return data;
+        },
+    });
+}
+
+export function useUserRecentActivity(login?: string) {
+    return useQuery({
+        queryKey: ["user-dashboard-recent-activity", login],
+        enabled: Boolean(login),
+        queryFn: ({ signal }) =>
+            fetchDashboardData<{ items: UserRecentActivityItem[] }>(
+                `/api/users/${encodeURIComponent(login ?? "")}/recent-activity`,
+                signal,
+                "최근 활동을 불러오지 못했습니다.",
+            ),
+    });
+}
+
+export interface UserCommitActivity {
+    total: number;
+    results: Array<{ repositoryName: string; occuredAt: string[]; commitCount: number[] }>;
+    commitOccuredAt: string[];
+    commitCounts: number[];
+}
+
+export function useUserCommitActivity(login: string | undefined, from: string, to: string) {
+    return useQuery({
+        queryKey: ["user-commit-activity", login, from, to],
+        enabled: Boolean(login),
+        gcTime: 0,
+        queryFn: ({ signal }) => {
+            const params = new URLSearchParams({ from, to });
+            return fetchDashboardData<UserCommitActivity>(
+                `/api/contribute/${encodeURIComponent(login ?? "")}/commitActivity?${params}`,
+                signal,
+                "커밋 활동을 불러오지 못했습니다.",
+            );
+        },
+    });
+}
+
+export interface UserDashboardRepositories {
+    repositories: Array<{
+        name: string;
+        nameWithOwner: string;
+        url: string;
+        stargazerCount: number;
+        forkCount: number;
+        primaryLanguage?: { name: string; color?: string | null } | null;
+        updatedAt: string;
+    }>;
+    totalCount: number;
+    totalStars: number;
+    totalForks: number;
+}
+
+export function useUserDashboardRepositories(login?: string) {
+    return useQuery({
+        queryKey: ["user-dashboard-repositories", login],
+        enabled: Boolean(login),
+        queryFn: ({ signal }) =>
+            fetchDashboardData<UserDashboardRepositories>(
+                `/api/users/${encodeURIComponent(login ?? "")}/repositories`,
+                signal,
+                "저장소를 불러오지 못했습니다.",
+            ),
+    });
+}
+
+export interface UserDashboardOrganization {
+    avatarurl: string;
+    id: number;
+    name: string | null;
+    login: string;
+    followers: number;
+    public_repo: number;
+    url: string;
+    description: string | null;
+}
+
+export interface UserDashboardOrganizations {
+    orgs: UserDashboardOrganization[];
+    totalOrgCount: number;
+}
+
+export function useUserDashboardOrganizations(login?: string) {
+    return useQuery({
+        queryKey: ["user-dashboard-organizations", login],
+        enabled: Boolean(login),
+        queryFn: ({ signal }) =>
+            fetchDashboardData<UserDashboardOrganizations>(
+                `/api/users/${encodeURIComponent(login ?? "")}/organizations`,
+                signal,
+                "조직을 불러오지 못했습니다.",
+            ),
+    });
+}

@@ -1,0 +1,40 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./RepoDashboardReadmeQueryState.stories";
+
+<Meta of={Stories} />
+
+# RepoDashboardReadmeQueryState
+
+README 목록·본문의 로딩, 오류, 빈 상태를 표시합니다.
+
+## Props
+
+- `kind`: `listLoading`, `listError`, `empty`, `contentLoading`, `contentError` 중 하나입니다.
+- `onRetry`: 오류 상태의 다시 시도 버튼 콜백입니다.
+
+## 사용 예시
+
+```tsx
+<RepoDashboardReadmeQueryState kind="listError" onRetry={refetch} />
+```
+
+<Canvas of={Stories.ListLoading} />
+<Canvas of={Stories.ContentLoading} />
+<Canvas of={Stories.Empty} />
+<Canvas of={Stories.ListError} />
+<Canvas of={Stories.ContentError} />
+<Canvas of={Stories.Mobile} />
+
+### 기본 평가
+
+7/9 — Chrome에서 로딩·오류·빈 상태와 재시도 상호작용을 확인했습니다.
+
+1. 로딩 UI: O
+2. 오류·재시도: O
+3. 빈 데이터 UI: O
+4. 데이터 표시: O
+5. 반응형 화면: O (375px 모바일 오류 상태 확인)
+6. Lighthouse 접근성 90점 이상: 미확인 (예외 상태 별도 측정 없음)
+7. Storybook 작성: O
+8. CSS 가이드 준수: O
+9. Chrome·Safari·Firefox 일관성: 미확인

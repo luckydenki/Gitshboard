@@ -19,11 +19,16 @@ const chartColorByClass: Record<string, string> = {
 
 const getChartColor = (color: string) => chartColorByClass[color] ?? "#4183c4";
 
-export const chart = (languageStats: LanguageStat[], width: number, height: number, renderLocale: RenderLocale): EChartsOption => {
+export const chart = (
+    languageStats: LanguageStat[],
+    width: number,
+    height: number,
+    renderLocale: RenderLocale,
+): EChartsOption => {
     const copy = locale[renderLocale];
     const cardInset = Math.min(24, Math.max(10, Math.round(Math.min(width, height) * 0.055)));
-    const cardWidth = Math.max(0, width - (cardInset * 2));
-    const cardHeight = Math.max(0, height - (cardInset * 2));
+    const cardWidth = Math.max(0, width - cardInset * 2);
+    const cardHeight = Math.max(0, height - cardInset * 2);
     const contentLeft = cardInset + 30;
     const languages = languageStats.filter(({ size }) => Number.isFinite(size) && size > 0);
 
@@ -59,42 +64,50 @@ export const chart = (languageStats: LanguageStat[], width: number, height: numb
                 top: 108,
                 style: { text: copy.detail, fill: "#6b7280", font: "400 12px Arial, sans-serif" },
             },
-            ...(!languages.length ? [{
-                type: "text" as const,
-                z: 10,
-                left: "center" as const,
-                top: "55%" as const,
-                style: {
-                    text: copy.empty,
-                    fill: "#6b7280",
-                    font: "400 14px Arial, sans-serif",
-                    align: "center" as const,
-                },
-            }] : []),
+            ...(!languages.length
+                ? [
+                      {
+                          type: "text" as const,
+                          z: 10,
+                          left: "center" as const,
+                          top: "55%" as const,
+                          style: {
+                              text: copy.empty,
+                              fill: "#6b7280",
+                              font: "400 14px Arial, sans-serif",
+                              align: "center" as const,
+                          },
+                      },
+                  ]
+                : []),
         ],
-        series: languages.length ? [{
-            type: "pie",
-            radius: ["30%", "45%"],
-            center: ["50%", "58%"],
-            avoidLabelOverlap: true,
-            itemStyle: { borderColor: "#ffffff", borderWidth: 4, borderRadius: 6 },
-            label: {
-                show: true,
-                position: "outside",
-                color: "#374151",
-                fontSize: 10,
-                fontWeight: 600,
-                lineHeight: 14,
-                formatter: "{b}\n{d}%",
-            },
-            labelLine: {
-                show: true,
-                length: 8,
-                length2: 6,
-                lineStyle: { color: "#d1d5db", width: 1 },
-            },
-            emphasis: { disabled: true },
-            data: languages.map(({ name, size }) => ({ name, value: size })),
-        }] : [],
+        series: languages.length
+            ? [
+                  {
+                      type: "pie",
+                      radius: ["30%", "45%"],
+                      center: ["50%", "58%"],
+                      avoidLabelOverlap: true,
+                      itemStyle: { borderColor: "#ffffff", borderWidth: 4, borderRadius: 6 },
+                      label: {
+                          show: true,
+                          position: "outside",
+                          color: "#374151",
+                          fontSize: 10,
+                          fontWeight: 600,
+                          lineHeight: 14,
+                          formatter: "{b}\n{d}%",
+                      },
+                      labelLine: {
+                          show: true,
+                          length: 8,
+                          length2: 6,
+                          lineStyle: { color: "#d1d5db", width: 1 },
+                      },
+                      emphasis: { disabled: true },
+                      data: languages.map(({ name, size }) => ({ name, value: size })),
+                  },
+              ]
+            : [],
     };
 };

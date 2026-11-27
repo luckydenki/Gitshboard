@@ -10,6 +10,7 @@ import { Link } from "react-router";
 export default function SideTitleLogo({ href, onClick }: { href: string; onClick?: () => void }) {
     return (
         <Link
+            aria-label="Gitshboard 홈"
             className="flex items-center gap-3 hover:cursor-pointer"
             to={href}
             onClick={onClick}>

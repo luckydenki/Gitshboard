@@ -1,4 +1,3 @@
-import { Log } from "~/utils/log_system/log";
 import { useNavigate } from "react-router";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { GoSearch } from "react-icons/go";
@@ -11,19 +10,19 @@ const handleSearchSubmit = (
 ) => {
     e.preventDefault();
 
-    console.log("Search button clicked ", e.currentTarget);
+    // console.log("Search button clicked ", e.currentTarget);
     const formData = new FormData(e.currentTarget);
     const searchName = formData.get("search_name") ?? "";
 
     if (searchName === "") {
-        Log("검색어가 비어있습니다. 검색을 진행하지 않습니다.");
+        // Log("검색어가 비어있습니다. 검색을 진행하지 않습니다.");
         return;
     } else if (typeof searchName === "string") {
-        Log("검색어가 문자열입니다. 검색을 진행합니다. : " + searchName);
+        // Log("검색어가 문자열입니다. 검색을 진행합니다. : " + searchName);
 
         navigate("/search?name=" + encodeURIComponent(searchName));
     } else {
-        Log("검색어가 문자열이 아닙니다.");
+        // Log("검색어가 문자열이 아닙니다.");
         throw new Error("검색어가 문자열이 아닙니다.");
     }
 };

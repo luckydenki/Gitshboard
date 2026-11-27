@@ -1,4 +1,3 @@
-
 export const trendingDevelopersMock = [
     {
         name: "Evan You",

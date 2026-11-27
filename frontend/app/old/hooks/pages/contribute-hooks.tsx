@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { HTTPCredentials } from "dench-fetch";
 import type { GithubCommitActivity } from "~/old/routes/contribute";
-import type { CommonErrorResponse } from "~/types/common/common";
+import type { CommonErrorResponse } from "~/types/common-response/common";
 
 export function useContributeData(from: string, to: string) {
     const params = new URLSearchParams({

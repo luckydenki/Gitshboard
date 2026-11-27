@@ -1,5 +1,5 @@
 import { Github } from "~/icons/Github";
-import type { StrictGithubOAuthParams } from "~/types/GithubOAuth";
+import type { StrictGithubOAuthParams } from "~/types/github-Oauth";
 
 type LoginButtonMode = "Tiny" | "Normal";
 

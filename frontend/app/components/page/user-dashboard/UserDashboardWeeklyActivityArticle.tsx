@@ -1,53 +1,63 @@
 import type { EChartsOption } from "echarts";
 import EChartsReact from "echarts-for-react";
-import { activitySummaryMock as summary, weeklyActivityMock as weeklyActivity } from "~/mock/home-dashboard/dashboard-activity";
+import type { UserCommitActivity } from "~/hooks/useUserDashboard";
 
-const weeklyOption: EChartsOption = {
-    animation: false,
-    aria: { enabled: true },
-    color: ["#076BFF", "#6B7280", "#D1D5DB"],
-    tooltip: { trigger: "axis", confine: true, extraCssText: "box-shadow: none;" },
-    legend: {
-        bottom: 0,
-        itemWidth: 8,
-        itemHeight: 8,
-        textStyle: { color: "#6B7280", fontSize: 11 },
-    },
-    grid: { top: 16, right: 8, bottom: 48, left: 30 },
-    xAxis: {
-        type: "category",
-        data: weeklyActivity.map(({ day }) => day),
-        axisTick: { show: false },
-        axisLine: { lineStyle: { color: "#D1D5DB" } },
-        axisLabel: { color: "#6B7280" },
-    },
-    yAxis: {
-        type: "value",
-        minInterval: 1,
-        axisLabel: { color: "#6B7280", fontSize: 11 },
-        splitLine: { lineStyle: { color: "#E5E7EB", type: "dashed" } },
-    },
-    series: [
-        { name: "커밋", type: "bar", stack: "activity", barMaxWidth: 20, data: weeklyActivity.map(({ commits }) => commits) },
-        { name: "PR", type: "bar", stack: "activity", data: weeklyActivity.map(({ pullRequests }) => pullRequests) },
-        { name: "이슈", type: "bar", stack: "activity", data: weeklyActivity.map(({ issues }) => issues) },
-    ],
-};
-
-export default function UserDashboardWeeklyActivityArticle() {
+export default function UserDashboardWeeklyActivityArticle({
+    data,
+    isLoading,
+    isError,
+    weekStart,
+}: {
+    data?: UserCommitActivity;
+    isLoading: boolean;
+    isError: boolean;
+    weekStart: string;
+}) {
+    const days = Array.from({ length: 7 }, (_, index) => {
+        const date = new Date(`${weekStart}T00:00:00Z`);
+        date.setUTCDate(date.getUTCDate() + index);
+        const key = date.toISOString().slice(0, 10);
+        const count =
+            data?.commitOccuredAt.reduce(
+                (sum, value, i) => sum + (value === key ? (data.commitCounts[i] ?? 0) : 0),
+                0,
+            ) ?? 0;
+        return { date: key, count };
+    });
+    const option: EChartsOption = {
+        animation: false,
+        aria: { enabled: true },
+        color: ["#076BFF"],
+        tooltip: { trigger: "axis", confine: true },
+        grid: { top: 16, right: 8, bottom: 32, left: 30 },
+        xAxis: {
+            type: "category",
+            data: days.map(({ date }) => date.slice(5)),
+            axisTick: { show: false },
+        },
+        yAxis: { type: "value", minInterval: 1 },
+        series: [
+            { name: "커밋", type: "bar", barMaxWidth: 20, data: days.map(({ count }) => count) },
+        ],
+    };
     return (
         <article className="bg-panel flex min-h-48 flex-col gap-4 rounded-lg border border-gray-300 p-5">
             <h3 className="font-bold">최근 일주일 간의 활동</h3>
-            <p className="text-xs text-gray-500">{summary.weeklyPeriod} · 예시 데이터</p>
-            <figure className="min-w-0">
-                <EChartsReact option={weeklyOption} opts={{ renderer: "svg" }} style={{ height: 210, width: "100%" }} />
-                <figcaption className="sr-only">
-                    요일별 커밋, PR, 이슈 수.
-                    {weeklyActivity.map(({ day, commits, pullRequests, issues }) => `${day}요일: 커밋 ${commits}건, PR ${pullRequests}건, 이슈 ${issues}건.`).join(" ")}
-                </figcaption>
-            </figure>
+            <p className="text-xs text-gray-500">커밋 기여 · UTC 기준 · PR과 이슈는 준비 중</p>
+            {isLoading && <p role="status">커밋 활동을 불러오는 중입니다.</p>}
+            {isError && <p role="alert">커밋 활동을 불러오지 못했습니다.</p>}
+            {data && (
+                <figure className="min-w-0">
+                    <EChartsReact
+                        option={option}
+                        opts={{ renderer: "svg" }}
+                        style={{ height: 210, width: "100%" }}
+                    />
+                    <figcaption className="sr-only">
+                        {days.map(({ date, count }) => `${date}: 커밋 ${count}건`).join(", ")}
+                    </figcaption>
+                </figure>
+            )}
         </article>
     );
 }
-
-

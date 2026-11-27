@@ -1,4 +1,4 @@
-import type { GithubRepositoryResponse } from "~/types/GithubInfo";
+import type { GithubRepositoryResponse } from "~/types/github-info";
 import RepositoryDashboardCard from "./DashboardRepositoryCard";
 
 export default function RepositoryList({

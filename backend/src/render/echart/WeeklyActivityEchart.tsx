@@ -3,11 +3,16 @@ import type { CommitStats } from "../../utils/stat";
 import { locale } from "../locale/WeeklyActivityLocale";
 import type { RenderLocale } from "../locale/RenderLocale";
 
-export const chart = (commitStats: CommitStats, width: number, height: number, renderLocale: RenderLocale): EChartsOption => {
+export const chart = (
+    commitStats: CommitStats,
+    width: number,
+    height: number,
+    renderLocale: RenderLocale,
+): EChartsOption => {
     const copy = locale[renderLocale];
     const cardInset = Math.min(24, Math.max(10, Math.round(Math.min(width, height) * 0.055)));
-    const cardWidth = Math.max(0, width - (cardInset * 2));
-    const cardHeight = Math.max(0, height - (cardInset * 2));
+    const cardWidth = Math.max(0, width - cardInset * 2);
+    const cardHeight = Math.max(0, height - cardInset * 2);
     const contentLeft = cardInset + 30;
 
     return {
@@ -41,18 +46,22 @@ export const chart = (commitStats: CommitStats, width: number, height: number, r
                 top: 108,
                 style: { text: copy.detail, fill: "#6b7280", font: "400 12px Arial, sans-serif" },
             },
-            ...(commitStats.total === 0 ? [{
-                type: "text" as const,
-                z: 10,
-                left: "center" as const,
-                top: "59%" as const,
-                style: {
-                    text: copy.empty,
-                    fill: "#6b7280",
-                    font: "400 14px Arial, sans-serif",
-                    align: "center" as const,
-                },
-            }] : []),
+            ...(commitStats.total === 0
+                ? [
+                      {
+                          type: "text" as const,
+                          z: 10,
+                          left: "center" as const,
+                          top: "59%" as const,
+                          style: {
+                              text: copy.empty,
+                              fill: "#6b7280",
+                              font: "400 14px Arial, sans-serif",
+                              align: "center" as const,
+                          },
+                      },
+                  ]
+                : []),
         ],
         grid: {
             top: 160,
@@ -69,28 +78,32 @@ export const chart = (commitStats: CommitStats, width: number, height: number, r
             axisLabel: { color: "#9ca3af", fontSize: 11, fontWeight: 500, margin: 13 },
         },
         yAxis: { type: "value", max: 100, show: false },
-        series: commitStats.weekdays.length ? [{
-            type: "bar",
-            data: commitStats.weekdays.map(({ heightPercent, count }) => ({
-                value: heightPercent,
-                label: { formatter: String(count) },
-            })),
-            barMaxWidth: 42,
-            itemStyle: {
-                color: "#4183c4",
-                borderRadius: [10, 10, 3, 3],
-                shadowBlur: 14,
-                shadowColor: "rgba(65, 131, 196, 0.22)",
-            },
-            label: {
-                show: commitStats.total > 0,
-                position: "top",
-                distance: 8,
-                color: "#6b7280",
-                fontSize: 11,
-                fontWeight: 600,
-            },
-            emphasis: { disabled: true },
-        }] : [],
+        series: commitStats.weekdays.length
+            ? [
+                  {
+                      type: "bar",
+                      data: commitStats.weekdays.map(({ heightPercent, count }) => ({
+                          value: heightPercent,
+                          label: { formatter: String(count) },
+                      })),
+                      barMaxWidth: 42,
+                      itemStyle: {
+                          color: "#4183c4",
+                          borderRadius: [10, 10, 3, 3],
+                          shadowBlur: 14,
+                          shadowColor: "rgba(65, 131, 196, 0.22)",
+                      },
+                      label: {
+                          show: commitStats.total > 0,
+                          position: "top",
+                          distance: 8,
+                          color: "#6b7280",
+                          fontSize: 11,
+                          fontWeight: 600,
+                      },
+                      emphasis: { disabled: true },
+                  },
+              ]
+            : [],
     };
 };

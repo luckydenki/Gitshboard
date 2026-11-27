@@ -1,5 +1,4 @@
 export const activitySummaryMock = {
-    streakDays: 100,
     totalCommits: 1284,
     weeklyPeriod: "2026.10.19 – 10.25",
 };

@@ -1,4 +1,9 @@
-export const communityCategories = ["공지사항", "자유게시판", "팀원 모집", "레포지토리 홍보"] as const;
+export const communityCategories = [
+    "공지사항",
+    "자유게시판",
+    "팀원 모집",
+    "레포지토리 홍보",
+] as const;
 
 export type CommunityCategory = (typeof communityCategories)[number];
 

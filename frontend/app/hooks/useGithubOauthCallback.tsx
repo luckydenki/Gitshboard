@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import type { CommonResponse } from "~/types/common/common";
+import type { CommonResponse } from "~/types/common-response/common";
 
 export interface GithubUser {
     id: number;
@@ -43,7 +43,7 @@ export default function useGithubOauthCallback(url: string, failurl: string) {
                     const json = (await response.json()) as CommonResponse<GithubUser>;
 
                     console.log("인증 성공", json.data);
-                    navigate(url + "/" + json.data?.login, { replace: true });
+                    navigate(-1);
                 } else {
                     throw await response.json();
                 }

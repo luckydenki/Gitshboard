@@ -42,23 +42,19 @@ export interface Profile {
             url: string; // 소셜 계정 URL
         } | null>;
     }; // 연결한 소셜 계정 목록
-    socialAccountsList? : Array<string> // derived : nodes:Array<{url}>의 url리스트
+    socialAccountsList?: Array<string>; // derived : nodes:Array<{url}>의 url리스트
     followers: {
         totalCount: number; // 팔로워 수
     };
     following: {
         totalCount: number; // 팔로잉 수
     };
-    followersTotal? : number; // derived : followers 의 totalCount 값,
-    followingTotal? : number //derived : following 의 totalCount값
+    followersTotal?: number; // derived : followers 의 totalCount 값,
+    followingTotal?: number; //derived : following 의 totalCount값
     contributionsCollection: {
         contributionCalendar: {
             totalContributions: number; // 전체 기여 수
         };
     };
-    contributionsCollectionTotal? : number // derived : contributionCollection : contributionCalendar의 totalContributions 값
+    contributionsCollectionTotal?: number; // derived : contributionCollection : contributionCalendar의 totalContributions 값
 }
-
-
-
-

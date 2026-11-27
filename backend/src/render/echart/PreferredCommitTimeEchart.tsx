@@ -5,16 +5,26 @@ import type { RenderLocale } from "../locale/RenderLocale";
 
 const formatHour = (hour: number) => `${hour < 10 ? "0" : ""}${hour}:00`;
 
-export const chart = (commitStats: CommitStats, width: number, height: number, renderLocale: RenderLocale): EChartsOption => {
+export const chart = (
+    commitStats: CommitStats,
+    width: number,
+    height: number,
+    renderLocale: RenderLocale,
+): EChartsOption => {
     const copy = locale[renderLocale];
     const cardInset = Math.min(24, Math.max(10, Math.round(Math.min(width, height) * 0.055)));
-    const cardWidth = Math.max(0, width - (cardInset * 2));
-    const cardHeight = Math.max(0, height - (cardInset * 2));
+    const cardWidth = Math.max(0, width - cardInset * 2);
+    const cardHeight = Math.max(0, height - cardInset * 2);
     const contentLeft = cardInset + 30;
-    const strongestTime = commitStats.total > 0 && commitStats.timeBuckets.length > 0
-        ? commitStats.timeBuckets.reduce((strongest, current) => current.count > strongest.count ? current : strongest)
-        : undefined;
-    const strongestLabel = strongestTime ? copy.timeBucket[strongestTime.label] ?? strongestTime.label : "";
+    const strongestTime =
+        commitStats.total > 0 && commitStats.timeBuckets.length > 0
+            ? commitStats.timeBuckets.reduce((strongest, current) =>
+                  current.count > strongest.count ? current : strongest,
+              )
+            : undefined;
+    const strongestLabel = strongestTime
+        ? (copy.timeBucket[strongestTime.label] ?? strongestTime.label)
+        : "";
     const strongestTitle = strongestTime ? copy.strongestFocus(strongestLabel) : copy.noCommitData;
     const strongestDetail = strongestTime
         ? copy.peakActivity(formatHour(commitStats.peakHour))
@@ -56,7 +66,13 @@ export const chart = (commitStats: CommitStats, width: number, height: number, r
             {
                 type: "rect",
                 z: 10,
-                shape: { x: contentLeft, y: summaryTop, width: Math.max(0, cardWidth - 60), height: summaryHeight, r: 18 },
+                shape: {
+                    x: contentLeft,
+                    y: summaryTop,
+                    width: Math.max(0, cardWidth - 60),
+                    height: summaryHeight,
+                    r: 18,
+                },
                 style: { fill: "#eef4ff" },
             },
             {
@@ -64,34 +80,50 @@ export const chart = (commitStats: CommitStats, width: number, height: number, r
                 z: 11,
                 left: contentLeft + 20,
                 top: summaryTop + 17,
-                style: { text: copy.strongestWindow, fill: "#9ca3af", font: "600 10px Arial, sans-serif" },
+                style: {
+                    text: copy.strongestWindow,
+                    fill: "#9ca3af",
+                    font: "600 10px Arial, sans-serif",
+                },
             },
             {
                 type: "text",
                 z: 11,
                 left: contentLeft + 20,
                 top: summaryTop + 37,
-                style: { text: strongestTitle, fill: "#111827", font: "600 16px Arial, sans-serif" },
+                style: {
+                    text: strongestTitle,
+                    fill: "#111827",
+                    font: "600 16px Arial, sans-serif",
+                },
             },
             {
                 type: "text",
                 z: 11,
                 left: contentLeft + 20,
                 top: summaryTop + 62,
-                style: { text: strongestDetail, fill: "#6b7280", font: "400 12px Arial, sans-serif" },
-            },
-            ...(commitStats.timeBuckets.length === 0 ? [{
-                type: "text" as const,
-                z: 10,
-                left: "center" as const,
-                top: "47%" as const,
                 style: {
-                    text: copy.empty,
+                    text: strongestDetail,
                     fill: "#6b7280",
-                    font: "400 14px Arial, sans-serif",
-                    align: "center" as const,
+                    font: "400 12px Arial, sans-serif",
                 },
-            }] : []),
+            },
+            ...(commitStats.timeBuckets.length === 0
+                ? [
+                      {
+                          type: "text" as const,
+                          z: 10,
+                          left: "center" as const,
+                          top: "47%" as const,
+                          style: {
+                              text: copy.empty,
+                              fill: "#6b7280",
+                              font: "400 14px Arial, sans-serif",
+                              align: "center" as const,
+                          },
+                      },
+                  ]
+                : []),
         ],
         grid: {
             top: 150,
@@ -108,23 +140,27 @@ export const chart = (commitStats: CommitStats, width: number, height: number, r
             axisTick: { show: false },
             axisLabel: { color: "#6b7280", fontSize: 12, margin: 14 },
         },
-        series: commitStats.timeBuckets.length ? [{
-            type: "bar",
-            data: commitStats.timeBuckets.map(({ percent }) => percent),
-            barWidth: 12,
-            showBackground: true,
-            backgroundStyle: { color: "#f3f4f6", borderRadius: 6 },
-            itemStyle: { color: "#111827", borderRadius: 6 },
-            label: {
-                show: true,
-                position: "right",
-                distance: 12,
-                color: "#9ca3af",
-                fontSize: 11,
-                fontWeight: 600,
-                formatter: "{c}%",
-            },
-            emphasis: { disabled: true },
-        }] : [],
+        series: commitStats.timeBuckets.length
+            ? [
+                  {
+                      type: "bar",
+                      data: commitStats.timeBuckets.map(({ percent }) => percent),
+                      barWidth: 12,
+                      showBackground: true,
+                      backgroundStyle: { color: "#f3f4f6", borderRadius: 6 },
+                      itemStyle: { color: "#111827", borderRadius: 6 },
+                      label: {
+                          show: true,
+                          position: "right",
+                          distance: 12,
+                          color: "#9ca3af",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          formatter: "{c}%",
+                      },
+                      emphasis: { disabled: true },
+                  },
+              ]
+            : [],
     };
 };

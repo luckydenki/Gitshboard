@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { CommonErrorResponse } from "~/types/common/common";
+import type { CommonErrorResponse } from "~/types/common-response/common";
 
 export interface UserDataState {
     login: string;

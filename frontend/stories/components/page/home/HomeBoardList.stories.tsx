@@ -7,7 +7,12 @@ const meta = {
     title: "Components/Page/Home/HomeBoardList",
     component: HomeBoardList,
     args: { boardTitle: "GitHub 업데이트", data: boardItems },
-    render: (args) => <HomeBoardList {...args} data={args.data.map((item) => ({ ...item }))} />,
+    render: (args) => (
+        <HomeBoardList
+            {...args}
+            data={args.data.map((item) => ({ ...item }))}
+        />
+    ),
 } satisfies Meta<typeof HomeBoardList>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -25,7 +30,13 @@ export const Empty: Story = { args: { data: [] } };
 export const OneItem: Story = { args: { data: boardItems.slice(0, 1) } };
 // 긴 제목과 설명의 줄임 처리를 보여줍니다.
 export const LongContent: Story = {
-    args: { data: [{ ...boardItems[0], title: "긴 제목 ".repeat(30), description: "긴 설명 ".repeat(80) }] },
+    args: {
+        data: [
+            { ...boardItems[0], title: "긴 제목 ".repeat(30), description: "긴 설명 ".repeat(80) },
+        ],
+    },
 };
 // 다섯 개를 초과하는 게시글을 표시합니다.
-export const MoreThanFive: Story = { args: { data: [...boardItems, { ...boardItems[0], title: "여섯 번째 글" }] } };
+export const MoreThanFive: Story = {
+    args: { data: [...boardItems, { ...boardItems[0], title: "여섯 번째 글" }] },
+};

@@ -1,9 +1,27 @@
 import redisRepository from "../repository/redis.repository";
 import githubRepoAPIClient from "../client/repo.client";
-import { GithubLanguageRepositoryNode, GithubRepoCommonResponse, GithubCommitTimeRepositoryNode, GithubProjectTopicsNode, ProjectLiveRateNode } from "../types/stat";
-import { calculateLanguageStats, CommitStats, LanguageStat, calculateCommitStats, ProjectCategoryStat, calculateProjectCategories, calculateDeveloperProfile, DeveloperProfileStats, calculateProjectHealth, ProjectHealthStats } from "../utils/stat";
+import type { GithubGQLGetRepoActivityQueryVariables } from "../types/github/graphql/operations.generated";
+import type {
+    GetRepoReadmesData,
+    GetRepoReadmeContentData,
+    GetRepoActivityBranchesData,
+    GetRepoActivityData,
+    GetRepoActivitySummaryData,
+    GetRepoProfileData,
+    RepoActivityEvent,
+} from "../types/controllers/repo";
+import {
+    calculateLanguageStats,
+    CommitStats,
+    LanguageStat,
+    calculateCommitStats,
+} from "../utils/stat";
 import CommonError from "../utils/common-error";
+import RepoUtils from "../utils/routes/repo.utils";
+import RepoActivityMapper from "../mapper/repo-activity.mapper";
+import RepoActivityProcessor from "../processor/repo-activity.processor";
 
+const MAX_RECENT_ACTIVITY_EVENTS = 100;
 
 const REDIS_DATA_EXPIRATION = 300; // 5분 동안 유지
 
@@ -11,45 +29,539 @@ const createRedisKey = (githubUsername: string, dataType: string) => {
     return `gitshboard:stats:${githubUsername}:${dataType}`;
 };
 
-class RepoService {
+class RepoServices {
+    private getReadmeLocation(owner: unknown, repo: unknown) {
+        if (
+            typeof owner !== "string" ||
+            !/^[\w-]{1,39}$/.test(owner) ||
+            typeof repo !== "string" ||
+            !/^[\w.-]{1,100}$/.test(repo) ||
+            repo === "." ||
+            repo === ".."
+        ) {
+            throw CommonError.create400Error("저장소 소유자 또는 이름이 올바르지 않습니다.");
+        }
+        return { owner, repo };
+    }
 
+    private async getReadmeTree(
+        owner: string,
+        repo: string,
+        token?: string,
+    ): Promise<GetRepoReadmesData> {
+        try {
+            const repository = await githubRepoAPIClient.getReadmeRepository(owner, repo, token);
+            if (!repository.default_branch)
+                return { defaultBranch: null, documents: [] } as GetRepoReadmesData;
+            const tree = await githubRepoAPIClient.getReadmeTree(
+                owner,
+                repo,
+                repository.default_branch,
+                token,
+            );
+            if (tree.truncated)
+                throw new CommonError({
+                    status: 503,
+                    title: "Service Unavailable",
+                    type: "https://docs.github.com/en/rest/git/trees",
+                    detail: "README 목록이 일부만 조회되었습니다.",
+                });
+            const documents = tree.tree
+                .filter(
+                    (entry) =>
+                        entry.type === "blob" &&
+                        typeof entry.path === "string" &&
+                        typeof entry.sha === "string" &&
+                        /(?:^|\/)readme(?:\.md|\.markdown)?$/i.test(entry.path),
+                )
+                .map((entry) => ({ path: entry.path!, sha: entry.sha! }))
+                .sort(
+                    (a, b) =>
+                        a.path.split("/").length - b.path.split("/").length ||
+                        a.path.localeCompare(b.path),
+                );
+            return { defaultBranch: repository.default_branch, documents } as GetRepoReadmesData;
+        } catch (error) {
+            if (error instanceof CommonError) throw error;
+            const status = error instanceof Error && "status" in error ? Number(error.status) : 0;
+            if (status === 409) return { defaultBranch: null, documents: [] };
+            if (status === 401) throw CommonError.create401Error("GitHub 인증이 필요합니다.");
+            if (status === 404) throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+            if (status === 403 || status === 429)
+                throw new CommonError({
+                    status: status as 403 | 429,
+                    title: "GitHub request limited",
+                    type: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api",
+                    detail: "GitHub 접근 권한 또는 호출 제한으로 README를 조회하지 못했습니다.",
+                });
+            throw new CommonError({
+                status: 503,
+                title: "Service Unavailable",
+                type: "https://docs.github.com/en/rest/git/trees",
+                detail: "GitHub README 목록을 조회하지 못했습니다.",
+            });
+        }
+    }
 
+    public getReadmes = async (
+        owner: unknown,
+        repo: unknown,
+        token?: string,
+    ): Promise<GetRepoReadmesData> => {
+        const location = this.getReadmeLocation(owner, repo);
+        return this.getReadmeTree(location.owner, location.repo, token);
+    };
 
-    public getLanguages = async( githubUsername : string, githubAccessToken : string | undefined) => {
-    
-        const cachedData = await redisRepository.get<LanguageStat[]>(createRedisKey(githubUsername, "languages"));
-        
-        if(cachedData){
+    public getReadmeContent = async (
+        owner: unknown,
+        repo: unknown,
+        path: unknown,
+        token?: string,
+    ): Promise<GetRepoReadmeContentData> => {
+        const location = this.getReadmeLocation(owner, repo);
+        if (
+            typeof path !== "string" ||
+            path.length > 4096 ||
+            path.startsWith("/") ||
+            path.includes("\\") ||
+            path.split("/").some((part) => !part || part === "." || part === "..")
+        ) {
+            throw CommonError.create400Error("README 파일 경로가 올바르지 않습니다.");
+        }
+        const { defaultBranch, documents } = await this.getReadmeTree(
+            location.owner,
+            location.repo,
+            token,
+        );
+        const document = documents.find((item) => item.path === path);
+        if (!document || !defaultBranch)
+            throw CommonError.create404Error("README 파일을 찾을 수 없습니다.");
+        try {
+            const response = await githubRepoAPIClient.getReadmeBlob(
+                location.owner,
+                location.repo,
+                document.sha,
+                token,
+            );
+            if (
+                response.size === null ||
+                response.size > 1024 * 1024 ||
+                response.encoding !== "base64"
+            )
+                throw new CommonError({
+                    status: 503,
+                    title: "Service Unavailable",
+                    type: "https://docs.github.com/en/rest/git/blobs",
+                    detail: "README 파일을 표시할 수 없습니다.",
+                });
+            const markdown = Buffer.from(response.content, "base64").toString("utf8");
+            const htmlUrl = `https://github.com/${location.owner}/${location.repo}/blob/${encodeURIComponent(defaultBranch)}/${path.split("/").map(encodeURIComponent).join("/")}`;
+            return { path, markdown, htmlUrl, defaultBranch };
+        } catch (error) {
+            if (error instanceof CommonError) throw error;
+            const status = error instanceof Error && "status" in error ? Number(error.status) : 0;
+            if (status === 404) throw CommonError.create404Error("README 파일을 찾을 수 없습니다.");
+            if (status === 401) throw CommonError.create401Error("GitHub 인증이 필요합니다.");
+            if (status === 403 || status === 429)
+                throw new CommonError({
+                    status: status as 403 | 429,
+                    title: "GitHub request limited",
+                    type: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api",
+                    detail: "GitHub 접근 권한 또는 호출 제한으로 README를 조회하지 못했습니다.",
+                });
+            throw new CommonError({
+                status: 503,
+                title: "Service Unavailable",
+                type: "https://docs.github.com/en/rest/git/blobs",
+                detail: "README 파일 내용을 조회하지 못했습니다.",
+            });
+        }
+    };
+    public getProfile = async ({
+        owner,
+        repo,
+        token,
+    }: {
+        owner: unknown;
+        repo: unknown;
+        token?: string;
+    }): Promise<GetRepoProfileData> => {
+        if (
+            typeof owner !== "string" ||
+            typeof repo !== "string" ||
+            !owner.trim() ||
+            !repo.trim()
+        ) {
+            throw CommonError.create400Error("저장소 소유자와 이름이 필요합니다.");
+        }
+
+        const { repository } = await githubRepoAPIClient.getProfile({ owner, name: repo }, token);
+        if (!repository || (!token && repository.visibility !== "PUBLIC")) {
+            throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+        }
+
+        return { repository };
+    };
+
+    public getActivity = async ({
+        owner,
+        repo,
+        timezone = "Asia/Seoul",
+        limit = "6",
+        cursor,
+        token,
+        branch,
+        source,
+    }: {
+        source: "commits" | "pull-requests-issues";
+        branch?: unknown;
+        owner: unknown;
+        repo: unknown;
+        timezone?: unknown;
+        limit?: unknown;
+        cursor?: unknown;
+        token?: string;
+    }): Promise<GetRepoActivityData> => {
+        const location = RepoUtils.parseActivityLocation(owner, repo, timezone);
+        if (!location || typeof limit !== "string" || !/^(?:[1-9]|1\d|20)$/.test(limit)) {
+            throw CommonError.create400Error(
+                "저장소 주소, 시간대 또는 페이지 크기를 확인해 주세요.",
+            );
+        }
+
+        const selectedBranch = source === "commits" ? this.parseBranch(branch) : undefined;
+        const scope = JSON.stringify([
+            location.owner.toLowerCase(),
+            location.repo.toLowerCase(),
+            location.timezone,
+            source,
+            selectedBranch,
+            "latest",
+        ]);
+        const now = Date.now();
+        const previous = RepoUtils.decodeActivityCursor(cursor, scope, now);
+        if (cursor !== undefined && !previous) {
+            throw CommonError.create400Error("활동 페이지 커서가 잘못되었거나 만료되었습니다.");
+        }
+
+        const asOf = previous?.asOf ?? new Date(now).toISOString();
+        const githubAccessToken = token || undefined;
+        const { events, counts, window, truncatedSources, canonicalOwner, canonicalRepo } =
+            await this.scanActivity(
+                location.owner,
+                location.repo,
+                location.timezone,
+                githubAccessToken,
+                asOf,
+                source,
+                selectedBranch,
+            );
+        const remaining = previous
+            ? events.filter(
+                  (event) =>
+                      event.occurredAt < previous.occurredAt ||
+                      (event.occurredAt === previous.occurredAt &&
+                          event.id.localeCompare(previous.id) > 0),
+              )
+            : events;
+        const pageEvents = remaining.slice(0, Number(limit));
+        const last = pageEvents[pageEvents.length - 1];
+        const nextCursor =
+            last && remaining.length > pageEvents.length
+                ? RepoUtils.encodeActivityCursor(scope, {
+                      asOf,
+                      occurredAt: last.occurredAt,
+                      id: last.id,
+                  })
+                : null;
+
+        let commitDetailsPartial = false;
+        for (const event of pageEvents) {
+            if (event.type !== "commit" || event.changedFiles === 0) continue;
+            try {
+                const commit_response = await githubRepoAPIClient.getActivityCommit(
+                    canonicalOwner,
+                    canonicalRepo,
+                    event.sha,
+                    githubAccessToken,
+                );
+                event.representativePath = commit_response.files?.[0]?.filename;
+            } catch {
+                commitDetailsPartial = true;
+                // The feed remains available when optional commit details cannot be fetched.
+                break;
+            }
+        }
+
+        return {
+            asOf,
+            window,
+            counts,
+            events: pageEvents,
+            nextCursor,
+            coverage: { truncatedSources, commitDetailsPartial },
+        };
+    };
+
+    public getActivityBranches = async ({
+        owner,
+        repo,
+        cursor,
+        token,
+    }: {
+        owner: unknown;
+        repo: unknown;
+        cursor?: unknown;
+        token?: string;
+    }): Promise<GetRepoActivityBranchesData> => {
+        const location = RepoUtils.parseActivityLocation(owner, repo, "UTC");
+        if (
+            !location ||
+            (cursor !== undefined &&
+                (typeof cursor !== "string" || cursor.length === 0 || cursor.length > 4096))
+        ) {
+            throw CommonError.create400Error("저장소 주소 또는 브랜치 커서를 확인해 주세요.");
+        }
+        const { repository } = await githubRepoAPIClient.getActivityBranches(
+            {
+                owner: location.owner,
+                name: location.repo,
+                after: cursor,
+            },
+            token || undefined,
+        );
+        if (!repository || (!token && repository.visibility !== "PUBLIC")) {
+            throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+        }
+        return {
+            defaultBranch: repository.defaultBranchRef?.name ?? null,
+            branches:
+                repository.refs?.nodes?.flatMap((branch) => (branch ? [branch.name] : [])) ?? [],
+            nextCursor: repository.refs?.pageInfo.hasNextPage
+                ? (repository.refs.pageInfo.endCursor ?? null)
+                : null,
+        };
+    };
+
+    public getActivitySummary = async ({
+        owner,
+        repo,
+        timezone = "Asia/Seoul",
+        token,
+        branch,
+    }: {
+        owner: unknown;
+        repo: unknown;
+        timezone?: unknown;
+        token?: string;
+        branch?: unknown;
+    }): Promise<GetRepoActivitySummaryData> => {
+        const location = RepoUtils.parseActivityLocation(owner, repo, timezone);
+        if (!location) throw CommonError.create400Error("저장소 주소 또는 시간대를 확인해 주세요.");
+
+        const asOf = new Date().toISOString();
+        const selectedBranch = this.parseBranch(branch);
+        const { events, counts, window, dates, dateKey, truncatedSources, branchName } =
+            await this.scanActivity(
+                location.owner,
+                location.repo,
+                location.timezone,
+                token || undefined,
+                asOf,
+                "summary",
+                selectedBranch,
+            );
+        const { dailyCommits, peakDay } = RepoActivityProcessor.summarizeByDay(
+            events,
+            dates,
+            dateKey,
+        );
+
+        return {
+            asOf,
+            window,
+            counts,
+            branch: branchName,
+            dailyCommits,
+            peakDay,
+            coverage: { truncatedSources },
+        };
+    };
+
+    private parseBranch(branch: unknown): string | undefined {
+        if (branch === undefined) return undefined;
+        if (
+            typeof branch !== "string" ||
+            !branch ||
+            branch.length > 1024 ||
+            /[\s\x00-\x1f\x7f]/.test(branch)
+        ) {
+            throw CommonError.create400Error("브랜치 이름을 확인해 주세요.");
+        }
+        return branch;
+    }
+
+    private async scanActivity(
+        owner: string,
+        repo: string,
+        timezone: string,
+        token: string | undefined,
+        asOf: string,
+        source: "commits" | "pull-requests-issues" | "summary",
+        branch?: string,
+    ) {
+        const clockOptions: Intl.DateTimeFormatOptions = {
+            timeZone: timezone,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        };
+        let clock: Intl.DateTimeFormat;
+        try {
+            clock = new Intl.DateTimeFormat("sv-SE", clockOptions);
+        } catch {
+            throw CommonError.create400Error("올바른 IANA 시간대가 필요합니다.");
+        }
+
+        const { dates, lastDate, since, dateKey, inWindow } = RepoActivityProcessor.getWindow(
+            asOf,
+            clock,
+        );
+        const isSummary = source === "summary";
+        const snapshotTime = Date.parse(asOf);
+        const includeEvent = (value: string) =>
+            isSummary ? inWindow(value) : Date.parse(value) <= snapshotTime;
+        let variables: GithubGQLGetRepoActivityQueryVariables = {
+            owner,
+            name: repo,
+            since: isSummary ? since : undefined,
+            until: asOf,
+            includeSummary: isSummary,
+            qualifiedBranch: branch ? `refs/heads/${branch}` : "",
+            readDefaultBranch: source !== "pull-requests-issues" && branch === undefined,
+            readSelectedBranch: source !== "pull-requests-issues" && branch !== undefined,
+            readPullRequests: source !== "commits",
+            readIssues: source !== "commits",
+        };
+        let events = new Map<string, RepoActivityEvent>();
+        let branchName: string | null = null;
+        let canonicalOwner = owner;
+        let canonicalRepo = repo;
+
+        // A bounded scan keeps the synchronous endpoint usable on busy repositories.
+        //TODO : N+1 문제로 fetch를 매번 해서 성능 박는 문제 주의
+        for (let page = 0; page < 10; page++) {
+            const response = await githubRepoAPIClient.getActivityPage(variables, token);
+            const repository = response.repository;
+            if (!repository || (!token && repository.visibility !== "PUBLIC")) {
+                throw CommonError.create404Error("저장소를 찾을 수 없습니다.");
+            }
+            canonicalOwner = repository.owner.login;
+            canonicalRepo = repository.name;
+            const branchRef = variables.readSelectedBranch
+                ? repository.selectedBranch
+                : repository.defaultBranchRef;
+            if (variables.readSelectedBranch && !branchRef) {
+                throw CommonError.create404Error("브랜치를 찾을 수 없습니다.");
+            }
+            branchName = branchRef?.name ?? branchName;
+            const commitTarget = branchRef?.target;
+            const commits =
+                commitTarget && "history" in commitTarget ? commitTarget.history : undefined;
+            events = RepoActivityProcessor.collectEvents(
+                events,
+                RepoActivityMapper.toEvents(repository, commits),
+                includeEvent,
+            );
+            variables = RepoActivityProcessor.nextPageVariables(
+                variables,
+                repository,
+                commits,
+                events,
+                isSummary,
+                since,
+                MAX_RECENT_ACTIVITY_EVENTS,
+            );
+            if (
+                !variables.readDefaultBranch &&
+                !variables.readSelectedBranch &&
+                !variables.readPullRequests &&
+                !variables.readIssues
+            )
+                break;
+        }
+
+        const { orderedEvents, counts } = RepoActivityProcessor.summarize(
+            events,
+            isSummary,
+            MAX_RECENT_ACTIVITY_EVENTS,
+        );
+
+        const truncatedSources = RepoActivityProcessor.truncatedSources(variables);
+
+        return {
+            events: orderedEvents,
+            counts,
+            dates,
+            dateKey,
+            branchName,
+            window: {
+                firstDate: isSummary
+                    ? dates[0]
+                    : dateKey(orderedEvents[orderedEvents.length - 1]?.occurredAt ?? asOf),
+                lastDate,
+                timezone,
+            },
+            truncatedSources,
+            canonicalOwner,
+            canonicalRepo,
+        };
+    }
+
+    public getLanguages = async (githubUsername: string, githubAccessToken: string | undefined) => {
+        const cachedData = await redisRepository.get<LanguageStat[]>(
+            createRedisKey(githubUsername, "languages"),
+        );
+
+        if (cachedData) {
             console.log("Redis hit : languages");
             return cachedData;
         }
-        
-        try{
-            const userData : GithubRepoCommonResponse<GithubLanguageRepositoryNode> | null = await githubRepoAPIClient.getLanguages(githubUsername, githubAccessToken);
-            if(!userData){
-                throw CommonError.create404Error("Github API 호출에 실패했습니다.", 
-                    `/api/repo/${githubUsername}/languages`);
+
+        try {
+            const userData = await githubRepoAPIClient.getLanguages(
+                githubUsername,
+                githubAccessToken,
+            );
+            if (!userData) {
+                throw CommonError.create404Error("Github API 호출에 실패했습니다.");
             }
 
             const languageStats = calculateLanguageStats(userData);
-            const success = await redisRepository.set(createRedisKey(githubUsername, "languages"), languageStats, REDIS_DATA_EXPIRATION);
+            const success = await redisRepository.set(
+                createRedisKey(githubUsername, "languages"),
+                languageStats,
+                REDIS_DATA_EXPIRATION,
+            );
 
-            if(!success){
+            if (!success) {
                 console.error("Failed to set cache for languages");
                 //redis 가 실패해도 통계 데이터는 반환합니다.
             }
             return languageStats;
-
-        } catch(err){
+        } catch (err) {
             console.error("Failed to fetch repository languages:", err);
             return null;
         }
     };
 
-
-    public getCommitTime = async(githubUsername : string, githubAccessToken : string | undefined) => {
-
-        const cachedData = await redisRepository.get<CommitStats>(createRedisKey(githubUsername, "commitTime"));
+    public getCommitTime = async (
+        githubUsername: string,
+        githubAccessToken: string | undefined,
+    ) => {
+        const cachedData = await redisRepository.get<CommitStats>(
+            createRedisKey(githubUsername, "commitTime"),
+        );
 
         //없을 경우 cachedData는 null임.
         if (cachedData) {
@@ -57,131 +569,34 @@ class RepoService {
             return cachedData;
         }
 
-
-        try{
-            const userData : GithubRepoCommonResponse<GithubCommitTimeRepositoryNode> | null = await githubRepoAPIClient.getCommitTime(githubUsername, githubAccessToken);
-            if(!userData){
+        try {
+            const userData = await githubRepoAPIClient.getCommitTime(
+                githubUsername,
+                githubAccessToken,
+            );
+            if (!userData) {
                 throw new Error("Failed to fetch commit time from GitHub API");
             }
 
             const commitStats: CommitStats = calculateCommitStats(userData);
-            const success = await redisRepository.set(createRedisKey(githubUsername, "commitTime"), commitStats, REDIS_DATA_EXPIRATION);
-            if(!success){
+            const success = await redisRepository.set(
+                createRedisKey(githubUsername, "commitTime"),
+                commitStats,
+                REDIS_DATA_EXPIRATION,
+            );
+            if (!success) {
                 console.error("Failed to set cache for commit time");
                 //redis 가 실패해도 통계 데이터는 반환합니다.
             }
             // console.log("[backend] commitStats:", commitStats);
 
             return commitStats;
-
         } catch (err) {
             console.error("Failed to fetch commit time data:", err);
             return null;
         }
     };
-
-
-    public getProjectTopics = async(    githubUsername : string, githubAccessToken : string | undefined) => {
-
-        const cachedData = await redisRepository.get<ProjectCategoryStat[]>(createRedisKey(githubUsername, "projectTopics"));
-
-        //없을 경우 cachedData는 null임.
-        if (cachedData) {
-            console.log("Redis hit : projectTopics");
-            return cachedData;
-        }
-
-
-        try{
-            const userData : GithubRepoCommonResponse<GithubProjectTopicsNode> | null = await githubRepoAPIClient.getProjectTopics(githubUsername, githubAccessToken);
-            if(!userData){
-                throw new Error("Failed to fetch project topics from GitHub API");
-            }
-            const projectTopics: ProjectCategoryStat[] = calculateProjectCategories(userData);
-            const success = await redisRepository.set(createRedisKey(githubUsername, "projectTopics"), projectTopics, REDIS_DATA_EXPIRATION);
-            if(!success){
-                throw new Error("Failed to set cache for project topics");
-            }
-            return projectTopics;
-
-            
-        }catch(err){
-            console.error("Failed to fetch project topics:", err);
-            return null;
-        }
-    };
-
-    public getDevelopStats = async(githubUsername : string, githubAccessToken : string | undefined) => {
-
-
-        //304 Not Modified 요청에 대한 대비
-        const cachedData = await redisRepository.get<DeveloperProfileStats>(createRedisKey(githubUsername, "developStats"));
-
-        //없을 경우 cachedData는 null임.
-        if (cachedData) {
-            console.log("Redis hit : developStats");
-            return cachedData;
-        }
-
-
-
-        try{
-            const userData : GithubRepoCommonResponse<GithubCommitTimeRepositoryNode & GithubLanguageRepositoryNode & GithubProjectTopicsNode> | null = await githubRepoAPIClient.getDevelopStats(githubUsername, githubAccessToken);
-            if(!userData){
-                throw new Error("Failed to fetch develop stats from GitHub API");
-            }
-            const developerProfileStats: DeveloperProfileStats = calculateDeveloperProfile(userData);
-            const success = await redisRepository.set(createRedisKey(githubUsername, "developStats"), developerProfileStats, REDIS_DATA_EXPIRATION);
-
-            if(!success){
-                console.error("Failed to set cache for develop stats");
-                //redis 가 실패해도 통계 데이터는 반환합니다.
-            }
-
-            return developerProfileStats;
-
-        }catch(err){
-
-            console.error("Failed to fetch develop stats:", err);
-            return null;
-        }
-    };
-
-
-
-    public getProjectLiveRate = async(githubUsername : string, githubAccessToken : string | undefined   ) => {
-      //304 Not Modified 요청에 대한 대비
-            const cachedData = await redisRepository.get<ProjectHealthStats>(createRedisKey(githubUsername, "projectLiveRate"));
-
-            //없을 경우 cachedData는 null임.
-            if (cachedData) {
-                console.log("Redis hit : projectLiveRate");
-                return cachedData;
-            }
-            
-            try{
-                const userData : GithubRepoCommonResponse<ProjectLiveRateNode> | null = await githubRepoAPIClient.getProjectLiveRate(githubUsername, githubAccessToken);
-                if(!userData){
-                    throw new Error("Failed to fetch project live rate from GitHub API");
-                }
-
-                const projectHealthStats = calculateProjectHealth(userData);
-                const success = await redisRepository.set(createRedisKey(githubUsername , "projectLiveRate"), projectHealthStats, REDIS_DATA_EXPIRATION);
-                if(!success){
-                    console.error("Failed to set cache for project live rate");
-                    //redis 가 실패해도 통계 데이터는 반환합니다.
-                }
-
-                return projectHealthStats;
-
-
-            }catch(err){
-                console.error("Failed to fetch project live rate:", err);
-                return null;
-            }
-    };
 }
 
-
-const repoService = new RepoService();
+const repoService = new RepoServices();
 export default repoService;

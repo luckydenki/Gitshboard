@@ -1,0 +1,52 @@
+import { Meta, Canvas } from "@storybook/addon-docs/blocks";
+import * as Stories from "./LoadingSpinner.stories";
+
+<Meta of={Stories} />
+
+# LoadingSpinner
+
+로딩 중임을 회전 아이콘으로 표시하는 공통 컴포넌트입니다. 기본 상태는 아이콘만 표시하며 스크린 리더에는 “로딩 중”을 안내합니다. 기기의 동작 줄이기 설정에서는 회전을 멈춥니다.
+
+## Props
+
+| 이름      | 기본값  | 설명                           |
+| --------- | ------- | ------------------------------ |
+| size      | md      | sm(16px), md(24px), lg(32px)   |
+| label     | 로딩 중 | 로딩 안내 문구                 |
+| showLabel | false   | 문구를 화면에도 표시할지 여부  |
+| className | 없음    | 바깥 span에 추가할 배치 클래스 |
+
+size와 showLabel은 tailwind-variants로 관리합니다. 로딩 상태의 시작·종료는 사용하는 화면에서 조건부 렌더링으로 관리합니다.
+
+## 사용 예시
+
+```tsx
+import LoadingSpinner from "~/components/common/LoadingSpinner";
+
+{
+    isPending ? <LoadingSpinner /> : <Content />;
+}
+<LoadingSpinner
+    size="lg"
+    showLabel
+    label="데이터를 불러오는 중입니다"
+/>;
+```
+
+<Canvas of={Stories.Default} />
+<Canvas of={Stories.Small} />
+<Canvas of={Stories.Large} />
+<Canvas of={Stories.WithLabel} />
+<Canvas of={Stories.LongLabel} />
+
+## 기본 평가
+
+6/7. Chromium Storybook 테스트 5개 통과. 수동 미리보기 연결은 시간 초과로 확인하지 못했습니다.
+
+1. 로딩 UI [o]
+2. 오류·재시도 [해당 없음: 상태 판단은 사용처에서 담당]
+3. 빈 데이터 [해당 없음]
+4. 상태·크기별 스토리 [o]
+5. CSS 지침 [o: 사용자 요청에 따라 회전형 UI 적용]
+6. 공통 컴포넌트 지침 [o]
+7. 브라우저 자동 렌더링 5/5 통과. 수동 시각 확인 [미실행: 미리보기 연결 시간 초과]

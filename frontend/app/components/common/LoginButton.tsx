@@ -1,14 +1,14 @@
 import { SiGithub } from "@icons-pack/react-simple-icons";
-import type { StrictGithubOAuthParams } from "~/types/GithubOAuth";
+import type { GitHubScope, StrictGithubOAuthParams } from "~/types/github-Oauth";
 
-const handleOAuthLogin = () => {
+export const handleOAuthLogin = (scope: Array<GitHubScope>) => {
     const ID = import.meta.env.VITE_GITHUB_CLIENT_ID;
     const URL = import.meta.env.VITE_GITHUB_CALLBACK_URL;
     const baseURL = "https://github.com/login/oauth/authorize";
     const githubOAuthParams: StrictGithubOAuthParams = {
         client_id: ID,
         redirect_uri: URL,
-        scope: ["read:user"],
+        scope: scope,
     };
 
     const params = new URLSearchParams({
@@ -23,7 +23,7 @@ export default function LoginButton() {
         <button
             className={`hover:ring-primary bg-github-black flex gap-2 rounded-full px-4 py-2 text-white not-lg:p-1 hover:cursor-pointer hover:ring-2`}
             onClick={() => {
-                handleOAuthLogin();
+                handleOAuthLogin(["read:user"]);
             }}>
             <SiGithub aria-label="깃허브 Oauth 로그인 버튼" />
             <span className="not-lg:hidden">깃허브 로그인</span>

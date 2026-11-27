@@ -14,10 +14,19 @@ type Story = StoryObj<typeof meta>;
 
 function withPosts(posts: typeof blogPosts) {
     return (Story: ComponentType) => {
-        const client = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity, retry: false } } });
-        client.setQueryData(["blog"], posts.map((post) => ({ ...post })));
+        const client = new QueryClient({
+            defaultOptions: { queries: { staleTime: Infinity, retry: false } },
+        });
+        client.setQueryData(
+            ["blog"],
+            posts.map((post) => ({ ...post })),
+        );
         client.setQueryData(["blogThumbNail"], []);
-        return <QueryClientProvider client={client}><Story /></QueryClientProvider>;
+        return (
+            <QueryClientProvider client={client}>
+                <Story />
+            </QueryClientProvider>
+        );
     };
 }
 // 여섯 개의 글을 다섯 개씩 나누어 표시하는 기본 사례입니다.
@@ -42,23 +51,49 @@ export const Empty: Story = { decorators: [withPosts([])] };
 export const ExactlyFive: Story = { decorators: [withPosts(blogPosts.slice(0, 5))] };
 // 긴 제목과 여러 카테고리를 표시하는 사례입니다.
 export const LongContent: Story = {
-    decorators: [withPosts([{ ...blogPosts[0], title: "아주 긴 GitHub 블로그 글 제목 ".repeat(8), categories: ["개발", "오픈소스", "커뮤니티"], authorName: "아주 긴 작성자 이름" }])],
+    decorators: [
+        withPosts([
+            {
+                ...blogPosts[0],
+                title: "아주 긴 GitHub 블로그 글 제목 ".repeat(8),
+                categories: ["개발", "오픈소스", "커뮤니티"],
+                authorName: "아주 긴 작성자 이름",
+            },
+        ]),
+    ],
 };
 
 // 이미지가 있는 게시글을 표시하는 사례입니다.
 export const WithThumbnail: Story = {
-    decorators: [withPosts([{ ...blogPosts[0], thumbnailUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='180'%3E%3Crect width='320' height='180' fill='%2324292f'/%3E%3C/svg%3E" }])],
+    decorators: [
+        withPosts([
+            {
+                ...blogPosts[0],
+                thumbnailUrl:
+                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='180'%3E%3Crect width='320' height='180' fill='%2324292f'/%3E%3C/svg%3E",
+            },
+        ]),
+    ],
     // 썸네일 이미지에 준비된 주소가 적용되는지 확인합니다.
     play: async ({ canvas }) => {
-        await expect(canvas.getByRole("img")).toHaveAttribute("src", expect.stringContaining("data:image/svg+xml"));
+        await expect(canvas.getByRole("img")).toHaveAttribute(
+            "src",
+            expect.stringContaining("data:image/svg+xml"),
+        );
     },
 };
 // 블로그 글을 불러오는 동안의 상태입니다.
 export const Loading: Story = {
-    decorators: [(Story) => {
-        const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-        void client.fetchQuery({ queryKey: ["blog"], queryFn: () => new Promise(() => {}) });
-        client.setQueryData(["blogThumbNail"], []);
-        return <QueryClientProvider client={client}><Story /></QueryClientProvider>;
-    }],
+    decorators: [
+        (Story) => {
+            const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+            void client.fetchQuery({ queryKey: ["blog"], queryFn: () => new Promise(() => {}) });
+            client.setQueryData(["blogThumbNail"], []);
+            return (
+                <QueryClientProvider client={client}>
+                    <Story />
+                </QueryClientProvider>
+            );
+        },
+    ],
 };

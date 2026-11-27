@@ -14,7 +14,15 @@ export const locale: Record<RenderLocale, WeeklyActivityCopy> = {
         title: "Weekly activity",
         detail: "Default branch commit frequency",
         empty: "No commit history available",
-        weekday: { Mon: "Mon", Tue: "Tue", Wed: "Wed", Thu: "Thu", Fri: "Fri", Sat: "Sat", Sun: "Sun" },
+        weekday: {
+            Mon: "Mon",
+            Tue: "Tue",
+            Wed: "Wed",
+            Thu: "Thu",
+            Fri: "Fri",
+            Sat: "Sat",
+            Sun: "Sun",
+        },
     },
     ko: {
         eyebrow: "커밋 리듬",

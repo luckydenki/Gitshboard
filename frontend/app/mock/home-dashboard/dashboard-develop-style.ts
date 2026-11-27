@@ -8,6 +8,14 @@ export const weeklyActivityMock = [
     { day: "일", count: 7 },
 ];
 
+export const languageUsageMock = [
+    { language: "TypeScript", percentage: 42, color: "#3178c6" },
+    { language: "JavaScript", percentage: 25, color: "#b89b00" },
+    { language: "Python", percentage: 15, color: "#3572a5" },
+    { language: "CSS", percentage: 8, color: "#663399" },
+    { language: "HTML", percentage: 6, color: "#e34c26" },
+];
+
 export const workTypesMock = [
     { label: "기능 추가", count: 14, color: "bg-primary" },
     { label: "버그 수정", count: 9, color: "bg-primary/75" },
@@ -33,13 +41,6 @@ export const developStyleTopPanelsMock: Array<{
         id: "2",
         title: "주 관심사",
         description: "주요 관심 기술 top 3",
-        from: "2025-10-17",
-        to: "2026-10-17",
-    },
-    {
-        id: "3",
-        title: "주 사용 언어",
-        description: "자주 사용하는 언어 top 5",
         from: "2025-10-17",
         to: "2026-10-17",
     },
@@ -77,3 +78,30 @@ export const developStyleSummaryMock = {
     pullRequestCount: 34,
     primaryWorkType: "기능 추가",
 };
+
+export const hourlyActivityMock = [
+    { hour: 0, count: 3 },
+    { hour: 1, count: 2 },
+    { hour: 2, count: 1 },
+    { hour: 3, count: 0 },
+    { hour: 4, count: 0 },
+    { hour: 5, count: 0 },
+    { hour: 6, count: 1 },
+    { hour: 7, count: 2 },
+    { hour: 8, count: 3 },
+    { hour: 9, count: 5 },
+    { hour: 10, count: 7 },
+    { hour: 11, count: 6 },
+    { hour: 12, count: 4 },
+    { hour: 13, count: 5 },
+    { hour: 14, count: 8 },
+    { hour: 15, count: 9 },
+    { hour: 16, count: 8 },
+    { hour: 17, count: 6 },
+    { hour: 18, count: 4 },
+    { hour: 19, count: 3 },
+    { hour: 20, count: 4 },
+    { hour: 21, count: 5 },
+    { hour: 22, count: 7 },
+    { hour: 23, count: 5 },
+];

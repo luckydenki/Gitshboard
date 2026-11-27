@@ -1,6 +1,6 @@
-import type { GithubRepositoryResponse } from "~/types/GithubInfo";
+import type { GithubRepositoryResponse } from "~/types/github-info";
 import useManagedKeyQuery from "../useManagedKeyQuery";
-import { QueryKeys } from "~/types/query-key-enum";
+import { QueryKeys } from "~/types/queryKey/query-key-enum";
 import CommonError from "~/utils/common/common-error";
 
 export function useDashboardData() {
